@@ -1,0 +1,74 @@
+{
+  "name": "yn-web-component",
+  "version": "0.0.0",
+  "description": "A Web Components library built with Lit.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./define": {
+      "types": "./dist/types/define.d.ts",
+      "import": "./dist/define.js",
+      "require": "./dist/define.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:browser": "web-test-runner --config web-test-runner.config.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "keywords": [
+    "web-components",
+    "lit",
+    "component-library"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.17.1",
+  "dependencies": {
+    "lit": "^3.3.2"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "@eslint/js": "^10.0.1",
+    "@open-wc/testing": "^4.0.0",
+    "@storybook/addon-essentials": "8.6.14",
+    "@storybook/addon-interactions": "8.6.14",
+    "@storybook/web-components": "8.6.14",
+    "@storybook/web-components-vite": "^8.6.14",
+    "@web/test-runner": "^0.20.2",
+    "@web/test-runner-playwright": "^0.11.1",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^10.3.0",
+    "globals": "^17.6.0",
+    "happy-dom": "^20.9.0",
+    "playwright": "^1.59.1",
+    "postcss": "^8.5.14",
+    "prettier": "^3.8.3",
+    "storybook": "^8.6.14",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.2",
+    "vite": "^6.4.1",
+    "vitest": "^4.1.5"
+  }
+}
