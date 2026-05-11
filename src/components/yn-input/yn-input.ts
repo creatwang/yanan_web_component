@@ -1,6 +1,6 @@
 import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import tailwindStyles from "../styles/tailwind.css?inline";
+import tailwindStyles from "../../styles/tailwind.css?inline";
 
 @customElement("yn-input")
 export class YnInput extends LitElement {
