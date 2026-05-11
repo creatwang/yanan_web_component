@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG S1 Hover To S2</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #042d2b;
+      font-family: Arial, sans-serif;
+    }
+
+    .demo {
+      padding: 24px;
+    }
+
+    .meta-btn {
+      --label-shift: 0px;
+      width: auto;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    .meta-btn.is-ready {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity 0.18s ease-out;
+    }
+
+    .meta-btn:focus-visible {
+      outline: 2px solid #ddd967;
+      outline-offset: 4px;
+      border-radius: 14px;
+    }
+
+    #s1 {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .meta-btn-content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 44px auto;
+      align-items: center;
+      height: 44px;
+      color: #241f21;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 13px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .icon-slot {
+      display: grid;
+      place-items: center;
+      font-size: 17px;
+      transform: translateY(-1px);
+      transform-origin: center;
+      transition: transform 0.35s cubic-bezier(0.12, 1.2, 0.16, 2.35);
+    }
+
+    .label-slot {
+      display: inline-block;
+      width: max-content;
+      padding-left: 16px;
+      padding-right: 16px;
+      transform: translateX(var(--label-shift));
+      will-change: transform;
+    }
+
+    #s1 path {
+      fill: #ddd967;
+    }
+  </style>
+</head>
+<body>
+  <section class="demo">
+    <button class="meta-btn" type="button" aria-label="Urban">
+      <svg id="s1" viewBox="0 0 212.734375 44" data-meta-row-shape="">
+        <path data-meta-row-shape-bridges="" d=" M42.75013260311587 34.285465394875644 C43.424133718956945 33.28423269075047, 44.48534482073453 33.263941321191766, 45.158330170635864 34.25913785534732 L45.15396508018724 9.731694624586687 C44.48133399840202 10.727130634882421, 43.42011606449313 10.7090322585673, 42.7457586173753 9.708039518592857 Z "></path>
+        <path data-meta-row-rect="0" d="M0 14.96 A14.96 14.96 0 0 1 14.96 0 L29.04 0 A14.96 14.96 0 0 1 44 14.96 L44 29.04 A14.96 14.96 0 0 1 29.04 44 L14.96 44 A14.96 14.96 0 0 1 0 29.04  Z"></path>
+        <path data-meta-row-rect="1" d="M44 14.984687500000001 A14.890937500000001 14.890937500000001 0 0 1 58.8909375 0.09375 L197.8434375 0.09375 A14.890937500000001 14.890937500000001 0 0 1 212.734375 14.984687500000001 L212.734375 28.9996875 A14.890937500000001 14.890937500000001 0 0 1 197.8434375 43.890625 L58.8909375 43.890625 A14.890937500000001 14.890937500000001 0 0 1 44 28.9996875  Z"></path>
+      </svg>
+      <span class="meta-btn-content" aria-hidden="true">
+        <span class="icon-slot">↗</span>
+        <span class="label-slot">张三的按钮</span>
+      </span>
+    </button>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script>
+    const hasGSAP = typeof window.gsap !== "undefined";
+    const hasMutationObserver = typeof window.MutationObserver !== "undefined";
+
+    const s1 = document.getElementById("s1");
+    const button = document.querySelector(".meta-btn");
+    const icon = button.querySelector(".icon-slot");
+    const label = button.querySelector(".label-slot");
+
+    const fromBridge = s1.querySelector("[data-meta-row-shape-bridges]");
+    const fromRect1 = s1.querySelector("[data-meta-row-rect='1']");
+
+    const dBridgeStart = fromBridge.getAttribute("d");
+    let dRectStart = fromRect1.getAttribute("d");
+    const dBridgeEnd = " M42.1814778892636 35.09065848807777 C47.49944227161789 27.90771427422287, 56.414837380051594 27.91013134033726, 61.719959214441865 35.05123287497162 L61.716553253203436 8.937728059883264 C56.41329441434088 16.08021323618624, 47.497900413271594 16.086286333226607, 42.17806248181745 8.904729598478763 Z ";
+    let dRectEnd = "M60 14.984687500000001 A14.890937500000001 14.890937500000001 0 0 1 74.8909375 0.09375 L213.8434375 0.09375 A14.890937500000001 14.890937500000001 0 0 1 228.734375 14.984687500000001 L228.734375 28.9996875 A14.890937500000001 14.890937500000001 0 0 1 213.8434375 43.890625 L74.8909375 43.890625 A14.890937500000001 14.890937500000001 0 0 1 60 28.9996875  Z";
+
+    let widthStart = 212.734375;
+    let widthEnd = 228.734375;
+    const rectStartXBase = 44;
+    const rectStartXHover = 60;
+    const state = { progress: 0 };
+    const numRe = /-?\d*\.?\d+(?:e[-+]?\d+)?/gi;
+
+    function buildRectPath(startX, totalWidth) {
+      const r = 14.8909375;
+      const yTop = 0.09375;
+      const yArcTop = 14.9846875;
+      const yArcBottom = 28.9996875;
+      const yBottom = 43.890625;
+      const leftInner = startX + r;
+      const rightInner = totalWidth - r;
+      return `M${startX} ${yArcTop} A${r} ${r} 0 0 1 ${leftInner} ${yTop} L${rightInner} ${yTop} A${r} ${r} 0 0 1 ${totalWidth} ${yArcTop} L${totalWidth} ${yArcBottom} A${r} ${r} 0 0 1 ${rightInner} ${yBottom} L${leftInner} ${yBottom} A${r} ${r} 0 0 1 ${startX} ${yArcBottom}  Z`;
+    }
+
+    function morphPath(fromD, toD, t) {
+      const fromNums = fromD.match(numRe).map(Number);
+      const toNums = toD.match(numRe).map(Number);
+      if (fromNums.length !== toNums.length) return t < 0.5 ? fromD : toD;
+      let idx = 0;
+      return fromD.replace(numRe, () => {
+        const v = fromNums[idx] + (toNums[idx] - fromNums[idx]) * t;
+        idx += 1;
+        return Number(v.toFixed(6)).toString();
+      });
+    }
+
+    function render(progress) {
+      fromBridge.setAttribute("d", morphPath(dBridgeStart, dBridgeEnd, progress));
+      fromRect1.setAttribute("d", morphPath(dRectStart, dRectEnd, progress));
+      const w = widthStart + (widthEnd - widthStart) * progress;
+      const rectStartX = rectStartXBase + (rectStartXHover - rectStartXBase) * progress;
+      s1.setAttribute("viewBox", `0 0 ${w} 44`);
+      button.style.width = `${w}px`;
+      button.style.setProperty("--label-shift", `${rectStartX - rectStartXBase}px`);
+    }
+
+    function syncButtonWidthToContent() {
+      widthStart = 44 + label.scrollWidth;
+      widthEnd = widthStart + 16;
+      dRectStart = buildRectPath(rectStartXBase, widthStart);
+      dRectEnd = buildRectPath(rectStartXHover, widthEnd);
+      render(state.progress);
+    }
+
+    function playTo(next) {
+      if (!hasGSAP) {
+        state.progress = next;
+        render(state.progress);
+        return;
+      }
+      window.gsap.killTweensOf(state);
+      window.gsap.to(state, {
+        progress: next,
+        duration: 0.45,
+        ease: "power3.out",
+        onUpdate: () => render(state.progress)
+      });
+    }
+
+    function animateIconScale(scale, duration, ease) {
+      if (!hasGSAP) {
+        icon.style.transform = scale === 1 ? "translateY(-1px)" : `translateY(-1px) scale(${scale})`;
+        return;
+      }
+      window.gsap.to(icon, { scale, duration, ease });
+    }
+
+    button.addEventListener("mouseenter", () => playTo(1));
+    button.addEventListener("mouseleave", () => playTo(0));
+    button.addEventListener("mouseenter", () => animateIconScale(1.07, 0.32, "back.out(1.6)"));
+    button.addEventListener("mouseleave", () => animateIconScale(1, 0.26, "power2.out"));
+
+    window.addEventListener("resize", syncButtonWidthToContent);
+
+    if (hasMutationObserver) {
+      const contentObserver = new MutationObserver(syncButtonWidthToContent);
+      contentObserver.observe(label, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
+    }
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(syncButtonWidthToContent);
+    }
+
+    requestAnimationFrame(() => {
+      syncButtonWidthToContent();
+      button.classList.add("is-ready");
+    });
+  </script>
+</body>
+</html>
