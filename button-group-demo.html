@@ -119,6 +119,7 @@
   <script>
     const hasGSAP = typeof window.gsap !== "undefined";
     const hasMutationObserver = typeof window.MutationObserver !== "undefined";
+    const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const s1 = document.getElementById("s1");
     const button = document.querySelector(".meta-btn");
@@ -138,6 +139,22 @@
     const rectStartXHover = 60;
     const state = { progress: 0 };
     const numRe = /-?\d*\.?\d+(?:e[-+]?\d+)?/gi;
+    let bridgeFromNums = [];
+    let bridgeToNums = [];
+    let rectFromNums = [];
+    let rectToNums = [];
+
+    function extractNumbers(pathD) {
+      const matches = pathD.match(numRe) || [];
+      return matches.map(Number);
+    }
+
+    function refreshInterpolationCaches() {
+      bridgeFromNums = extractNumbers(dBridgeStart);
+      bridgeToNums = extractNumbers(dBridgeEnd);
+      rectFromNums = extractNumbers(dRectStart);
+      rectToNums = extractNumbers(dRectEnd);
+    }
 
     function buildRectPath(startX, totalWidth) {
       const r = 14.8909375;
@@ -150,12 +167,10 @@
       return `M${startX} ${yArcTop} A${r} ${r} 0 0 1 ${leftInner} ${yTop} L${rightInner} ${yTop} A${r} ${r} 0 0 1 ${totalWidth} ${yArcTop} L${totalWidth} ${yArcBottom} A${r} ${r} 0 0 1 ${rightInner} ${yBottom} L${leftInner} ${yBottom} A${r} ${r} 0 0 1 ${startX} ${yArcBottom}  Z`;
     }
 
-    function morphPath(fromD, toD, t) {
-      const fromNums = fromD.match(numRe).map(Number);
-      const toNums = toD.match(numRe).map(Number);
-      if (fromNums.length !== toNums.length) return t < 0.5 ? fromD : toD;
+    function morphPath(templateD, fromNums, toNums, t) {
+      if (fromNums.length !== toNums.length) return t < 0.5 ? templateD : templateD;
       let idx = 0;
-      return fromD.replace(numRe, () => {
+      return templateD.replace(numRe, () => {
         const v = fromNums[idx] + (toNums[idx] - fromNums[idx]) * t;
         idx += 1;
         return Number(v.toFixed(6)).toString();
@@ -163,8 +178,8 @@
     }
 
     function render(progress) {
-      fromBridge.setAttribute("d", morphPath(dBridgeStart, dBridgeEnd, progress));
-      fromRect1.setAttribute("d", morphPath(dRectStart, dRectEnd, progress));
+      fromBridge.setAttribute("d", morphPath(dBridgeStart, bridgeFromNums, bridgeToNums, progress));
+      fromRect1.setAttribute("d", morphPath(dRectStart, rectFromNums, rectToNums, progress));
       const w = widthStart + (widthEnd - widthStart) * progress;
       s1.setAttribute("viewBox", `0 0 ${w} 44`);
     }
@@ -174,11 +189,12 @@
       widthEnd = widthStart + 16;
       dRectStart = buildRectPath(rectStartXBase, widthStart);
       dRectEnd = buildRectPath(rectStartXHover, widthEnd);
+      refreshInterpolationCaches();
       render(state.progress);
     }
 
     function playTo(next) {
-      if (!hasGSAP) {
+      if (!hasGSAP || prefersReducedMotion) {
         state.progress = next;
         render(state.progress);
         return;
@@ -192,15 +208,10 @@
       });
     }
 
-    let lastHoverTarget = -1;
-    function syncHoverAnimation() {
-      const target = button.matches(":hover") ? 1 : 0;
-      if (target !== lastHoverTarget) {
-        lastHoverTarget = target;
-        playTo(target);
-      }
-      requestAnimationFrame(syncHoverAnimation);
-    }
+    button.addEventListener("pointerenter", () => playTo(1));
+    button.addEventListener("pointerleave", () => playTo(0));
+    button.addEventListener("focusin", () => playTo(1));
+    button.addEventListener("focusout", () => playTo(0));
 
     window.addEventListener("resize", syncButtonWidthToContent);
 
@@ -220,7 +231,6 @@
     requestAnimationFrame(() => {
       syncButtonWidthToContent();
       button.classList.add("is-ready");
-      syncHoverAnimation();
     });
   </script>
 </body>
