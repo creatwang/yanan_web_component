@@ -19,7 +19,6 @@
     }
 
     .meta-btn {
-      --label-shift: 0px;
       width: auto;
       height: 44px;
       padding: 0;
@@ -56,8 +55,7 @@
     .meta-btn-content {
       position: relative;
       z-index: 2;
-      display: grid;
-      grid-template-columns: 44px auto;
+      display: flex;
       align-items: center;
       height: 44px;
       color: #241f21;
@@ -70,21 +68,31 @@
     }
 
     .icon-slot {
-      display: grid;
-      place-items: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 44px;
       font-size: 17px;
       transform: translateY(-1px);
+      margin-right: 0;
       transform-origin: center;
-      transition: transform 0.35s cubic-bezier(0.12, 1.2, 0.16, 2.35);
+      transition: transform 0.35s cubic-bezier(0.12, 1.2, 0.16, 2.35), margin-right 0.45s cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    .meta-btn:hover .icon-slot {
+      transform: translateY(-1px) scale(1.07);
     }
 
     .label-slot {
       display: inline-block;
+      flex: 0 0 auto;
       width: max-content;
       padding-left: 16px;
       padding-right: 16px;
-      transform: translateX(var(--label-shift));
-      will-change: transform;
+    }
+
+    .meta-btn:hover .icon-slot {
+      margin-right: 16px;
     }
 
     #s1 path {
@@ -114,7 +122,6 @@
 
     const s1 = document.getElementById("s1");
     const button = document.querySelector(".meta-btn");
-    const icon = button.querySelector(".icon-slot");
     const label = button.querySelector(".label-slot");
 
     const fromBridge = s1.querySelector("[data-meta-row-shape-bridges]");
@@ -159,14 +166,11 @@
       fromBridge.setAttribute("d", morphPath(dBridgeStart, dBridgeEnd, progress));
       fromRect1.setAttribute("d", morphPath(dRectStart, dRectEnd, progress));
       const w = widthStart + (widthEnd - widthStart) * progress;
-      const rectStartX = rectStartXBase + (rectStartXHover - rectStartXBase) * progress;
       s1.setAttribute("viewBox", `0 0 ${w} 44`);
-      button.style.width = `${w}px`;
-      button.style.setProperty("--label-shift", `${rectStartX - rectStartXBase}px`);
     }
 
     function syncButtonWidthToContent() {
-      widthStart = 44 + label.scrollWidth;
+      widthStart = Math.ceil(44 + label.scrollWidth);
       widthEnd = widthStart + 16;
       dRectStart = buildRectPath(rectStartXBase, widthStart);
       dRectEnd = buildRectPath(rectStartXHover, widthEnd);
@@ -188,18 +192,15 @@
       });
     }
 
-    function animateIconScale(scale, duration, ease) {
-      if (!hasGSAP) {
-        icon.style.transform = scale === 1 ? "translateY(-1px)" : `translateY(-1px) scale(${scale})`;
-        return;
+    let lastHoverTarget = -1;
+    function syncHoverAnimation() {
+      const target = button.matches(":hover") ? 1 : 0;
+      if (target !== lastHoverTarget) {
+        lastHoverTarget = target;
+        playTo(target);
       }
-      window.gsap.to(icon, { scale, duration, ease });
+      requestAnimationFrame(syncHoverAnimation);
     }
-
-    button.addEventListener("mouseenter", () => playTo(1));
-    button.addEventListener("mouseleave", () => playTo(0));
-    button.addEventListener("mouseenter", () => animateIconScale(1.07, 0.32, "back.out(1.6)"));
-    button.addEventListener("mouseleave", () => animateIconScale(1, 0.26, "power2.out"));
 
     window.addEventListener("resize", syncButtonWidthToContent);
 
@@ -219,6 +220,7 @@
     requestAnimationFrame(() => {
       syncButtonWidthToContent();
       button.classList.add("is-ready");
+      syncHoverAnimation();
     });
   </script>
 </body>
