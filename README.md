@@ -246,6 +246,30 @@ import "yn-web-component/define";
 import { YnButton, YnInput } from "yn-web-component";
 ```
 
+### 9.3 `yn-navigation`（Header / SEO 推荐用法）
+
+`yn-navigation` 默认 `seoMode=false`。当你需要放在 `header` 做 SEO 导航时，请显式设置 `seoMode=true`，组件会渲染为语义化导航结构（`nav > ul > li > a`）。
+
+```html
+<yn-navigation
+  .seoMode=${true}
+  .items=${{ Home: "/home", Products: "/products", Journal: "/journal" }}
+  aria-label="Primary navigation"
+></yn-navigation>
+```
+
+说明：
+
+- `seoMode: boolean`：默认 `false`。  
+  - `true`：`items` 必须是对象（如 `{ Home: "/home", Products: "/products" }`），`key` 是展示文案、`value` 是 `href`。组件按当前 URL `pathname` 是否包含 `value` 来判定选中态；此模式不使用 `change/active` 控制。
+  - `false`：`items` 仍是对象（如 `{ Home: "/home", Products: "/products" }`），进入受控模式。
+- `active: string`：仅 `seoMode=false` 时生效，表示当前选中项。
+- `change` 事件：仅 `seoMode=false` 时触发，`event.detail` 为 `{ key, node }`：  
+  - `key`：当前点击项的 label（例如 `"Products"`）  
+  - `node`：完整的导航对象（例如 `{ Home: "/home", Products: "/products" }`）  
+  组件不会自动修改 `active`，需要在事件回调里由外部更新。
+- `aria-label`：导航区域语义标签（建议按页面语义命名）。
+
 ---
 
 ## 10. 后续演进建议
