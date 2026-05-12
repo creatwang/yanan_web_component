@@ -132,7 +132,7 @@ export class YnIconConnectButton extends LitElement {
   }
 
   protected updated(changedProperties: PropertyValues<this>) {
-    if (changedProperties.has("label") || changedProperties.has("size") || changedProperties.has("disabled")) {
+    if (changedProperties.has("label") || changedProperties.has("size") || changedProperties.has("disabled") || changedProperties.has("link")) {
       requestAnimationFrame(() => this.syncShapeToContent());
     }
   }
