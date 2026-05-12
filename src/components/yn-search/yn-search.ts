@@ -43,7 +43,6 @@ export class YnSearch extends LitElement {
   @query("#internalDatalist")
   private internalDatalistEl!: HTMLDataListElement;
 
-  private hover = false;
   private shapeRaf = 0;
   private ready = false;
   private datalistObserver: MutationObserver | null = null;
@@ -55,12 +54,9 @@ export class YnSearch extends LitElement {
   private readonly RETRACT_X = 31.08;
   private readonly TRANSITION_SPLIT = 0.82;
   private readonly GAP = 10;
-  private readonly UI_TRANSITION_MS = 220;
-  private readonly UI_EASING = "cubic-bezier(0.4, 0, 1, 1)";
   private readonly easeOpen = this.cubicBezier(0.22, 0.01, 0.35, 1);
   private readonly easeClose = this.cubicBezier(0.55, 0.055, 0.675, 0.19);
 
-  private lastFill = "";
   private lastRectPath = "";
   private lastBridgePath = "";
   private lastDynamicTransform = "";
@@ -87,10 +83,13 @@ export class YnSearch extends LitElement {
     unsafeCSS(tailwindStyles),
     css`
       :host {
-        --bg-fill: rgba(255, 255, 255, 0);
-        --yn-search-icon-color: #241f21;
         --yn-search-bg-active: rgba(255, 255, 255, 0.96);
         --yn-search-bg-idle: rgba(255, 255, 255, 0);
+        --yn-search-icon-color: #241f21;
+        --yn-search-fill-duration: 220ms;
+        --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1);
+        --yn-search-icon-duration: 220ms;
+        --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1);
         display: inline-block;
       }
 
@@ -107,6 +106,13 @@ export class YnSearch extends LitElement {
       .search-shell {
         position: relative;
         height: 38px;
+        --bg-fill: var(--yn-search-bg-idle);
+      }
+
+      .search-shell.open,
+      .search-shell:has(.toggle-btn:hover),
+      .search-shell:has(.toggle-btn:focus-visible) {
+        --bg-fill: var(--yn-search-bg-active);
       }
 
       .left-shape {
@@ -304,12 +310,7 @@ export class YnSearch extends LitElement {
   }
 
   protected firstUpdated() {
-    this.shellEl?.style.setProperty("--yn-search-fill-duration", `${this.UI_TRANSITION_MS}ms`);
-    this.shellEl?.style.setProperty("--yn-search-fill-ease", this.UI_EASING);
-    this.shellEl?.style.setProperty("--yn-search-icon-duration", `${this.UI_TRANSITION_MS}ms`);
-    this.shellEl?.style.setProperty("--yn-search-icon-ease", this.UI_EASING);
     this.syncShell();
-    this.syncFill();
     if (this.open) {
       this.dynamicWrapEl.style.opacity = "1";
       this.dynamicWrapEl.style.visibility = "visible";
@@ -370,19 +371,9 @@ export class YnSearch extends LitElement {
     }
     if (changed.has("open")) {
       this.syncShell();
-      this.syncFill();
       this.stopAnims();
       this.animateShape(this.open);
     }
-  }
-
-  private syncFill() {
-    const fill = this.open || this.hover ? "var(--yn-search-bg-active)" : "var(--yn-search-bg-idle)";
-    if (fill === this.lastFill) return;
-    this.lastFill = fill;
-    this.shellEl?.style.setProperty("--bg-fill", fill);
-    this.shapeEl?.style.setProperty("--bg-fill", fill);
-    this.leftShapeEl?.style.setProperty("--bg-fill", fill);
   }
 
   private syncShell() {
@@ -394,11 +385,6 @@ export class YnSearch extends LitElement {
       cancelAnimationFrame(this.shapeRaf);
       this.shapeRaf = 0;
     }
-  }
-
-  private setHover(hover: boolean) {
-    this.hover = hover;
-    this.syncFill();
   }
 
   private lerp(a: number, b: number, t: number) {
@@ -518,10 +504,6 @@ export class YnSearch extends LitElement {
     const duration = opening ? 620 : 500;
     const ease = opening ? this.easeOpen : this.easeClose;
     const start = performance.now();
-    this.shellEl?.style.setProperty("--yn-search-icon-duration", `${this.UI_TRANSITION_MS}ms`);
-    this.shellEl?.style.setProperty("--yn-search-icon-ease", this.UI_EASING);
-    this.shellEl?.style.setProperty("--yn-search-fill-duration", `${this.UI_TRANSITION_MS}ms`);
-    this.shellEl?.style.setProperty("--yn-search-fill-ease", this.UI_EASING);
     this.dynamicWrapEl.style.visibility = "visible";
 
     const tick = (now: number) => {
@@ -690,8 +672,6 @@ export class YnSearch extends LitElement {
           ?disabled=${this.disabled}
           aria-label=${this.open ? "close search" : "open search"}
           @click=${this.onToggle}
-          @mouseenter=${() => this.setHover(true)}
-          @mouseleave=${() => this.setHover(false)}
         >
           <svg class="icon search" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path

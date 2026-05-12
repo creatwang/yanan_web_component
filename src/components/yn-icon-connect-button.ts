@@ -1,6 +1,7 @@
 import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import tailwindStyles from "../styles/tailwind.css?inline";
 
 type ButtonSize = "mini" | "small" | "normal";
@@ -20,7 +21,10 @@ export class YnIconConnectButton extends LitElement {
   @property({ type: String }) label = "VER PRODUTOS URBAN";
   @property({ type: String, reflect: true }) size: ButtonSize = "normal";
   @property({ type: Boolean }) disabled = false;
-  @property({ type: String }) icon = "↗";
+  @property({ type: Boolean, reflect: true }) uppercase = true;
+  @property({ type: String }) link = "";
+  @property({ type: String }) icon =
+    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6208 6.8H14.6611L16.0324 4.51728C16.1311 4.35247 16.1311 4.14705 16.0324 3.98225L14.6611 1.69953H10.6208C10.3337 1.69953 10.1013 1.46719 10.1013 1.18008V0H8.40133V6.28055C8.40133 6.56767 8.16899 6.8 7.88188 6.8H3.44535L2.07402 9.08272C1.97533 9.24753 1.97533 9.45294 2.07402 9.61775L3.44535 11.9005H7.88188C8.16899 11.9005 8.40133 12.1328 8.40133 12.4199V15.3005H2.45133V17.0005H16.0513V15.3005H10.6208C10.3337 15.3005 10.1013 15.0681 10.1013 14.781V7.31991C10.1013 7.0328 10.3337 6.80047 10.6208 6.80047V6.8ZM13.6992 3.4L14.1294 4.11636C14.179 4.19853 14.179 4.30147 14.1294 4.38364L13.6992 5.1H10.1013V3.4H13.6992ZM4.40727 10.2L3.97708 9.48364C3.92749 9.40147 3.92749 9.29853 3.97708 9.21589L4.40727 8.49953H8.4018V10.1995H4.40727V10.2Z" fill="#241F21"/></svg>';
 
   static styles = [
     unsafeCSS(tailwindStyles),
@@ -42,9 +46,11 @@ export class YnIconConnectButton extends LitElement {
         contain: layout paint;
         color: var(--yn-icon-connect-button-color, #241f21);
         width: max-content;
+        text-decoration: none;
       }
 
-      .btn:disabled {
+      .btn:disabled,
+      .btn.is-disabled {
         cursor: not-allowed;
         opacity: 0.6;
         pointer-events: none;
@@ -104,12 +110,12 @@ export class YnIconConnectButton extends LitElement {
       .label {
         font-weight: 700;
         letter-spacing: 0.03em;
-        text-transform: uppercase;
+        text-transform: var(--yn-icon-connect-button-text-transform, uppercase);
         line-height: 1;
       }
 
-      .btn:not(:disabled):hover .icon,
-      .btn:not(:disabled):focus-visible .icon {
+      .btn:not(:disabled):not(.is-disabled):hover .icon,
+      .btn:not(:disabled):not(.is-disabled):focus-visible .icon {
         transform: translateY(-1px) scale(1.12);
         margin-right: var(--icon-gap-hover, 16px);
       }
@@ -198,7 +204,7 @@ export class YnIconConnectButton extends LitElement {
   }
 
   private syncShapeToContent() {
-    const btn = this.shadowRoot?.querySelector<HTMLButtonElement>(".btn");
+    const btn = this.shadowRoot?.querySelector<HTMLElement>(".btn");
     const svg = this.shadowRoot?.querySelector<SVGElement>(".svg");
     const labelEl = this.shadowRoot?.querySelector<HTMLElement>(".label");
     const leftRect = this.shadowRoot?.querySelector<SVGPathElement>("#leftRect");
@@ -239,17 +245,19 @@ export class YnIconConnectButton extends LitElement {
     rectOut.setAttribute("values", `${rectEnd};${rectStart}`);
   }
 
-  private handleClick() {
-    if (this.disabled) {
-      return;
+  private handleAnchorClick(event: MouseEvent) {
+    if (!this.disabled) return;
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  private renderIconFallback() {
+    const iconText = this.icon?.trim() ?? "";
+    if (!iconText) return html``;
+    if (iconText.startsWith("<svg")) {
+      return html`${unsafeSVG(iconText)}`;
     }
-    this.dispatchEvent(
-      new CustomEvent("yn-click", {
-        detail: { label: this.label, size: this.size },
-        bubbles: true,
-        composed: true
-      })
-    );
+    return html`${iconText}`;
   }
 
   render() {
@@ -260,17 +268,9 @@ export class YnIconConnectButton extends LitElement {
       --label-padding-x:${token.paddingX}px;
       --label-font-size:${token.fontSize}px;
       --icon-gap-hover:${token.hoverGap}px;
+      --yn-icon-connect-button-text-transform:${this.uppercase ? "uppercase" : "none"};
     `;
-    return html`
-      <button
-        id="btn"
-        class="btn"
-        style=${hostStyle}
-        type="button"
-        ?disabled=${this.disabled}
-        @click=${this.handleClick}
-        aria-label=${this.label}
-      >
+    const content = html`
         <span class="svg-wrap">
           <svg class="svg" viewBox="0 0 220 44" preserveAspectRatio="none" aria-hidden="true">
             <path id="bridge" d=""></path>
@@ -331,15 +331,41 @@ export class YnIconConnectButton extends LitElement {
         </span>
         <span class="content" aria-hidden="true" style=${`height:${token.height}px;`}>
           <span class="icon" style=${`width:${token.iconSize}px;`}>
-            <svg class="icon-svg" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-              <path
-                d="M10.6208 6.8H14.6611L16.0324 4.51728C16.1311 4.35247 16.1311 4.14705 16.0324 3.98225L14.6611 1.69953H10.6208C10.3337 1.69953 10.1013 1.46719 10.1013 1.18008V0H8.40133V6.28055C8.40133 6.56767 8.16899 6.8 7.88188 6.8H3.44535L2.07402 9.08272C1.97533 9.24753 1.97533 9.45294 2.07402 9.61775L3.44535 11.9005H7.88188C8.16899 11.9005 8.40133 12.1328 8.40133 12.4199V15.3005H2.45133V17.0005H16.0513V15.3005H10.6208C10.3337 15.3005 10.1013 15.0681 10.1013 14.781V7.31991C10.1013 7.0328 10.3337 6.80047 10.6208 6.80047V6.8ZM13.6992 3.4L14.1294 4.11636C14.179 4.19853 14.179 4.30147 14.1294 4.38364L13.6992 5.1H10.1013V3.4H13.6992ZM4.40727 10.2L3.97708 9.48364C3.92749 9.40147 3.92749 9.29853 3.97708 9.21589L4.40727 8.49953H8.4018V10.1995H4.40727V10.2Z"
-                fill="#241F21"
-              />
-            </svg>
+            <slot name="icon">${this.renderIconFallback()}</slot>
           </span>
-          <span class="label" style=${`padding:0 ${token.paddingX}px;font-size:${token.fontSize}px;`}>${this.label}</span>
+          <span class="label" style=${`padding:0 ${token.paddingX}px;font-size:${token.fontSize}px;`}>
+            <slot name="label">${this.label}</slot>
+          </span>
         </span>
+    `;
+
+    if (this.link) {
+      return html`
+        <a
+          id="btn"
+          class=${`btn ${this.disabled ? "is-disabled" : ""}`}
+          style=${hostStyle}
+          href=${this.link}
+          aria-label=${this.label}
+          aria-disabled=${this.disabled ? "true" : "false"}
+          tabindex=${this.disabled ? "-1" : "0"}
+          @click=${this.handleAnchorClick}
+        >
+          ${content}
+        </a>
+      `;
+    }
+
+    return html`
+      <button
+        id="btn"
+        class="btn"
+        style=${hostStyle}
+        type="button"
+        ?disabled=${this.disabled}
+        aria-label=${this.label}
+      >
+        ${content}
       </button>
     `;
   }
