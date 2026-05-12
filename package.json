@@ -5,6 +5,8 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "unpkg": "./dist/index.iife.js",
+  "jsdelivr": "./dist/index.iife.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
@@ -16,6 +18,37 @@
       "types": "./dist/types/define.d.ts",
       "import": "./dist/define.js",
       "require": "./dist/define.cjs"
+    },
+    "./components/yn-button": {
+      "types": "./dist/types/components/yn-button/yn-button.d.ts",
+      "import": "./dist/components/yn-button.js",
+      "require": "./dist/components/yn-button.cjs"
+    },
+    "./components/yn-input": {
+      "types": "./dist/types/components/yn-input/yn-input.d.ts",
+      "import": "./dist/components/yn-input.js",
+      "require": "./dist/components/yn-input.cjs"
+    },
+    "./components/yn-navigation": {
+      "types": "./dist/types/components/yn-navigation/yn-navigation.d.ts",
+      "import": "./dist/components/yn-navigation.js",
+      "require": "./dist/components/yn-navigation.cjs"
+    },
+    "./components/yn-search": {
+      "types": "./dist/types/components/yn-search/yn-search.d.ts",
+      "import": "./dist/components/yn-search.js",
+      "require": "./dist/components/yn-search.cjs"
+    },
+    "./components/yn-icon-connect-button": {
+      "types": "./dist/types/components/yn-icon-connect-button.d.ts",
+      "import": "./dist/components/yn-icon-connect-button.js",
+      "require": "./dist/components/yn-icon-connect-button.cjs"
+    },
+    "./umd": {
+      "default": "./dist/index.umd.js"
+    },
+    "./iife": {
+      "default": "./dist/index.iife.js"
     }
   },
   "files": [
@@ -23,7 +56,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -482,12 +482,9 @@ export class YnSearch extends LitElement {
   }
 
   private syncInputToShape(t: number, opening: boolean, rectWidth = 0) {
-    let p = 0;
-    if (opening) {
-      p = Math.max(0, Math.min(1, (rectWidth - 80) / 180));
-    } else {
-      p = Math.max(0, Math.min(1, (rectWidth - 220) / 180));
-    }
+    const p = opening
+      ? Math.max(0, Math.min(1, (rectWidth - 80) / 180))
+      : Math.max(0, Math.min(1, (rectWidth - 220) / 180));
     const nextOpacity = String(p);
     const nextTransform = `translateX(${this.lerp(-12, 0, p)}px)`;
     if (nextOpacity !== this.lastInputOpacity) {
@@ -509,8 +506,8 @@ export class YnSearch extends LitElement {
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
       const ep = ease(p);
-      let t = 0;
-      let x = 0;
+      let t: number;
+      let x: number;
 
       if (opening) {
         if (ep < this.TRANSITION_SPLIT) {

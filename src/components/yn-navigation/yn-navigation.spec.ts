@@ -77,8 +77,8 @@ describe("yn-navigation", () => {
     `);
     const nav = el.shadowRoot?.querySelector("nav.nav");
     const list = el.shadowRoot?.querySelector("ul.tabs");
-    expect(nav).to.exist;
-    expect(list).to.exist;
+    expect(nav).to.not.equal(null);
+    expect(list).to.not.equal(null);
   });
 
   it("renders links for seo mode with path items", async () => {

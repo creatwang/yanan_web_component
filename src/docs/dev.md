@@ -1,0 +1,358 @@
+# yn-web-component
+
+一个从零开始学习并实践的 Web Components 组件库项目。  
+目标是用现代工程化方式，构建一套可复用、可测试、可发布、可多端使用的组件体系。
+
+---
+
+## 1. 技术栈说明
+
+本项目当前技术栈如下：
+
+- **组件标准**：Web Components（Custom Elements + Shadow DOM）
+- **组件开发框架**：Lit
+- **开发语言**：TypeScript
+- **构建工具**：Vite（底层 Rollup 打包）
+- **样式方案**：TailwindCSS（配合组件内样式注入）
+- **单元测试**：Vitest + @open-wc/testing
+- **浏览器测试**：@web/test-runner + Playwright
+- **组件文档**：Storybook
+- **代码规范**：ESLint + Prettier
+- **版本发布**：Changesets
+- **包管理器**：pnpm
+
+为什么选这套：
+
+- 对 Web Components 支持完整，学习成本相对低
+- 工程化能力完整（开发、测试、文档、发布一条链）
+- 可以作为后续 React/Vue/Angular 封装层的基础组件内核
+
+---
+
+## 2. 从零学习建议路径
+
+如果你是从零开始，建议按下面顺序学习并实践：
+
+1. 先理解 Web Components 基础概念（自定义元素、Shadow DOM、属性和事件）
+2. 看 `yn-button` 和 `yn-input` 两个最小可用组件
+3. 学会如何写一个 `.spec.ts` 测试文件
+4. 学会如何写一个 `.stories.ts` 文档示例
+5. 熟悉 `pnpm dev / test / build / storybook`
+6. 再开始新组件开发（复制现有模板最快）
+
+---
+
+## 3. 快速进入开发
+
+### 3.1 安装与启动
+
+```bash
+pnpm install
+pnpm dev
+```
+
+访问：`http://localhost:5173`
+
+### 3.2 打开 Storybook 预览组件
+
+```bash
+pnpm storybook
+```
+
+访问：`http://localhost:6006`
+
+### 3.3 常用命令
+
+```bash
+pnpm dev
+pnpm build
+pnpm test
+pnpm test:browser
+pnpm lint
+pnpm format
+pnpm storybook
+pnpm changeset
+```
+
+---
+
+## 4. 当前目录结构
+
+```text
+src/
+  components/
+    yn-button.ts
+    yn-button.spec.ts
+    yn-button.stories.ts
+    yn-input.ts
+    yn-input.spec.ts
+    yn-input.stories.ts
+  styles/
+    tailwind.css
+  index.ts
+  define.ts
+.storybook/
+  main.ts
+  preview.ts
+```
+
+说明：
+
+- `*.ts`：组件实现
+- `*.spec.ts`：测试
+- `*.stories.ts`：Storybook 示例与文档
+- `index.ts`：按需导出
+- `define.ts`：统一注册自定义元素
+
+---
+
+## 5. 开发规范（团队约定）
+
+### 5.1 命名规范
+
+- 所有组件标签统一前缀：`yn-*`
+- 组件类名：`YnXxx`，例如 `YnButton`
+- 文件命名：`yn-xxx.ts / yn-xxx.spec.ts / yn-xxx.stories.ts`
+- 事件命名按语义优先：优先使用原生事件（如 `click`、`input`），仅在确有必要时再定义自定义事件。
+
+### 5.2 组件设计规范
+
+- 优先使用属性（property）作为输入
+- 对外状态变化通过自定义事件抛出
+- 避免把业务逻辑耦合在组件内部
+- 样式尽量通过 CSS Variables 留扩展口
+
+### 5.3 代码质量规范
+
+- 开发完成至少保证：`lint + typecheck + test + build` 全通过
+- 每个新组件至少包含：
+  - 1 个基础渲染测试
+  - 1 个交互事件测试
+  - 1 个 Storybook 示例
+
+---
+
+## 6. 标准开发流程（新组件）
+
+以 `yn-select` 为例：
+
+1. 新建 `src/components/yn-select.ts`
+2. 实现组件属性、事件、样式、渲染
+3. 新建 `src/components/yn-select.spec.ts`
+4. 新建 `src/components/yn-select.stories.ts`
+5. 在 `src/index.ts` 导出组件类
+6. 在 `src/define.ts` 注册组件
+7. 运行：
+   - `pnpm lint`
+   - `pnpm typecheck`
+   - `pnpm test`
+   - `pnpm build`
+8. 通过后再提交变更
+
+---
+
+## 7. 懒加载如何实现
+
+懒加载核心目标：**只在需要时才加载和注册组件代码**，减少首屏包体积。
+
+### 7.1 方案 A：按路由/页面懒加载（推荐）
+
+在业务项目里动态导入：
+
+```ts
+await import("yn-web-component/define");
+```
+
+或按组件分包（推荐未来在库里暴露更细粒度入口）：
+
+```ts
+await import("yn-web-component/components/yn-input");
+```
+
+实现原理：
+
+- 打包后按模块拆分 chunk
+- 运行时首次执行 `import()` 才请求对应 JS 文件
+- 浏览器下载并执行后完成 `customElements.define`
+
+### 7.2 方案 B：视口懒加载（IntersectionObserver）
+
+当页面中某个区域即将进入可视区时再加载组件：
+
+```ts
+const io = new IntersectionObserver(async (entries) => {
+  for (const entry of entries) {
+    if (entry.isIntersecting) {
+      await import("yn-web-component/define");
+      io.disconnect();
+    }
+  }
+});
+
+io.observe(document.querySelector("#lazy-area")!);
+```
+
+适合大页面、长列表、低频组件场景。
+
+### 7.3 底层注意点（防重复注册）
+
+动态加载时要避免重复 define：
+
+```ts
+if (!customElements.get("yn-input")) {
+  customElements.define("yn-input", YnInput);
+}
+```
+
+Lit 的 `@customElement` 装饰器会帮我们简化注册，但在多入口动态加载设计下，仍要注意“单次注册”原则。
+
+---
+
+## 8. 多端适配怎么做
+
+Web Components 天生跨框架，但“多端适配”通常要处理这几层：
+
+### 8.1 多框架适配（React/Vue/Angular）
+
+- 基础层：发布标准 Web Components（本项目已具备）
+- 适配层：按需增加 React/Vue wrapper（后续可扩展）
+- 事件映射：把 `yn-input` 这类自定义事件映射到框架习惯用法
+
+### 8.2 多终端适配（PC / 平板 / 移动）
+
+- 使用响应式尺寸（`rem` / `clamp` / 媒体查询）
+- 组件内部使用可覆盖的 CSS Variables
+- 保持触控区域足够大（最小点击区域建议 >= 40px）
+
+### 8.3 主题适配（明暗主题 / 品牌主题）
+
+- 抽离主题变量，如 `--yn-primary-color`
+- 组件内消费变量，不硬编码品牌色
+- 在应用侧统一注入主题变量
+
+---
+
+## 9. 作为库如何使用
+
+### 9.1 全量注册
+
+```ts
+import "yn-web-component/define";
+```
+
+### 9.2 按需导入类
+
+```ts
+import { YnButton, YnInput } from "yn-web-component";
+```
+
+### 9.2.1 组件级子路径导入（推荐，Tree Shaking 更友好）
+
+```ts
+import { YnSearch } from "yn-web-component/components/yn-search";
+import { YnNavigation } from "yn-web-component/components/yn-navigation";
+```
+
+建议：
+
+- 全量场景使用 `define` 入口；
+- 按需场景使用 `components/*` 子路径入口，减少无关代码进入业务包。
+
+### 9.2.2 浏览器 `<script>` 直引（UMD / IIFE）
+
+适合无打包器场景（静态站点、快速验证）：
+
+```html
+<script src="https://unpkg.com/lit@3/index.js?module"></script>
+<script src="https://unpkg.com/yn-web-component/dist/index.iife.js"></script>
+
+<yn-search></yn-search>
+```
+
+你也可以在自建 CDN 中直接托管并使用：
+
+- `dist/index.umd.js`
+- `dist/index.iife.js`
+
+### 9.3 `yn-navigation`（Header / SEO 推荐用法）
+
+`yn-navigation` 默认 `seoMode=false`。当你需要放在 `header` 做 SEO 导航时，请显式设置 `seoMode=true`，组件会渲染为语义化导航结构（`nav > ul > li > a`）。
+
+```html
+<yn-navigation
+  .seoMode=${true}
+  .items=${{ Home: "/home", Products: "/products", Journal: "/journal" }}
+  aria-label="Primary navigation"
+></yn-navigation>
+```
+
+说明：
+
+- `seoMode: boolean`：默认 `false`。  
+  - `true`：`items` 必须是对象（如 `{ Home: "/home", Products: "/products" }`），`key` 是展示文案、`value` 是 `href`。组件按当前 URL `pathname` 是否包含 `value` 来判定选中态；此模式不使用 `change/active` 控制。
+  - `false`：`items` 仍是对象（如 `{ Home: "/home", Products: "/products" }`），进入受控模式。
+- `active: string`：仅 `seoMode=false` 时生效，表示当前选中项。
+- `change` 事件：仅 `seoMode=false` 时触发，`event.detail` 为 `{ key, node }`：  
+  - `key`：当前点击项的 label（例如 `"Products"`）  
+  - `node`：完整的导航对象（例如 `{ Home: "/home", Products: "/products" }`）  
+  组件不会自动修改 `active`，需要在事件回调里由外部更新。
+- `aria-label`：导航区域语义标签（建议按页面语义命名）。
+
+### 9.4 包格式与导出
+
+当前发布产物包含：
+
+- ESM：`dist/index.js`
+- CJS：`dist/index.cjs`
+- UMD：`dist/index.umd.js`
+- IIFE：`dist/index.iife.js`
+- Types：`dist/types/*`
+
+并提供组件级子路径导出（用于 Tree Shaking）：
+
+- `yn-web-component/components/yn-button`
+- `yn-web-component/components/yn-input`
+- `yn-web-component/components/yn-navigation`
+- `yn-web-component/components/yn-search`
+- `yn-web-component/components/yn-icon-connect-button`
+
+---
+
+## 10. 后续演进建议
+
+建议下一阶段增加：
+
+- `yn-select`、`yn-modal`、`yn-table` 等常用组件
+- 组件公共基类（事件、主题、a11y 能力复用）
+- 更细粒度导出入口（强化按需加载）
+- CI（自动 lint/test/build）
+- 自动发布流程（Changesets + npm publish）
+
+---
+
+## 11. 新组件模板（快速复制）
+
+已提供模板目录：`templates/`
+
+- `templates/yn-template.ts`
+- `templates/yn-template.spec.ts`
+- `templates/yn-template.stories.ts`
+
+推荐使用方式：
+
+1. 复制三份模板到 `src/components/`
+2. 重命名为：
+   - `yn-xxx.ts`
+   - `yn-xxx.spec.ts`
+   - `yn-xxx.stories.ts`
+3. 全局替换：
+   - 标签名：`yn-template` -> `yn-xxx`
+   - 类名：`YnTemplate` -> `YnXxx`
+   - 事件名：`yn-template-click` -> `yn-xxx-change`（按语义命名）
+4. 在 `src/index.ts` 导出组件
+5. 在 `src/define.ts` 注册组件
+6. 执行质量检查：
+   - `pnpm lint`
+   - `pnpm typecheck`
+   - `pnpm test`
+   - `pnpm build`

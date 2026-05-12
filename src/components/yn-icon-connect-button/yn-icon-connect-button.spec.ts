@@ -11,12 +11,12 @@ describe("yn-icon-connect-button", () => {
     expect(label?.textContent?.trim()).to.equal("确认提交");
   });
 
-  it("emits yn-click event on click", async () => {
+  it("emits native click event on click", async () => {
     const el = await fixture<YnIconConnectButton>(html`
       <yn-icon-connect-button label="点击"></yn-icon-connect-button>
     `);
     let emitted = false;
-    el.addEventListener("yn-click", () => {
+    el.addEventListener("click", () => {
       emitted = true;
     });
 

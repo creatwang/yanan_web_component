@@ -5,6 +5,7 @@ import "./yn-button";
 type Args = {
   label: string;
   disabled: boolean;
+  click?: (event: MouseEvent) => void;
 };
 
 const meta = {

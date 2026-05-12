@@ -6,6 +6,8 @@ type Args = {
   value: string;
   placeholder: string;
   disabled: boolean;
+  input?: (event: InputEvent) => void;
+  change?: (event: Event) => void;
 };
 
 const meta = {
