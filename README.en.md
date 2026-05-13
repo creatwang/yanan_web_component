@@ -115,6 +115,44 @@ When `seoMode=true`, items render as anchor links and active state is resolved f
 ></yn-navigation>
 ```
 
+## Button theming recommendation (`variant` + CSS variables)
+
+For button components, we recommend a two-layer strategy:
+
+1. Semantic layer: use `variant` to express intent (`primary`, `danger`, etc.)
+2. Visual layer: use CSS variables to override concrete colors for branding/themes
+
+### 1) `yn-button` example
+
+```html
+<yn-button variant="primary">Save</yn-button>
+<yn-button variant="danger">Delete</yn-button>
+
+<!-- Local color overrides -->
+<yn-button
+  variant="success"
+  style="
+    --yn-button-bg: #22c55e;
+    --yn-button-hover-bg: #16a34a;
+  "
+>
+  Custom success color
+</yn-button>
+```
+
+Available CSS variables:
+
+- `--yn-button-bg`
+- `--yn-button-hover-bg`
+- `--yn-button-disabled-bg`
+- `--yn-button-disabled-color`
+
+Notes:
+
+- Components use Shadow DOM; external styles do not penetrate by default
+- Click interaction uses the native `click` event
+- Prefer `variant` for semantic consistency, then use CSS variables for theme-level customization
+
 ## Versions & compatibility
 
 ### Package outputs

@@ -127,6 +127,44 @@ import { YnNavigation } from "yn-web-component/components/yn-navigation";
 - `items` 的 `key` 为展示文案，`value` 为链接地址
 - `seoMode=false` 时可用 `active` + `change` 做受控切换
 
+## 按钮主题推荐用法（`variant` + CSS 变量）
+
+按钮组件推荐采用“两层控制”：
+
+1. 语义层：通过 `variant` 表达按钮语义（如 `primary`、`danger`）
+2. 视觉层：通过 CSS 变量覆盖具体色值，满足品牌主题定制
+
+### 1) `yn-button` 示例
+
+```html
+<yn-button variant="primary">保存</yn-button>
+<yn-button variant="danger">删除</yn-button>
+
+<!-- 局部覆盖颜色 -->
+<yn-button
+  variant="success"
+  style="
+    --yn-button-bg: #22c55e;
+    --yn-button-hover-bg: #16a34a;
+  "
+>
+  自定义成功色
+</yn-button>
+```
+
+可用 CSS 变量：
+
+- `--yn-button-bg`
+- `--yn-button-hover-bg`
+- `--yn-button-disabled-bg`
+- `--yn-button-disabled-color`
+
+说明：
+
+- 组件使用 Shadow DOM，外部样式默认不穿透
+- 点击事件使用原生 `click`
+- 推荐优先使用 `variant` 保持语义一致，再按需用 CSS 变量做主题覆盖
+
 ## 版本与兼容性
 
 ### 包格式
