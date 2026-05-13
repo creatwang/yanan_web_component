@@ -3,3 +3,5 @@ import "./components/yn-input/yn-input";
 import "./components/yn-icon-connect-button/yn-icon-connect-button";
 import "./components/yn-navigation/yn-navigation";
 import "./components/yn-search/yn-search";
+import "./components/yn-group-pick/yn-group-pick";
+import "./components/yn-pick/yn-pick";

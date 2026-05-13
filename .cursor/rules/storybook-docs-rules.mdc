@@ -16,6 +16,8 @@ alwaysApply: true
 - 事件名必须与组件真实派发事件一致（禁止写错或沿用旧事件名）。
 - 事件条目必须放在 `table.category: "Events"`。
 - 必须写清事件类型与参数结构（尤其 `CustomEvent.detail` 字段）。
+- 每个事件都必须在 `argTypes` 中配置 `action`（如 `action: "change"`），确保 Actions 面板可观测。
+- 示例模板必须显式绑定真实事件（如 `@change`/`@click`），并将事件或关键参数回传到 `args.<eventName>`，禁止只写文档不接线。
 
 ## 3) 插槽文档必须明确优先级
 - 组件有插槽时，必须在文档中增加 `Slots` 分类条目。
@@ -42,3 +44,37 @@ alwaysApply: true
 - 文档示例必须同时给出全量入口与按需入口，并明确推荐按需入口用于 Tree Shaking。
 - 组件入口与类型导出路径必须一一对应，保证按需导入可用。
 - 若改动构建配置，必须确保不会破坏组件级按需导入。
+
+## 8) 事件 Actions 统一模板（新组件直接复用）
+
+```ts
+type Args = {
+  onChange?: (event: CustomEvent<{ value: string }>) => void;
+};
+
+const meta = {
+  argTypes: {
+    onChange: {
+      name: "change",
+      control: false,
+      action: "change",
+      description: "值变化时触发。",
+      table: {
+        category: "Events",
+        type: { summary: "CustomEvent<{ value: string }>" }
+      }
+    }
+  }
+} satisfies Meta<Args>;
+
+export const Default: StoryObj<Args> = {
+  render: (args) => html`
+    <your-component
+      @change=${(event: Event) => args.onChange?.(event as CustomEvent<{ value: string }>)}
+    ></your-component>
+  `
+};
+```
+
+- 事件名、事件类型、`detail` 结构必须替换成组件真实实现。
+- 若需要“组件内部联动 + Actions 记录”，先执行内部联动，再调用 `args.<eventName>` 回传事件。

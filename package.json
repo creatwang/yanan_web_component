@@ -39,6 +39,16 @@
       "import": "./dist/components/yn-search.js",
       "require": "./dist/components/yn-search.cjs"
     },
+    "./components/yn-group-pick": {
+      "types": "./dist/types/components/yn-group-pick/yn-group-pick.d.ts",
+      "import": "./dist/components/yn-group-pick.js",
+      "require": "./dist/components/yn-group-pick.cjs"
+    },
+    "./components/yn-pick": {
+      "types": "./dist/types/components/yn-pick/yn-pick.d.ts",
+      "import": "./dist/components/yn-pick.js",
+      "require": "./dist/components/yn-pick.cjs"
+    },
     "./components/yn-icon-connect-button": {
       "types": "./dist/types/components/yn-icon-connect-button.d.ts",
       "import": "./dist/components/yn-icon-connect-button.js",

@@ -170,6 +170,7 @@ const meta = {
       description:
         "导航项切换时触发（仅 seoMode=false）。回调参数 event.detail: { key, node }，其中 key 为当前选中项 key，node 为完整的 items 快照。",
       control: false,
+      action: "change",
       table: {
         category: "Events",
         type: { summary: "CustomEvent<{ key: string; node: Record<string, string> }>" }
@@ -183,8 +184,9 @@ type Story = StoryObj<Args>;
 
 const renderControlledNavigation = (args: Args) => {
   const onChange = (event: Event) => {
-    const detail = (event as CustomEvent<{ key: string; node: Record<string, string> }>).detail;
-    console.log("detail", detail);
+    const customEvent = event as CustomEvent<{ key: string; node: Record<string, string> }>;
+    const detail = customEvent.detail;
+    args.change?.(customEvent);
     const target = event.currentTarget as HTMLElement & { active: string };
     target.active = detail.key;
   };

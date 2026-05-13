@@ -120,6 +120,7 @@ const meta = {
       name: "input",
       description: "输入内容变化时触发。",
       control: false,
+      action: "input",
       table: {
         category: "Events",
         type: { summary: "CustomEvent<{ value: string }>" }
@@ -129,6 +130,7 @@ const meta = {
       name: "enter",
       description: "按下回车键时触发。",
       control: false,
+      action: "enter",
       table: {
         category: "Events",
         type: { summary: "CustomEvent<{ value: string }>" }
@@ -149,6 +151,8 @@ export const Default: Story = {
       ?disabled=${args.disabled}
       ?close=${args.close}
       style=${`--yn-search-bg-active:${args.bgActive};--yn-search-bg-idle:${args.bgIdle};--yn-search-icon-color:${args.iconColor};--yn-search-fill-duration:${args.fillDuration};--yn-search-fill-ease:${args.fillEase};--yn-search-icon-duration:${args.iconDuration};--yn-search-icon-ease:${args.iconEase};`}
+      @input=${(event: Event) => args.input?.(event as CustomEvent<{ value: string }>)}
+      @enter=${(event: Event) => args.enter?.(event as CustomEvent<{ value: string }>)}
     >
      <datalist>
       <option value="Sofa"></option>

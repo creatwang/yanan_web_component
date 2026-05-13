@@ -106,6 +106,7 @@ const meta = {
       name: "click",
       description: "点击组件时触发原生点击事件。",
       control: false,
+      action: "click",
       table: {
         category: "Events",
         type: { summary: "MouseEvent" }
@@ -127,6 +128,7 @@ export const Default: Story = {
       .link=${args.link}
       ?disabled=${args.disabled}
       style=${`--yn-icon-connect-button-bg:${args.backgroundColor};--yn-icon-connect-button-color:${args.textColor};`}
+      @click=${(event: Event) => args.click?.(event as MouseEvent)}
     ></yn-icon-connect-button>
   `
 };
@@ -149,18 +151,21 @@ export const SizeShowcase: Story = {
         size="mini"
         icon=${args.icon}
         style=${`--yn-icon-connect-button-bg:${args.backgroundColor};--yn-icon-connect-button-color:${args.textColor};`}
+        @click=${(event: Event) => args.click?.(event as MouseEvent)}
       ></yn-icon-connect-button>
       <yn-icon-connect-button
         label="BUTTON"
         size="small"
         icon=${args.icon}
         style=${`--yn-icon-connect-button-bg:${args.backgroundColor};--yn-icon-connect-button-color:${args.textColor};`}
+        @click=${(event: Event) => args.click?.(event as MouseEvent)}
       ></yn-icon-connect-button>
       <yn-icon-connect-button
         label="BUTTON"
         size="normal"
         icon=${args.icon}
         style=${`--yn-icon-connect-button-bg:${args.backgroundColor};--yn-icon-connect-button-color:${args.textColor};`}
+        @click=${(event: Event) => args.click?.(event as MouseEvent)}
       ></yn-icon-connect-button>
     </div>
   `

@@ -38,6 +38,7 @@ const meta = {
       name: "click",
       description: "点击按钮时触发。",
       control: false,
+      action: "click",
       table: {
         category: "Events",
         type: { summary: "MouseEvent" }
@@ -51,7 +52,7 @@ type Story = StoryObj<Args>;
 
 export const Default: Story = {
   render: (args: Args) =>
-    html`<yn-button ?disabled=${args.disabled} label=${args.label}></yn-button>`
+    html`<yn-button ?disabled=${args.disabled} label=${args.label} @click=${(event: Event) => args.click?.(event as MouseEvent)}></yn-button>`
 };
 
 export const Disabled: Story = {
@@ -60,5 +61,5 @@ export const Disabled: Story = {
     disabled: true
   },
   render: (args: Args) =>
-    html`<yn-button ?disabled=${args.disabled} label=${args.label}></yn-button>`
+    html`<yn-button ?disabled=${args.disabled} label=${args.label} @click=${(event: Event) => args.click?.(event as MouseEvent)}></yn-button>`
 };

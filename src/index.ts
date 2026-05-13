@@ -3,3 +3,5 @@ export { YnInput } from "./components/yn-input/yn-input";
 export { YnIconConnectButton } from "./components/yn-icon-connect-button/yn-icon-connect-button";
 export { YnNavigation } from "./components/yn-navigation/yn-navigation";
 export { YnSearch } from "./components/yn-search/yn-search";
+export { YnGroupPick } from "./components/yn-group-pick/yn-group-pick";
+export { YnPick } from "./components/yn-pick/yn-pick";

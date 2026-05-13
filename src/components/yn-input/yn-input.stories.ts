@@ -46,6 +46,7 @@ const meta = {
       name: "input",
       description: "输入内容变化时触发。",
       control: false,
+      action: "input",
       table: {
         category: "Events",
         type: { summary: "InputEvent" }
@@ -55,6 +56,7 @@ const meta = {
       name: "change",
       description: "输入框失焦且值变化后触发。",
       control: false,
+      action: "change",
       table: {
         category: "Events",
         type: { summary: "Event" }
@@ -72,6 +74,8 @@ export const Default: Story = {
       .value=${args.value}
       placeholder=${args.placeholder}
       ?disabled=${args.disabled}
+      @input=${(event: Event) => args.input?.(event as InputEvent)}
+      @change=${(event: Event) => args.change?.(event)}
     ></yn-input>`
 };
 
@@ -86,5 +90,7 @@ export const Filled: Story = {
       .value=${args.value}
       placeholder=${args.placeholder}
       ?disabled=${args.disabled}
+      @input=${(event: Event) => args.input?.(event as InputEvent)}
+      @change=${(event: Event) => args.change?.(event)}
     ></yn-input>`
 };

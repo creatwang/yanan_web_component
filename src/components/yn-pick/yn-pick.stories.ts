@@ -1,0 +1,164 @@
+import type { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
+import "./yn-pick";
+
+type Args = {
+  value: string | number;
+  selected: boolean;
+  border: boolean;
+  selectedIcon: string;
+  closeIcon: string;
+  borderWidth: string;
+  borderColor: string;
+  borderRadius: string;
+  slot: string;
+  toggle?: (id: string | number, flag: boolean) => void;
+};
+
+const defaultSelectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
+</svg>`;
+
+const meta = {
+  title: "Components/YnPick",
+  tags: ["autodocs"],
+  parameters: {
+    docs: {
+      description: {
+        component:
+          "单个可选项组件，通常作为 `yn-group-pick` 子项使用。默认插槽内容会放入相对定位容器 `wrap` 内，选中图标固定在右上角。\n\n状态边界说明：组件点击后会先在内部切换 `selected` 并派发 `toggle`。若父层采用受控模式并在事件后写回 `selected`，最终显示以父层传入值为准。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过公开 CSS 变量配置边框。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-pick\"`"
+      }
+    }
+  },
+  args: {
+    value: "Nature",
+    selected: false,
+    border: true,
+    selectedIcon: defaultSelectedIcon,
+    closeIcon: "",
+    borderWidth: "1px",
+    borderColor: "#000000",
+    borderRadius: "8px",
+    slot: "默认插槽内容"
+  },
+  argTypes: {
+    value: {
+      control: "text",
+      description: "选项 id，用于 `yn-group-pick` 汇总选中结果。",
+      table: {
+        defaultValue: { summary: '"Nature"' },
+        type: { summary: "string | number" }
+      }
+    },
+    selected: {
+      control: "boolean",
+      description: "是否选中。选中后会在右上角展示图标。",
+      table: {
+        defaultValue: { summary: "false" },
+        type: { summary: "boolean" }
+      }
+    },
+    border: {
+      control: "boolean",
+      description: "是否显示覆盖在插槽内容上的边框伪元素。",
+      table: {
+        defaultValue: { summary: "true" },
+        type: { summary: "boolean" }
+      }
+    },
+    selectedIcon: {
+      control: "text",
+      name: "selected-icon",
+      description: "选中图标 SVG 字符串。",
+      table: {
+        defaultValue: { summary: "内置勾选 SVG" },
+        type: { summary: "string" }
+      }
+    },
+    closeIcon: {
+      control: "text",
+      name: "close-icon",
+      description: "取消图标 SVG 字符串。默认空字符串，不传则不显示取消图标。",
+      table: {
+        defaultValue: { summary: '""' },
+        type: { summary: "string" }
+      }
+    },
+    borderWidth: {
+      control: "text",
+      name: "--yn-pick-border-width",
+      description: "边框宽度。",
+      table: {
+        category: "CSS Variables",
+        defaultValue: { summary: "1px" },
+        type: { summary: "string" }
+      }
+    },
+    borderColor: {
+      control: "color",
+      name: "--yn-pick-border-color",
+      description: "边框颜色。",
+      table: {
+        category: "CSS Variables",
+        defaultValue: { summary: "#000000" },
+        type: { summary: "string" }
+      }
+    },
+    borderRadius: {
+      control: "text",
+      name: "--yn-pick-border-radius",
+      description: "边框圆角。",
+      table: {
+        category: "CSS Variables",
+        defaultValue: { summary: "8px" },
+        type: { summary: "string" }
+      }
+    },
+    toggle: {
+      name: "toggle",
+      control: false,
+      action: "toggle",
+      description: "点击选项时触发。`event.detail` 结构：`{ id: string | number; flag: boolean }`，`flag` 表示当前点击后是否为选中状态。",
+      table: {
+        category: "Events",
+        type: { summary: "CustomEvent<{ id: string | number; flag: boolean }>" }
+      }
+    },
+    slot: {
+      name: "default",
+      control: false,
+      description: "选项内容插槽。支持任意 HTML（图片、文本、自定义布局）。",
+      table: {
+        category: "Slots",
+        type: { summary: "HTMLElement" }
+      }
+    }
+  }
+} satisfies Meta<Args>;
+
+export default meta;
+type Story = StoryObj<Args>;
+
+export const Default: Story = {
+  render: (args) => html`
+    <yn-pick
+      .value=${args.value}
+      .selected=${args.selected}
+      .border=${args.border}
+      selected-icon=${args.selectedIcon}
+      close-icon=${args.closeIcon}
+      style=${`--yn-pick-border-width:${args.borderWidth};--yn-pick-border-color:${args.borderColor};--yn-pick-border-radius:${args.borderRadius};`}
+      @toggle=${(event: Event) => {
+        const detail = (event as CustomEvent<{ id: string | number; flag: boolean }>).detail;
+        args.toggle?.(detail.id, detail.flag);
+      }}
+    >
+      <div
+        style="width:180px;height:100px;background:#d5c29f;border-radius:8px;padding:12px;display:flex;align-items:flex-end;font-size:24px;font-weight:700;color:#241f21;box-sizing:border-box;"
+      >
+        Nature
+      </div>
+    </yn-pick>
+  `
+};
