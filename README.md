@@ -162,6 +162,15 @@ pnpm format
 pnpm storybook
 ```
 
+## Tailwind 使用边界（开发/文档）
+
+为避免影响组件库正式产物体积与依赖，Tailwind 仅用于开发演示层：
+
+- 允许在 Storybook（如 `.storybook/preview.ts`、`*.stories.ts`）中使用 Tailwind 美化示例
+- 组件源码（`src/components/**`）禁止引入 `tailwind.css` 或 `tailwind.css?inline`
+- 组件样式请使用组件内 `css` 与公开 CSS 变量（`--yn-*`）实现
+- 发布前确保 `pnpm build` 产物不包含 Tailwind 运行时样式依赖
+
 ## 发布
 
 ```bash

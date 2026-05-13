@@ -126,12 +126,13 @@ type Story = StoryObj<Args>;
 
 const renderMainDemo = (args: Args) => {
   const onChange = (event: Event) => {
-    const detail = (event as CustomEvent<{ ids: PickId[]; flag: boolean }>).detail;
+    if (!(event instanceof CustomEvent)) return;
+    const detail = event.detail as { ids: PickId[]; flag: boolean };
     args.change?.(detail.ids, detail.flag);
   };
 
   return html`
-    <div style="background:#efede8;padding:24px;border-radius:12px;display:grid;gap:16px;">
+    <div class="yn-grid yn-gap-4 yn-rounded-xl yn-bg-[#efede8] yn-p-6">
       <yn-group-pick
         .value=${args.value}
         .multiple=${args.multiple}
@@ -144,25 +145,28 @@ const renderMainDemo = (args: Args) => {
           (item) => html`
             <yn-pick .value=${item.id} ?border=${true}>
               <div
-                style=${`min-width:104px;height:72px;border-radius:8px;background:${item.color};padding:10px 12px;display:flex;align-items:flex-end;gap:6px;color:#241f21;font-size:22px;font-weight:700;line-height:1;box-sizing:border-box;`}
+                class="yn-box-border yn-flex yn-flex-col yn-min-w-[104px] yn-items-end yn-gap-[6px] yn-rounded-lg yn-px-3 yn-py-[10px] yn-text-[22px] yn-font-bold yn-leading-none yn-text-[#241f21]"
+                style=${`background:${item.color};`}
               >
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"
-                  >${unsafeSVG(sideIcon)}</span
-                >
-                <span style="font-size:24px;font-weight:700;line-height:1;">${item.id}</span>
+                <div class="yn-w-full yn-overflow-hidden yn-rounded-lg">
+                  <img
+                    src="https://www.floema.com/_ipx/f_webp&s_200x114/https:/cdn.sanity.io/images/535lnz3g/production/6adaaad4b7aff57360124f76b64839aafe0bf6bd-317x180.png"
+                    alt="Nature sample"
+                    class="yn-block yn-h-full yn-w-full yn-object-cover"
+                  />
+                </div>
+                <div>
+                  <span
+                    class="yn-inline-flex yn-h-[18px] yn-w-[18px] yn-items-center yn-justify-center"
+                    >${unsafeSVG(sideIcon)}</span
+                  >
+                  <span class="yn-text-base yn-font-bold yn-leading-none">${item.id}</span>
+                </div>
               </div>
             </yn-pick>
           `
         )}
       </yn-group-pick>
-
-      <div style="width:220px;height:114px;border-radius:2px;overflow:hidden;">
-        <img
-          src="https://www.floema.com/_ipx/f_webp&s_200x114/https:/cdn.sanity.io/images/535lnz3g/production/6adaaad4b7aff57360124f76b64839aafe0bf6bd-317x180.png"
-          alt="Nature sample"
-          style="display:block;width:100%;height:100%;object-fit:cover;"
-        />
-      </div>
     </div>
   `;
 };
@@ -192,24 +196,37 @@ export const AttributeUsage: Story = {
     }
   },
   render: () => html`
-    <div style="background:#efede8;padding:24px;border-radius:12px;display:grid;gap:12px;">
+    <div class="yn-grid yn-gap-3 yn-rounded-xl yn-bg-[#efede8] yn-p-6">
       <yn-group-pick multiple value='["Urban","Nature"]' style="--yn-group-pick-gap:8px;">
         ${categories.map(
           (item) => html`
             <yn-pick value=${item.id} border>
               <div
-                style=${`min-width:104px;height:72px;border-radius:8px;background:${item.color};padding:10px 12px;display:flex;align-items:flex-end;gap:6px;color:#241f21;font-size:22px;font-weight:700;line-height:1;box-sizing:border-box;`}
+                class="yn-box-border yn-flex yn-flex-col yn-min-w-[104px] yn-items-end yn-gap-[6px] yn-rounded-lg yn-px-3 yn-py-[10px] yn-text-[22px] yn-font-bold yn-leading-none yn-text-[#241f21]"
+                style=${`background:${item.color};`}
               >
-                <span style="display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;"
-                  >${unsafeSVG(sideIcon)}</span
-                >
-                <span style="font-size:24px;font-weight:700;line-height:1;">${item.id}</span>
+                <div class="yn-w-full yn-overflow-hidden yn-rounded-lg">
+                  <img
+                    src="https://www.floema.com/_ipx/f_webp&s_200x114/https:/cdn.sanity.io/images/535lnz3g/production/6adaaad4b7aff57360124f76b64839aafe0bf6bd-317x180.png"
+                    alt="Nature sample"
+                    class="yn-block yn-h-full yn-w-full yn-object-cover"
+                  />
+                </div>
+                <div>
+                  <span
+                    class="yn-inline-flex yn-h-[18px] yn-w-[18px] yn-items-center yn-justify-center"
+                    >${unsafeSVG(sideIcon)}</span
+                  >
+                  <span class="yn-text-base yn-font-bold yn-leading-none">${item.id}</span>
+                </div>
               </div>
             </yn-pick>
           `
         )}
       </yn-group-pick>
-      <code>&lt;yn-group-pick multiple value='["Urban","Nature"]'&gt;...&lt;/yn-group-pick&gt;</code>
+      <code
+        >&lt;yn-group-pick multiple value='["Urban","Nature"]'&gt;...&lt;/yn-group-pick&gt;</code
+      >
     </div>
   `
 };

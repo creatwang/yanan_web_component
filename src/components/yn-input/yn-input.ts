@@ -1,6 +1,5 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import tailwindStyles from "../../styles/tailwind.css?inline";
 
 @customElement("yn-input")
 export class YnInput extends LitElement {
@@ -8,14 +7,37 @@ export class YnInput extends LitElement {
   @property({ type: String }) placeholder = "请输入内容";
   @property({ type: Boolean }) disabled = false;
 
-  static styles = [
-    unsafeCSS(tailwindStyles),
-    css`
-      :host {
-        display: inline-block;
-      }
-    `
-  ];
+  static styles = css`
+    :host {
+      display: inline-block;
+    }
+
+    .input {
+      min-width: 14rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      padding: 8px 12px;
+      color: #0f172a;
+      font-size: 14px;
+      line-height: 1.2;
+      outline: none;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+    }
+
+    .input:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px #bfdbfe;
+    }
+
+    .input:disabled {
+      cursor: not-allowed;
+      background: #f1f5f9;
+    }
+  `;
 
   private handleInput(event: Event) {
     const nextValue = (event.target as HTMLInputElement).value;
@@ -31,13 +53,7 @@ export class YnInput extends LitElement {
 
   render() {
     return html`
-      <input
-        class="min-w-56 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 disabled:cursor-not-allowed disabled:bg-slate-100"
-        .value=${this.value}
-        placeholder=${this.placeholder}
-        ?disabled=${this.disabled}
-        @input=${this.handleInput}
-      />
+      <input class="input" .value=${this.value} placeholder=${this.placeholder} ?disabled=${this.disabled} @input=${this.handleInput} />
     `;
   }
 }

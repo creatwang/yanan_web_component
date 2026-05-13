@@ -8,7 +8,8 @@ describe("yn-pick", () => {
     let emittedId: string | number = "";
     let emittedFlag = false;
     el.addEventListener("toggle", (event) => {
-      const detail = (event as CustomEvent<{ id: string | number; flag: boolean }>).detail;
+      if (!(event instanceof CustomEvent)) return;
+      const detail = event.detail as { id: string | number; flag: boolean };
       emittedId = detail.id;
       emittedFlag = detail.flag;
     });

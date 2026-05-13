@@ -1,7 +1,6 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import tailwindStyles from "../../styles/tailwind.css?inline";
 
 const DEFAULT_SELECTED_ICON = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
@@ -41,9 +40,7 @@ export class YnPick extends LitElement {
   @property({ type: String, attribute: "close-icon" })
   closeIcon = "";
 
-  static styles = [
-    unsafeCSS(tailwindStyles),
-    css`
+  static styles = css`
       :host {
         display: inline-block;
       }
@@ -59,7 +56,7 @@ export class YnPick extends LitElement {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        border: var(--yn-pick-border-width, 1px) solid var(--yn-pick-border-color, #000000);
+        border: var(--yn-pick-border-width, 2px) solid var(--yn-pick-border-color, #000000);
         border-radius: var(--yn-pick-border-radius, 8px);
         box-sizing: border-box;
       }
@@ -93,8 +90,7 @@ export class YnPick extends LitElement {
       .wrap.selected.has-close:hover .icon.close {
         opacity: 1;
       }
-    `
-  ];
+    `;
 
   private emitToggle(nextSelected: boolean) {
     this.dispatchEvent(

@@ -1,7 +1,6 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
-import tailwindStyles from "../../styles/tailwind.css?inline";
 
 @customElement("yn-search")
 export class YnSearch extends LitElement {
@@ -79,9 +78,7 @@ export class YnSearch extends LitElement {
     ]
   };
 
-  static styles = [
-    unsafeCSS(tailwindStyles),
-    css`
+  static styles = css`
       :host {
         --yn-search-bg-active: rgba(255, 255, 255, 0.96);
         --yn-search-bg-idle: rgba(255, 255, 255, 0);
@@ -281,8 +278,7 @@ export class YnSearch extends LitElement {
           font-size: 16px;
         }
       }
-    `
-  ];
+    `;
 
   private get rectEndOpen() {
     return this.RECT_START_OPEN + Math.max(80, this.inputWidth);

@@ -192,7 +192,7 @@ const renderControlledNavigation = (args: Args) => {
   };
 
   return html`
-  <div style="background-color: #F2EFEA;padding: 10px;">
+  <div class="yn-bg-[#F2EFEA] yn-p-[10px]">
     <yn-navigation
       .items=${args.items}
       .active=${args.active}
@@ -226,7 +226,7 @@ export const DarkBackground: Story = {
     glowFade: "#e9e77800"
   },
   render: (args: Args) => html`
-    <div style="background:#2f2521;padding:16px;border-radius:12px;display:inline-block;">
+    <div class="yn-inline-block yn-rounded-xl yn-bg-[#2f2521] yn-p-4">
       ${renderControlledNavigation(args)}
     </div>
   `

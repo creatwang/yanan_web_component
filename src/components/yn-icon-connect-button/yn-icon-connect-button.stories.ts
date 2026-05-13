@@ -145,7 +145,7 @@ export const SizeShowcase: Story = {
     textColor: "#241f21"
   },
   render: (args: Args) => html`
-    <div style="display:flex;gap:16px;align-items:center;">
+    <div class="yn-flex yn-items-center yn-gap-4">
       <yn-icon-connect-button
         label="BUTTON"
         size="mini"

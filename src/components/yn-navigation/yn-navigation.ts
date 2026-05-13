@@ -1,6 +1,5 @@
-import { LitElement, css, html, svg, unsafeCSS } from "lit";
+import { LitElement, css, html, svg } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import tailwindStyles from "../../styles/tailwind.css?inline";
 
 type NavigationLayout = {
   starts: number[];
@@ -87,9 +86,7 @@ export class YnNavigation extends LitElement {
   private readonly TAB_MIN_WIDTH = 64;
   private seamDurationMs = this.HOVER_ANIM_MS;
 
-  static styles = [
-    unsafeCSS(tailwindStyles),
-    css`
+  static styles = css`
       :host {
         display: inline-block;
       }
@@ -185,8 +182,7 @@ export class YnNavigation extends LitElement {
         outline-offset: 2px;
         border-radius: 12px;
       }
-    `
-  ];
+    `;
 
   protected firstUpdated() {
     this.syncDomRefs();

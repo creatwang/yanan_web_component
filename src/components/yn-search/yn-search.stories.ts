@@ -144,7 +144,7 @@ type Story = StoryObj<Args>;
 
 export const Default: Story = {
   render: (args: Args) => html`
-    <div style="background-color: #F2EFEA;padding: 10px;">
+    <div class="yn-bg-[#F2EFEA] yn-p-[10px]">
     <yn-search
       .inputWidth=${args.inputWidth}
       placeholder=${args.placeholder}
@@ -157,7 +157,7 @@ export const Default: Story = {
      <datalist>
       <option value="Sofa"></option>
       <option value="Table"></option>
-    </datalist>  
+    </datalist>
     </yn-search>
     </div>
   `

@@ -150,13 +150,12 @@ export const Default: Story = {
       close-icon=${args.closeIcon}
       style=${`--yn-pick-border-width:${args.borderWidth};--yn-pick-border-color:${args.borderColor};--yn-pick-border-radius:${args.borderRadius};`}
       @toggle=${(event: Event) => {
-        const detail = (event as CustomEvent<{ id: string | number; flag: boolean }>).detail;
+        if (!(event instanceof CustomEvent)) return;
+        const detail = event.detail as { id: string | number; flag: boolean };
         args.toggle?.(detail.id, detail.flag);
       }}
     >
-      <div
-        style="width:180px;height:100px;background:#d5c29f;border-radius:8px;padding:12px;display:flex;align-items:flex-end;font-size:24px;font-weight:700;color:#241f21;box-sizing:border-box;"
-      >
+      <div class="yn-box-border yn-flex yn-h-[100px] yn-w-[180px] yn-items-end yn-rounded-lg yn-bg-[#d5c29f] yn-p-3 yn-text-2xl yn-font-bold yn-text-[#241f21]">
         Nature
       </div>
     </yn-pick>
