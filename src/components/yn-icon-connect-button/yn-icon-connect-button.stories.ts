@@ -130,7 +130,26 @@ export const Default: Story = {
       style=${`--yn-icon-connect-button-bg:${args.backgroundColor};--yn-icon-connect-button-color:${args.textColor};`}
       @click=${(event: Event) => args.click?.(event as MouseEvent)}
     ></yn-icon-connect-button>
-  `
+  `,
+  play: async ({ canvasElement, step }) => {
+    const iconButtonEl = canvasElement.querySelector("yn-icon-connect-button");
+    if (!(iconButtonEl instanceof HTMLElement) || !iconButtonEl.shadowRoot) return;
+
+    const innerButton = iconButtonEl.shadowRoot.querySelector("button, a");
+    if (!(innerButton instanceof HTMLElement)) return;
+
+    await step("点击图标按钮触发 click 事件", async () => {
+      let emitted = false;
+      const onClick = () => {
+        emitted = true;
+      };
+      iconButtonEl.addEventListener("click", onClick, { once: true });
+      innerButton.click();
+      if (!emitted) {
+        throw new Error("点击后应触发 click 事件");
+      }
+    });
+  }
 };
 
 export const SizeShowcase: Story = {

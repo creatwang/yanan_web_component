@@ -7,7 +7,8 @@ type Args = {
   selected: boolean;
   border: boolean;
   selectedIcon: string;
-  closeIcon: string;
+  unselectedIcon: string;
+  showUnselectedIcon: boolean;
   borderWidth: string;
   borderColor: string;
   borderRadius: string;
@@ -19,6 +20,9 @@ const defaultSelectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fil
 <path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
 </svg>`;
+const defaultUnselectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="none" stroke="#241F21" stroke-width="1.5"/>
+</svg>`;
 
 const meta = {
   title: "Components/YnPick",
@@ -27,7 +31,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "单个可选项组件，通常作为 `yn-group-pick` 子项使用。默认插槽内容会放入相对定位容器 `wrap` 内，选中图标固定在右上角。\n\n状态边界说明：组件点击后会先在内部切换 `selected` 并派发 `toggle`。若父层采用受控模式并在事件后写回 `selected`，最终显示以父层传入值为准。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过公开 CSS 变量配置边框。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-pick\"`"
+          "单个可选项组件，通常作为 `yn-group-pick` 子项使用。默认插槽内容会放入相对定位容器 `wrap` 内，图标固定在右上角。\n\n图标规则：`selected=true` 时展示 `selected-icon`；`selected=false` 时仅在 `show-unselected-icon=true` 下展示 `unselected-icon`。\n\n组合使用优先级：当和 `yn-group-pick` 组合时，若子项 `yn-pick` 显式设置了 `selected-icon` / `unselected-icon` / `show-unselected-icon`，则子项配置优先；否则回退到父组件组级默认值。\n\n状态边界说明：组件点击后会先在内部切换 `selected` 并派发 `toggle`。若父层采用受控模式并在事件后写回 `selected`，最终显示以父层传入值为准。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过公开 CSS 变量配置边框。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-pick\"`"
       }
     }
   },
@@ -36,7 +40,8 @@ const meta = {
     selected: false,
     border: true,
     selectedIcon: defaultSelectedIcon,
-    closeIcon: "",
+    unselectedIcon: defaultUnselectedIcon,
+    showUnselectedIcon: false,
     borderWidth: "1px",
     borderColor: "#000000",
     borderRadius: "8px",
@@ -76,13 +81,22 @@ const meta = {
         type: { summary: "string" }
       }
     },
-    closeIcon: {
+    unselectedIcon: {
       control: "text",
-      name: "close-icon",
-      description: "取消图标 SVG 字符串。默认空字符串，不传则不显示取消图标。",
+      name: "unselected-icon",
+      description: "未选中状态图标 SVG 字符串。用于未选中态展示（需开启 `show-unselected-icon`）。",
       table: {
-        defaultValue: { summary: '""' },
+        defaultValue: { summary: "内置描边圆环 SVG" },
         type: { summary: "string" }
+      }
+    },
+    showUnselectedIcon: {
+      control: "boolean",
+      name: "show-unselected-icon",
+      description: "未选中状态是否显示 unselected-icon。默认不显示。",
+      table: {
+        defaultValue: { summary: "false" },
+        type: { summary: "boolean" }
       }
     },
     borderWidth: {
@@ -147,7 +161,8 @@ export const Default: Story = {
       .selected=${args.selected}
       .border=${args.border}
       selected-icon=${args.selectedIcon}
-      close-icon=${args.closeIcon}
+      unselected-icon=${args.unselectedIcon}
+      .showUnselectedIcon=${args.showUnselectedIcon}
       style=${`--yn-pick-border-width:${args.borderWidth};--yn-pick-border-color:${args.borderColor};--yn-pick-border-radius:${args.borderRadius};`}
       @toggle=${(event: Event) => {
         if (!(event instanceof CustomEvent)) return;
@@ -159,5 +174,19 @@ export const Default: Story = {
         Nature
       </div>
     </yn-pick>
-  `
+  `,
+  play: async ({ canvasElement, step }) => {
+    const pick = canvasElement.querySelector("yn-pick");
+    if (!(pick instanceof HTMLElement) || !pick.shadowRoot) return;
+
+    const clickable = pick.shadowRoot.querySelector(".wrap");
+    if (!(clickable instanceof HTMLElement)) return;
+
+    await step("点击选项后变为选中", async () => {
+      clickable.click();
+      if (!(pick as HTMLElement & { selected?: boolean }).selected) {
+        throw new Error("点击后 selected 应为 true");
+      }
+    });
+  }
 };

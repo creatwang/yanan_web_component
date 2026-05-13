@@ -160,5 +160,21 @@ export const Default: Story = {
     </datalist>
     </yn-search>
     </div>
-  `
+  `,
+  play: async ({ canvasElement, step }) => {
+    const searchEl = canvasElement.querySelector("yn-search");
+    if (!(searchEl instanceof HTMLElement) || !searchEl.shadowRoot) return;
+
+    const toggleBtn = searchEl.shadowRoot.querySelector<HTMLButtonElement>("#toggleBtn");
+    if (!(toggleBtn instanceof HTMLButtonElement)) return;
+
+    await step("点击搜索按钮后展开输入区域", async () => {
+      toggleBtn.click();
+      await (searchEl as HTMLElement & { updateComplete?: Promise<unknown> }).updateComplete;
+      const shell = searchEl.shadowRoot?.querySelector("#searchShell");
+      if (!(shell instanceof HTMLElement) || !shell.classList.contains("open")) {
+        throw new Error("点击后搜索区域应为展开状态");
+      }
+    });
+  }
 };

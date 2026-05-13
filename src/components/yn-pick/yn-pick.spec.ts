@@ -28,4 +28,16 @@ describe("yn-pick", () => {
     const wrap = el.shadowRoot?.querySelector(".wrap");
     expect(wrap?.classList.contains("with-border")).to.equal(true);
   });
+
+  it("does not show unselected icon by default", async () => {
+    const el = await fixture<YnPick>(html`<yn-pick></yn-pick>`);
+    const unselectedIcon = el.shadowRoot?.querySelector(".icon.unselected");
+    expect(unselectedIcon).to.equal(null);
+  });
+
+  it("shows unselected icon when show-unselected-icon is true", async () => {
+    const el = await fixture<YnPick>(html`<yn-pick show-unselected-icon></yn-pick>`);
+    const unselectedIcon = el.shadowRoot?.querySelector(".icon.unselected");
+    expect(unselectedIcon).to.not.equal(null);
+  });
 });

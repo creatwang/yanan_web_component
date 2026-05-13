@@ -10,7 +10,8 @@ type Args = {
   value: PickId[] | PickId;
   multiple: boolean;
   selectedIcon: string;
-  closeIcon: string;
+  unselectedIcon: string;
+  showUnselectedIcon: boolean;
   gap: string;
   slot: string;
   change?: (ids: PickId[], flag: boolean) => void;
@@ -42,7 +43,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "选项组组件，和 `yn-pick` 子组件配合使用。支持单选/多选、回显、选中图标和取消图标。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；推荐通过公开属性与 CSS 变量定制。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-group-pick\"` 与 `import \"yn-web-component/components/yn-pick\"`"
+          "选项组组件，和 `yn-pick` 子组件配合使用。支持单选/多选、回显、组级默认 `selected-icon`、`unselected-icon` 与 `show-unselected-icon`。\n\n优先级：子项 `yn-pick` 显式设置时优先生效；未显式设置时回退到 `yn-group-pick` 的组级默认值。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；推荐通过公开属性与 CSS 变量定制。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-group-pick\"` 与 `import \"yn-web-component/components/yn-pick\"`"
       }
     }
   },
@@ -50,7 +51,8 @@ const meta = {
     value: "Nature",
     multiple: false,
     selectedIcon: defaultSelectedIcon,
-    closeIcon: "",
+    unselectedIcon: "",
+    showUnselectedIcon: false,
     gap: "8px",
     slot: "yn-pick 列表"
   },
@@ -74,19 +76,28 @@ const meta = {
     selectedIcon: {
       control: "text",
       name: "selected-icon",
-      description: "选中图标 SVG 字符串。默认使用内置勾选圆形图标。",
+      description: "组选中图标默认值。仅对子项未显式设置 `selected-icon` 的 `yn-pick` 生效。",
       table: {
         defaultValue: { summary: "内置勾选 SVG" },
         type: { summary: "string" }
       }
     },
-    closeIcon: {
+    unselectedIcon: {
       control: "text",
-      name: "close-icon",
-      description: "取消图标 SVG 字符串。默认空字符串，不传则不显示取消图标。",
+      name: "unselected-icon",
+      description: "组未选中图标默认值。仅对子项未显式设置 `unselected-icon` 的 `yn-pick` 生效。",
       table: {
         defaultValue: { summary: '""' },
         type: { summary: "string" }
+      }
+    },
+    showUnselectedIcon: {
+      control: "boolean",
+      name: "show-unselected-icon",
+      description: "组未选中图标显示开关默认值。仅对子项未显式设置 `show-unselected-icon` 的 `yn-pick` 生效。",
+      table: {
+        defaultValue: { summary: "false" },
+        type: { summary: "boolean" }
       }
     },
     gap: {
@@ -137,7 +148,8 @@ const renderMainDemo = (args: Args) => {
         .value=${args.value}
         .multiple=${args.multiple}
         selected-icon=${args.selectedIcon}
-        close-icon=${args.closeIcon}
+        unselected-icon=${args.unselectedIcon}
+        .showUnselectedIcon=${args.showUnselectedIcon}
         style=${`--yn-group-pick-gap:${args.gap};`}
         @change=${onChange}
       >
@@ -172,7 +184,25 @@ const renderMainDemo = (args: Args) => {
 };
 
 export const Default: Story = {
-  render: (args) => renderMainDemo(args)
+  render: (args) => renderMainDemo(args),
+  play: async ({ canvasElement, step }) => {
+    const groupEl = canvasElement.querySelector("yn-group-pick");
+    if (!(groupEl instanceof HTMLElement)) return;
+
+    const firstPick = groupEl.querySelector("yn-pick");
+    if (!(firstPick instanceof HTMLElement) || !firstPick.shadowRoot) return;
+
+    const clickable = firstPick.shadowRoot.querySelector(".wrap");
+    if (!(clickable instanceof HTMLElement)) return;
+
+    await step("点击选项后组选中值更新", async () => {
+      clickable.click();
+      await (groupEl as HTMLElement & { updateComplete?: Promise<unknown> }).updateComplete;
+      if ((groupEl as HTMLElement & { value?: string | number | Array<string | number> }).value !== "Golf") {
+        throw new Error("点击后 yn-group-pick.value 应更新为 Golf");
+      }
+    });
+  }
 };
 
 export const Multiple: Story = {
@@ -180,7 +210,8 @@ export const Multiple: Story = {
     value: ["Urban", "Nature"],
     multiple: true,
     selectedIcon: defaultSelectedIcon,
-    closeIcon: "",
+    unselectedIcon: "",
+    showUnselectedIcon: false,
     gap: "8px"
   },
   render: (args) => renderMainDemo(args)

@@ -76,7 +76,22 @@ export const Default: Story = {
       ?disabled=${args.disabled}
       @input=${(event: Event) => args.input?.(event as InputEvent)}
       @change=${(event: Event) => args.change?.(event)}
-    ></yn-input>`
+    ></yn-input>`,
+  play: async ({ canvasElement, step }) => {
+    const inputEl = canvasElement.querySelector("yn-input");
+    if (!(inputEl instanceof HTMLElement) || !inputEl.shadowRoot) return;
+
+    const innerInput = inputEl.shadowRoot.querySelector("input");
+    if (!(innerInput instanceof HTMLInputElement)) return;
+
+    await step("输入文本后组件 value 更新", async () => {
+      innerInput.value = "storybook interaction";
+      innerInput.dispatchEvent(new Event("input", { bubbles: true, composed: true }));
+      if ((inputEl as HTMLElement & { value?: string }).value !== "storybook interaction") {
+        throw new Error("输入后 yn-input.value 未更新");
+      }
+    });
+  }
 };
 
 export const Filled: Story = {

@@ -207,7 +207,22 @@ const renderControlledNavigation = (args: Args) => {
 };
 
 export const Default: Story = {
-  render: (args: Args) => renderControlledNavigation(args)
+  render: (args: Args) => renderControlledNavigation(args),
+  play: async ({ canvasElement, step }) => {
+    const navEl = canvasElement.querySelector("yn-navigation");
+    if (!(navEl instanceof HTMLElement) || !navEl.shadowRoot) return;
+
+    const tabs = navEl.shadowRoot.querySelectorAll<HTMLButtonElement>('button.tab[role="tab"]');
+    if (tabs.length < 2) return;
+
+    await step("点击第二个导航项后 active 切换", async () => {
+      tabs[1].click();
+      await Promise.resolve();
+      if ((navEl as HTMLElement & { active?: string }).active !== "SOBRE") {
+        throw new Error("点击后 active 应切换为 SOBRE");
+      }
+    });
+  }
 };
 
 export const DarkBackground: Story = {

@@ -64,4 +64,35 @@ describe("yn-group-pick", () => {
 
     expect(el.value).to.deep.equal(["A", "B"]);
   });
+
+  it("uses group defaults while keeping yn-pick explicit icon props", async () => {
+    const groupSelected = "<svg>group-selected</svg>";
+    const groupUnselected = "<svg>group-unselected</svg>";
+    const childSelected = "<svg>child-selected</svg>";
+    const childUnselected = "<svg>child-unselected</svg>";
+
+    const el = await fixture<YnGroupPick>(html`
+      <yn-group-pick
+        selected-icon=${groupSelected}
+        unselected-icon=${groupUnselected}
+        show-unselected-icon
+      >
+        <yn-pick value="A"></yn-pick>
+        <yn-pick
+          value="B"
+          selected-icon=${childSelected}
+          unselected-icon=${childUnselected}
+          show-unselected-icon
+        ></yn-pick>
+      </yn-group-pick>
+    `);
+
+    const picks = el.querySelectorAll<HTMLElement & { selectedIcon: string; unselectedIcon: string; showUnselectedIcon: boolean }>("yn-pick");
+    expect(picks[0]?.selectedIcon).to.equal(groupSelected);
+    expect(picks[0]?.unselectedIcon).to.equal(groupUnselected);
+    expect(picks[0]?.showUnselectedIcon).to.equal(true);
+    expect(picks[1]?.selectedIcon).to.equal(childSelected);
+    expect(picks[1]?.unselectedIcon).to.equal(childUnselected);
+    expect(picks[1]?.showUnselectedIcon).to.equal(true);
+  });
 });

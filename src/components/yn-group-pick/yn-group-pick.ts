@@ -66,8 +66,11 @@ export class YnGroupPick extends LitElement {
 <path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
 </svg>`;
 
-  @property({ type: String, attribute: "close-icon" })
-  closeIcon = "";
+  @property({ type: String, attribute: "unselected-icon" })
+  unselectedIcon = "";
+
+  @property({ type: Boolean, attribute: "show-unselected-icon", reflect: true })
+  showUnselectedIcon = false;
 
   @queryAssignedElements({ selector: "yn-pick", flatten: true })
   private picks!: YnPick[];
@@ -99,7 +102,7 @@ export class YnGroupPick extends LitElement {
   }
 
   protected updated(changed: Map<string, unknown>) {
-    if (changed.has("value") || changed.has("multiple") || changed.has("selectedIcon") || changed.has("closeIcon")) {
+    if (changed.has("value") || changed.has("multiple") || changed.has("selectedIcon") || changed.has("unselectedIcon") || changed.has("showUnselectedIcon")) {
       this.syncChildrenState();
     }
   }
@@ -131,8 +134,11 @@ export class YnGroupPick extends LitElement {
       if (!pick.hasAttribute("selected-icon")) {
         pick.selectedIcon = this.selectedIcon;
       }
-      if (!pick.hasAttribute("close-icon")) {
-        pick.closeIcon = this.closeIcon;
+      if (!pick.hasAttribute("unselected-icon")) {
+        pick.unselectedIcon = this.unselectedIcon;
+      }
+      if (!pick.hasAttribute("show-unselected-icon")) {
+        pick.showUnselectedIcon = this.showUnselectedIcon;
       }
     });
   }
@@ -154,8 +160,8 @@ export class YnGroupPick extends LitElement {
     const current = this.getCurrentIds();
     const targetKey = this.toComparable(targetId);
     const exists = current.some((item) => this.toComparable(item) === targetKey);
-    let ids: PickValue[] = [];
-    let flag = false;
+    let ids: PickValue[];
+    let flag: boolean;
 
     if (this.multiple) {
       if (exists) {

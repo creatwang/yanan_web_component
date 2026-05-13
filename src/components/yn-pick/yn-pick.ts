@@ -6,6 +6,9 @@ const DEFAULT_SELECTED_ICON = `<svg width="20" height="20" viewBox="0 0 20 20" f
 <path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
 <path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
 </svg>`;
+const DEFAULT_CLOSE_ICON = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="none" stroke="#241F21" stroke-width="1.5"/>
+</svg>`;
 
 const parsePrimitiveValue = (raw: string | null): string | number => {
   if (raw === null) return "";
@@ -37,8 +40,11 @@ export class YnPick extends LitElement {
   @property({ type: String, attribute: "selected-icon" })
   selectedIcon = DEFAULT_SELECTED_ICON;
 
-  @property({ type: String, attribute: "close-icon" })
-  closeIcon = "";
+  @property({ type: String, attribute: "unselected-icon" })
+  unselectedIcon = DEFAULT_CLOSE_ICON;
+
+  @property({ type: Boolean, attribute: "show-unselected-icon", reflect: true })
+  showUnselectedIcon = false;
 
   static styles = css`
       :host {
@@ -76,19 +82,6 @@ export class YnPick extends LitElement {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-      }
-
-      .icon.close {
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .wrap.selected.has-close:hover .icon.selected {
-        opacity: 0;
-      }
-
-      .wrap.selected.has-close:hover .icon.close {
-        opacity: 1;
       }
     `;
 
@@ -129,8 +122,7 @@ export class YnPick extends LitElement {
     const classes = [
       "wrap",
       this.border ? "with-border" : "",
-      this.selected ? "selected" : "",
-      this.closeIcon ? "has-close" : ""
+      this.selected ? "selected" : ""
     ]
       .filter(Boolean)
       .join(" ");
@@ -138,11 +130,10 @@ export class YnPick extends LitElement {
     return html`
       <div class=${classes} role="button" tabindex="0" @click=${this.handleClick} @keydown=${this.handleKeydown}>
         ${this.selected
-          ? html`
-              <span class="icon selected" aria-hidden="true">${this.renderIcon(this.selectedIcon)}</span>
-              ${this.closeIcon ? html`<span class="icon close" aria-hidden="true">${this.renderIcon(this.closeIcon)}</span>` : null}
-            `
-          : null}
+          ? html`<span class="icon selected" aria-hidden="true">${this.renderIcon(this.selectedIcon)}</span>`
+          : this.showUnselectedIcon && this.unselectedIcon
+            ? html`<span class="icon unselected" aria-hidden="true">${this.renderIcon(this.unselectedIcon)}</span>`
+            : null}
         <div class="slot-wrap">
           <slot></slot>
         </div>

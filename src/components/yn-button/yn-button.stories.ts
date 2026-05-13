@@ -52,7 +52,26 @@ type Story = StoryObj<Args>;
 
 export const Default: Story = {
   render: (args: Args) =>
-    html`<yn-button ?disabled=${args.disabled} label=${args.label} @click=${(event: Event) => args.click?.(event as MouseEvent)}></yn-button>`
+    html`<yn-button ?disabled=${args.disabled} label=${args.label} @click=${(event: Event) => args.click?.(event as MouseEvent)}></yn-button>`,
+  play: async ({ canvasElement, step }) => {
+    const buttonEl = canvasElement.querySelector("yn-button");
+    if (!(buttonEl instanceof HTMLElement) || !buttonEl.shadowRoot) return;
+
+    const innerButton = buttonEl.shadowRoot.querySelector("button");
+    if (!(innerButton instanceof HTMLButtonElement)) return;
+
+    await step("点击按钮触发 yn-click 事件", async () => {
+      let emitted = false;
+      const onClick = () => {
+        emitted = true;
+      };
+      buttonEl.addEventListener("yn-click", onClick, { once: true });
+      innerButton.click();
+      if (!emitted) {
+        throw new Error("点击后应触发 yn-click");
+      }
+    });
+  }
 };
 
 export const Disabled: Story = {
