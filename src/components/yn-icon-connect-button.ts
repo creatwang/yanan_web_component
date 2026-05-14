@@ -123,16 +123,19 @@ export class YnIconConnectButton extends LitElement {
       }
     `;
 
+  /** 首次渲染后同步 SVG 外形到当前内容尺寸。 */
   protected firstUpdated() {
     requestAnimationFrame(() => this.syncShapeToContent());
   }
 
+  /** 相关属性变化后重算按钮外形。 */
   protected updated(changedProperties: PropertyValues<this>) {
     if (changedProperties.has("label") || changedProperties.has("size") || changedProperties.has("disabled") || changedProperties.has("link")) {
       requestAnimationFrame(() => this.syncShapeToContent());
     }
   }
 
+  /** 获取当前 size 对应的尺寸令牌。 */
   private getSizeToken(): SizeToken {
     switch (this.size) {
       case "mini":
@@ -169,6 +172,7 @@ export class YnIconConnectButton extends LitElement {
     }
   }
 
+  /** 构建左侧圆角块路径。 */
   private buildLeftPath(iconSize: number): string {
     const s = iconSize / 44;
     const r = 14.96 * s;
@@ -176,6 +180,7 @@ export class YnIconConnectButton extends LitElement {
     return `M0 ${r} A${r} ${r} 0 0 1 ${r} 0 L${inner} 0 A${r} ${r} 0 0 1 ${iconSize} ${r} L${iconSize} ${inner} A${r} ${r} 0 0 1 ${inner} ${iconSize} L${r} ${iconSize} A${r} ${r} 0 0 1 0 ${inner} Z`;
   }
 
+  /** 构建右侧可延展矩形路径。 */
   private buildRightPath(startX: number, totalWidth: number, scale: number): string {
     const r = 14.8909375 * scale;
     const yTopArc = 14.9846875 * scale;
@@ -187,6 +192,7 @@ export class YnIconConnectButton extends LitElement {
     return `M${startX} ${yTopArc} A${r} ${r} 0 0 1 ${leftInner} ${yTop} L${rightInner} ${yTop} A${r} ${r} 0 0 1 ${totalWidth} ${yTopArc} L${totalWidth} ${yBottomArc} A${r} ${r} 0 0 1 ${rightInner} ${yBottom} L${leftInner} ${yBottom} A${r} ${r} 0 0 1 ${startX} ${yBottomArc} Z`;
   }
 
+  /** 构建中间桥接路径（hover/normal 两态）。 */
   private buildBridgePath(iconSize: number, scale: number, hovered: boolean): string {
     const relX = hovered
       ? [-1.81852211, 3.49944227, 12.41483738, 17.71995921, 17.71655325, 12.41329441, 3.49790041, -1.82193752]
@@ -199,6 +205,7 @@ export class YnIconConnectButton extends LitElement {
     return `M${x[0]} ${ys[0]} C${x[1]} ${ys[1]},${x[2]} ${ys[2]},${x[3]} ${ys[3]} L${x[4]} ${ys[4]} C${x[5]} ${ys[5]},${x[6]} ${ys[6]},${x[7]} ${ys[7]} Z`;
   }
 
+  /** 根据文本宽度与状态同步 SVG 路径及动画 values。 */
   private syncShapeToContent() {
     const btn = this.shadowRoot?.querySelector<HTMLElement>(".btn");
     const svg = this.shadowRoot?.querySelector<SVGElement>(".svg");
@@ -241,12 +248,14 @@ export class YnIconConnectButton extends LitElement {
     rectOut.setAttribute("values", `${rectEnd};${rectStart}`);
   }
 
+  /** 链接模式下阻止 disabled 状态跳转。 */
   private handleAnchorClick(event: MouseEvent) {
     if (!this.disabled) return;
     event.preventDefault();
     event.stopPropagation();
   }
 
+  /** 渲染默认图标或 SVG 字符串图标。 */
   private renderIconFallback() {
     const iconText = this.icon?.trim() ?? "";
     if (!iconText) return html``;
@@ -256,6 +265,7 @@ export class YnIconConnectButton extends LitElement {
     return html`${iconText}`;
   }
 
+  /** 渲染链接/按钮两种形态及内部动画结构。 */
   render() {
     const token = this.getSizeToken();
     const hostStyle = `

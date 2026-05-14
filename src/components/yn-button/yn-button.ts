@@ -187,6 +187,7 @@ export class YnButton extends LitElement {
 
   `;
 
+  /** 获取当前 variant 的基础配色与 hover 配色。 */
   private getVariantColors() {
     switch (this.variant) {
       case "success":
@@ -235,6 +236,7 @@ export class YnButton extends LitElement {
     }
   }
 
+  /** 获取按钮尺寸对应的内边距。 */
   private getSizePadding() {
     switch (this.size) {
       case "mini":
@@ -247,6 +249,7 @@ export class YnButton extends LitElement {
     }
   }
 
+  /** 获取按钮尺寸对应的最小高度。 */
   private getSizeMinHeight() {
     switch (this.size) {
       case "mini":
@@ -259,6 +262,7 @@ export class YnButton extends LitElement {
     }
   }
 
+  /** 获取 loading 图标尺寸。 */
   private getSizeLoadingSize() {
     switch (this.size) {
       case "mini":
@@ -271,6 +275,7 @@ export class YnButton extends LitElement {
     }
   }
 
+  /** 获取当前 variant 的禁用态配色。 */
   private getVariantDisabledColors() {
     switch (this.variant) {
       case "success":
@@ -312,6 +317,7 @@ export class YnButton extends LitElement {
     }
   }
 
+  /** 监听前置图标插槽变化并同步状态。 */
   private handlePrefixSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const hasAssigned = slot
@@ -320,6 +326,7 @@ export class YnButton extends LitElement {
     this.hasPrefixSlot = hasAssigned;
   }
 
+  /** 监听后置图标插槽变化并同步状态。 */
   private handleSuffixSlotChange(event: Event) {
     const slot = event.target as HTMLSlotElement;
     const hasAssigned = slot
@@ -328,6 +335,7 @@ export class YnButton extends LitElement {
     this.hasSuffixSlot = hasAssigned;
   }
 
+  /** 判断默认插槽是否存在可见内容。 */
   private hasDefaultSlotContent() {
     return Array.from(this.childNodes).some((node) => {
       if (node.nodeType === Node.TEXT_NODE) {
@@ -341,6 +349,7 @@ export class YnButton extends LitElement {
     });
   }
 
+  /** 判断指定命名插槽是否有内容。 */
   private hasNamedSlotContent(slotName: string) {
     return Array.from(this.childNodes).some((node) => {
       if (node.nodeType !== Node.ELEMENT_NODE) return false;
@@ -349,6 +358,7 @@ export class YnButton extends LitElement {
     });
   }
 
+  /** 渲染内置 loading 图标。 */
   private renderLoadingIcon() {
     return html`
       <span class="icon loading-icon" aria-hidden="true">
@@ -418,11 +428,13 @@ export class YnButton extends LitElement {
     `;
   }
 
+  /** 渲染自定义 loading 插槽内容。 */
   private renderCustomLoading(centered: boolean) {
     const className = centered ? "loading-custom" : "icon loading-custom";
     return html`<span class=${className} aria-hidden="true"><slot name="loading"></slot></span>`;
   }
 
+  /** 渲染按钮主体、图标、文案与 loading 内容。 */
   render() {
     const colors = this.getVariantColors();
     const disabledColors = this.getVariantDisabledColors();

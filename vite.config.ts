@@ -12,7 +12,8 @@ export default defineConfig({
         "components/yn-search": "src/components/yn-search/yn-search.ts",
         "components/yn-icon-connect-button": "src/components/yn-icon-connect-button.ts",
         "components/yn-group-pick": "src/components/yn-group-pick/yn-group-pick.ts",
-        "components/yn-pick": "src/components/yn-pick/yn-pick.ts"
+        "components/yn-pick": "src/components/yn-pick/yn-pick.ts",
+        "components/yn-dropdown": "src/components/yn-dropdown/yn-dropdown.ts"
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => {

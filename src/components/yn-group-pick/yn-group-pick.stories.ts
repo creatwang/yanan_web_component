@@ -48,12 +48,12 @@ const meta = {
     }
   },
   args: {
-    value: "Nature",
+    value: "",
     multiple: false,
     selectedIcon: defaultSelectedIcon,
     unselectedIcon: "",
     showUnselectedIcon: false,
-    gap: "8px",
+    gap: "12px",
     slot: "yn-pick 列表"
   },
   argTypes: {
@@ -61,7 +61,7 @@ const meta = {
       control: "object",
       description: "选中值回显。可传 `string`、`number` 或数组；`multiple=false` 时建议传单值，`multiple=true` 时建议传数组。",
       table: {
-        defaultValue: { summary: '"Nature"' },
+        defaultValue: { summary: '""' },
         type: { summary: "string | number | Array<string | number>" }
       }
     },
@@ -106,7 +106,7 @@ const meta = {
       description: "选项间距 CSS 变量。",
       table: {
         category: "CSS Variables",
-        defaultValue: { summary: "8px" },
+        defaultValue: { summary: "12px" },
         type: { summary: "string" }
       }
     },

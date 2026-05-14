@@ -109,7 +109,8 @@ const meta = {
     },
     defaultSlot: {
       name: "default",
-      description: "默认插槽。可传入一个 `datalist`，为输入框提供原生候选项。",
+      description:
+        "默认插槽。传入 `datalist` 为输入框提供原生候选项。最小示例：`<datalist><option value=\"Sofa\"></option></datalist>`。",
       control: false,
       table: {
         category: "Slots",
@@ -118,7 +119,7 @@ const meta = {
     },
     input: {
       name: "input",
-      description: "输入内容变化时触发。",
+      description: "输入内容变化时触发。`event.detail` 结构：`{ value: string }`。",
       control: false,
       action: "input",
       table: {
@@ -128,7 +129,7 @@ const meta = {
     },
     enter: {
       name: "enter",
-      description: "按下回车键时触发。",
+      description: "按下回车键时触发。`event.detail` 结构：`{ value: string }`。",
       control: false,
       action: "enter",
       table: {

@@ -87,26 +87,31 @@ export class YnGroupPick extends LitElement {
     }
   `;
 
+  /** 组件挂载时注册子项 toggle 事件监听。 */
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener("toggle", this.onPickToggle as EventListener);
   }
 
+  /** 组件卸载时清理事件监听。 */
   disconnectedCallback() {
     this.removeEventListener("toggle", this.onPickToggle as EventListener);
     super.disconnectedCallback();
   }
 
+  /** 首次渲染后同步子项状态。 */
   protected firstUpdated() {
     this.syncChildrenState();
   }
 
+  /** 相关属性变化时刷新子项选中与图标状态。 */
   protected updated(changed: Map<string, unknown>) {
     if (changed.has("value") || changed.has("multiple") || changed.has("selectedIcon") || changed.has("unselectedIcon") || changed.has("showUnselectedIcon")) {
       this.syncChildrenState();
     }
   }
 
+  /** 获取当前选中值数组表示。 */
   private getCurrentIds() {
     if (Array.isArray(this.value)) {
       return this.value;
@@ -117,16 +122,19 @@ export class YnGroupPick extends LitElement {
     return [this.value];
   }
 
+  /** 将值转换为可比较字符串。 */
   private toComparable(value: PickValue) {
     return String(value);
   }
 
+  /** 判断指定值是否处于选中状态。 */
   private isSelected(value: PickValue) {
     const selected = this.getCurrentIds();
     const target = this.toComparable(value);
     return selected.some((item) => this.toComparable(item) === target);
   }
 
+  /** 将组选中状态与图标配置同步到所有子 pick。 */
   private syncChildrenState() {
     const picks = this.picks ?? [];
     picks.forEach((pick) => {
@@ -143,6 +151,7 @@ export class YnGroupPick extends LitElement {
     });
   }
 
+  /** 派发组选中变化事件。 */
   private emitChange(ids: PickValue[], flag: boolean) {
     this.dispatchEvent(
       new CustomEvent<YnGroupPickChangeDetail>("change", {
@@ -153,6 +162,7 @@ export class YnGroupPick extends LitElement {
     );
   }
 
+  /** 处理子项切换并更新单选/多选值。 */
   private onPickToggle(event: Event) {
     const detail = (event as CustomEvent<{ id: PickValue; flag: boolean }>).detail;
     if (!detail) return;
@@ -186,10 +196,12 @@ export class YnGroupPick extends LitElement {
     this.emitChange(ids, flag);
   }
 
+  /** 插槽子项变化时重新同步状态。 */
   private onSlotChange() {
     this.syncChildrenState();
   }
 
+  /** 渲染分组容器与默认插槽。 */
   render() {
     return html`
       <div class="group">

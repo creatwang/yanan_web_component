@@ -41,7 +41,7 @@ const meta = {
     active: "PRODUTOS",
     seoMode: false,
     ariaLabel: "Primary navigation",
-    hitSlop: true,
+    hitSlop: false,
     fillColor: "#ffffff",
     textColor: "#241f21",
     activeTextColor: "#241f21",
@@ -91,7 +91,7 @@ const meta = {
       control: "boolean",
       description: "是否增加可点击热区。",
       table: {
-        defaultValue: { summary: "true" },
+        defaultValue: { summary: "false" },
         type: { summary: "boolean" }
       }
     },

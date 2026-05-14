@@ -66,6 +66,7 @@ export class YnNavigation extends LitElement {
   private lastGlowPoint: { x: number; y: number; rx: number; ry: number } | null = null;
   private resizeRaf = 0;
 
+  /** 窗口尺寸变化时合并重算几何，避免连续触发抖动。 */
   private readonly onWindowResize = () => {
     if (this.resizeRaf) return;
     this.resizeRaf = requestAnimationFrame(() => {
@@ -184,6 +185,7 @@ export class YnNavigation extends LitElement {
       }
     `;
 
+  /** 首次渲染后初始化路径、几何与动画目标。 */
   protected firstUpdated() {
     this.syncDomRefs();
 
@@ -196,6 +198,7 @@ export class YnNavigation extends LitElement {
     window.addEventListener("resize", this.onWindowResize, { passive: true });
   }
 
+  /** 响应属性变化并按需刷新形状与动画状态。 */
   protected updated(changed: Map<string, unknown>) {
     this.syncDomRefs();
     const itemsChanged = changed.has("items");
@@ -221,6 +224,7 @@ export class YnNavigation extends LitElement {
     }
   }
 
+  /** 组件卸载时清理 RAF 与全局事件。 */
   disconnectedCallback() {
     super.disconnectedCallback();
     if (this.seamRaf) cancelAnimationFrame(this.seamRaf);
@@ -229,6 +233,7 @@ export class YnNavigation extends LitElement {
     window.removeEventListener("resize", this.onWindowResize);
   }
 
+  /** 同步缓存 Shadow DOM 关键节点引用。 */
   private syncDomRefs() {
     this.navRoot = this.shadowRoot?.querySelector<HTMLElement>(".nav") ?? null;
     this.svgRoot = this.shadowRoot?.querySelector<SVGElement>(".shape") ?? null;
@@ -238,6 +243,7 @@ export class YnNavigation extends LitElement {
     this.tabElements = Array.from(this.shadowRoot?.querySelectorAll<HTMLElement>(".tab") ?? []);
   }
 
+  /** 根据当前模式同步激活项与焦点索引。 */
   private syncActiveItem() {
     const entries = this.getItemEntries();
     if (!entries.length) {
@@ -254,16 +260,19 @@ export class YnNavigation extends LitElement {
     this.focusedIndex = currentIndex >= 0 ? currentIndex : 0;
   }
 
+  /** 获取导航项键值对列表。 */
   private getItemEntries(): Array<[string, string]> {
     return Object.entries(this.items ?? {});
   }
 
+  /** 归一化 SEO 路径，去除 query/hash 并保证斜杠前缀。 */
   private getSeoPath(path: string) {
     if (!path) return "/";
     const cleanPath = path.split("?")[0].split("#")[0];
     return cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
   }
 
+  /** 在 SEO 模式下根据当前 URL 推导激活项索引。 */
   private getSeoActiveIndex() {
     const entries = this.getItemEntries();
     if (!entries.length || typeof window === "undefined") return -1;
@@ -280,6 +289,7 @@ export class YnNavigation extends LitElement {
     return bestMatchIndex;
   }
 
+  /** 获取当前激活索引（按 SEO 或受控 active）。 */
   private getActiveIndex() {
     if (this.seoMode) {
       return this.getSeoActiveIndex();
@@ -288,10 +298,12 @@ export class YnNavigation extends LitElement {
     return index >= 0 ? index : -1;
   }
 
+  /** 获取可交互标签元素集合。 */
   private getTabs() {
     return this.tabElements;
   }
 
+  /** 测量标签文本宽度并计算每项基础宽度。 */
   private measureTabWidths() {
     const tabs = this.getTabs();
     tabs.forEach((tab) => {
@@ -305,6 +317,7 @@ export class YnNavigation extends LitElement {
     });
   }
 
+  /** 初始化可变路径节点与缓存状态。 */
   private setupDynamicPaths() {
     this.rectPaths = Array.from(this.shadowRoot?.querySelectorAll<SVGPathElement>("[data-meta-row-rect]") ?? []);
     this.rectClipPaths = Array.from(this.shadowRoot?.querySelectorAll<SVGPathElement>("[data-meta-row-rect-clip]") ?? []);
@@ -315,6 +328,7 @@ export class YnNavigation extends LitElement {
     this.lastTabMetrics = [];
   }
 
+  /** 根据标签宽度建立基础起止坐标与缝隙状态。 */
   private setupBaseGeometry() {
     this.baseWidths = this.measureTabWidths();
     this.baseStarts = [];
@@ -333,10 +347,12 @@ export class YnNavigation extends LitElement {
     this.seamAnimStart = new Array(this.seamCount).fill(0);
   }
 
+  /** 线性插值工具。 */
   private lerp(a: number, b: number, t: number) {
     return a + (b - a) * t;
   }
 
+  /** 构建单个圆角矩形片段的 SVG 路径。 */
   private buildRectPath(startX: number, endX: number, overlapStart = 0, overlapEnd = 0) {
     const adjustedStart = startX - overlapStart;
     const adjustedEnd = endX + overlapEnd;
@@ -349,6 +365,7 @@ export class YnNavigation extends LitElement {
     return `M${adjustedStart} ${yArcTop} A${this.R} ${this.R} 0 0 1 ${leftInner} ${yTop} L${rightInner} ${yTop} A${this.R} ${this.R} 0 0 1 ${adjustedEnd} ${yArcTop} L${adjustedEnd} ${yArcBottom} A${this.R} ${this.R} 0 0 1 ${rightInner} ${yBottom} L${leftInner} ${yBottom} A${this.R} ${this.R} 0 0 1 ${adjustedStart} ${yArcBottom} Z`;
   }
 
+  /** 基于当前缝隙进度计算实时布局结果。 */
   private getCurrentLayout() {
     const gaps = this.seamProgress.map((v) => v * this.SEAM_GAP);
     const starts: number[] = [];
@@ -373,6 +390,7 @@ export class YnNavigation extends LitElement {
     return { starts, ends, seamCenters, totalWidth: ends[ends.length - 1] };
   }
 
+  /** 构建两个片段之间桥接形状路径。 */
   private buildBridgeSegment(centerX: number, progress: number) {
     const left = this.lerp(0.48203949, 11.11998719, progress);
     const control = this.lerp(0.21696813, 6.60909283, progress);
@@ -389,6 +407,7 @@ export class YnNavigation extends LitElement {
     return `M${x0} ${yTop} C${x1} ${yTopControl}, ${x2} ${yTopControl}, ${x3} ${yTop} L${x3} ${yBottom} C${x2} ${yBottomControl}, ${x1} ${yBottomControl}, ${x0} ${yBottom} Z`;
   }
 
+  /** 将当前布局与桥接路径应用到 SVG 与 tab 样式。 */
   private applyShape() {
     if (!this.navRoot || !this.svgRoot || !this.bridgePath || !this.bridgeClipPath) return;
 
@@ -443,6 +462,7 @@ export class YnNavigation extends LitElement {
     });
   }
 
+  /** 缝隙动画帧函数，驱动 seamProgress 过渡。 */
   private animateSeams = (timestamp: number) => {
     const elapsed = Math.min(1, (timestamp - this.seamStartAt) / this.seamDurationMs);
     const eased = 1 - Math.pow(1 - elapsed, 3);
@@ -456,6 +476,7 @@ export class YnNavigation extends LitElement {
     }
   };
 
+  /** 将某个 tab 对应的左右缝隙标记为打开。 */
   private mergeTabSeams(next: number[], tabIndex: number) {
     const itemCount = this.getItemEntries().length;
     if (tabIndex < 0) return;
@@ -463,6 +484,7 @@ export class YnNavigation extends LitElement {
     if (tabIndex < itemCount - 1) next[tabIndex] = 1;
   }
 
+  /** 根据激活与悬停索引构建目标缝隙数组。 */
   private buildSeamTarget(activeTabIndex: number, hoverTabIndex: number) {
     const next = new Array(this.seamCount).fill(0);
     this.mergeTabSeams(next, activeTabIndex);
@@ -470,6 +492,7 @@ export class YnNavigation extends LitElement {
     return next;
   }
 
+  /** 以动画方式切换到新的缝隙目标状态。 */
   private setSeamTargetFromIndices(activeTabIndex: number, hoverTabIndex: number, durationMs = this.HOVER_ANIM_MS) {
     const next = this.buildSeamTarget(activeTabIndex, hoverTabIndex);
 
@@ -484,6 +507,7 @@ export class YnNavigation extends LitElement {
     this.seamRaf = requestAnimationFrame(this.animateSeams);
   }
 
+  /** 立即同步缝隙状态，不经过动画。 */
   private syncSeamStateFromIndices(activeTabIndex: number, hoverTabIndex: number) {
     const next = this.buildSeamTarget(activeTabIndex, hoverTabIndex);
     if (this.seamRaf) {
@@ -496,6 +520,7 @@ export class YnNavigation extends LitElement {
     this.applyShape();
   }
 
+  /** 按当前 active/hover 刷新目标形状状态。 */
   private refreshShapeTarget(instant = false, durationMs = this.HOVER_ANIM_MS) {
     const active = this.getActiveIndex();
     const hover = this.hoverIndex >= 0 && this.hoverIndex !== active ? this.hoverIndex : -1;
@@ -506,6 +531,7 @@ export class YnNavigation extends LitElement {
     this.setSeamTargetFromIndices(active, hover, durationMs);
   }
 
+  /** 将鼠标坐标转换到 SVG viewBox 坐标系。 */
   private toViewBoxPoint(clientX: number, clientY: number) {
     const rect = this.navRoot?.getBoundingClientRect();
     if (!rect) return { x: 0, y: 0 };
@@ -515,6 +541,7 @@ export class YnNavigation extends LitElement {
     return { x, y };
   }
 
+  /** 更新高光椭圆位置与半径。 */
   private showGlow(clientX: number, clientY: number, rx = 46, ry = 15) {
     const point = this.toViewBoxPoint(clientX, clientY);
     const samePoint =
@@ -535,6 +562,7 @@ export class YnNavigation extends LitElement {
     this.lastGlowPoint = { x: point.x, y: point.y, rx, ry };
   }
 
+  /** RAF 节流批处理高光更新。 */
   private flushGlow = () => {
     if (!this.pendingGlow) {
       this.glowRaf = 0;
@@ -546,12 +574,14 @@ export class YnNavigation extends LitElement {
     this.glowRaf = 0;
   };
 
+  /** 请求一次高光刷新（同帧内合并）。 */
   private requestGlow(clientX: number, clientY: number, rx = 46, ry = 15) {
     this.pendingGlow = { clientX, clientY, rx, ry };
     if (this.glowRaf) return;
     this.glowRaf = requestAnimationFrame(this.flushGlow);
   }
 
+  /** 隐藏高光效果并清理缓存点位。 */
   private hideGlow() {
     const glow = this.shadowRoot?.querySelector<SVGEllipseElement>("#glow");
     if (!glow) return;
@@ -560,6 +590,7 @@ export class YnNavigation extends LitElement {
     this.lastGlowPoint = null;
   }
 
+  /** 根据索引切换激活项并按需派发 change 事件。 */
   private setActiveByIndex(index: number, emitEvent: boolean) {
     const entries = this.getItemEntries();
     if (index < 0 || index >= entries.length) return;
@@ -584,27 +615,32 @@ export class YnNavigation extends LitElement {
     );
   }
 
+  /** 点击标签时触发激活切换。 */
   private onTabClick(index: number) {
     if (this.seoMode) return;
     this.setActiveByIndex(index, true);
   }
 
+  /** 指针进入标签时更新 hover 与高光。 */
   private onTabPointerEnter(index: number, event: PointerEvent) {
     this.hoverIndex = index === this.getActiveIndex() ? -1 : index;
     this.refreshShapeTarget(false, this.HOVER_ANIM_MS);
     this.requestGlow(event.clientX, event.clientY);
   }
 
+  /** 指针移动时更新高光位置。 */
   private onTabPointerMove(event: PointerEvent) {
     this.requestGlow(event.clientX, event.clientY);
   }
 
+  /** 指针离开导航时重置 hover 与高光。 */
   private onPointerLeave() {
     this.hoverIndex = -1;
     this.hideGlow();
     this.refreshShapeTarget(false, this.HOVER_ANIM_MS);
   }
 
+  /** 键盘导航处理：方向键、Home/End、Enter/Space。 */
   private onKeyDown(event: KeyboardEvent) {
     const itemCount = this.getItemEntries().length;
     if (!itemCount || this.seoMode) return;
@@ -634,6 +670,7 @@ export class YnNavigation extends LitElement {
     this.getTabs()[nextIndex]?.focus();
   }
 
+  /** 渲染导航外壳、SVG 形状与 tab 列表。 */
   render() {
     const entries = this.getItemEntries();
     if (!entries.length) return html``;

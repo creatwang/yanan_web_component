@@ -292,6 +292,7 @@ export class YnSearch extends LitElement {
     return this.RETRACT_X / (this.rectEndOpen - this.RECT_START_OPEN);
   }
 
+  /** 组件挂载时同步初始壳层状态。 */
   connectedCallback() {
     super.connectedCallback();
     this.onToggle = this.onToggle.bind(this);
@@ -299,12 +300,14 @@ export class YnSearch extends LitElement {
     this.onInputKeydown = this.onInputKeydown.bind(this);
   }
 
+  /** 组件卸载时停止动画与观察器。 */
   disconnectedCallback() {
     this.stopAnims();
     this.observeSourceDatalist(null);
     super.disconnectedCallback();
   }
 
+  /** 首次渲染后初始化尺寸并在打开态同步形状。 */
   protected firstUpdated() {
     this.syncShell();
     if (this.open) {
@@ -328,12 +331,14 @@ export class YnSearch extends LitElement {
     this.ready = true;
   }
 
+  /** 从 slot 中获取外部 datalist 源节点。 */
   private getSourceDatalistFromSlot() {
     const assigned = this.datalistSlotEl?.assignedElements({ flatten: true }) ?? [];
     const source = assigned.find((node) => node instanceof HTMLDataListElement);
     return source ?? null;
   }
 
+  /** 监听外部 datalist 变化并同步到内部。 */
   private observeSourceDatalist(source: HTMLDataListElement | null) {
     if (this.observedDatalist === source) return;
     this.datalistObserver?.disconnect();
@@ -343,6 +348,7 @@ export class YnSearch extends LitElement {
     this.datalistObserver.observe(source, { childList: true, subtree: true, attributes: true, characterData: true });
   }
 
+  /** 将 slot datalist 内容同步到内部 datalist。 */
   private syncDatalistFromSlot() {
     const source = this.getSourceDatalistFromSlot();
     this.observeSourceDatalist(source);
@@ -357,6 +363,7 @@ export class YnSearch extends LitElement {
     this.syncDatalistFromSlot();
   };
 
+  /** 监听属性变化并刷新动画、壳层与事件输出。 */
   protected updated(changed: PropertyValues) {
     if (!this.ready) return;
     if (changed.has("inputWidth")) {
@@ -372,10 +379,12 @@ export class YnSearch extends LitElement {
     }
   }
 
+  /** 同步宿主开关态到壳层 class。 */
   private syncShell() {
     this.shellEl?.classList.toggle("open", this.open);
   }
 
+  /** 停止所有进行中的形状动画 RAF。 */
   private stopAnims() {
     if (this.shapeRaf) {
       cancelAnimationFrame(this.shapeRaf);
@@ -383,10 +392,12 @@ export class YnSearch extends LitElement {
     }
   }
 
+  /** 线性插值工具。 */
   private lerp(a: number, b: number, t: number) {
     return a + (b - a) * t;
   }
 
+  /** 生成 cubic-bezier easing 求值函数。 */
   private cubicBezier(x1: number, y1: number, x2: number, y2: number) {
     const cx = 3 * x1;
     const bx = 3 * (x2 - x1) - cx;
@@ -424,6 +435,7 @@ export class YnSearch extends LitElement {
     return (x: number) => sampleY(solveT(x));
   }
 
+  /** 构建矩形胶囊路径。 */
   private buildRectPath(startX: number, endX: number) {
     if (endX <= startX + 0.001) return `M${startX} 0L${startX} 0L${startX} 38L${startX} 38 Z`;
     const width = endX - startX;
@@ -435,6 +447,7 @@ export class YnSearch extends LitElement {
     return `M${startX} ${topArc} A${rr} ${rr} 0 0 1 ${leftInner} 0 L${rightInner} 0 A${rr} ${rr} 0 0 1 ${endX} ${topArc} L${endX} ${bottomArc} A${rr} ${rr} 0 0 1 ${rightInner} 38 L${leftInner} 38 A${rr} ${rr} 0 0 1 ${startX} ${bottomArc} Z`;
   }
 
+  /** 构建桥接路径，t 表示形态进度。 */
   private buildBridgePath(t: number) {
     const c = this.bridgeClosed;
     const o = this.bridgeOpened;
@@ -458,6 +471,7 @@ export class YnSearch extends LitElement {
     return `M${x0} ${y0} C${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3} L${x4} ${y4} C${x5} ${y5}, ${x6} ${y6}, ${x7} ${y7} Z`;
   }
 
+  /** 按给定进度和区间写入路径数据。 */
   private applyShapeFromValues(t: number, startX: number, endX: number) {
     const rectPath = this.buildRectPath(startX, endX);
     if (rectPath !== this.lastRectPath) {
@@ -471,12 +485,14 @@ export class YnSearch extends LitElement {
     }
   }
 
+  /** 依据当前宽度状态应用整体形状。 */
   private applyShape(t: number) {
     const startX = this.lerp(this.RECT_START_CLOSED, this.RECT_START_OPEN, t);
     const endX = this.lerp(this.RECT_START_CLOSED, this.rectEndOpen, t);
     this.applyShapeFromValues(t, startX, endX);
   }
 
+  /** 根据形状进度同步输入框透明度与位移。 */
   private syncInputToShape(t: number, opening: boolean, rectWidth = 0) {
     const p = opening
       ? Math.max(0, Math.min(1, (rectWidth - 80) / 180))
@@ -493,6 +509,7 @@ export class YnSearch extends LitElement {
     }
   }
 
+  /** 执行开关阶段形状动画。 */
   private animateShape(opening: boolean) {
     const duration = opening ? 620 : 500;
     const ease = opening ? this.easeOpen : this.easeClose;
@@ -563,11 +580,13 @@ export class YnSearch extends LitElement {
     this.shapeRaf = requestAnimationFrame(tick);
   }
 
+  /** 处理输入并同步组件值。 */
   private onInput(event: Event) {
     this.value = (event.target as HTMLInputElement).value;
     this.dispatchInputEvent();
   }
 
+  /** 对外派发输入变化事件。 */
   private dispatchInputEvent() {
     this.dispatchEvent(
       new CustomEvent("input", {
@@ -578,6 +597,7 @@ export class YnSearch extends LitElement {
     );
   }
 
+  /** 处理输入框按键行为（回车等）。 */
   private onInputKeydown(event: KeyboardEvent) {
     if (event.key !== "Enter") return;
     this.dispatchEvent(
@@ -589,6 +609,7 @@ export class YnSearch extends LitElement {
     );
   }
 
+  /** 处理图标点击切换：展开、关闭或清空。 */
   private onToggle() {
     if (this.disabled) return;
     if (!this.open) {
@@ -617,6 +638,7 @@ export class YnSearch extends LitElement {
     this.open = false;
   }
 
+  /** 渲染搜索组件外壳、路径与输入区域。 */
   render() {
     return html`
       <div

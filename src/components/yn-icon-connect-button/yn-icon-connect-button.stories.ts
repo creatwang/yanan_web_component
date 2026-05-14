@@ -86,7 +86,8 @@ const meta = {
     },
     iconSlot: {
       name: "icon",
-      description: "命名插槽。用于自定义图标内容，优先级高于 `icon` 属性。",
+      description:
+        "命名插槽。用于自定义图标内容，优先级高于 `icon` 属性。最小示例：`<svg slot=\"icon\" ...>...</svg>`。",
       control: false,
       table: {
         category: "Slots",
@@ -95,7 +96,8 @@ const meta = {
     },
     labelSlot: {
       name: "label",
-      description: "命名插槽。用于自定义文案内容，优先级高于 `label` 属性。",
+      description:
+        "命名插槽。用于自定义文案内容，优先级高于 `label` 属性。最小示例：`<span slot=\"label\">Custom Label</span>`。",
       control: false,
       table: {
         category: "Slots",
@@ -104,7 +106,7 @@ const meta = {
     },
     click: {
       name: "click",
-      description: "点击组件时触发原生点击事件。",
+      description: "点击组件时触发原生点击事件（`MouseEvent`）。",
       control: false,
       action: "click",
       table: {

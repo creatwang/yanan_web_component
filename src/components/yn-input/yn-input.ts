@@ -39,6 +39,7 @@ export class YnInput extends LitElement {
     }
   `;
 
+  /** 处理输入事件并对外派发值变化。 */
   private handleInput(event: Event) {
     const nextValue = (event.target as HTMLInputElement).value;
     this.value = nextValue;
@@ -51,6 +52,7 @@ export class YnInput extends LitElement {
     );
   }
 
+  /** 渲染输入框。 */
   render() {
     return html`
       <input class="input" .value=${this.value} placeholder=${this.placeholder} ?disabled=${this.disabled} @input=${this.handleInput} />

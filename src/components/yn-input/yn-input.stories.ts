@@ -6,8 +6,7 @@ type Args = {
   value: string;
   placeholder: string;
   disabled: boolean;
-  input?: (event: InputEvent) => void;
-  change?: (event: Event) => void;
+  onYnInput?: (event: CustomEvent<{ value: string }>) => void;
 };
 
 const meta = {
@@ -17,13 +16,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "基础输入框组件，支持受控 value、占位文案和禁用状态。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透。当前版本未暴露可配置 CSS 变量。"
+          "基础输入框组件，支持受控 value、占位文案和禁用状态。\n\n事件：输入变化时触发 `yn-input`（`event.detail` 为 `{ value: string }`）。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透。当前版本未暴露可配置 CSS 变量。"
       }
     }
   },
   args: {
     value: "",
-    placeholder: "请输入关键词",
+    placeholder: "请输入内容",
     disabled: false
   },
   argTypes: {
@@ -35,31 +34,21 @@ const meta = {
     placeholder: {
       control: "text",
       description: "输入框占位文案。",
-      table: { defaultValue: { summary: "请输入关键词" } }
+      table: { defaultValue: { summary: "请输入内容" } }
     },
     disabled: {
       control: "boolean",
       description: "是否禁用输入框。",
       table: { defaultValue: { summary: "false" } }
     },
-    input: {
-      name: "input",
+    onYnInput: {
+      name: "yn-input",
       description: "输入内容变化时触发。",
       control: false,
-      action: "input",
+      action: "yn-input",
       table: {
         category: "Events",
-        type: { summary: "InputEvent" }
-      }
-    },
-    change: {
-      name: "change",
-      description: "输入框失焦且值变化后触发。",
-      control: false,
-      action: "change",
-      table: {
-        category: "Events",
-        type: { summary: "Event" }
+        type: { summary: "CustomEvent<{ value: string }>" }
       }
     }
   }
@@ -74,8 +63,7 @@ export const Default: Story = {
       .value=${args.value}
       placeholder=${args.placeholder}
       ?disabled=${args.disabled}
-      @input=${(event: Event) => args.input?.(event as InputEvent)}
-      @change=${(event: Event) => args.change?.(event)}
+      @yn-input=${(event: Event) => args.onYnInput?.(event as CustomEvent<{ value: string }>)}
     ></yn-input>`,
   play: async ({ canvasElement, step }) => {
     const inputEl = canvasElement.querySelector("yn-input");
@@ -97,7 +85,7 @@ export const Default: Story = {
 export const Filled: Story = {
   args: {
     value: "已输入内容",
-    placeholder: "请输入关键词",
+    placeholder: "请输入内容",
     disabled: false
   },
   render: (args: Args) =>
@@ -105,7 +93,6 @@ export const Filled: Story = {
       .value=${args.value}
       placeholder=${args.placeholder}
       ?disabled=${args.disabled}
-      @input=${(event: Event) => args.input?.(event as InputEvent)}
-      @change=${(event: Event) => args.change?.(event)}
+      @yn-input=${(event: Event) => args.onYnInput?.(event as CustomEvent<{ value: string }>)}
     ></yn-input>`
 };

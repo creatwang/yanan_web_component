@@ -36,13 +36,13 @@ const meta = {
     }
   },
   args: {
-    value: "Nature",
+    value: "",
     selected: false,
     border: true,
     selectedIcon: defaultSelectedIcon,
     unselectedIcon: defaultUnselectedIcon,
     showUnselectedIcon: false,
-    borderWidth: "1px",
+    borderWidth: "2px",
     borderColor: "#000000",
     borderRadius: "8px",
     slot: "默认插槽内容"
@@ -52,7 +52,7 @@ const meta = {
       control: "text",
       description: "选项 id，用于 `yn-group-pick` 汇总选中结果。",
       table: {
-        defaultValue: { summary: '"Nature"' },
+        defaultValue: { summary: '""' },
         type: { summary: "string | number" }
       }
     },
@@ -105,7 +105,7 @@ const meta = {
       description: "边框宽度。",
       table: {
         category: "CSS Variables",
-        defaultValue: { summary: "1px" },
+        defaultValue: { summary: "2px" },
         type: { summary: "string" }
       }
     },

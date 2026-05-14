@@ -101,7 +101,7 @@ const meta = {
       control: "color",
       name: "--yn-button-hover-bg",
       description: "按钮悬停背景色（直接覆盖当前 `variant` 的 hover 背景色）。",
-      table: { category: "CSS Variables", defaultValue: { summary: "由 variant 决定（primary 默认 #F76C46）" } }
+      table: { category: "CSS Variables", defaultValue: { summary: "由 variant 决定（primary 默认 #E45F3E）" } }
     },
     disabledBg: {
       control: "color",

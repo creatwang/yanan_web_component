@@ -85,6 +85,7 @@ export class YnPick extends LitElement {
       }
     `;
 
+  /** 派发选中状态切换事件。 */
   private emitToggle(nextSelected: boolean) {
     this.dispatchEvent(
       new CustomEvent<{ id: string | number; flag: boolean }>("toggle", {
@@ -95,12 +96,14 @@ export class YnPick extends LitElement {
     );
   }
 
+  /** 处理点击切换选中态。 */
   private handleClick() {
     const nextSelected = !this.selected;
     this.selected = nextSelected;
     this.emitToggle(nextSelected);
   }
 
+  /** 处理键盘 Enter/Space 切换选中态。 */
   private handleKeydown(event: KeyboardEvent) {
     if (event.key !== "Enter" && event.key !== " ") return;
     event.preventDefault();
@@ -109,6 +112,7 @@ export class YnPick extends LitElement {
     this.emitToggle(nextSelected);
   }
 
+  /** 渲染图标字符串（支持 SVG 文本）。 */
   private renderIcon(iconText: string) {
     const source = iconText?.trim() ?? "";
     if (!source) return html``;
@@ -118,6 +122,7 @@ export class YnPick extends LitElement {
     return html`${source}`;
   }
 
+  /** 渲染 pick 容器、状态图标与插槽内容。 */
   render() {
     const classes = [
       "wrap",
