@@ -7,3 +7,4 @@ import "./components/yn-group-pick/yn-group-pick";
 import "./components/yn-pick/yn-pick";
 import "./components/yn-dropdown/yn-dropdown";
 import "./components/yn-dropdown-pick/yn-dropdown-pick";
+import "./components/yn-drawer/yn-drawer";
