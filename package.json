@@ -54,6 +54,11 @@
       "import": "./dist/components/yn-dropdown.js",
       "require": "./dist/components/yn-dropdown.cjs"
     },
+    "./components/yn-dropdown-pick": {
+      "types": "./dist/types/components/yn-dropdown-pick/yn-dropdown-pick.d.ts",
+      "import": "./dist/components/yn-dropdown-pick.js",
+      "require": "./dist/components/yn-dropdown-pick.cjs"
+    },
     "./components/yn-icon-connect-button": {
       "types": "./dist/types/components/yn-icon-connect-button.d.ts",
       "import": "./dist/components/yn-icon-connect-button.js",

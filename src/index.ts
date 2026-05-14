@@ -6,3 +6,4 @@ export { YnSearch } from "./components/yn-search/yn-search";
 export { YnGroupPick } from "./components/yn-group-pick/yn-group-pick";
 export { YnPick } from "./components/yn-pick/yn-pick";
 export { YnDropdown } from "./components/yn-dropdown/yn-dropdown";
+export { YnDropdownPick } from "./components/yn-dropdown-pick/yn-dropdown-pick";
