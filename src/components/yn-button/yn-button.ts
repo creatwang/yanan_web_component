@@ -1,7 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
-type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark";
+type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark" | "default";
 type ButtonSize = "mini" | "small" | "medium";
 type ButtonLoadingType = "left" | "center" | "right";
 
@@ -44,6 +44,8 @@ export class YnButton extends LitElement {
       inset: 0;
       border-radius: var(--yn-button-radius, min(12px, 12px + 100vw * 0));
       background: var(--yn-button-bg, var(--_yn-button-bg));
+      border: 0 solid transparent;
+      box-shadow: none;
       opacity: 1;
       transform: scale(1);
       transition: background-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
@@ -152,6 +154,19 @@ export class YnButton extends LitElement {
       transform: scale(1.03);
     }
 
+    :host([variant="default"]) .bg {
+      border-color: #eceef1;
+      box-shadow:
+        0 1px 2px rgba(36, 31, 33, 0.06),
+        0 6px 16px rgba(36, 31, 33, 0.08);
+    }
+
+    :host([variant="default"]) .button:hover .bg {
+      box-shadow:
+        0 2px 6px rgba(36, 31, 33, 0.1),
+        0 12px 24px rgba(36, 31, 33, 0.14);
+    }
+
     .button:disabled {
       cursor: not-allowed;
       color: var(--yn-button-disabled-color, var(--_yn-button-disabled-color));
@@ -161,6 +176,7 @@ export class YnButton extends LitElement {
       background: var(--yn-button-disabled-bg, var(--_yn-button-disabled-bg));
       opacity: var(--yn-button-disabled-opacity, 1);
       transform: scale(1);
+      box-shadow: none;
     }
 
     .button:disabled:hover .bg {
@@ -168,6 +184,7 @@ export class YnButton extends LitElement {
       opacity: var(--yn-button-disabled-opacity, 1);
       transform: scale(1);
     }
+
   `;
 
   private getVariantColors() {
@@ -201,6 +218,12 @@ export class YnButton extends LitElement {
           bg: "var(--yn-button-dark-bg, #241f21)",
           hoverBg: "var(--yn-button-dark-hover-bg, rgba(36,31,33,.8))",
           color: "var(--yn-button-dark-color, #ffffff)"
+        };
+      case "default":
+        return {
+          bg: "var(--yn-button-default-bg, #ffffff)",
+          hoverBg: "var(--yn-button-default-hover-bg, #f3f4f6)",
+          color: "var(--yn-button-default-color, #241f21)"
         };
       case "primary":
       default:
@@ -274,6 +297,11 @@ export class YnButton extends LitElement {
         return {
           bg: "var(--yn-button-dark-disabled-bg, rgba(36,31,33,0.45))",
           color: "var(--yn-button-dark-disabled-color, rgba(255,255,255,0.85))"
+        };
+      case "default":
+        return {
+          bg: "var(--yn-button-default-disabled-bg, #f1f1f1)",
+          color: "var(--yn-button-default-disabled-color, #8a8a8a)"
         };
       case "primary":
       default:

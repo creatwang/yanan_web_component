@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "./yn-button";
 
-type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark";
+type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark" | "default";
 type ButtonSize = "mini" | "small" | "medium";
 type ButtonLoadingType = "left" | "center" | "right";
 
@@ -14,6 +14,7 @@ type Args = {
   loadingType: ButtonLoadingType;
   hitSlop: boolean;
   radius?: string;
+  loadingSize?: string;
   bg?: string;
   hoverBg?: string;
   disabledBg?: string;
@@ -32,7 +33,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "基础按钮组件，支持语义色 `variant`、尺寸 `size`、加载态（`loading` + `loading-type`）、命中范围扩展（`hit-slop`）、前后图标与默认插槽文本。\n\n尺寸规则：\n- `medium`（默认）: `padding: 12px 16px`\n- `small`: `padding: 8px 16px`\n- `mini`: `padding: 3px 10px`\n\n加载规则：\n- `loading=true` 时按钮进入加载态并禁用点击。\n- `loading-type=\"left|center|right\"` 控制 loading 图标位置。\n\n命中规则：\n- `hit-slop=true`（默认）时，组件会通过 `::before` 扩展点击热区（四周各 +5px）。\n\n颜色策略：\n1) 通过 `variant` 控制语义状态（primary/success/warning/danger/neutral/dark）。\n2) 通过公开 CSS 变量覆盖具体色值。\n\n插槽优先级：\n- 文本通过默认插槽提供。\n- 前缀图标使用 `slot=\"prefix-icon\"`。\n- 后缀图标使用 `slot=\"suffix-icon\"`。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透，应通过公开 CSS 变量定制。"
+          "基础按钮组件，支持语义色 `variant`、尺寸 `size`、加载态（`loading` + `loading-type`）、命中范围扩展（`hit-slop`）、前后图标与默认插槽文本。\n\n尺寸规则：\n- `medium`（默认）: `padding: 12px 16px`\n- `small`: `padding: 8px 16px`\n- `mini`: `padding: 3px 10px`\n\n加载规则：\n- `loading=true` 时按钮进入加载态并禁用点击。\n- `loading-type=\"left|center|right\"` 控制 loading 图标位置。\n- `loading-type=\"center\"` 时文本保持可见，loading 叠加居中展示。\n- 支持 `slot=\"loading\"` 自定义 loading（动画由业务侧自行添加）。\n\n命中规则：\n- `hit-slop=true`（默认）时，组件会通过 `::before` 扩展点击热区（四周各 +5px）。\n\n颜色策略：\n1) 通过 `variant` 控制语义状态（primary/success/warning/danger/neutral/dark/default）。\n2) 通过公开 CSS 变量覆盖具体色值。\n\n插槽优先级：\n- 文本通过默认插槽提供。\n- 前缀图标使用 `slot=\"prefix-icon\"`。\n- 后缀图标使用 `slot=\"suffix-icon\"`。\n\n事件：\n- 使用原生 `click` 事件。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透，应通过公开 CSS 变量定制。"
       }
     }
   },
@@ -44,6 +45,7 @@ const meta = {
     loadingType: "left",
     hitSlop: true,
     radius: "",
+    loadingSize: "",
     bg: "",
     hoverBg: "",
     disabledBg: "",
@@ -61,7 +63,7 @@ const meta = {
     },
     variant: {
       control: "radio",
-      options: ["primary", "success", "warning", "danger", "neutral", "dark"],
+      options: ["primary", "success", "warning", "danger", "neutral", "dark", "default"],
       description: "按钮语义色类型。用于选择组件内置颜色 token。",
       table: { defaultValue: { summary: "primary" } }
     },
@@ -118,6 +120,12 @@ const meta = {
       name: "--yn-button-radius",
       description: "按钮背景圆角。",
       table: { category: "CSS Variables", defaultValue: { summary: "min(12px, 12px + 100vw * 0)" } }
+    },
+    loadingSize: {
+      control: "text",
+      name: "--yn-button-loading-size",
+      description: "loading 图标尺寸。未设置时按 size 自动映射（mini=14px, small=16px, medium=18px）。",
+      table: { category: "CSS Variables", defaultValue: { summary: "size 自适应（14px/16px/18px）" } }
     },
     defaultSlot: {
       name: "(default)",
@@ -182,6 +190,7 @@ const buildStyleVars = (args: Args) => {
   if (args.disabledBg) vars.push(`--yn-button-disabled-bg:${args.disabledBg}`);
   if (args.disabledColor) vars.push(`--yn-button-disabled-color:${args.disabledColor}`);
   if (args.radius) vars.push(`--yn-button-radius:${args.radius}`);
+  if (args.loadingSize) vars.push(`--yn-button-loading-size:${args.loadingSize}`);
   return vars.join(";");
 };
 
@@ -262,6 +271,8 @@ export const Variants: Story = {
         args.onClick?.(event as MouseEvent)}>中性色按钮</yn-button>
       <yn-button variant="dark" size=${args.size} ?disabled=${args.disabled} ?loading=${args.loading} loading-type=${args.loadingType} ?hit-slop=${args.hitSlop} style=${buildStyleVars(args)} @click=${(event: Event) =>
         args.onClick?.(event as MouseEvent)}>深色按钮</yn-button>
+      <yn-button variant="default" size=${args.size} ?disabled=${args.disabled} ?loading=${args.loading} loading-type=${args.loadingType} ?hit-slop=${args.hitSlop} style=${buildStyleVars(args)} @click=${(event: Event) =>
+        args.onClick?.(event as MouseEvent)}>默认白色</yn-button>
     </div>
   `
 };
@@ -404,6 +415,7 @@ export const DisabledPaletteShowcase: Story = {
       <yn-button variant="danger" size=${args.size} ?disabled=${true} style=${buildStyleVars(args)}>危险禁用</yn-button>
       <yn-button variant="neutral" size=${args.size} ?disabled=${true} style=${buildStyleVars(args)}>中性禁用</yn-button>
       <yn-button variant="dark" size=${args.size} ?disabled=${true} style=${buildStyleVars(args)}>深色禁用</yn-button>
+      <yn-button variant="default" size=${args.size} ?disabled=${true} style=${buildStyleVars(args)}>默认白色禁用</yn-button>
     </div>
   `
 };
