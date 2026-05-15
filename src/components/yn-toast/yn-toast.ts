@@ -440,7 +440,7 @@ export class YnToast extends LitElement {
   success<T>(task: YnToastShortcutTask<T>, mask?: boolean): Promise<T>;
   success<T>(
     input?: string | YnToastShortcutTask<T>,
-    optionsOrMask: YnToastShowOptions | boolean = {}
+    optionsOrMask?: YnToastShowOptions | boolean
   ): Promise<T | void> {
     return this.showShortcut("success", input, optionsOrMask);
   }
@@ -449,7 +449,7 @@ export class YnToast extends LitElement {
   info<T>(task: YnToastShortcutTask<T>, mask?: boolean): Promise<T>;
   info<T>(
     input?: string | YnToastShortcutTask<T>,
-    optionsOrMask: YnToastShowOptions | boolean = {}
+    optionsOrMask?: YnToastShowOptions | boolean
   ): Promise<T | void> {
     return this.showShortcut("info", input, optionsOrMask);
   }
@@ -458,7 +458,7 @@ export class YnToast extends LitElement {
   warning<T>(task: YnToastShortcutTask<T>, mask?: boolean): Promise<T>;
   warning<T>(
     input?: string | YnToastShortcutTask<T>,
-    optionsOrMask: YnToastShowOptions | boolean = {}
+    optionsOrMask?: YnToastShowOptions | boolean
   ): Promise<T | void> {
     return this.showShortcut("warning", input, optionsOrMask);
   }
@@ -467,7 +467,7 @@ export class YnToast extends LitElement {
   error<T>(task: YnToastShortcutTask<T>, mask?: boolean): Promise<T>;
   error<T>(
     input?: string | YnToastShortcutTask<T>,
-    optionsOrMask: YnToastShowOptions | boolean = {}
+    optionsOrMask?: YnToastShowOptions | boolean
   ): Promise<T | void> {
     return this.showShortcut("error", input, optionsOrMask);
   }
@@ -490,13 +490,13 @@ export class YnToast extends LitElement {
   private async showShortcut<T>(
     type: YnToastType,
     input?: string | YnToastShortcutTask<T>,
-    optionsOrMask: YnToastShowOptions | boolean = {}
+    optionsOrMask?: YnToastShowOptions | boolean
   ) {
     if (typeof input === "function") {
       return this.runTask(input, type, Boolean(optionsOrMask));
     }
 
-    const options = typeof optionsOrMask === "boolean" ? {} : optionsOrMask;
+    const options = typeof optionsOrMask === "boolean" ? {} : (optionsOrMask ?? {});
     const normalized = { ...options, type, message: input };
     const id = this.startLoading(normalized);
 

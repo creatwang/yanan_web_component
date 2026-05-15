@@ -472,40 +472,58 @@ const runFullToastInteractionsPlay = async (canvasElement: HTMLElement, step: To
     }
   });
 
-  await step("show(async callback) 无 mask", async () => {
-    const resultPromise = toast.show(async (instance) => {
-      await sleep(80);
-      instance.done("success", "show async no mask", { persist: true });
-      return "show-async-no-mask";
-    });
-    await toast.updateComplete;
-    if (toast.shadowRoot?.querySelector(".mask")) {
-      throw new Error("show(async callback) 未传 mask 时不应展示遮罩");
+  await step("show() + toast.done(type, message) 直接完成方法全覆盖", async () => {
+    for (const type of toastTypes) {
+      const message = `direct done ${type}`;
+      const loading = toast.show();
+      await toast.updateComplete;
+      toast.done(type, message, { persist: true });
+      await loading;
+      await expectToastState(toast, type, message);
+      await resetToast(toast);
     }
-    const result = await resultPromise;
-    if (result !== "show-async-no-mask") {
-      throw new Error("show(async callback) 应返回 callback 结果");
-    }
-    await expectToastState(toast, "success", "show async no mask");
-    await resetToast(toast);
   });
 
-  await step("show(async callback, true) 有 mask", async () => {
-    const resultPromise = toast.show(async (instance) => {
-      await sleep(80);
-      instance.done("success", "show async with mask", { persist: true });
-      return "show-async-mask";
-    }, true);
-    await toast.updateComplete;
-    if (!toast.shadowRoot?.querySelector(".mask")) {
-      throw new Error("show(async callback, true) 应展示遮罩");
+  await step("show(async callback) 无 mask 覆盖 success / info / warning / error", async () => {
+    for (const type of toastTypes) {
+      const message = `show async no mask ${type}`;
+      const resultPromise = toast.show(async (instance) => {
+        await sleep(80);
+        instance.done(type, message, { persist: true });
+        return `show-async-no-mask-${type}`;
+      });
+      await toast.updateComplete;
+      if (toast.shadowRoot?.querySelector(".mask")) {
+        throw new Error(`show(async callback) 未传 mask 时不应展示遮罩：${type}`);
+      }
+      const result = await resultPromise;
+      if (result !== `show-async-no-mask-${type}`) {
+        throw new Error(`show(async callback) 应返回 callback 结果：${type}`);
+      }
+      await expectToastState(toast, type, message);
+      await resetToast(toast);
     }
-    const result = await resultPromise;
-    if (result !== "show-async-mask") {
-      throw new Error("show(async callback, true) 应返回 callback 结果");
+  });
+
+  await step("show(async callback, true) 有 mask 覆盖 success / info / warning / error", async () => {
+    for (const type of toastTypes) {
+      const message = `show async with mask ${type}`;
+      const resultPromise = toast.show(async (instance) => {
+        await sleep(80);
+        instance.done(type, message, { persist: true });
+        return `show-async-mask-${type}`;
+      }, true);
+      await toast.updateComplete;
+      if (!toast.shadowRoot?.querySelector(".mask")) {
+        throw new Error(`show(async callback, true) 应展示遮罩：${type}`);
+      }
+      const result = await resultPromise;
+      if (result !== `show-async-mask-${type}`) {
+        throw new Error(`show(async callback, true) 应返回 callback 结果：${type}`);
+      }
+      await expectToastState(toast, type, message);
+      await resetToast(toast);
     }
-    await expectToastState(toast, "success", "show async with mask");
-    await resetToast(toast);
   });
 
   await step("success/info/warning/error(message) 普通快捷调用全覆盖", async () => {
@@ -688,6 +706,8 @@ await toast.show((instance) => {
   instance.done("info", "同步任务完成");
   return "张三";
 });
+await toast.show();
+toast.done("warning", "外部 done 完成");
 await toast.show(async (instance) => {
   await saveData();
   instance.done("success", "异步保存成功");
@@ -728,7 +748,7 @@ export const Interactions: Story = {
     docs: {
       description: {
         story:
-          "集中展示并通过 Storybook addon-interactions 验证 `yn-toast` 的公开交互方法，包括 `show(type, message)` 四种状态、`show(callback).done(type, message)` 四种状态、异步 callback 的 mask / non-mask、四个快捷方法的普通调用、callback、async callback 以及 API 关闭。"
+          "集中展示并通过 Storybook addon-interactions 验证 `yn-toast` 的公开交互方法，包括 `show(type, message)` 四种状态、`show(callback).done(type, message)` 四种状态、直接 `toast.done(type, message)`、异步 callback 的 mask / non-mask 四种状态、四个快捷方法的普通调用、callback、async callback 以及 API 关闭。"
       }
     }
   },
@@ -756,6 +776,9 @@ const result = await toast.show((instance) => {
   instance.done("info", "同步任务完成");
   return "张三";
 });
+
+await toast.show();
+toast.done("warning", "外部 done 完成");
 
 const maskedResult = await toast.show((instance) => {
   instance.done("success", "同步任务完成（带遮罩）");
