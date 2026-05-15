@@ -39,13 +39,21 @@ alwaysApply: true
 - 组件行为改动后，必须同步更新对应 stories 文档。
 - 不允许“代码已改但文档未改”的状态提交。
 
-## 7) Tree Shaking 交付要求
+## 7) Storybook Interactions 必须真实可见
+- 在本项目里，用户说“加 interactions / interactions 没有 / interactions 面板为空”，默认指 **Storybook addon-interactions 的运行面板**，不是 ArgsTable 的 `Interactions` 分类、不是 Actions 面板、也不是只写文档说明。
+- 只在 `argTypes.table.category: "Interactions"` 写方法文档不够；若组件有公开交互方法或按钮示例，必须给至少一个主要 story 写 `play` 函数。
+- `play` 里必须通过 `step(...)` 执行真实交互并校验结果，确保 Storybook addon 的 `Interactions` 面板不为空。
+- 若新增独立 `Interactions` story，也要给默认 story 或主示例 story 补同一类 `play`，避免用户停留在 Default 时看到空面板。
+- 示例按钮必须绑定真实方法，不能只展示代码片段。
+- 完成后必须运行 `pnpm run typecheck` 和 `pnpm run lint`；若改动 story 渲染或 `play`，还应运行 `pnpm run build-storybook` 或明确说明未运行。
+
+## 8) Tree Shaking 交付要求
 - 新增组件时，必须提供组件级子路径入口（`exports` 子路径）。
 - 文档示例必须同时给出全量入口与按需入口，并明确推荐按需入口用于 Tree Shaking。
 - 组件入口与类型导出路径必须一一对应，保证按需导入可用。
 - 若改动构建配置，必须确保不会破坏组件级按需导入。
 
-## 8) 事件 Actions 统一模板（新组件直接复用）
+## 9) 事件 Actions 统一模板（新组件直接复用）
 
 ```ts
 type Args = {

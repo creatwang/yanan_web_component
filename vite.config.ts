@@ -6,6 +6,7 @@ export default defineConfig({
       entry: {
         index: "src/index.ts",
         define: "src/define.ts",
+        "asset/svg": "src/asset/svg/index.ts",
         "components/yn-button": "src/components/yn-button/yn-button.ts",
         "components/yn-input": "src/components/yn-input/yn-input.ts",
         "components/yn-navigation": "src/components/yn-navigation/yn-navigation.ts",

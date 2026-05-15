@@ -1,6 +1,8 @@
 import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { ynClose20Svg } from "../../asset/svg";
 
 export type YnDrawerOpenChangeDetail = {
   open: boolean;
@@ -498,14 +500,7 @@ export class YnDrawer extends LitElement {
                 </slot>
               </div>
               <button class="close-btn" type="button" aria-label="Close drawer" @click=${this.handleCloseClick}>
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L8.05741 9.11807C8.54556 9.60623 8.54556 10.3977 8.05741 10.8858L4.47068 14.4726C4.17779 14.7655 4.17779 15.2403 4.47068 15.5332C4.76357 15.8261 5.23845 15.8261 5.53134 15.5332L9.11807 11.9465C9.60623 11.4583 10.3977 11.4583 10.8858 11.9465L14.4726 15.5332C14.7655 15.8261 15.2403 15.8261 15.5332 15.5332C15.8261 15.2403 15.8261 14.7655 15.5332 14.4726L11.9465 10.8858C11.4583 10.3977 11.4583 9.60623 11.9465 9.11807L15.5342 5.53033C15.8271 5.23744 15.8271 4.76256 15.5342 4.46967C15.2413 4.17678 14.7665 4.17678 14.4736 4.46967L10.8858 8.05741C10.3977 8.54556 9.60623 8.54557 9.11807 8.05741L5.53033 4.46967Z"
-                    fill="currentColor"
-                  />
-                </svg>
+                ${unsafeSVG(ynClose20Svg)}
               </button>
             </header>
             <div class="body">

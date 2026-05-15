@@ -107,7 +107,7 @@ describe("yn-button", () => {
       .join("")
       .trim();
     expect(assignedText).to.equal("提交中");
-    expect(el.shadowRoot?.querySelector(".loading-center")).to.exist;
+    expect(el.shadowRoot?.querySelector(".loading-center")).to.not.equal(null);
   });
 
   it("supports custom loading slot", async () => {
@@ -122,7 +122,7 @@ describe("yn-button", () => {
     await el.updateComplete;
     const loadingSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="loading"]');
     const customLoading = el.shadowRoot?.querySelector(".loading-custom");
-    expect(customLoading).to.exist;
+    expect(customLoading).to.not.equal(null);
     expect(loadingSlot?.assignedElements({ flatten: true }).length).to.equal(1);
   });
 
@@ -173,7 +173,7 @@ describe("yn-button", () => {
       </yn-button>
     `);
     await el.updateComplete;
-    expect(el.shadowRoot?.querySelector('slot[name="prefix-icon"]')).to.exist;
-    expect(el.shadowRoot?.querySelector('slot[name="suffix-icon"]')).to.exist;
+    expect(el.shadowRoot?.querySelector('slot[name="prefix-icon"]')).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector('slot[name="suffix-icon"]')).to.not.equal(null);
   });
 });

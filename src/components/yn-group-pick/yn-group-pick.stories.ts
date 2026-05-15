@@ -3,6 +3,7 @@ import { html } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import "./yn-group-pick";
 import "../yn-pick/yn-pick";
+import { ynPickSelectedSvg, ynSignpostSvg } from "../../asset/svg";
 
 type PickId = string | number;
 
@@ -17,12 +18,8 @@ type Args = {
   change?: (ids: PickId[], flag: boolean) => void;
 };
 
-const defaultSelectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
-</svg>`;
-
-const sideIcon = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18 7.26325V5.80121L9.92465 2.13027C9.74931 2.05086 9.63688 1.87597 9.63688 1.68368V0.107422H8.03074V14.072C8.03074 14.3432 7.81123 14.5627 7.53997 14.5627H5.80934C6.23007 14.0934 6.4701 13.4585 6.41745 12.7688C6.3251 11.5592 5.32482 10.5973 4.11307 10.5492C2.74027 10.4947 1.60659 11.5958 1.60659 12.9566C1.60659 13.5732 1.83948 14.1362 2.22184 14.5627H0V16.1689H16.0615V14.5627H9.63688V11.3803C9.63688 11.1881 9.74931 11.0132 9.92465 10.9337L18 7.26325ZM4.01537 12.1535C4.4584 12.1535 4.81844 12.514 4.81844 12.9566C4.81844 13.3992 4.4584 13.7597 4.01537 13.7597C3.57234 13.7597 3.21229 13.3992 3.21229 12.9566C3.21229 12.514 3.57234 12.1535 4.01537 12.1535ZM14.744 6.97861L9.63688 9.29994V3.76364L14.744 6.08497C15.1277 6.25941 15.1277 6.80416 14.744 6.97861Z" fill="#241F21"></path></svg>`;
+const defaultSelectedIcon = ynPickSelectedSvg;
+const sideIcon = ynSignpostSvg;
 
 const categories = [
   { id: "Golf", color: "#b8d28a" },

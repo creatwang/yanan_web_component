@@ -2,6 +2,8 @@ import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import type { YnSvgSource } from "../asset/svg";
+import { ynSignpostSvg } from "../asset/svg";
 
 type ButtonSize = "mini" | "small" | "normal";
 
@@ -22,8 +24,7 @@ export class YnIconConnectButton extends LitElement {
   @property({ type: Boolean }) disabled = false;
   @property({ type: Boolean, reflect: true }) uppercase = true;
   @property({ type: String }) link = "";
-  @property({ type: String }) icon =
-    '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.6208 6.8H14.6611L16.0324 4.51728C16.1311 4.35247 16.1311 4.14705 16.0324 3.98225L14.6611 1.69953H10.6208C10.3337 1.69953 10.1013 1.46719 10.1013 1.18008V0H8.40133V6.28055C8.40133 6.56767 8.16899 6.8 7.88188 6.8H3.44535L2.07402 9.08272C1.97533 9.24753 1.97533 9.45294 2.07402 9.61775L3.44535 11.9005H7.88188C8.16899 11.9005 8.40133 12.1328 8.40133 12.4199V15.3005H2.45133V17.0005H16.0513V15.3005H10.6208C10.3337 15.3005 10.1013 15.0681 10.1013 14.781V7.31991C10.1013 7.0328 10.3337 6.80047 10.6208 6.80047V6.8ZM13.6992 3.4L14.1294 4.11636C14.179 4.19853 14.179 4.30147 14.1294 4.38364L13.6992 5.1H10.1013V3.4H13.6992ZM4.40727 10.2L3.97708 9.48364C3.92749 9.40147 3.92749 9.29853 3.97708 9.21589L4.40727 8.49953H8.4018V10.1995H4.40727V10.2Z" fill="#241F21"/></svg>';
+  @property({ type: String }) icon: YnSvgSource = ynSignpostSvg;
 
   static styles = css`
       :host {

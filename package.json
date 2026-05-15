@@ -19,6 +19,11 @@
       "import": "./dist/define.js",
       "require": "./dist/define.cjs"
     },
+    "./asset/svg": {
+      "types": "./dist/types/asset/svg/index.d.ts",
+      "import": "./dist/asset/svg.js",
+      "require": "./dist/asset/svg.cjs"
+    },
     "./components/yn-button": {
       "types": "./dist/types/components/yn-button/yn-button.d.ts",
       "import": "./dist/components/yn-button.js",

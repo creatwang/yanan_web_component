@@ -1,6 +1,8 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, queryAssignedElements } from "lit/decorators.js";
 import type { YnPick } from "../yn-pick/yn-pick";
+import type { YnSvgSource } from "../../asset/svg";
+import { ynPickSelectedSvg } from "../../asset/svg";
 
 type PickValue = string | number;
 type GroupValue = PickValue | PickValue[];
@@ -61,13 +63,10 @@ export class YnGroupPick extends LitElement {
   multiple = false;
 
   @property({ type: String, attribute: "selected-icon" })
-  selectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
-</svg>`;
+  selectedIcon: YnSvgSource = ynPickSelectedSvg;
 
   @property({ type: String, attribute: "unselected-icon" })
-  unselectedIcon = "";
+  unselectedIcon: YnSvgSource = "";
 
   @property({ type: Boolean, attribute: "show-unselected-icon", reflect: true })
   showUnselectedIcon = false;

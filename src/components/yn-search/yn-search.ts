@@ -1,6 +1,8 @@
 import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
 
 @customElement("yn-search")
 export class YnSearch extends LitElement {
@@ -688,22 +690,8 @@ export class YnSearch extends LitElement {
           aria-label=${this.open ? "close search" : "open search"}
           @click=${this.onToggle}
         >
-          <svg class="icon search" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M4.36328 9.01777C4.36328 6.4477 6.44673 4.36426 9.01679 4.36426C11.5869 4.36426 13.6703 6.4477 13.6703 9.01777C13.6703 11.5878 11.5869 13.6713 9.01679 13.6713C6.44673 13.6713 4.36328 11.5878 4.36328 9.01777ZM9.01679 2.86426C5.6183 2.86426 2.86328 5.61928 2.86328 9.01777C2.86328 12.4163 5.6183 15.1713 9.01679 15.1713C10.0496 15.1713 11.0229 14.9168 11.8776 14.4673C12.4367 14.1731 13.1414 14.2027 13.5881 14.6495L15.8548 16.9162C16.1477 17.2091 16.6226 17.2091 16.9155 16.9162C17.2084 16.6233 17.2084 16.1484 16.9155 15.8555L14.6487 13.5887C14.202 13.142 14.1723 12.4374 14.4664 11.8783C14.9159 11.0237 15.1703 10.0504 15.1703 9.01777C15.1703 5.61928 12.4153 2.86426 9.01679 2.86426Z"
-              fill="#241F21"
-            />
-          </svg>
-          <svg class="icon close" width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path
-              fill-rule="evenodd"
-              clip-rule="evenodd"
-              d="M5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L8.05741 9.11807C8.54556 9.60623 8.54556 10.3977 8.05741 10.8858L4.47068 14.4726C4.17779 14.7655 4.17779 15.2403 4.47068 15.5332C4.76357 15.8261 5.23845 15.8261 5.53134 15.5332L9.11807 11.9465C9.60623 11.4583 10.3977 11.4583 10.8858 11.9465L14.4726 15.5332C14.7655 15.8261 15.2403 15.8261 15.5332 15.5332C15.8261 15.2403 15.8261 14.7655 15.5332 14.4726L11.9465 10.8858C11.4583 10.3977 11.4583 9.60623 11.9465 9.11807L15.5342 5.53033C15.8271 5.23744 15.8271 4.76256 15.5342 4.46967C15.2413 4.17678 14.7665 4.17678 14.4736 4.46967L10.8858 8.05741C10.3977 8.54556 9.60623 8.54557 9.11807 8.05741L5.53033 4.46967Z"
-              fill="#241F21"
-            />
-          </svg>
+          ${unsafeSVG(ynSearchSvg)}
+          ${unsafeSVG(ynSearchCloseSvg)}
         </button>
         <slot id="datalistSlot" class="datalist-slot" @slotchange=${this.onDatalistSlotChange}></slot>
         <datalist id="internalDatalist"></datalist>

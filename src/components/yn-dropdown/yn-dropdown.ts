@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { ynDropdownCloseSvg } from "../../asset/svg";
 
 type PlacementSide = "top" | "bottom" | "left" | "right";
 type PlacementAlign = "start" | "center" | "end";
@@ -22,10 +23,6 @@ export type YnDropdownOpenChangeDetail = {
   open: boolean;
   placement: YnDropdownPlacement;
 };
-
-const DEFAULT_CLOSE_ICON = `<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <path fill-rule="evenodd" clip-rule="evenodd" d="M7.72798 6.16667C7.43509 5.87377 6.96021 5.87377 6.66732 6.16667C6.37443 6.45956 6.37443 6.93443 6.66732 7.22733L10.3781 10.9381C10.9639 11.5239 10.9639 12.4736 10.3781 13.0594L6.66412 16.7734C6.37123 17.0663 6.37122 17.5411 6.66412 17.834C6.95701 18.1269 7.43189 18.1269 7.72478 17.834L11.4387 14.1201C12.0245 13.5343 12.9743 13.5343 13.5601 14.1201L17.2739 17.8339C17.5668 18.1268 18.0417 18.1268 18.3346 17.8339C18.6275 17.541 18.6275 17.0662 18.3346 16.7733L14.6207 13.0594C14.0349 12.4736 14.0349 11.5239 14.6207 10.9381L18.3314 7.22744C18.6243 6.93455 18.6243 6.45967 18.3314 6.16678C18.0385 5.87389 17.5636 5.87389 17.2707 6.16678L13.5601 9.87743C12.9743 10.4632 12.0245 10.4632 11.4387 9.87743L7.72798 6.16667Z" fill="currentColor"/>
-</svg>`;
 
 const splitPlacement = (placement: YnDropdownPlacement): [PlacementSide, PlacementAlign] => {
   const [sideRaw, alignRaw] = placement.split("-");
@@ -49,8 +46,8 @@ const calculatePosition = (
   offset: number
 ) => {
   const [side, align] = splitPlacement(placement);
-  let left = 0;
-  let top = 0;
+  let left: number;
+  let top: number;
 
   if (side === "top" || side === "bottom") {
     if (side === "bottom") {
@@ -590,7 +587,7 @@ export class YnDropdown extends LitElement {
             aria-label="close dropdown"
             @click=${this.handleCloseIconClick}
           >
-            <slot name="close-icon">${unsafeSVG(DEFAULT_CLOSE_ICON)}</slot>
+            <slot name="close-icon">${unsafeSVG(ynDropdownCloseSvg)}</slot>
           </button>
         </div>
       </div>

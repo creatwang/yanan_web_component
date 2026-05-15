@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "./yn-pick";
+import { ynPickSelectedSvg, ynPickUnselectedSvg } from "../../asset/svg";
 
 type Args = {
   value: string | number;
@@ -16,13 +17,8 @@ type Args = {
   toggle?: (id: string | number, flag: boolean) => void;
 };
 
-const defaultSelectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="#241F21"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M14.1207 8.02566L8.86034 13.0355L6 10.3114L7.03448 9.22517L8.17069 10.3073C8.5569 10.6751 9.16379 10.6751 9.55 10.3073L13.0862 6.93945L14.1207 8.02566Z" fill="white"/>
-</svg>`;
-const defaultUnselectedIcon = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-<path d="M10 18C14.4182 18 18 14.4182 18 10C18 5.58172 14.4182 2 10 2C5.58172 2 2 5.58172 2 10C2 14.4182 5.58172 18 10 18Z" fill="none" stroke="#241F21" stroke-width="1.5"/>
-</svg>`;
+const defaultSelectedIcon = ynPickSelectedSvg;
+const defaultUnselectedIcon = ynPickUnselectedSvg;
 
 const meta = {
   title: "Components/YnPick",

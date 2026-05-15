@@ -19,3 +19,4 @@ export type {
   YnToastTask,
   YnToastType
 } from "./components/yn-toast/yn-toast";
+export * from "./asset/svg";

@@ -1,6 +1,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
+import { ynToastIconPaths } from "../../asset/svg";
 
 export type YnToastType = "success" | "info" | "warning" | "error";
 
@@ -50,13 +51,6 @@ export type YnToastDetail = {
 
 type ToastPhase = "idle" | "loading" | "success";
 
-const DEFAULT_ICONS: Record<YnToastType, string> = {
-  success: "M5 12l5 5L20 7",
-  info: "M12 10v7M12 7h.01",
-  warning: "M12 6v8M12 18h.01",
-  error: "M7 7l10 10M17 7L7 17"
-};
-
 const DEFAULT_MESSAGES: Record<YnToastType, string> = {
   success: "success!",
   info: "info!",
@@ -80,7 +74,7 @@ export class YnToast extends LitElement {
 
   @state() private phase: ToastPhase = "idle";
   @state() private variant: YnToastType = "success";
-  @state() private iconPath = DEFAULT_ICONS.success;
+  @state() private iconPath: string = ynToastIconPaths.success;
   @state() private currentMessage = DEFAULT_MESSAGES.success;
   @state() private hasMessage = true;
   @state() private wrap = false;
@@ -576,7 +570,7 @@ export class YnToast extends LitElement {
     this.resetShapeAnimation();
     this.variant = type;
     this.currentMessage = nextMessage;
-    this.iconPath = DEFAULT_ICONS[type];
+    this.iconPath = ynToastIconPaths[type];
     this.hasMessage = nextMessage.trim().length > 0;
     this.wrap = false;
     this.grow = false;
@@ -605,7 +599,7 @@ export class YnToast extends LitElement {
     this.loadingMask = false;
     this.variant = type;
     this.currentMessage = message;
-    this.iconPath = DEFAULT_ICONS[type];
+    this.iconPath = ynToastIconPaths[type];
     this.hasMessage = message.trim().length > 0;
     this.loadingTimer = window.setTimeout(async () => {
       if (id !== this.runId) return;

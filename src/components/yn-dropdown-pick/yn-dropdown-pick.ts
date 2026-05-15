@@ -1,8 +1,10 @@
 import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import "../yn-pick/yn-pick";
 import type { YnPick } from "../yn-pick/yn-pick";
+import { ynDropdownPickCheckSvg, ynDropdownPickChevronUpSvg } from "../../asset/svg";
 
 type Primitive = string | number;
 type PickValue = Primitive | "";
@@ -307,8 +309,7 @@ export class YnDropdownPick extends LitElement {
         checkEl.style.background = "#241f21";
         checkEl.style.color = "#ffffff";
         checkEl.style.transition = "opacity 140ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)";
-        checkEl.innerHTML =
-          '<svg viewBox="0 0 18 18" width="12" height="12" fill="none" aria-hidden="true"><path d="M4.8 9.2L7.5 11.9L13.2 6.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>';
+        checkEl.innerHTML = ynDropdownPickCheckSvg;
         contentEl.appendChild(checkEl);
       }
       checkEl.style.opacity = this.showSelectedIcon && selected ? "1" : "0";
@@ -478,9 +479,7 @@ export class YnDropdownPick extends LitElement {
         <button class="trigger" type="button" ?disabled=${this.disabled} @click=${this.toggleOpen}>
           <span>${this.getButtonText()}</span>
           <span class=${`caret ${this.open ? "open" : ""}`}>
-            <svg viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path d="M2.5 6L5 3.5L7.5 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            ${unsafeSVG(ynDropdownPickChevronUpSvg)}
           </span>
         </button>
         <div class=${`panel ${this.open ? "open" : ""}`}>
