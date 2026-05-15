@@ -64,6 +64,11 @@
       "import": "./dist/components/yn-drawer.js",
       "require": "./dist/components/yn-drawer.cjs"
     },
+    "./components/yn-toast": {
+      "types": "./dist/types/components/yn-toast/yn-toast.d.ts",
+      "import": "./dist/components/yn-toast.js",
+      "require": "./dist/components/yn-toast.cjs"
+    },
     "./components/yn-icon-connect-button": {
       "types": "./dist/types/components/yn-icon-connect-button.d.ts",
       "import": "./dist/components/yn-icon-connect-button.js",

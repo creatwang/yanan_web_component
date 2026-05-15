@@ -17,6 +17,7 @@
       --moss: #727d5d;
       --clay: #b87d55;
       --success: #667a48;
+      --info: #5f6f86;
       --warning: #b87d55;
       --error: #9a4f43;
       --pill-bg: rgba(246, 241, 230, 0.92);
@@ -221,7 +222,7 @@
       --w: var(--pill-h);
       height: var(--pill-h);
       width: var(--w);
-      max-width: min(90vw, 300px);
+      max-width: 90vw;
       border-radius: calc(var(--pill-h) / 2);
       background: var(--pill-bg);
       border: 0;
@@ -239,11 +240,12 @@
       cursor: pointer;
       transition:
         width 0.62s var(--ease),
+        height 0.52s var(--ease),
         border-radius 0.55s var(--ease),
         box-shadow 0.4s ease,
         opacity 0.32s ease,
         transform 0.4s var(--ease);
-      will-change: width;
+      will-change: width, height;
     }
 
     .pill[data-phase="idle"] {
@@ -253,8 +255,13 @@
       transition:
         opacity 0.25s ease,
         transform 0.35s var(--ease),
+        height 0.52s var(--ease),
         width 0.62s var(--ease),
         border-radius 0.55s var(--ease);
+    }
+
+    .pill[data-resetting="true"] {
+      transition: none !important;
     }
 
     .pill[data-phase="loading"],
@@ -270,6 +277,27 @@
     .pill[data-phase="success"] {
       --w: min(90vw, var(--success-w, 238px));
       border-radius: calc(var(--pill-h) / 2);
+    }
+
+    .pill[data-grow="true"] {
+      height: var(--wrap-h, var(--pill-h));
+      border-radius: 18px;
+    }
+
+    .pill[data-wrap="true"] {
+      align-items: flex-start;
+    }
+
+    .pill[data-wrap="true"] .ball-slot {
+      align-self: center;
+    }
+
+    .pill[data-has-message="false"] .msg {
+      width: 0;
+      max-width: 0;
+      padding: 0;
+      visibility: hidden;
+      opacity: 0;
     }
 
     /* 左侧小球区域：宽度固定，始终在椭圆最左 */
@@ -377,6 +405,10 @@
       background: var(--warning);
     }
 
+    .pill[data-variant="info"] .ball .core {
+      background: var(--info);
+    }
+
     .pill[data-variant="error"] .ball .core {
       background: var(--error);
     }
@@ -426,28 +458,33 @@
 
     /* 右侧文案：loading 时不占宽，success 时展开 */
     .msg {
-      flex: 1 1 auto;
+      flex: 0 0 auto;
+      width: var(--msg-w, auto);
       min-width: 0;
-      padding: 0 22px 0 6px;
+      padding: 0 14px 0 6px;
       color: var(--ink);
       font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: 0.18em;
       text-transform: uppercase;
       white-space: nowrap;
+      visibility: hidden;
       opacity: 0;
-      transform: translateX(6px);
-      max-width: 0;
-      transition:
-        opacity 0.38s var(--ease) 0.14s,
-        transform 0.5s var(--ease) 0.12s,
-        max-width 0.62s var(--ease) 0.08s;
+      transform: none;
+      max-width: var(--msg-w, 320px);
+      transition: none;
     }
 
     .pill[data-phase="success"] .msg {
+      visibility: visible;
       opacity: 1;
-      transform: translateX(0);
-      max-width: 320px;
+    }
+
+    .pill[data-wrap="true"] .msg,
+    .pill[data-closing="true"] .msg {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.25;
     }
 
     .hint {
@@ -504,6 +541,7 @@
 
     <div class="actions">
       <button type="button" id="btn" data-state="success">Success</button>
+      <button type="button" data-state="info">Info</button>
       <button type="button" data-state="warning">Warning</button>
       <button type="button" data-state="error">Error</button>
       <label class="pin-toggle">
@@ -529,11 +567,15 @@
       const LOADING_MS = 1400;
       const states = {
         success: {
-          label: "success!",
+          label: "lorm lasjdf lskdjf lsf lksd fskdjfla ksdfj fsdflsadkjfl sjadklfj salkdfjlksdjf lorm lasjdf lskdjf lsf lksd fskdjfla ksdfj fsdflsadkjfl sjadklfj salkdfjlksdjf skadjflksdjf lksdf asdlkflsdf lksd skadjflksdjf lksdf asdlkflsdf lksd f sd lsdkfj skldflskjd fsdlkf sdlkf sl dflfslkdfslkd f!",
           icon: "M5 12l5 5L20 7",
         },
+        info: {
+          label: "info!",
+          icon: "M12 10v7M12 7h.01",
+        },
         warning: {
-          label: "warning!",
+          label: "",
           icon: "M12 6v8M12 18h.01",
         },
         error: {
@@ -551,8 +593,28 @@
       let spinAngle = 0;
       let spinStart = 0;
       let lastSpinTime = 0;
+      let shapeAnimation = null;
       let swipeStartY = 0;
       let isSwiping = false;
+
+      function resetShapeAnimation() {
+        if (shapeAnimation) shapeAnimation.cancel();
+        shapeAnimation = null;
+        pill.getAnimations().forEach(function (animation) {
+          animation.cancel();
+        });
+        pill.dataset.resetting = "true";
+        pill.dataset.phase = "idle";
+        pill.dataset.wrap = "false";
+        pill.dataset.grow = "false";
+        pill.dataset.closing = "false";
+        pill.style.width = "";
+        pill.style.height = "";
+        pill.style.borderRadius = "";
+        pill.style.removeProperty("--swipe-y");
+        void pill.offsetWidth;
+        pill.dataset.resetting = "false";
+      }
 
       function stopSpin() {
         if (spinFrame) cancelAnimationFrame(spinFrame);
@@ -592,24 +654,143 @@
 
       function updateSuccessWidth() {
         const pillHeight = parseFloat(getComputedStyle(pill).getPropertyValue("--pill-h"));
-        const contentWidth = pillHeight + msg.scrollWidth + 12;
-        pill.style.setProperty("--success-w", Math.ceil(contentWidth) + "px");
+        const hasMessage = pill.dataset.hasMessage !== "false";
+        const messageWidth = hasMessage ? getNaturalMessageWidth() : 0;
+        const contentWidth = pillHeight + messageWidth;
+        const maxWidth = window.innerWidth * 0.9;
+        const successWidth = Math.min(contentWidth, maxWidth);
+        const msgWidth = Math.max(0, successWidth - pillHeight);
+        const shouldWrap = contentWidth > maxWidth;
+        const wrapHeight = getWrappedHeight(msgWidth, pillHeight);
+
+        pill.style.setProperty("--success-w", Math.ceil(successWidth) + "px");
+        pill.style.setProperty("--msg-w", Math.ceil(msgWidth) + "px");
+        pill.style.setProperty("--wrap-h", Math.ceil(wrapHeight) + "px");
+        pill.dataset.shouldWrap = shouldWrap ? "true" : "false";
+
+        return {
+          pillHeight,
+          successWidth,
+          wrapHeight,
+          shouldWrap,
+        };
+      }
+
+      function getNaturalMessageWidth() {
+        const measure = document.createElement("span");
+        const msgStyle = getComputedStyle(msg);
+        measure.textContent = msg.textContent;
+        measure.style.position = "fixed";
+        measure.style.left = "-9999px";
+        measure.style.top = "0";
+        measure.style.visibility = "hidden";
+        measure.style.boxSizing = "border-box";
+        measure.style.whiteSpace = "nowrap";
+        measure.style.padding = msgStyle.padding;
+        measure.style.font = msgStyle.font;
+        measure.style.fontWeight = msgStyle.fontWeight;
+        measure.style.letterSpacing = msgStyle.letterSpacing;
+        measure.style.textTransform = msgStyle.textTransform;
+        document.body.appendChild(measure);
+        const width = measure.getBoundingClientRect().width;
+        measure.remove();
+        return width;
+      }
+
+      function getWrappedHeight(msgWidth, pillHeight) {
+        if (msgWidth <= 0) return pillHeight;
+
+        const measure = document.createElement("div");
+        const msgStyle = getComputedStyle(msg);
+        measure.textContent = msg.textContent;
+        measure.style.position = "fixed";
+        measure.style.left = "-9999px";
+        measure.style.top = "0";
+        measure.style.visibility = "hidden";
+        measure.style.boxSizing = "border-box";
+        measure.style.width = msgWidth + "px";
+        measure.style.padding = msgStyle.padding;
+        measure.style.font = msgStyle.font;
+        measure.style.fontWeight = msgStyle.fontWeight;
+        measure.style.letterSpacing = msgStyle.letterSpacing;
+        measure.style.textTransform = msgStyle.textTransform;
+        measure.style.lineHeight = msgStyle.lineHeight;
+        measure.style.whiteSpace = "normal";
+        measure.style.overflowWrap = "anywhere";
+        document.body.appendChild(measure);
+        const height = Math.max(pillHeight, measure.getBoundingClientRect().height);
+        measure.remove();
+        return height;
       }
 
       function hideToast() {
         if (t) clearTimeout(t);
+        resetShapeAnimation();
         stopSpin();
+        pill.dataset.closing = "true";
         setPhase("idle");
-        pill.style.removeProperty("--swipe-y");
         buttons.forEach(function (button) {
           button.disabled = false;
         });
         t = null;
       }
 
+      function runWrappedShapeAnimation(dimensions) {
+        const radius = dimensions.pillHeight / 2;
+
+        if (shapeAnimation) shapeAnimation.cancel();
+        pill.dataset.resetting = "true";
+        pill.dataset.wrap = "true";
+        pill.dataset.grow = "false";
+        pill.style.width = dimensions.pillHeight + "px";
+        pill.style.height = dimensions.pillHeight + "px";
+        pill.style.borderRadius = radius + "px";
+        setPhase("success");
+        void pill.offsetWidth;
+        pill.dataset.resetting = "false";
+
+        shapeAnimation = pill.animate(
+          [
+            {
+              width: dimensions.pillHeight + "px",
+              height: dimensions.pillHeight + "px",
+              borderRadius: radius + "px",
+              offset: 0,
+            },
+            {
+              width: dimensions.successWidth + "px",
+              height: dimensions.pillHeight + "px",
+              borderRadius: radius + "px",
+              offset: 0.68,
+            },
+            {
+              width: dimensions.successWidth + "px",
+              height: dimensions.wrapHeight + "px",
+              borderRadius: "18px",
+              offset: 1,
+            },
+          ],
+          {
+            duration: 980,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+            fill: "both",
+          }
+        );
+
+        shapeAnimation.addEventListener("finish", function () {
+          pill.dataset.grow = "true";
+          pill.style.width = "";
+          pill.style.height = "";
+          pill.style.borderRadius = "";
+          shapeAnimation.cancel();
+          shapeAnimation = null;
+        }, { once: true });
+      }
+
       function showToast(type) {
         const state = states[type] || states.success;
         if (t) clearTimeout(t);
+        resetShapeAnimation();
         buttons.forEach(function (button) {
           button.disabled = true;
         });
@@ -617,13 +798,28 @@
         msg.textContent = state.label;
         iconPath.setAttribute("d", state.icon);
         pill.dataset.variant = type;
+        pill.dataset.hasMessage = state.label.trim() ? "true" : "false";
+        pill.dataset.wrap = "false";
+        pill.dataset.grow = "false";
+        pill.dataset.closing = "false";
         setPhase("loading");
         startSpin();
 
         t = setTimeout(function () {
           stopSpin();
-          updateSuccessWidth();
-          setPhase("success");
+          const dimensions = updateSuccessWidth();
+
+          if (dimensions.shouldWrap) {
+            runWrappedShapeAnimation(dimensions);
+          } else {
+            pill.dataset.wrap = "false";
+            pill.dataset.grow = "false";
+            pill.style.width = "";
+            pill.style.height = "";
+            pill.style.borderRadius = "";
+            setPhase("success");
+          }
+
           buttons.forEach(function (button) {
             button.disabled = false;
           });
@@ -634,6 +830,7 @@
           }
 
           t = setTimeout(function () {
+            pill.dataset.closing = "true";
             setPhase("idle");
             t = null;
           }, 2600);
@@ -649,8 +846,19 @@
       pinToggle.addEventListener("change", function () {
         if (pinToggle.checked || pill.dataset.phase !== "success") return;
         if (t) clearTimeout(t);
+        pill.dataset.closing = "true";
         setPhase("idle");
         t = null;
+      });
+
+      pill.addEventListener("transitionend", function (event) {
+        if (event.propertyName !== "width") return;
+
+        if (pill.dataset.phase === "idle") {
+          pill.dataset.wrap = "false";
+          pill.dataset.grow = "false";
+          pill.dataset.closing = "false";
+        }
       });
 
       pill.addEventListener("pointerdown", function (event) {

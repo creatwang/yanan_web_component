@@ -8,3 +8,4 @@ import "./components/yn-pick/yn-pick";
 import "./components/yn-dropdown/yn-dropdown";
 import "./components/yn-dropdown-pick/yn-dropdown-pick";
 import "./components/yn-drawer/yn-drawer";
+import "./components/yn-toast/yn-toast";
