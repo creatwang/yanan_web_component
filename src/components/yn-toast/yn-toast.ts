@@ -641,7 +641,7 @@ export class YnToast extends LitElement {
     if (!this.pillEl) return;
     if (this.shapeAnimation) this.shapeAnimation.cancel();
     this.shapeAnimation = null;
-    this.pillEl.getAnimations().forEach((animation) => animation.cancel());
+    this.pillEl.getAnimations?.().forEach((animation) => animation.cancel());
     this.resetting = true;
     this.phase = "idle";
     this.wrap = false;
