@@ -26,4 +26,69 @@ describe("yn-input", () => {
     expect(emittedValue).to.equal("hello");
     expect(el.value).to.equal("hello");
   });
+
+  it("renders prefix and suffix button slots", async () => {
+    const el = await fixture<YnInput>(html`
+      <yn-input>
+        <span slot="prefix-button">P</span>
+        <span slot="suffix-button">S</span>
+      </yn-input>
+    `);
+
+    const prefixSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="prefix-button"]');
+    const suffixSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="suffix-button"]');
+    expect(prefixSlot?.assignedElements({ flatten: true }).length).to.equal(1);
+    expect(suffixSlot?.assignedElements({ flatten: true }).length).to.equal(1);
+  });
+
+  it("emits prefix and suffix click events with current value", async () => {
+    const el = await fixture<YnInput>(html`<yn-input value="hello"></yn-input>`);
+    let prefixValue = "";
+    let suffixValue = "";
+
+    el.addEventListener("yn-prefix-click", (event) => {
+      prefixValue = (event as CustomEvent<{ value: string }>).detail.value;
+    });
+    el.addEventListener("yn-suffix-click", (event) => {
+      suffixValue = (event as CustomEvent<{ value: string }>).detail.value;
+    });
+
+    const prefixButton = el.shadowRoot?.querySelector<HTMLButtonElement>(".action-prefix");
+    const suffixButton = el.shadowRoot?.querySelector<HTMLButtonElement>(".action-suffix");
+    if (!prefixButton || !suffixButton) {
+      throw new Error("button not found");
+    }
+
+    prefixButton.click();
+    suffixButton.click();
+
+    expect(prefixValue).to.equal("hello");
+    expect(suffixValue).to.equal("hello");
+  });
+
+  it("disables prefix and suffix buttons when disabled", async () => {
+    const el = await fixture<YnInput>(html`<yn-input disabled></yn-input>`);
+    let prefixClicked = false;
+    let suffixClicked = false;
+
+    el.addEventListener("yn-prefix-click", () => {
+      prefixClicked = true;
+    });
+    el.addEventListener("yn-suffix-click", () => {
+      suffixClicked = true;
+    });
+
+    const prefixButton = el.shadowRoot?.querySelector<HTMLButtonElement>(".action-prefix");
+    const suffixButton = el.shadowRoot?.querySelector<HTMLButtonElement>(".action-suffix");
+    if (!prefixButton || !suffixButton) {
+      throw new Error("button not found");
+    }
+
+    expect(prefixButton.disabled).to.equal(true);
+    expect(suffixButton.disabled).to.equal(true);
+    prefixButton.click();
+    suffixButton.click();
+    expect(prefixClicked).to.equal(false);
+    expect(suffixClicked).to.equal(false);
+  });
 });
