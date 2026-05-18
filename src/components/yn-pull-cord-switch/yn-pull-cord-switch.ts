@@ -71,6 +71,7 @@ export class YnPullCordSwitch extends LitElement {
   private stageOffset = { x: 0, y: 0 };
   private stageOffsetValid = false;
   private slotsBound = false;
+  private cardMetricsCache: { width: number; height: number } | null = null;
 
   private readonly onHostPointerEnter = () => this.handlePeekEnter();
   private readonly onHostPointerLeave = () => this.handlePeekLeave();
@@ -430,6 +431,7 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   disconnectedCallback() {
+    this.unbindSlotListeners();
     this.teardownFixedMode();
     this.engine?.stop();
     this.engine = null;
@@ -454,10 +456,17 @@ export class YnPullCordSwitch extends LitElement {
       this.syncRopeLengthVars();
     }
 
-    if (changed.has("ropeLength") || changed.has("cardOffset")) {
+    if (changed.has("ropeLength")) {
       this.syncRopeLengthVars();
+      this.invalidateCardMetrics();
       this.engine?.invalidateTheme();
       this.engine?.resize();
+    }
+
+    if (changed.has("cardOffset")) {
+      this.syncRopeLengthVars();
+      this.engine?.invalidateTheme();
+      this.engine?.requestFrame();
       if (this.fixed) {
         this.syncPeekableAttr();
         if (!this.isPeekable && this.peeking) {
@@ -492,17 +501,26 @@ export class YnPullCordSwitch extends LitElement {
       }
     }
 
-    this.syncEngineInteractionTargets();
+    if (changed.has("fixed") || changed.has("disabled")) {
+      this.syncEngineInteractionTargets();
+    }
+
+    if (this.fixed && !this.fixedDrag && this.fixedGripEl) {
+      this.setupFixedMode();
+      this.applyInitialFixedPosition();
+    }
 
     if (!this.engine) return;
 
     if (changed.has("variant") || changed.has("size")) {
       this.invalidateStageOffset();
+      this.invalidateCardMetrics();
       this.engine.invalidateTheme();
       this.engine.resize();
     }
     if (changed.has("checked")) {
       this.invalidateStageOffset();
+      this.invalidateCardMetrics();
       this.engine.invalidateTheme();
       this.engine.requestFrame();
     }
@@ -524,6 +542,7 @@ export class YnPullCordSwitch extends LitElement {
     if (prevMode !== this.cardMode) {
       this.syncRopeLengthVars();
       this.invalidateStageOffset();
+      this.invalidateCardMetrics();
       this.syncEngineInteractionTargets();
       this.engine?.invalidateTheme();
       this.engine?.resize();
@@ -536,6 +555,18 @@ export class YnPullCordSwitch extends LitElement {
     for (const slot of this.shadowRoot.querySelectorAll("slot")) {
       slot.addEventListener("slotchange", this.onSlotChange);
     }
+  }
+
+  private unbindSlotListeners() {
+    if (!this.slotsBound || !this.shadowRoot) return;
+    for (const slot of this.shadowRoot.querySelectorAll("slot")) {
+      slot.removeEventListener("slotchange", this.onSlotChange);
+    }
+    this.slotsBound = false;
+  }
+
+  private invalidateCardMetrics() {
+    this.cardMetricsCache = null;
   }
 
   private invalidateStageOffset() {
@@ -731,11 +762,14 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   private measureCardMetrics() {
+    if (!this.usesSlotCard()) return null;
+    if (this.cardMetricsCache) return this.cardMetricsCache;
     const target = this.getActiveCardVisualEl();
     if (!target) return null;
     const rect = target.getBoundingClientRect();
     if (rect.width < 1 || rect.height < 1) return null;
-    return { width: rect.width, height: rect.height };
+    this.cardMetricsCache = { width: rect.width, height: rect.height };
+    return this.cardMetricsCache;
   }
 
   private syncEngineInteractionTargets() {
@@ -773,6 +807,7 @@ export class YnPullCordSwitch extends LitElement {
       if (this.fixed) {
         requestAnimationFrame(() => {
           this.invalidateStageOffset();
+          this.invalidateCardMetrics();
           this.engine?.resize();
         });
       }
