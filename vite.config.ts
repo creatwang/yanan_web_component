@@ -17,7 +17,8 @@ export default defineConfig({
         "components/yn-dropdown": "src/components/yn-dropdown/yn-dropdown.ts",
         "components/yn-dropdown-pick": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts",
         "components/yn-drawer": "src/components/yn-drawer/yn-drawer.ts",
-        "components/yn-toast": "src/components/yn-toast/yn-toast.ts"
+        "components/yn-toast": "src/components/yn-toast/yn-toast.ts",
+        "components/yn-pull-cord-switch": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts"
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => {

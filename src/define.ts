@@ -9,3 +9,4 @@ import "./components/yn-dropdown/yn-dropdown";
 import "./components/yn-dropdown-pick/yn-dropdown-pick";
 import "./components/yn-drawer/yn-drawer";
 import "./components/yn-toast/yn-toast";
+import "./components/yn-pull-cord-switch/yn-pull-cord-switch";

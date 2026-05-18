@@ -79,6 +79,11 @@
       "import": "./dist/components/yn-icon-connect-button.js",
       "require": "./dist/components/yn-icon-connect-button.cjs"
     },
+    "./components/yn-pull-cord-switch": {
+      "types": "./dist/types/components/yn-pull-cord-switch/yn-pull-cord-switch.d.ts",
+      "import": "./dist/components/yn-pull-cord-switch.js",
+      "require": "./dist/components/yn-pull-cord-switch.cjs"
+    },
     "./umd": {
       "default": "./dist/index.umd.js"
     },
@@ -91,6 +96,7 @@
   ],
   "scripts": {
     "dev": "vite",
+    "dev:pull-cord": "vite --open /demos/pull-cord-switch-demo.html",
     "build": "vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
