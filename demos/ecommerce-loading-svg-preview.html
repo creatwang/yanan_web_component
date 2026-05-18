@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>电商 Loading SVG 预览 · 旋转动效</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1a1a1a;
+      --muted: #8c8c8c;
+      --accent: #ff4d4f;
+      --accent-2: #ff7a45;
+      --brand: #1677ff;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --spin-duration: 0.75s;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 16px 16px calc(24px + var(--safe-bottom));
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .speed-panel {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .speed-panel__title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .speed-panel__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .speed-panel__value {
+      font-variant-numeric: tabular-nums;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .speed-panel input[type="range"] {
+      width: 100%;
+      height: 28px;
+      margin: 0;
+      accent-color: var(--brand);
+      cursor: pointer;
+    }
+
+    .speed-panel__labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .speed-panel__hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-head h2 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: var(--brand);
+      background: #e6f4ff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .preview {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 120px;
+      background: linear-gradient(180deg, #fafafa 0%, #fff 100%);
+      border-radius: 8px;
+      border: 1px solid #f0f0f0;
+    }
+
+    .preview--dark {
+      background: linear-gradient(180deg, #2a2a2a 0%, #1f1f1f 100%);
+      border-color: #3a3a3a;
+    }
+
+    .preview svg {
+      display: block;
+    }
+
+    /* 统一旋转：线性、GPU 友好 */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes spin-reverse {
+      to { transform: rotate(-360deg); }
+    }
+
+    .spin {
+      animation: spin var(--spin-duration) linear infinite;
+      transform-origin: center;
+    }
+
+    .spin-slow {
+      animation: spin calc(var(--spin-duration) * 1.56) linear infinite;
+      transform-origin: center;
+    }
+
+    .spin-fast {
+      animation: spin calc(var(--spin-duration) * 0.72) linear infinite;
+      transform-origin: center;
+    }
+
+    .spin-reverse {
+      animation: spin-reverse calc(var(--spin-duration) * 1.22) linear infinite;
+      transform-origin: center;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>电商 Loading SVG</h1>
+    <p>共 8 款，针对移动端 44–48px 视区优化；均用 <code>transform: rotate</code> 旋转，流畅且省电。</p>
+  </header>
+
+  <section class="speed-panel" aria-label="转速调节">
+    <p class="speed-panel__title">全局转速</p>
+    <div class="speed-panel__meta">
+      <span>单圈时长 / 转速</span>
+      <span class="speed-panel__value" id="speed-readout">0.75s · 约 80 转/分</span>
+    </div>
+    <input
+      type="range"
+      id="speed-range"
+      min="0"
+      max="100"
+      value="0"
+      aria-valuemin="0.35"
+      aria-valuemax="0.75"
+      aria-valuenow="0.75"
+      aria-label="调节所有 Loading 的旋转速度，向左 80 转/分，向右更快"
+    />
+    <div class="speed-panel__labels">
+      <span>80 转/分</span>
+      <span>推荐 ~120 转/分</span>
+      <span>快 ~171 转/分</span>
+    </div>
+    <p class="speed-panel__hint">转速下限 80 转/分（0.75s/圈），向右可加快至约 171 转/分；各款之间的快慢比例保持不变。</p>
+  </section>
+
+  <!-- 1. 经典缺口圆环 — 最通用 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>01 · 缺口圆环</h2>
+        <p class="card-desc">全平台电商最常用，克制、不抢商品焦点</p>
+      </div>
+      <span class="tag">推荐默认</span>
+    </div>
+    <div class="preview">
+      <svg class="spin" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#f0f0f0" stroke-width="3"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="var(--accent)" stroke-width="3"
+          stroke-linecap="round" stroke-dasharray="80 113" stroke-dashoffset="0"/>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 2. 双色对旋环 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>02 · 双色对旋环</h2>
+        <p class="card-desc">内外环反向旋转，层次感强，适合促销页</p>
+      </div>
+      <span class="tag">层次感</span>
+    </div>
+    <div class="preview">
+      <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+        <g class="spin" style="transform-origin: 24px 24px">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="#ffe7e6" stroke-width="2.5"/>
+          <circle cx="24" cy="24" r="20" fill="none" stroke="var(--accent)" stroke-width="2.5"
+            stroke-linecap="round" stroke-dasharray="50 76"/>
+        </g>
+        <g class="spin-reverse" style="transform-origin: 24px 24px">
+          <circle cx="24" cy="24" r="12" fill="none" stroke="#fff7e6" stroke-width="2"/>
+          <circle cx="24" cy="24" r="12" fill="none" stroke="var(--accent-2)" stroke-width="2"
+            stroke-linecap="round" stroke-dasharray="28 48"/>
+        </g>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 3. 渐变弧 — 偏品牌感 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>03 · 渐变弧环</h2>
+        <p class="card-desc">渐变收尾柔和，适合品牌色主站</p>
+      </div>
+      <span class="tag">品牌感</span>
+    </div>
+    <div class="preview">
+      <svg class="spin-slow" width="46" height="46" viewBox="0 0 46 46" aria-hidden="true">
+        <defs>
+          <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1677ff"/>
+            <stop offset="100%" stop-color="#69b1ff"/>
+          </linearGradient>
+        </defs>
+        <circle cx="23" cy="23" r="19" fill="none" stroke="#e8f3ff" stroke-width="3"/>
+        <circle cx="23" cy="23" r="19" fill="none" stroke="url(#g1)" stroke-width="3"
+          stroke-linecap="round" stroke-dasharray="72 119"/>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 4. 八点放射 — 像星光/加载中 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>04 · 八点放射</h2>
+        <p class="card-desc">旋转后节奏均匀，适合「正在计算优惠」</p>
+      </div>
+      <span class="tag">轻量</span>
+    </div>
+    <div class="preview">
+      <svg class="spin" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <g fill="var(--accent)" opacity="0.9">
+          <rect x="21" y="4" width="2" height="8" rx="1" opacity="1"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(45 22 22)" opacity="0.85"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(90 22 22)" opacity="0.7"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(135 22 22)" opacity="0.55"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(180 22 22)" opacity="0.4"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(225 22 22)" opacity="0.55"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(270 22 22)" opacity="0.7"/>
+          <rect x="21" y="4" width="2" height="8" rx="1" transform="rotate(315 22 22)" opacity="0.85"/>
+        </g>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 5. 虚线圆环 — 订单/物流感 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>05 · 虚线轨迹环</h2>
+        <p class="card-desc">像物流轨迹在转，适合订单、配送页</p>
+      </div>
+      <span class="tag">物流场景</span>
+    </div>
+    <div class="preview">
+      <svg class="spin" width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#d9d9d9" stroke-width="2"
+          stroke-dasharray="4 6"/>
+        <circle cx="24" cy="24" r="20" fill="none" stroke="#52c41a" stroke-width="2.5"
+          stroke-linecap="round" stroke-dasharray="30 96"/>
+        <circle cx="24" cy="6" r="3" fill="#52c41a"/>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 6. 购物车轮廓环 — 电商语义 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>06 · 购物车环</h2>
+        <p class="card-desc">外环旋转 + 中心购物车图标，加购/结算页友好</p>
+      </div>
+      <span class="tag">电商语义</span>
+    </div>
+    <div class="preview">
+      <svg width="50" height="50" viewBox="0 0 50 50" aria-hidden="true">
+        <g class="spin-slow" style="transform-origin: 25px 25px">
+          <circle cx="25" cy="25" r="22" fill="none" stroke="#fff1f0" stroke-width="2.5"/>
+          <circle cx="25" cy="25" r="22" fill="none" stroke="var(--accent)" stroke-width="2.5"
+            stroke-linecap="round" stroke-dasharray="55 83"/>
+        </g>
+        <g fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 18h18l-2 12H18l-2-12z"/>
+          <circle cx="20" cy="34" r="1.5" fill="var(--accent)" stroke="none"/>
+          <circle cx="30" cy="34" r="1.5" fill="var(--accent)" stroke="none"/>
+          <path d="M14 18l2-4h6"/>
+        </g>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 7. 三瓣 Y 形 — 类似支付/银行 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>07 · 三瓣 Y 环</h2>
+        <p class="card-desc">稳重、偏金融支付风，适合收银台 loading</p>
+      </div>
+      <span class="tag">支付场景</span>
+    </div>
+    <div class="preview">
+      <svg class="spin" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <g fill="none" stroke="#1677ff" stroke-width="3.5" stroke-linecap="round">
+          <path d="M22 6 A16 16 0 0 1 35.9 28" opacity="1"/>
+          <path d="M22 6 A16 16 0 0 1 35.9 28" transform="rotate(120 22 22)" opacity="0.65"/>
+          <path d="M22 6 A16 16 0 0 1 35.9 28" transform="rotate(240 22 22)" opacity="0.35"/>
+        </g>
+      </svg>
+    </div>
+  </article>
+
+  <!-- 8. 深色底高对比 — 沉浸式/直播 -->
+  <article class="card">
+    <div class="card-head">
+      <div>
+        <h2>08 · 高对比弧（暗色底）</h2>
+        <p class="card-desc">直播、秒杀暗色页；白弧旋转清晰可见</p>
+      </div>
+      <span class="tag">暗色页</span>
+    </div>
+    <div class="preview preview--dark">
+      <svg class="spin-fast" width="44" height="44" viewBox="0 0 44 44" aria-hidden="true">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="#fff" stroke-width="3"
+          stroke-linecap="round" stroke-dasharray="45 113"/>
+      </svg>
+    </div>
+  </article>
+
+  <footer>用浏览器直接打开本文件即可预览 · 建议真机查看 375px 宽度</footer>
+
+  <script>
+    (function () {
+      var DURATION_MIN = 0.35;
+      var DURATION_MAX = 0.75;
+      var DEFAULT_VALUE = 0;
+
+      var range = document.getElementById("speed-range");
+      var readout = document.getElementById("speed-readout");
+
+      function valueToDuration(value) {
+        var t = Number(value) / 100;
+        return DURATION_MAX - t * (DURATION_MAX - DURATION_MIN);
+      }
+
+      function applySpeed(value) {
+        var duration = valueToDuration(value);
+        document.documentElement.style.setProperty(
+          "--spin-duration",
+          duration.toFixed(2) + "s"
+        );
+        range.setAttribute("aria-valuenow", duration.toFixed(2));
+
+        var rpm = 60 / duration;
+        readout.textContent =
+          duration.toFixed(2) + "s · 约 " + Math.round(rpm) + " 转/分";
+      }
+
+      range.addEventListener("input", function () {
+        applySpeed(range.value);
+      });
+
+      applySpeed(range.value || DEFAULT_VALUE);
+    })();
+  </script>
+</body>
+</html>
