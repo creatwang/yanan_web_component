@@ -4,37 +4,35 @@ import {
   PullCordFixedDrag,
   applyCssLeft,
   applyCssTop,
+  applyRopeLengthVars,
   centerLogical,
+  DEFAULT_ROPE_LENGTH,
   logicalToCssLeft,
+  normalizeRopeLength,
   peekCssLeft,
   peekCssTop
-} from "./pull-cord-fixed";
-import {
-  applyRopeLengthVars,
-  DEFAULT_ROPE_LENGTH,
-  normalizeRopeLength
-} from "./pull-cord-rope-length";
+} from "./pull-cord-layout";
 import { PullCordRopeEngine } from "./pull-cord-rope-engine";
 
-export { DEFAULT_ROPE_LENGTH } from "./pull-cord-rope-length";
+export { DEFAULT_ROPE_LENGTH } from "./pull-cord-layout";
 
 export type YnPullCordSwitchVariant = "default" | "floema";
 export type YnPullCordSwitchSize = "mini" | "small" | "medium";
 type CardMode = "fallback" | "default-slot" | "dual-slot";
 
-function lightDomHasDefaultSlot(host: HTMLElement) {
+function scanLightDomSlots(host: HTMLElement) {
+  let hasDefault = false;
+  let hasActivated = false;
   for (const node of host.childNodes) {
     if (node.nodeType === Node.ELEMENT_NODE) {
-      if ((node as Element).getAttribute("slot") !== "activated") return true;
-    } else if (node.nodeType === Node.TEXT_NODE) {
-      if ((node.textContent?.trim().length ?? 0) > 0) return true;
+      const el = node as Element;
+      if (el.getAttribute("slot") === "activated") hasActivated = true;
+      else hasDefault = true;
+    } else if (node.nodeType === Node.TEXT_NODE && (node.textContent?.trim().length ?? 0) > 0) {
+      hasDefault = true;
     }
   }
-  return false;
-}
-
-function lightDomHasActivatedSlot(host: HTMLElement) {
-  return Array.from(host.children).some((el) => el.getAttribute("slot") === "activated");
+  return { hasDefault, hasActivated };
 }
 
 @customElement("yn-pull-cord-switch")
@@ -531,8 +529,9 @@ export class YnPullCordSwitch extends LitElement {
 
   private refreshSlotFlags() {
     const prevMode = this.cardMode;
-    this.hasDefaultSlot = lightDomHasDefaultSlot(this);
-    this.hasActivatedSlot = lightDomHasActivatedSlot(this);
+    const slots = scanLightDomSlots(this);
+    this.hasDefaultSlot = slots.hasDefault;
+    this.hasActivatedSlot = slots.hasActivated;
     this.cardMode = this.hasActivatedSlot
       ? "dual-slot"
       : this.hasDefaultSlot

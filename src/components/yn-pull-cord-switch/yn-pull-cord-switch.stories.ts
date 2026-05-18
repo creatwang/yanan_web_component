@@ -14,7 +14,7 @@ import {
   applyPullCordShellBackground,
   shellBackgroundFromVariant
 } from "./pull-cord-shell-bg";
-import { logicalToCssLeft, peekCssLeft, peekCssTop } from "./pull-cord-fixed";
+import { logicalToCssLeft, peekCssLeft, peekCssTop } from "./pull-cord-layout";
 
 type Args = {
   checked: boolean;
