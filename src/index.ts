@@ -14,6 +14,7 @@ export type {
   YnPullCordSwitchSize,
   YnPullCordSwitchVariant
 } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
+export { DEFAULT_ROPE_LENGTH } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 export type {
   YnToastController,
   YnToastDetail,

@@ -1,32 +1,101 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query } from "lit/decorators.js";
+import {
+  PullCordFixedDrag,
+  applyCssLeft,
+  applyCssTop,
+  centerLogical,
+  logicalToCssLeft,
+  peekCssLeft,
+  peekCssTop
+} from "./pull-cord-fixed";
+import {
+  applyRopeLengthVars,
+  DEFAULT_ROPE_LENGTH,
+  normalizeRopeLength
+} from "./pull-cord-rope-length";
 import { PullCordRopeEngine } from "./pull-cord-rope-engine";
+
+export { DEFAULT_ROPE_LENGTH } from "./pull-cord-rope-length";
 
 export type YnPullCordSwitchVariant = "default" | "floema";
 export type YnPullCordSwitchSize = "mini" | "small" | "medium";
+type CardMode = "fallback" | "default-slot" | "dual-slot";
+
+function lightDomHasDefaultSlot(host: HTMLElement) {
+  for (const node of host.childNodes) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      if ((node as Element).getAttribute("slot") !== "activated") return true;
+    } else if (node.nodeType === Node.TEXT_NODE) {
+      if ((node.textContent?.trim().length ?? 0) > 0) return true;
+    }
+  }
+  return false;
+}
+
+function lightDomHasActivatedSlot(host: HTMLElement) {
+  return Array.from(host.children).some((el) => el.getAttribute("slot") === "activated");
+}
 
 @customElement("yn-pull-cord-switch")
 export class YnPullCordSwitch extends LitElement {
   @property({ type: Boolean, reflect: true }) checked = false;
   @property({ type: Boolean, reflect: true }) disabled = false;
+  @property({ type: Boolean, reflect: true }) fixed = false;
+  @property({ type: Boolean, reflect: true }) reverse = false;
   @property({ type: String, reflect: true }) variant: YnPullCordSwitchVariant = "default";
   @property({ type: String, reflect: true }) size: YnPullCordSwitchSize = "mini";
+  /** 绳子长度（px），默认与原先 mini 一致；与 `size` 解耦，仅控制绳身高度与物理参数 */
+  @property({ type: Number, attribute: "rope-length", reflect: true })
+  ropeLength = DEFAULT_ROPE_LENGTH;
+  @property({ type: Number, attribute: "fixed-x", reflect: true }) fixedX?: number;
+  /** 仅 `fixed=true` 时：距视口顶部的偏移（px，可为负）；负值 hover 滑出完全露出 */
+  @property({ type: Number, reflect: true }) top?: number;
   @property({ type: Number, attribute: "toggle-threshold" }) toggleThreshold?: number;
+  /** 绳端卡片距绳头的间距（px，可为负）；未设置时随 `rope-length` 缩放。负值时 fixed 负偏移的 hover 滑出不可用 */
+  @property({ type: Number, attribute: "card-offset" }) cardOffset?: number;
+  /** 组件层级（映射 `--yn-pull-cord-switch-z-index`）；fixed 模式下控制相对页面的叠放顺序 */
+  @property({ type: Number, attribute: "z-index", reflect: true }) zIndex = 1;
 
   @query("canvas.rope") private ropeCanvas?: HTMLCanvasElement;
   @query(".card") private cardEl?: HTMLElement;
+  @query(".fixed-grip") private fixedGripEl?: HTMLElement;
+  @query(".stage") private stageEl?: HTMLElement;
 
   private engine: PullCordRopeEngine | null = null;
-  private hasSlotContent = false;
+  private fixedDrag: PullCordFixedDrag | null = null;
+  private hasDefaultSlot = false;
+  private hasActivatedSlot = false;
+  private cardMode: CardMode = "fallback";
+  private peeking = false;
+  private stageOffset = { x: 0, y: 0 };
+  private stageOffsetValid = false;
+  private slotsBound = false;
+
+  private readonly onHostPointerEnter = () => this.handlePeekEnter();
+  private readonly onHostPointerLeave = () => this.handlePeekLeave();
+  private readonly onSlotChange = () => this.refreshSlotFlags();
 
   static styles = css`
     :host {
       display: block;
+      position: relative;
+      z-index: var(--yn-pull-cord-switch-z-index, 1);
       width: 100%;
       height: var(--yn-pull-cord-switch-height);
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
+      --yn-pull-cord-switch-height: 260px;
+      --yn-pull-cord-switch-segment-count: 8;
+      --yn-pull-cord-switch-segment-len: 10px;
+      --yn-pull-cord-switch-card-offset: 20px;
+      --yn-pull-cord-switch-max-pull: 84px;
+      --yn-pull-cord-switch-toggle-threshold: 52px;
+      --yn-pull-cord-switch-canvas-width: 100%;
+      --yn-pull-cord-switch-slot-transition-duration: 0.28s;
+      --yn-pull-cord-switch-fixed-peek-transition-duration: 0.34s;
+      --yn-pull-cord-switch-slot-button-scale: 0.88;
     }
 
     :host([disabled]) {
@@ -35,75 +104,60 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([size="mini"]) {
-      --yn-pull-cord-switch-height: 260px;
-      --yn-pull-cord-switch-segment-len: 10;
-      --yn-pull-cord-switch-card-offset: 20;
-      --yn-pull-cord-switch-max-pull: 84;
-      --yn-pull-cord-switch-toggle-threshold: 52;
       --yn-pull-cord-switch-ceiling-width: 44;
       --yn-pull-cord-switch-rope-width: 2.5;
       --yn-pull-cord-switch-rope-shadow-width: 4;
-      --yn-pull-cord-switch-card-width: 64px;
-      --yn-pull-cord-switch-card-height: 38px;
-      --yn-pull-cord-switch-card-radius: 8px;
-      --yn-pull-cord-switch-card-padding: 6px 8px;
-      --yn-pull-cord-switch-card-gap: 3px;
-      --yn-pull-cord-switch-card-dot-size: 9px;
-      --yn-pull-cord-switch-card-label-size: 9px;
+      --yn-pull-cord-switch-card-width: 52px;
+      --yn-pull-cord-switch-card-height: 30px;
+      --yn-pull-cord-switch-card-radius: 7px;
+      --yn-pull-cord-switch-card-padding: 4px 6px;
+      --yn-pull-cord-switch-card-gap: 2px;
+      --yn-pull-cord-switch-card-dot-size: 7px;
+      --yn-pull-cord-switch-card-label-size: 8px;
     }
 
     :host([size="small"]) {
-      --yn-pull-cord-switch-height: 310px;
-      --yn-pull-cord-switch-segment-len: 12;
-      --yn-pull-cord-switch-card-offset: 24;
-      --yn-pull-cord-switch-max-pull: 101;
-      --yn-pull-cord-switch-toggle-threshold: 62;
       --yn-pull-cord-switch-ceiling-width: 50;
       --yn-pull-cord-switch-rope-width: 2.75;
       --yn-pull-cord-switch-rope-shadow-width: 4.5;
-      --yn-pull-cord-switch-card-width: 76px;
-      --yn-pull-cord-switch-card-height: 44px;
-      --yn-pull-cord-switch-card-radius: 9px;
-      --yn-pull-cord-switch-card-padding: 7px 9px;
-      --yn-pull-cord-switch-card-gap: 4px;
-      --yn-pull-cord-switch-card-dot-size: 10px;
-      --yn-pull-cord-switch-card-label-size: 10px;
+      --yn-pull-cord-switch-card-width: 62px;
+      --yn-pull-cord-switch-card-height: 34px;
+      --yn-pull-cord-switch-card-radius: 8px;
+      --yn-pull-cord-switch-card-padding: 5px 7px;
+      --yn-pull-cord-switch-card-gap: 3px;
+      --yn-pull-cord-switch-card-dot-size: 8px;
+      --yn-pull-cord-switch-card-label-size: 9px;
     }
 
     :host([size="medium"]) {
-      --yn-pull-cord-switch-height: 360px;
-      --yn-pull-cord-switch-segment-len: 14;
-      --yn-pull-cord-switch-card-offset: 28;
-      --yn-pull-cord-switch-max-pull: 118;
-      --yn-pull-cord-switch-toggle-threshold: 72;
       --yn-pull-cord-switch-ceiling-width: 56;
       --yn-pull-cord-switch-rope-width: 3;
       --yn-pull-cord-switch-rope-shadow-width: 5;
-      --yn-pull-cord-switch-card-width: 88px;
-      --yn-pull-cord-switch-card-height: 52px;
-      --yn-pull-cord-switch-card-radius: 10px;
-      --yn-pull-cord-switch-card-padding: 8px 10px;
-      --yn-pull-cord-switch-card-gap: 4px;
-      --yn-pull-cord-switch-card-dot-size: 12px;
-      --yn-pull-cord-switch-card-label-size: 11px;
+      --yn-pull-cord-switch-card-width: 72px;
+      --yn-pull-cord-switch-card-height: 40px;
+      --yn-pull-cord-switch-card-radius: 9px;
+      --yn-pull-cord-switch-card-padding: 6px 8px;
+      --yn-pull-cord-switch-card-gap: 3px;
+      --yn-pull-cord-switch-card-dot-size: 9px;
+      --yn-pull-cord-switch-card-label-size: 10px;
     }
 
     :host([variant="floema"][size="mini"]) {
-      --yn-pull-cord-switch-card-width: 70px;
-      --yn-pull-cord-switch-card-height: 42px;
-      --yn-pull-cord-switch-card-radius: 10px;
+      --yn-pull-cord-switch-card-width: 56px;
+      --yn-pull-cord-switch-card-height: 32px;
+      --yn-pull-cord-switch-card-radius: 8px;
     }
 
     :host([variant="floema"][size="small"]) {
-      --yn-pull-cord-switch-card-width: 82px;
-      --yn-pull-cord-switch-card-height: 50px;
-      --yn-pull-cord-switch-card-radius: 12px;
+      --yn-pull-cord-switch-card-width: 66px;
+      --yn-pull-cord-switch-card-height: 38px;
+      --yn-pull-cord-switch-card-radius: 10px;
     }
 
     :host([variant="floema"][size="medium"]) {
-      --yn-pull-cord-switch-card-width: 96px;
-      --yn-pull-cord-switch-card-height: 58px;
-      --yn-pull-cord-switch-card-radius: 14px;
+      --yn-pull-cord-switch-card-width: 76px;
+      --yn-pull-cord-switch-card-height: 44px;
+      --yn-pull-cord-switch-card-radius: 11px;
     }
 
     :host([variant="default"]) {
@@ -127,7 +181,6 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([variant="floema"]) {
-      --yn-pull-cord-switch-anchor-y: 0.12;
       --yn-pull-cord-switch-vignette: 0.18;
       --yn-pull-cord-switch-bg-top: #ebe4d4;
       --yn-pull-cord-switch-bg-bottom: #ddd6c4;
@@ -147,20 +200,75 @@ export class YnPullCordSwitch extends LitElement {
       --yn-pull-cord-switch-card-color-on: #f8f3ea;
     }
 
+    :host([fixed]) {
+      position: fixed;
+      top: var(--yn-pull-cord-switch-fixed-top, 0);
+      width: var(--yn-pull-cord-switch-fixed-width, 112px);
+      height: var(--yn-pull-cord-switch-fixed-height, 220px);
+      z-index: var(--yn-pull-cord-switch-z-index, var(--yn-pull-cord-switch-fixed-z, 1));
+      pointer-events: none;
+      overflow: visible;
+      --yn-pull-cord-switch-fixed-height: 220px;
+      --yn-pull-cord-switch-canvas-width: max(100%, 280px);
+    }
+
+    :host([fixed][data-fixed-peekable]) {
+      pointer-events: auto;
+      transition:
+        left var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        top var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: left, top;
+    }
+
+    :host([fixed][data-fixed-dragging]),
+    :host([fixed][data-fixed-layout-lock]) {
+      transition: none;
+    }
+
+    :host([fixed][size="mini"]) {
+      --yn-pull-cord-switch-fixed-width: 112px;
+    }
+
+    :host([fixed][size="small"]) {
+      --yn-pull-cord-switch-fixed-width: 128px;
+    }
+
+    :host([fixed][size="medium"]) {
+      --yn-pull-cord-switch-fixed-width: 144px;
+    }
+
     .stage {
       position: relative;
       width: 100%;
       height: 100%;
-      overflow: hidden;
+      overflow: visible;
       border-radius: var(--yn-pull-cord-switch-radius, 12px);
     }
 
-    canvas.rope {
-      z-index: 1;
+    .fixed-grip {
       position: absolute;
-      inset: 0;
-      width: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      z-index: 2;
+      cursor: ew-resize;
+      touch-action: none;
+      pointer-events: auto;
+    }
+
+    .fixed-grip[hidden] {
+      display: none;
+    }
+
+    canvas.rope {
+      z-index: 0;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: var(--yn-pull-cord-switch-canvas-width, 100%);
       height: 100%;
+      transform: translateX(-50%);
       display: block;
       cursor: grab;
     }
@@ -194,10 +302,97 @@ export class YnPullCordSwitch extends LitElement {
       will-change: transform;
     }
 
-    :host([checked]) .card {
+    :host([checked][data-card-mode="fallback"]) .card {
       background: var(--yn-pull-cord-switch-card-bg-on);
       border-color: var(--yn-pull-cord-switch-card-border-on);
       color: var(--yn-pull-cord-switch-card-color-on);
+    }
+
+    :host([data-card-mode="fallback"]) .card {
+      height: var(--yn-pull-cord-switch-card-height);
+    }
+
+    :host([data-card-mode="fallback"]) .card__layers {
+      height: 100%;
+      min-height: 100%;
+    }
+
+    .card__fallback {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--yn-pull-cord-switch-card-gap);
+      width: 100%;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    :host([data-card-mode="default-slot"]) .card,
+    :host([data-card-mode="dual-slot"]) .card {
+      background: transparent;
+      border-color: transparent;
+      box-shadow: none;
+      padding: 0;
+      min-height: 0;
+      width: auto;
+      pointer-events: auto;
+      cursor: grab;
+    }
+
+    :host([data-card-mode="default-slot"]) ::slotted(yn-button),
+    :host([data-card-mode="dual-slot"]) ::slotted(yn-button) {
+      transform: scale(var(--yn-pull-cord-switch-slot-button-scale));
+      transform-origin: top center;
+      pointer-events: auto;
+      cursor: grab;
+    }
+
+    :host([disabled][data-card-mode="default-slot"]) .card,
+    :host([disabled][data-card-mode="dual-slot"]) .card,
+    :host([disabled]) ::slotted(yn-button) {
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    :host([fixed]) .card {
+      pointer-events: auto;
+      z-index: 10000;
+    }
+
+    .card__layers {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: inherit;
+    }
+
+    .card__layer {
+      grid-area: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(6px);
+      transition:
+        opacity var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
+        transform var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+    }
+
+    .card__layer--active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .card__layer[aria-hidden="true"] {
+      visibility: hidden;
+    }
+
+    .card__fallback[aria-hidden="true"] {
+      display: none;
     }
 
     .card__dot {
@@ -213,20 +408,29 @@ export class YnPullCordSwitch extends LitElement {
       font-weight: 600;
       letter-spacing: 0.04em;
       line-height: 1;
-    }
-
-    .card__fallback[hidden] {
-      display: none;
+      display: block;
     }
   `;
 
   connectedCallback() {
     super.connectedCallback();
     this.setAttribute("role", "switch");
-    this.updateComplete.then(() => this.mountEngine());
+    this.refreshSlotFlags();
+    this.syncRopeLengthVars();
+    this.syncZIndex();
+    this.updateComplete.then(() => {
+      this.bindSlotListeners();
+      this.mountEngine();
+      if (this.fixed) {
+        this.setupFixedMode();
+        this.syncFixedTop();
+        this.applyInitialFixedPosition();
+      }
+    });
   }
 
   disconnectedCallback() {
+    this.teardownFixedMode();
     this.engine?.stop();
     this.engine = null;
     super.disconnectedCallback();
@@ -234,18 +438,314 @@ export class YnPullCordSwitch extends LitElement {
 
   protected updated(changed: Map<PropertyKey, unknown>) {
     this.setAttribute("aria-checked", String(this.checked));
+
+    if (changed.has("fixed")) {
+      if (this.fixed) {
+        this.setupFixedMode();
+        this.syncFixedTop();
+        this.applyInitialFixedPosition();
+      } else {
+        this.teardownFixedMode();
+        this.style.removeProperty("left");
+        this.style.removeProperty("top");
+        this.style.removeProperty("transform");
+        this.removeAttribute("data-fixed-peekable");
+      }
+      this.syncRopeLengthVars();
+    }
+
+    if (changed.has("ropeLength") || changed.has("cardOffset")) {
+      this.syncRopeLengthVars();
+      this.engine?.invalidateTheme();
+      this.engine?.resize();
+      if (this.fixed) {
+        this.syncPeekableAttr();
+        if (!this.isPeekable && this.peeking) {
+          this.handlePeekLeave();
+        }
+      }
+    }
+
+    if (changed.has("toggleThreshold")) {
+      this.engine?.requestFrame();
+    }
+
+    if (changed.has("zIndex")) {
+      this.syncZIndex();
+    }
+
+    if (this.fixed && (changed.has("fixedX") || changed.has("reverse")) && !this.peeking) {
+      this.applyInitialFixedPosition();
+    }
+
+    if (this.fixed && changed.has("top")) {
+      if (!this.peeking) {
+        this.syncFixedTop();
+      }
+      this.syncPeekableAttr();
+    }
+
+    if (this.fixed && changed.has("disabled")) {
+      this.syncPeekableAttr();
+      if (this.peeking) {
+        this.handlePeekLeave();
+      }
+    }
+
+    this.syncEngineInteractionTargets();
+
     if (!this.engine) return;
+
     if (changed.has("variant") || changed.has("size")) {
+      this.invalidateStageOffset();
       this.engine.invalidateTheme();
       this.engine.resize();
     }
     if (changed.has("checked")) {
+      this.invalidateStageOffset();
       this.engine.invalidateTheme();
       this.engine.requestFrame();
     }
     if (changed.has("disabled")) {
       this.engine.requestFrame();
     }
+  }
+
+  private refreshSlotFlags() {
+    const prevMode = this.cardMode;
+    this.hasDefaultSlot = lightDomHasDefaultSlot(this);
+    this.hasActivatedSlot = lightDomHasActivatedSlot(this);
+    this.cardMode = this.hasActivatedSlot
+      ? "dual-slot"
+      : this.hasDefaultSlot
+        ? "default-slot"
+        : "fallback";
+    this.syncCardModeAttr();
+    if (prevMode !== this.cardMode) {
+      this.syncRopeLengthVars();
+      this.invalidateStageOffset();
+      this.syncEngineInteractionTargets();
+      this.engine?.invalidateTheme();
+      this.engine?.resize();
+    }
+  }
+
+  private bindSlotListeners() {
+    if (this.slotsBound || !this.shadowRoot) return;
+    this.slotsBound = true;
+    for (const slot of this.shadowRoot.querySelectorAll("slot")) {
+      slot.addEventListener("slotchange", this.onSlotChange);
+    }
+  }
+
+  private invalidateStageOffset() {
+    this.stageOffsetValid = false;
+  }
+
+  private syncRopeLengthVars() {
+    applyRopeLengthVars(this, normalizeRopeLength(this.ropeLength), {
+      cardOffset: this.cardOffset
+    });
+  }
+
+  private usesSlotCard() {
+    return this.cardMode === "default-slot" || this.cardMode === "dual-slot";
+  }
+
+  private syncZIndex() {
+    if (Number.isFinite(this.zIndex)) {
+      this.style.setProperty("--yn-pull-cord-switch-z-index", String(this.zIndex));
+    } else {
+      this.style.removeProperty("--yn-pull-cord-switch-z-index");
+    }
+  }
+
+  private cardTransformAnchor() {
+    return this.usesSlotCard() ? "translate(-50%, 0)" : "translate(-50%, -50%)";
+  }
+
+  private syncCardModeAttr() {
+    const next = this.cardMode;
+    if (this.getAttribute("data-card-mode") !== next) {
+      this.setAttribute("data-card-mode", next);
+    }
+  }
+
+  private get showFallback() {
+    if (this.cardMode === "fallback") return true;
+    if (this.cardMode === "dual-slot" && !this.hasDefaultSlot && !this.checked) return true;
+    return false;
+  }
+
+  private getResolvedCardOffset(): number {
+    if (this.cardOffset != null && Number.isFinite(this.cardOffset)) {
+      return this.cardOffset;
+    }
+    const raw = this.style.getPropertyValue("--yn-pull-cord-switch-card-offset").trim();
+    const parsed = Number.parseFloat(raw);
+    return Number.isFinite(parsed) ? parsed : 20;
+  }
+
+  private get isPeekable() {
+    return (
+      this.fixed &&
+      !this.disabled &&
+      this.getResolvedCardOffset() >= 0 &&
+      ((this.fixedX != null && this.fixedX < 0) || (this.top != null && this.top < 0))
+    );
+  }
+
+  private syncFixedTop() {
+    if (!this.fixed) return;
+    if (this.top != null && Number.isFinite(this.top)) {
+      applyCssTop(this, this.top);
+    } else {
+      this.style.removeProperty("top");
+    }
+  }
+
+  private setupFixedMode() {
+    this.addEventListener("pointerenter", this.onHostPointerEnter);
+    this.addEventListener("pointerleave", this.onHostPointerLeave);
+    const grip = this.fixedGripEl;
+    if (!grip || this.fixedDrag) return;
+    this.fixedDrag = new PullCordFixedDrag({
+      host: this,
+      grip,
+      getReverse: () => this.reverse,
+      getDisabled: () => this.disabled,
+      onPositionChange: (logical) => {
+        this.fixedX = logical;
+        this.syncPeekableAttr();
+        this.dispatchFixedMove();
+      },
+      onDragStateChange: (dragging) => {
+        if (dragging) {
+          this.setAttribute("data-fixed-dragging", "");
+        } else {
+          this.removeAttribute("data-fixed-dragging");
+        }
+      }
+    });
+    this.fixedDrag.bind();
+  }
+
+  private teardownFixedMode() {
+    this.removeEventListener("pointerenter", this.onHostPointerEnter);
+    this.removeEventListener("pointerleave", this.onHostPointerLeave);
+    this.fixedDrag?.unbind();
+    this.fixedDrag = null;
+    this.peeking = false;
+  }
+
+  private applyInitialFixedPosition() {
+    if (!this.fixed) return;
+    this.setAttribute("data-fixed-layout-lock", "");
+    if (this.hasAttribute("fixed-x") && this.fixedX != null && Number.isFinite(this.fixedX)) {
+      applyCssLeft(this, logicalToCssLeft(this.fixedX, this, this.reverse));
+    } else if (this.fixedDrag) {
+      this.fixedDrag.center();
+    } else {
+      const logical = centerLogical(this, this.reverse);
+      applyCssLeft(this, logicalToCssLeft(logical, this, this.reverse));
+    }
+    this.syncFixedTop();
+    this.syncPeekableAttr();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => this.removeAttribute("data-fixed-layout-lock"));
+    });
+  }
+
+  private syncPeekableAttr() {
+    if (this.isPeekable) {
+      this.setAttribute("data-fixed-peekable", "");
+    } else {
+      this.removeAttribute("data-fixed-peekable");
+    }
+  }
+
+  private handlePeekEnter() {
+    if (!this.isPeekable || this.peeking || this.disabled) return;
+    this.peeking = true;
+    this.setAttribute("data-fixed-peeking", "");
+    if (this.fixedX != null && this.fixedX < 0) {
+      applyCssLeft(this, peekCssLeft(this, this.reverse));
+    }
+    if (this.top != null && this.top < 0) {
+      applyCssTop(this, peekCssTop());
+    }
+  }
+
+  private handlePeekLeave() {
+    if (!this.peeking) return;
+    this.peeking = false;
+    this.removeAttribute("data-fixed-peeking");
+    if (this.fixedX != null && this.fixedX < 0 && Number.isFinite(this.fixedX)) {
+      applyCssLeft(this, logicalToCssLeft(this.fixedX, this, this.reverse));
+    }
+    if (this.top != null && this.top < 0 && Number.isFinite(this.top)) {
+      applyCssTop(this, this.top);
+    }
+  }
+
+  private dispatchFixedMove() {
+    this.dispatchEvent(
+      new CustomEvent<{ x: number; reverse: boolean }>("fixed-move", {
+        detail: { x: this.fixedX ?? 0, reverse: this.reverse },
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
+  private getCanvasStageOffset() {
+    if (this.stageOffsetValid) return this.stageOffset;
+    const canvas = this.ropeCanvas;
+    const stage = this.stageEl;
+    if (!canvas || !stage) return this.stageOffset;
+    const cr = canvas.getBoundingClientRect();
+    const sr = stage.getBoundingClientRect();
+    this.stageOffset = { x: cr.left - sr.left, y: cr.top - sr.top };
+    this.stageOffsetValid = true;
+    return this.stageOffset;
+  }
+
+  /** 绳端可见元素（插槽按钮含 scale 后的视觉包围盒） */
+  private getActiveCardVisualEl(): Element | null {
+    if (this.cardMode === "fallback") {
+      return this.cardEl ?? null;
+    }
+    const pickAssigned = (slot: HTMLSlotElement | null) => {
+      const nodes = slot?.assignedElements({ flatten: true }) ?? [];
+      const button = nodes.find((node) => node.tagName === "YN-BUTTON");
+      return button ?? nodes[0] ?? null;
+    };
+    if (this.cardMode === "dual-slot") {
+      const slot = this.checked
+        ? (this.shadowRoot?.querySelector('slot[name="activated"]') as HTMLSlotElement | null)
+        : (this.shadowRoot?.querySelector("slot:not([name])") as HTMLSlotElement | null);
+      return pickAssigned(slot) ?? this.cardEl ?? null;
+    }
+    const slot = this.shadowRoot?.querySelector("slot:not([name])") as HTMLSlotElement | null;
+    return pickAssigned(slot) ?? this.cardEl ?? null;
+  }
+
+  private measureCardMetrics() {
+    const target = this.getActiveCardVisualEl();
+    if (!target) return null;
+    const rect = target.getBoundingClientRect();
+    if (rect.width < 1 || rect.height < 1) return null;
+    return { width: rect.width, height: rect.height };
+  }
+
+  private syncEngineInteractionTargets() {
+    if (!this.engine) return;
+    const targets: HTMLElement[] = [];
+    if (this.ropeCanvas) targets.push(this.ropeCanvas);
+    if (this.cardEl && (this.fixed || this.usesSlotCard())) {
+      targets.push(this.cardEl);
+    }
+    this.engine.setInteractionTargets(targets);
   }
 
   private mountEngine() {
@@ -257,14 +757,25 @@ export class YnPullCordSwitch extends LitElement {
         getChecked: () => this.checked,
         getDisabled: () => this.disabled,
         getToggleThreshold: () => this.toggleThreshold,
+        getCardMetrics: () => this.measureCardMetrics(),
+        getCardAnchor: () => (this.usesSlotCard() ? "top" : "center"),
         onCheckedChange: (checked) => this.setChecked(checked, true),
         onCardTransform: ({ x, y, tilt }) => {
           const card = this.cardEl;
           if (!card) return;
-          card.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%) rotate(${tilt}rad)`;
+          const off = this.getCanvasStageOffset();
+          card.style.transform = `translate(${x + off.x}px, ${y + off.y}px) ${this.cardTransformAnchor()} rotate(${tilt}rad)`;
         }
       });
       this.engine.start();
+      this.syncEngineInteractionTargets();
+      this.invalidateStageOffset();
+      if (this.fixed) {
+        requestAnimationFrame(() => {
+          this.invalidateStageOffset();
+          this.engine?.resize();
+        });
+      }
     } catch (error) {
       if (!(error instanceof Error) || error.message !== "CANVAS_2D_UNAVAILABLE") {
         throw error;
@@ -287,24 +798,64 @@ export class YnPullCordSwitch extends LitElement {
     this.requestUpdate();
   }
 
-  private handleSlotChange(event: Event) {
-    const slot = event.target as HTMLSlotElement;
-    this.hasSlotContent = slot
-      .assignedNodes({ flatten: true })
-      .some((node) => node.nodeType !== Node.TEXT_NODE || (node.textContent?.trim().length ?? 0) > 0);
+  private renderFallback() {
+    return html`
+      <div class="card__fallback" aria-hidden=${this.showFallback ? "false" : "true"}>
+        <span class="card__dot"></span>
+        <span class="card__label">${this.checked ? "ON" : "OFF"}</span>
+      </div>
+    `;
+  }
+
+  private renderCardBody() {
+    if (this.cardMode === "dual-slot") {
+      return html`
+        <div class="card__layers">
+          <div
+            class="card__layer ${this.checked ? "" : "card__layer--active"}"
+            aria-hidden=${this.checked ? "true" : "false"}
+          >
+            <slot></slot>
+            ${!this.hasDefaultSlot ? this.renderFallback() : ""}
+          </div>
+          <div
+            class="card__layer ${this.checked ? "card__layer--active" : ""}"
+            aria-hidden=${this.checked ? "false" : "true"}
+          >
+            <slot name="activated"></slot>
+          </div>
+        </div>
+      `;
+    }
+
+    if (this.cardMode === "default-slot") {
+      return html`
+        <div class="card__layers">
+          <slot></slot>
+        </div>
+      `;
+    }
+
+    return html`
+      <div class="card__layers">
+        <slot></slot>
+        ${this.renderFallback()}
+      </div>
+    `;
   }
 
   render() {
     return html`
       <div class="stage" part="stage">
+        <div
+          class="fixed-grip"
+          part="fixed-grip"
+          role="presentation"
+          aria-label="水平拖动调整位置"
+          ?hidden=${!this.fixed}
+        ></div>
         <canvas class="rope" aria-hidden="true"></canvas>
-        <div class="card" part="card" aria-hidden="true">
-          <slot @slotchange=${this.handleSlotChange}></slot>
-          <div class="card__fallback" ?hidden=${this.hasSlotContent}>
-            <span class="card__dot"></span>
-            <span class="card__label">${this.checked ? "ON" : "OFF"}</span>
-          </div>
-        </div>
+        <div class="card" part="card">${this.renderCardBody()}</div>
       </div>
     `;
   }

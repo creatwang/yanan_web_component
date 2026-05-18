@@ -53,6 +53,159 @@ describe("yn-pull-cord-switch", () => {
     expect(el.getAttribute("aria-checked")).to.equal("true");
   });
 
+  it("reflects fixed mode with horizontal grip", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.fixed).to.equal(true);
+    expect(el.shadowRoot?.querySelector(".fixed-grip")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector("canvas.rope")).to.not.equal(null);
+  });
+
+  it("applies top offset when fixed", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed top="48"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.top).to.equal(48);
+    expect(el.style.top).to.equal("48px");
+  });
+
+  it("uses rope-length independent of size", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch size="medium" rope-length="260"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.ropeLength).to.equal(260);
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-height")).to.equal("260px");
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-segment-count")).to.equal("8");
+  });
+
+  it("applies z-index to css variable", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch z-index="120"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.zIndex).to.equal(120);
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-z-index")).to.equal("120");
+  });
+
+  it("applies card-offset property to css variable", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch card-offset="32"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.cardOffset).to.equal(32);
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-card-offset")).to.equal("32px");
+  });
+
+  it("disables fixed peek when card-offset is negative", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed fixed-x="-20" card-offset="-8"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.hasAttribute("data-fixed-peekable")).to.equal(false);
+    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    expect(el.hasAttribute("data-fixed-peeking")).to.equal(false);
+    expect(el.style.left).to.not.equal("0px");
+  });
+
+  it("scales rope physics when rope-length changes", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch rope-length="360"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-height")).to.equal("360px");
+    expect(el.style.getPropertyValue("--yn-pull-cord-switch-segment-count")).to.equal("11");
+  });
+
+  it("applies negative top and peeks on hover", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed top="-24"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(el.top).to.equal(-24);
+    expect(el.style.top).to.equal("-24px");
+    expect(el.hasAttribute("data-fixed-peekable")).to.equal(true);
+    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    expect(el.style.top).to.equal("0px");
+    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    expect(el.style.top).to.equal("-24px");
+  });
+
+  it("applies fixed-x as initial horizontal offset", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed fixed-x="24"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(el.fixedX).to.equal(24);
+    expect(el.style.left).to.equal("24px");
+  });
+
+  it("centers when fixed without fixed-x attribute", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(el.hasAttribute("fixed-x")).to.equal(false);
+    const w = el.offsetWidth;
+    const expected = (window.innerWidth - w) / 2;
+    expect(Math.abs(Number.parseFloat(el.style.left) - expected)).to.be.lessThan(2);
+  });
+
+  it("applies negative fixed-x for partial hide", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed fixed-x="-20"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(el.fixedX).to.equal(-20);
+    expect(el.style.left).to.equal("-20px");
+    expect(el.hasAttribute("data-fixed-peekable")).to.equal(true);
+  });
+
+  it("reverse computes fixed-x from the right", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed reverse fixed-x="10"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const w = el.offsetWidth;
+    expect(el.style.left).to.equal(`${window.innerWidth - w - 10}px`);
+  });
+
+  it("reverse negative fixed-x peeks on hover from the right", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed reverse fixed-x="-20"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const w = el.offsetWidth;
+    const restLeft = window.innerWidth - w - -20;
+    expect(Number.parseFloat(el.style.left)).to.be.closeTo(restLeft, 2);
+    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    expect(Number.parseFloat(el.style.left)).to.be.closeTo(window.innerWidth - w, 2);
+    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    expect(Number.parseFloat(el.style.left)).to.be.closeTo(restLeft, 2);
+  });
+
+  it("negative fixed-x peeks on hover from the left", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed fixed-x="-20"></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    expect(el.style.left).to.equal("-20px");
+    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    expect(el.style.left).to.equal("0px");
+    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    expect(el.style.left).to.equal("-20px");
+  });
+
   it("renders slotted card content", async () => {
     const el = await fixture<YnPullCordSwitch>(html`
       <yn-pull-cord-switch>
@@ -60,8 +213,40 @@ describe("yn-pull-cord-switch", () => {
       </yn-pull-cord-switch>
     `);
     await el.updateComplete;
-    const slot = el.shadowRoot?.querySelector("slot");
+    const slot = el.shadowRoot?.querySelector("slot:not([name])") as HTMLSlotElement | null;
     const assigned = slot?.assignedNodes({ flatten: true }) ?? [];
     expect(assigned.some((node) => node.textContent?.includes("拉绳"))).to.equal(true);
+    expect(el.getAttribute("data-card-mode")).to.equal("default-slot");
+  });
+
+  it("keeps default slot content when checked without activated slot", async () => {
+    const el = await fixture<YnPullCordSwitch>(html`
+      <yn-pull-cord-switch>
+        <button type="button">主题</button>
+      </yn-pull-cord-switch>
+    `);
+    await el.updateComplete;
+    expect(el.getAttribute("data-card-mode")).to.equal("default-slot");
+    el.checked = true;
+    await el.updateComplete;
+    expect(el.querySelector("button")?.textContent?.trim()).to.equal("主题");
+    expect(el.shadowRoot?.querySelector(".card__label")).to.equal(null);
+  });
+
+  it("switches between default and activated slots when checked", async () => {
+    const el = await fixture<YnPullCordSwitch>(html`
+      <yn-pull-cord-switch>
+        <span id="off">关</span>
+        <span id="on" slot="activated">开</span>
+      </yn-pull-cord-switch>
+    `);
+    await el.updateComplete;
+    expect(el.getAttribute("data-card-mode")).to.equal("dual-slot");
+    const offLayer = el.shadowRoot?.querySelector(".card__layer--active");
+    expect(offLayer?.querySelector('slot:not([name])')).to.not.equal(null);
+    el.checked = true;
+    await el.updateComplete;
+    const onLayer = el.shadowRoot?.querySelector(".card__layer--active");
+    expect(onLayer?.querySelector('slot[name="activated"]')).to.not.equal(null);
   });
 });

@@ -10,7 +10,7 @@ const SHELL_GRADIENT_PRESETS: Record<
     on: ["#2a2830", "#15141a"]
   },
   floema: {
-    off: ["#ebe4d4", "#e2dacd"],
+    off: ["#ebe4d4", "#ddd6c4"],
     on: ["#f2e8cf", "#e5d6b4"]
   }
 };
