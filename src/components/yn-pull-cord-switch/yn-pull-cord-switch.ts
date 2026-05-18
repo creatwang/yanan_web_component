@@ -156,6 +156,7 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     canvas.rope {
+      z-index: 1;
       position: absolute;
       inset: 0;
       width: 100%;
@@ -314,3 +315,9 @@ declare global {
     "yn-pull-cord-switch": YnPullCordSwitch;
   }
 }
+
+export {
+  applyPullCordShellBackground,
+  buildPullCordShellBackground,
+  shellBackgroundFromVariant
+} from "./pull-cord-shell-bg";

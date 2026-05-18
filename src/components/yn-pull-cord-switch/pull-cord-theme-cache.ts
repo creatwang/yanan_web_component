@@ -1,10 +1,5 @@
 const THEME_KEYS = [
   "--yn-pull-cord-switch-anchor-y",
-  "--yn-pull-cord-switch-vignette",
-  "--yn-pull-cord-switch-bg-top",
-  "--yn-pull-cord-switch-bg-bottom",
-  "--yn-pull-cord-switch-bg-on-top",
-  "--yn-pull-cord-switch-bg-on-bottom",
   "--yn-pull-cord-switch-accent",
   "--yn-pull-cord-switch-ceiling-bg",
   "--yn-pull-cord-switch-anchor-color",
@@ -23,11 +18,6 @@ const THEME_KEYS = [
 
 const FALLBACKS: Record<(typeof THEME_KEYS)[number], string> = {
   "--yn-pull-cord-switch-anchor-y": "0.14",
-  "--yn-pull-cord-switch-vignette": "0.55",
-  "--yn-pull-cord-switch-bg-top": "#1a1d24",
-  "--yn-pull-cord-switch-bg-bottom": "#12141a",
-  "--yn-pull-cord-switch-bg-on-top": "#2a2830",
-  "--yn-pull-cord-switch-bg-on-bottom": "#15141a",
   "--yn-pull-cord-switch-accent": "rgba(255, 214, 102, 0.35)",
   "--yn-pull-cord-switch-ceiling-bg": "rgba(255,255,255,0.08)",
   "--yn-pull-cord-switch-anchor-color": "#4a4f5c",

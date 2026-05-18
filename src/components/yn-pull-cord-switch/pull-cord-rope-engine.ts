@@ -61,9 +61,7 @@ export class PullCordRopeEngine {
   private intersectionObserver: IntersectionObserver | null = null;
   private visible = true;
 
-  private bgGrad: CanvasGradient | null = null;
   private ropeGrad: CanvasGradient | null = null;
-  private vignetteGrad: CanvasGradient | null = null;
   private glowGrad: CanvasGradient | null = null;
   private themeKey = "";
 
@@ -81,7 +79,7 @@ export class PullCordRopeEngine {
     this.options = options;
     this.canvas = options.canvas;
     this.theme = new PullCordThemeCache(options.host);
-    const ctx = options.canvas.getContext("2d", { alpha: false, desynchronized: true });
+    const ctx = options.canvas.getContext("2d", { alpha: true, desynchronized: true });
     if (!ctx) throw new Error("CANVAS_2D_UNAVAILABLE");
     this.ctx = ctx;
     this.n = SEGMENTS + 1;
@@ -284,14 +282,6 @@ export class PullCordRopeEngine {
     const key = `${checked}|${this.w}|${this.h}|${this.theme.revision}`;
     if (key === this.themeKey) return;
     this.themeKey = key;
-    const top = this.theme.get(checked ? "--yn-pull-cord-switch-bg-on-top" : "--yn-pull-cord-switch-bg-top");
-    const bottom = this.theme.get(
-      checked ? "--yn-pull-cord-switch-bg-on-bottom" : "--yn-pull-cord-switch-bg-bottom"
-    );
-    this.bgGrad = this.ctx.createLinearGradient(0, 0, 0, this.h);
-    this.bgGrad.addColorStop(0, top);
-    this.bgGrad.addColorStop(1, bottom);
-
     const end = this.n - 1;
     this.ropeGrad = this.ctx.createLinearGradient(
       this.px[0],
@@ -301,18 +291,6 @@ export class PullCordRopeEngine {
     );
     this.ropeGrad.addColorStop(0, this.theme.get("--yn-pull-cord-switch-rope-start"));
     this.ropeGrad.addColorStop(1, this.theme.get("--yn-pull-cord-switch-rope-end"));
-
-    const vig = Math.min(1, Math.max(0, this.theme.num("--yn-pull-cord-switch-vignette")));
-    this.vignetteGrad = this.ctx.createRadialGradient(
-      this.w * 0.5,
-      this.h * 0.35,
-      40,
-      this.w * 0.5,
-      this.h * 0.5,
-      Math.max(this.w, this.h) * 0.75
-    );
-    this.vignetteGrad.addColorStop(0, "transparent");
-    this.vignetteGrad.addColorStop(1, `rgba(0,0,0,${vig})`);
 
     if (checked) {
       const accent = this.theme.get("--yn-pull-cord-switch-accent");
@@ -342,8 +320,7 @@ export class PullCordRopeEngine {
     this.ensureGradients(checked);
 
     const ctx = this.ctx;
-    ctx.fillStyle = this.bgGrad!;
-    ctx.fillRect(0, 0, this.w, this.h);
+    ctx.clearRect(0, 0, this.w, this.h);
 
     const aw = this.theme.num("--yn-pull-cord-switch-ceiling-width");
     const ceilingH = Math.max(7, aw * 0.18);
@@ -382,11 +359,6 @@ export class PullCordRopeEngine {
     ctx.moveTo(this.px[end], this.py[end]);
     ctx.lineTo(this.px[end], cardTop);
     ctx.stroke();
-
-    if (this.vignetteGrad) {
-      ctx.fillStyle = this.vignetteGrad;
-      ctx.fillRect(0, 0, this.w, this.h);
-    }
 
     this.emitCard(end);
   }

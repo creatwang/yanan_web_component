@@ -7,6 +7,7 @@ describe("yn-pull-cord-switch", () => {
     const el = await fixture<YnPullCordSwitch>(html`<yn-pull-cord-switch></yn-pull-cord-switch>`);
     await el.updateComplete;
     expect(el.shadowRoot?.querySelector("canvas.rope")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector(".backdrop")).to.equal(null);
     expect(el.shadowRoot?.querySelector(".card__label")?.textContent?.trim()).to.equal("OFF");
   });
 
