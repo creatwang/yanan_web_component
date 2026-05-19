@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menu Mobile 背景 · leafShadowDrift</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #1a1a1a;
+        color: #f4f4f5;
+      }
+
+      .page-note {
+        margin: 0 0 16px;
+        max-width: 420px;
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: rgba(244, 244, 245, 0.72);
+      }
+
+      .page-note code {
+        font-size: 0.85em;
+        color: #fbbf24;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      .controls button {
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.08);
+        color: #f4f4f5;
+        border-radius: 999px;
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+
+      .controls button:hover {
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      /* 手机菜单视口：isolate 让 multiply 只在两层图之间混合 */
+      .menu-mobile {
+        position: relative;
+        width: min(100%, 390px);
+        aspect-ratio: 9 / 16;
+        max-height: min(88vh, 844px);
+        overflow: hidden;
+        border-radius: 20px;
+        box-shadow:
+          0 24px 80px rgba(0, 0, 0, 0.55),
+          0 0 0 1px rgba(255, 255, 255, 0.06);
+        background: #3a3a3a;
+        isolation: isolate;
+        transform: translateZ(0);
+      }
+
+      .menu-mobile__bg,
+      .menu-mobile__leaf-shadow {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        pointer-events: none;
+        user-select: none;
+      }
+
+      .menu-mobile__bg {
+        z-index: 0;
+      }
+
+      /* 叶影漂移动画层 */
+      .menu-mobile__leaf-shadow {
+        z-index: 1;
+        animation: leafShadowDrift 5s ease-in-out infinite;
+        mix-blend-mode: multiply;
+        transform-origin: 50% 40%;
+        will-change: transform, filter, opacity;
+      }
+
+      .menu-mobile.is-paused .menu-mobile__leaf-shadow {
+        animation-play-state: paused;
+      }
+
+      @keyframes leafShadowDrift {
+        0% {
+          filter: brightness(1) contrast(1);
+          opacity: 1;
+          transform: translateZ(0) scale(1) skew(0);
+        }
+        38% {
+          filter: brightness(1.02) contrast(0.98);
+          opacity: 0.9;
+          transform: translate3d(-0.75%, 1%, 0) scale(1.015) skew(-0.45deg);
+        }
+        72% {
+          filter: brightness(0.98) contrast(1.01);
+          opacity: 0.8;
+          transform: translate3d(0.65%, -0.85%, 0) scale(1.02) skew(0.45deg);
+        }
+        100% {
+          filter: brightness(1) contrast(1);
+          opacity: 1;
+          transform: translateZ(0) scale(1) skew(0);
+        }
+      }
+
+      /* 演示加强版：位移放大，便于肉眼确认动画在跑 */
+      .menu-mobile.is-enhanced .menu-mobile__leaf-shadow {
+        animation-name: leafShadowDriftEnhanced;
+      }
+
+      @keyframes leafShadowDriftEnhanced {
+        0% {
+          filter: brightness(1) contrast(1);
+          opacity: 1;
+          transform: translateZ(0) scale(1) skew(0);
+        }
+        38% {
+          filter: brightness(1.06) contrast(0.94);
+          opacity: 0.88;
+          transform: translate3d(-2.5%, 2.2%, 0) scale(1.045) skew(-0.45deg);
+        }
+        72% {
+          filter: brightness(0.94) contrast(1.04);
+          opacity: 0.78;
+          transform: translate3d(2.2%, -2.5%, 0) scale(1.05) skew(0.45deg);
+        }
+        100% {
+          filter: brightness(1) contrast(1);
+          opacity: 1;
+          transform: translateZ(0) scale(1) skew(0);
+        }
+      }
+
+      .menu-mobile__content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        height: 100%;
+        padding: 28px 24px 36px;
+        pointer-events: none;
+        background: linear-gradient(
+          to top,
+          rgba(26, 26, 26, 0.72) 0%,
+          rgba(26, 26, 26, 0.12) 50%,
+          transparent 72%
+        );
+      }
+
+      .menu-mobile__content h1 {
+        margin: 0 0 8px;
+        font-size: 1.35rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        pointer-events: auto;
+      }
+
+      .menu-mobile__content p {
+        margin: 0;
+        font-size: 0.88rem;
+        line-height: 1.5;
+        color: rgba(244, 244, 245, 0.78);
+        pointer-events: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <p class="page-note">
+        底层 + 顶层同图，顶层 <code>mix-blend-mode: multiply</code> +
+        <code>leafShadowDrift</code>。需 <code>isolation: isolate</code> 才能看见混合漂移。
+        默认已开<strong>加强预览</strong>；可切换为线上原参数。
+      </p>
+
+      <div class="controls">
+        <button type="button" id="btn-enhanced">加强动画：开</button>
+        <button type="button" id="btn-pause">暂停 / 播放</button>
+      </div>
+
+      <div class="menu-mobile is-enhanced" id="menu" aria-label="移动端菜单背景演示">
+        <img
+          class="menu-mobile__bg"
+          src="./menu-mobile-bg.png"
+          alt=""
+          width="780"
+          height="1386"
+          decoding="async"
+        />
+        <img
+          class="menu-mobile__leaf-shadow"
+          src="./menu-mobile-bg.png"
+          alt=""
+          width="780"
+          height="1386"
+          decoding="async"
+        />
+        <div class="menu-mobile__content">
+          <h1>Menu Mobile</h1>
+          <p>请看画面上方叶影：缓慢位移 + 明暗呼吸（5s 循环）。</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const menu = document.getElementById("menu");
+      const btnEnhanced = document.getElementById("btn-enhanced");
+      const btnPause = document.getElementById("btn-pause");
+
+      let enhanced = true;
+      let paused = false;
+
+      btnEnhanced.addEventListener("click", () => {
+        enhanced = !enhanced;
+        menu.classList.toggle("is-enhanced", enhanced);
+        btnEnhanced.textContent = `加强动画：${enhanced ? "开" : "关"}`;
+      });
+
+      btnPause.addEventListener("click", () => {
+        paused = !paused;
+        menu.classList.toggle("is-paused", paused);
+        btnPause.textContent = paused ? "播放" : "暂停";
+      });
+    </script>
+  </body>
+</html>
