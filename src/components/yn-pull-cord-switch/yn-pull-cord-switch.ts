@@ -82,6 +82,7 @@ export class YnPullCordSwitch extends LitElement {
       z-index: var(--yn-pull-cord-switch-z-index, 1);
       width: 100%;
       height: var(--yn-pull-cord-switch-height);
+      background: transparent;
       touch-action: none;
       user-select: none;
       -webkit-user-select: none;
@@ -160,7 +161,6 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([variant="default"]) {
-      --yn-pull-cord-switch-vignette: 0.55;
       --yn-pull-cord-switch-bg-top: #1a1d24;
       --yn-pull-cord-switch-bg-bottom: #12141a;
       --yn-pull-cord-switch-bg-on-top: #2a2830;
@@ -180,7 +180,6 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([variant="floema"]) {
-      --yn-pull-cord-switch-vignette: 0.18;
       --yn-pull-cord-switch-bg-top: #ebe4d4;
       --yn-pull-cord-switch-bg-bottom: #ddd6c4;
       --yn-pull-cord-switch-bg-on-top: #f2e8cf;
@@ -208,7 +207,7 @@ export class YnPullCordSwitch extends LitElement {
       pointer-events: none;
       overflow: visible;
       --yn-pull-cord-switch-fixed-height: 220px;
-      --yn-pull-cord-switch-canvas-width: max(100%, 280px);
+      --yn-pull-cord-switch-canvas-width: 100%;
     }
 
     :host([fixed][data-fixed-peekable]) {
@@ -241,6 +240,7 @@ export class YnPullCordSwitch extends LitElement {
       width: 100%;
       height: 100%;
       overflow: visible;
+      background: transparent;
       border-radius: var(--yn-pull-cord-switch-radius, 12px);
     }
 
@@ -269,6 +269,7 @@ export class YnPullCordSwitch extends LitElement {
       height: 100%;
       transform: translateX(-50%);
       display: block;
+      background: transparent;
       cursor: grab;
     }
 
@@ -900,9 +901,3 @@ declare global {
     "yn-pull-cord-switch": YnPullCordSwitch;
   }
 }
-
-export {
-  applyPullCordShellBackground,
-  buildPullCordShellBackground,
-  shellBackgroundFromVariant
-} from "./pull-cord-shell-bg";

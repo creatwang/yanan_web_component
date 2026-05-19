@@ -7,6 +7,10 @@ const ROPE_MAX = 480;
 
 const hostW = (host: HTMLElement) => host.offsetWidth || 0;
 
+/** fixed 水平定位参照的视口宽（iframe / Storybook 预览内与 window 一致） */
+const viewportW = (host: HTMLElement) =>
+  host.ownerDocument?.defaultView?.innerWidth ?? window.innerWidth;
+
 export function normalizeRopeLength(value: number | undefined) {
   if (value == null || !Number.isFinite(value)) return DEFAULT_ROPE_LENGTH;
   return Math.min(ROPE_MAX, Math.max(ROPE_MIN, Math.round(value)));
@@ -55,19 +59,21 @@ export function applyRopeLengthVars(
 
 export const logicalToCssLeft = (logicalX: number, host: HTMLElement, reverse: boolean) => {
   const w = hostW(host);
-  return reverse ? window.innerWidth - w - logicalX : logicalX;
+  const vw = viewportW(host);
+  return reverse ? vw - w - logicalX : logicalX;
 };
 
 export const cssLeftToLogical = (cssLeft: number, host: HTMLElement, reverse: boolean) => {
   const w = hostW(host);
-  return reverse ? window.innerWidth - w - cssLeft : cssLeft;
+  const vw = viewportW(host);
+  return reverse ? vw - w - cssLeft : cssLeft;
 };
 
 export const centerLogical = (host: HTMLElement, reverse: boolean) =>
-  cssLeftToLogical((window.innerWidth - hostW(host)) / 2, host, reverse);
+  cssLeftToLogical((viewportW(host) - hostW(host)) / 2, host, reverse);
 
 export const peekCssLeft = (host: HTMLElement, reverse: boolean) =>
-  reverse ? window.innerWidth - hostW(host) : 0;
+  reverse ? viewportW(host) - hostW(host) : 0;
 
 export const peekCssTop = () => 0;
 
@@ -83,7 +89,8 @@ export const applyCssTop = (host: HTMLElement, cssTop: number) => {
 
 export const clampLogicalX = (logicalX: number, host: HTMLElement) => {
   const w = hostW(host);
-  return Math.min(window.innerWidth - w, Math.max(-(w - 1), logicalX));
+  const vw = viewportW(host);
+  return Math.min(vw - w, Math.max(-(w - 1), logicalX));
 };
 
 const readCssLeft = (host: HTMLElement) => {

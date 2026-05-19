@@ -19,7 +19,13 @@ const THEME_KEYS = [
   "--yn-pull-cord-switch-rope-shadow-width"
 ] as const;
 
-const THEME_FALLBACKS: Record<(typeof THEME_KEYS)[number], string> = {
+type ThemeKey = (typeof THEME_KEYS)[number];
+
+const THEME_INDEX = new Map<ThemeKey, number>(
+  THEME_KEYS.map((key, index) => [key, index] as const)
+);
+
+const THEME_FALLBACKS: Record<ThemeKey, string> = {
   "--yn-pull-cord-switch-anchor-y": "0",
   "--yn-pull-cord-switch-accent": "rgba(255, 214, 102, 0.35)",
   "--yn-pull-cord-switch-glow-width": "280",
@@ -42,8 +48,8 @@ const THEME_FALLBACKS: Record<(typeof THEME_KEYS)[number], string> = {
 
 class PullCordThemeCache {
   private readonly host: HTMLElement;
-  private readonly values = new Map<string, string>();
-  private frame = -1;
+  private readonly values = new Array<string>(THEME_KEYS.length);
+  private dirty = true;
   private revision = 0;
 
   constructor(host: HTMLElement) {
@@ -55,30 +61,32 @@ class PullCordThemeCache {
   }
 
   invalidate() {
-    this.frame = -1;
+    this.dirty = true;
   }
 
-  beginFrame(now: number) {
-    if (this.frame === now) return;
-    this.frame = now;
+  /** 仅在 invalidate 后读一次 getComputedStyle，避免每帧布局抖动 */
+  sync() {
+    if (!this.dirty) return;
+    this.dirty = false;
     const style = getComputedStyle(this.host);
     let changed = false;
     for (let i = 0; i < THEME_KEYS.length; i++) {
       const key = THEME_KEYS[i];
       const next = style.getPropertyValue(key).trim() || THEME_FALLBACKS[key];
-      if (this.values.get(key) !== next) {
-        this.values.set(key, next);
+      if (this.values[i] !== next) {
+        this.values[i] = next;
         changed = true;
       }
     }
     if (changed) this.revision++;
   }
 
-  get(key: (typeof THEME_KEYS)[number]): string {
-    return this.values.get(key) ?? THEME_FALLBACKS[key];
+  get(key: ThemeKey): string {
+    const i = THEME_INDEX.get(key)!;
+    return this.values[i] ?? THEME_FALLBACKS[key];
   }
 
-  num(key: (typeof THEME_KEYS)[number]): number {
+  num(key: ThemeKey): number {
     const n = Number.parseFloat(this.get(key));
     return Number.isFinite(n) ? n : Number.parseFloat(THEME_FALLBACKS[key]);
   }
@@ -176,7 +184,7 @@ export class PullCordRopeEngine {
   private lastTilt = 0;
   private pointerLeft = 0;
   private pointerTop = 0;
-  private frameId = -1;
+  private snapKey = "";
   private gradKey = "";
   private ropeGrad: CanvasGradient | null = null;
   private glowGrad: CanvasGradient | null = null;
@@ -192,16 +200,22 @@ export class PullCordRopeEngine {
   private readonly onUp = (e: PointerEvent) => this.handleUp(e);
   private readonly onResize = () => this.resize();
   private readonly onVisibility = (entries: IntersectionObserverEntry[]) => {
+    const wasVisible = this.visible;
     this.visible = entries[0]?.isIntersecting ?? true;
-    if (this.visible) this.wake();
-    else this.sleep();
+    if (this.visible) {
+      if (!wasVisible) this.draw();
+      this.wake();
+    } else {
+      this.sleep();
+    }
   };
 
   constructor(options: PullCordRopeEngineOptions) {
     this.options = options;
     this.canvas = options.canvas;
     this.theme = new PullCordThemeCache(options.host);
-    const ctx = options.canvas.getContext("2d", { alpha: true, desynchronized: true });
+    // 勿开 desynchronized：Docs/iframe 下透明画布常被合成层显示成实心黑块
+    const ctx = options.canvas.getContext("2d", { alpha: true });
     if (!ctx) throw new Error("CANVAS_2D_UNAVAILABLE");
     this.ctx = ctx;
   }
@@ -234,6 +248,7 @@ export class PullCordRopeEngine {
 
   invalidateTheme() {
     this.theme.invalidate();
+    this.snapKey = "";
     this.gradKey = "";
   }
 
@@ -250,10 +265,12 @@ export class PullCordRopeEngine {
     this.canvas.height = Math.floor(this.h * dpr);
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     this.layoutW = 0;
-    this.frameId = -1;
+    this.snapKey = "";
     this.gradKey = "";
-    this.beginSnap(performance.now());
+    this.theme.invalidate();
+    this.ensureSnap();
     this.relayout();
+    this.draw();
     this.wake();
   }
 
@@ -277,26 +294,28 @@ export class PullCordRopeEngine {
     }
   }
 
-  private beginSnap(now: number) {
-    if (this.frameId === now) return;
-    this.frameId = now;
-    this.theme.beginFrame(now);
+  private ensureSnap() {
+    this.theme.sync();
     const t = this.theme;
-    const rawSeg = Math.round(t.num("--yn-pull-cord-switch-segment-count"));
-    const seg = rawSeg >= 4 && rawSeg <= MAX_SEG ? rawSeg : 10;
+    const checked = this.options.getChecked();
+    const measured = this.options.getCardMetrics?.();
     const cardW = t.num("--yn-pull-cord-switch-card-width");
     const cardH = t.num("--yn-pull-cord-switch-card-height");
-    const measured = this.options.getCardMetrics?.();
     const card =
       measured && measured.width > 0 && measured.height > 0
         ? measured
         : { width: cardW, height: cardH };
     const override = this.options.getToggleThreshold?.();
     const extra = t.num("--yn-pull-cord-switch-anchor-y");
+    const key = `${this.theme.token}|${this.w}|${this.h}|${checked}|${card.width}|${card.height}|${override ?? ""}|${extra}`;
+    if (key === this.snapKey) return;
+    this.snapKey = key;
     if (this.anchorExtra !== extra) {
       this.anchorExtra = extra;
       this.layoutW = 0;
     }
+    const rawSeg = Math.round(t.num("--yn-pull-cord-switch-segment-count"));
+    const seg = rawSeg >= 4 && rawSeg <= MAX_SEG ? rawSeg : 10;
     const ceilingW = t.num("--yn-pull-cord-switch-ceiling-width");
     const anchor = resolveAnchor(this.h, ceilingW, extra);
     this.snap = {
@@ -314,12 +333,13 @@ export class PullCordRopeEngine {
       ropeW: t.num("--yn-pull-cord-switch-rope-width"),
       ropeShadowW: t.num("--yn-pull-cord-switch-rope-shadow-width"),
       card,
-      checked: this.options.getChecked(),
+      checked,
       cardTopAnchor: (this.options.getCardAnchor?.() ?? "center") === "top",
       ceilingH: anchor.ceilingH,
       anchorR: anchor.anchorR,
       ceilingTop: anchor.ceilingTop
     };
+    this.gradKey = "";
   }
 
   private relayout() {
@@ -456,10 +476,10 @@ export class PullCordRopeEngine {
 
   private ensureGradients() {
     const { checked, seg } = this.snap;
-    const key = `${checked}|${this.w}|${this.h}|${this.theme.token}`;
+    const end = seg;
+    const key = `${checked}|${this.theme.token}|${(this.px[end] * 0.25) | 0}|${(this.py[end] * 0.25) | 0}`;
     if (key === this.gradKey) return;
     this.gradKey = key;
-    const end = seg;
     this.ropeGrad = this.ctx.createLinearGradient(
       this.px[0],
       this.py[0],
@@ -501,6 +521,7 @@ export class PullCordRopeEngine {
   }
 
   private draw() {
+    this.ensureSnap();
     this.syncLayout();
     this.ensureGradients();
     const ctx = this.ctx;
@@ -542,20 +563,19 @@ export class PullCordRopeEngine {
   }
 
   private emitCard(end: number) {
-    const x = this.px[end];
-    const y = this.py[end] + this.snap.cardOff;
-    const tilt = Math.max(-0.12, Math.min(0.12, (x - this.anchorX) * 0.004));
+    const { cx, attachY } = this.cardLayout(end);
+    const tilt = Math.max(-0.12, Math.min(0.12, (cx - this.anchorX) * 0.004));
     if (
-      Math.abs(x - this.lastCardX) < CARD_EPS &&
-      Math.abs(y - this.lastCardY) < CARD_EPS &&
+      Math.abs(cx - this.lastCardX) < CARD_EPS &&
+      Math.abs(attachY - this.lastCardY) < CARD_EPS &&
       Math.abs(tilt - this.lastTilt) < TILT_EPS
     ) {
       return;
     }
-    this.lastCardX = x;
-    this.lastCardY = y;
+    this.lastCardX = cx;
+    this.lastCardY = attachY;
     this.lastTilt = tilt;
-    this.options.onCardTransform({ x, y, tilt });
+    this.options.onCardTransform({ x: cx, y: attachY, tilt });
   }
 
   private tick = () => {
@@ -563,8 +583,7 @@ export class PullCordRopeEngine {
       this.sleeping = true;
       return;
     }
-    const now = performance.now();
-    this.beginSnap(now);
+    this.ensureSnap();
     this.verlet();
     this.constrain();
     this.spring();
@@ -577,7 +596,7 @@ export class PullCordRopeEngine {
 
     if (!this.dragging && energy < IDLE_EPS) {
       if (++this.idleFrames >= IDLE_FRAMES) {
-        if (!active) this.draw();
+        this.draw();
         this.sleeping = true;
         return;
       }
@@ -615,7 +634,7 @@ export class PullCordRopeEngine {
   private handleDown(e: PointerEvent) {
     if (this.options.getDisabled() || e.button !== 0) return;
     this.cachePointerRect();
-    this.beginSnap(performance.now());
+    this.ensureSnap();
     const p = this.pointerPos(e);
     if (!this.hitTarget(p.x, p.y)) return;
     e.preventDefault();
@@ -675,4 +694,4 @@ export class PullCordRopeEngine {
     this.wake();
   }
 }
-
+
