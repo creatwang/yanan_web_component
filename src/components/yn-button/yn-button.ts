@@ -7,6 +7,12 @@ type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | 
 type ButtonSize = "mini" | "small" | "medium";
 type ButtonLoadingType = "left" | "center" | "right";
 
+/**
+ * 通用按钮：通过 `variant`、`size` 控制外观，`loading` 显示加载态。
+ *
+ * @slot prefix - 主文案前的图标等内容
+ * @slot suffix - 主文案后的图标等内容
+ */
 @customElement("yn-button")
 export class YnButton extends LitElement {
   @property({ type: Boolean, reflect: true }) disabled = false;

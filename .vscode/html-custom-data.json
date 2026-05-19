@@ -1,0 +1,548 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vscode-html-languageservice/main/docs/customData.schema.json",
+  "version": 1.1,
+  "tags": [
+    {
+      "name": "yn-drawer",
+      "description": "\n---\n\n\n### **Events:**\n - **open-change**\n- **name**",
+      "attributes": [
+        {
+          "name": "width",
+          "values": []
+        },
+        {
+          "name": "title",
+          "values": []
+        },
+        {
+          "name": "close-on-backdrop",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-button",
+      "description": "通用按钮。用 `variant` 选配色、`size` 选尺寸；`loading` 为加载态。\n---\n\n\n### **Methods:**\n - **render()** - 渲染按钮主体、图标、文案与 loading 内容。\n\n### **Slots:**\n - **prefix** - 主文案前的图标等内容\n- **suffix** - 主文案后的图标等内容",
+      "attributes": [
+        {
+          "name": "disabled",
+          "description": "禁用按钮，不响应点击。",
+          "values": []
+        },
+        {
+          "name": "variant",
+          "description": "按钮配色变体。\n\n**可选值：**\n- `primary` — 主色实心（默认）\n- `success` — 成功 / 确认\n- `warning` — 警告\n- `danger` — 危险 / 删除\n- `neutral` — 中性灰\n- `dark` — 深色底\n- `default` — 浅底描边",
+          "values": [
+            {
+              "name": "primary",
+              "description": "主色实心（默认）"
+            },
+            {
+              "name": "success",
+              "description": "成功 / 确认"
+            },
+            {
+              "name": "warning",
+              "description": "警告"
+            },
+            {
+              "name": "danger",
+              "description": "危险 / 删除"
+            },
+            {
+              "name": "neutral",
+              "description": "中性灰"
+            },
+            {
+              "name": "dark",
+              "description": "深色底"
+            },
+            {
+              "name": "default",
+              "description": "浅底描边"
+            }
+          ]
+        },
+        {
+          "name": "size",
+          "description": "按钮尺寸（内边距与字号）。\n\n**可选值：**\n- `mini` — 最小\n- `small` — 小号\n- `medium` — 中号（默认）",
+          "values": [
+            {
+              "name": "mini",
+              "description": "最小"
+            },
+            {
+              "name": "small",
+              "description": "小号"
+            },
+            {
+              "name": "medium",
+              "description": "中号（默认）"
+            }
+          ]
+        },
+        {
+          "name": "loading",
+          "description": "是否显示加载动画并禁用点击。",
+          "values": []
+        },
+        {
+          "name": "loading-type",
+          "description": "`loading=true` 时加载图标位置。\n\n**可选值：**\n- `left` — 左侧（默认）\n- `center` — 居中\n- `right` — 右侧",
+          "values": [
+            {
+              "name": "left",
+              "description": "左侧（默认）"
+            },
+            {
+              "name": "center",
+              "description": "居中"
+            },
+            {
+              "name": "right",
+              "description": "右侧"
+            }
+          ]
+        },
+        {
+          "name": "hit-slop",
+          "description": "是否扩大可点击热区（默认 true）。",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-group-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染分组容器与默认插槽。",
+      "attributes": [
+        {
+          "name": "multiple",
+          "values": []
+        },
+        {
+          "name": "selected-icon",
+          "values": [
+            {
+              "name": "YnSvgSource"
+            }
+          ]
+        },
+        {
+          "name": "unselected-icon",
+          "values": [
+            {
+              "name": "YnSvgSource"
+            }
+          ]
+        },
+        {
+          "name": "show-unselected-icon",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-dropdown-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n- **render()** - 渲染下拉选择器。",
+      "attributes": [
+        {
+          "name": "value-field",
+          "values": []
+        },
+        {
+          "name": "button-display-field",
+          "values": []
+        },
+        {
+          "name": "placeholder",
+          "values": []
+        },
+        {
+          "name": "close-on-outside-click",
+          "values": []
+        },
+        {
+          "name": "disabled",
+          "values": []
+        },
+        {
+          "name": "button-bg",
+          "values": []
+        },
+        {
+          "name": "button-color",
+          "values": []
+        },
+        {
+          "name": "open-button-bg",
+          "values": []
+        },
+        {
+          "name": "open-button-color",
+          "values": []
+        },
+        {
+          "name": "panel-min-width",
+          "values": []
+        },
+        {
+          "name": "show-selected-icon",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-dropdown",
+      "description": "下拉浮层：触发器为默认插槽，面板为 `panel` 插槽。\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n\n- **close()** - 供外部 JS 调用的关闭方法。\n- **render()** - 渲染触发器、关闭图标与内容面板。",
+      "attributes": [
+        {
+          "name": "placement",
+          "description": "面板相对触发器的位置。\n\n**可选值：**\n- `top-start` — 上方 · 左对齐\n- `top` — 上方 · 居中\n- `top-end` — 上方 · 右对齐\n- `bottom-start` — 下方 · 左对齐（默认）\n- `bottom` — 下方 · 居中\n- `bottom-end` — 下方 · 右对齐\n- `left-start` — 左侧 · 上对齐\n- `left` — 左侧 · 居中\n- `left-end` — 左侧 · 下对齐\n- `right-start` — 右侧 · 上对齐\n- `right` — 右侧 · 居中\n- `right-end` — 右侧 · 下对齐",
+          "values": [
+            {
+              "name": "top-start",
+              "description": "上方 · 左对齐"
+            },
+            {
+              "name": "top",
+              "description": "上方 · 居中"
+            },
+            {
+              "name": "top-end",
+              "description": "上方 · 右对齐"
+            },
+            {
+              "name": "bottom-start",
+              "description": "下方 · 左对齐（默认）"
+            },
+            {
+              "name": "bottom",
+              "description": "下方 · 居中"
+            },
+            {
+              "name": "bottom-end",
+              "description": "下方 · 右对齐"
+            },
+            {
+              "name": "left-start",
+              "description": "左侧 · 上对齐"
+            },
+            {
+              "name": "left",
+              "description": "左侧 · 居中"
+            },
+            {
+              "name": "left-end",
+              "description": "左侧 · 下对齐"
+            },
+            {
+              "name": "right-start",
+              "description": "右侧 · 上对齐"
+            },
+            {
+              "name": "right",
+              "description": "右侧 · 居中"
+            },
+            {
+              "name": "right-end",
+              "description": "右侧 · 下对齐"
+            }
+          ]
+        },
+        {
+          "name": "open",
+          "description": "面板是否展开（受控）。",
+          "values": []
+        },
+        {
+          "name": "offset",
+          "description": "触发器与面板间距（px）。",
+          "values": []
+        },
+        {
+          "name": "motion-distance",
+          "values": []
+        },
+        {
+          "name": "panel-open-distance",
+          "values": []
+        },
+        {
+          "name": "panel-close-distance",
+          "values": []
+        },
+        {
+          "name": "viewport-padding",
+          "values": []
+        },
+        {
+          "name": "auto-flip",
+          "description": "空间不足时是否自动翻转方位。",
+          "values": []
+        },
+        {
+          "name": "close-on-outside-click",
+          "description": "点击外部是否关闭。",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-input",
+      "description": "文本输入框。\n---\n\n\n### **Events:**\n - **yn-input**\n- **type**\n\n### **Methods:**\n - **render()** - 渲染输入框。",
+      "attributes": [
+        {
+          "name": "value",
+          "description": "当前输入值。",
+          "values": []
+        },
+        {
+          "name": "placeholder",
+          "description": "占位提示文案。",
+          "values": []
+        },
+        {
+          "name": "disabled",
+          "description": "禁用输入。",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-navigation",
+      "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染导航外壳、SVG 形状与 tab 列表。",
+      "attributes": [
+        {
+          "name": "false",
+          "values": [
+            {
+              "name": "NavigationNode"
+            }
+          ]
+        },
+        {
+          "name": "active",
+          "values": []
+        },
+        {
+          "name": "hit-slop",
+          "values": []
+        },
+        {
+          "name": "seo-mode",
+          "values": []
+        },
+        {
+          "name": "aria-label",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **toggle**\n\n### **Methods:**\n - **render()** - 渲染 pick 容器、状态图标与插槽内容。",
+      "attributes": [
+        {
+          "name": "selected",
+          "values": []
+        },
+        {
+          "name": "border",
+          "values": []
+        },
+        {
+          "name": "selected-icon",
+          "values": [
+            {
+              "name": "YnSvgSource"
+            }
+          ]
+        },
+        {
+          "name": "unselected-icon",
+          "values": [
+            {
+              "name": "YnSvgSource"
+            }
+          ]
+        },
+        {
+          "name": "show-unselected-icon",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-pull-cord-switch",
+      "description": "抽绳开关：下拉绳端切换开/关。支持 `fixed` 吸顶、`glow-up` 顶灯上扩；默认/activated 插槽放绳端按钮。\n---\n\n\n### **Events:**\n - **fixed-move** - `fixed` 模式下水平拖拽结束，`detail: { x, reverse }`\n- **change** - 开关变化，`detail.checked` 为当前状态\n\n### **Slots:**\n - _default_ - 关闭态绳端内容（如 `yn-button`）\n- **activated** - 开启态绳端内容",
+      "attributes": [
+        {
+          "name": "checked",
+          "description": "是否开启（绳端处于拉开/ON 状态）。",
+          "values": []
+        },
+        {
+          "name": "glow-up",
+          "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下）。",
+          "values": []
+        },
+        {
+          "name": "disabled",
+          "description": "禁用拖拽与切换。",
+          "values": []
+        },
+        {
+          "name": "fixed",
+          "description": "吸附视口；配合 `fixed-x`、`top` 定位。",
+          "values": []
+        },
+        {
+          "name": "reverse",
+          "description": "`fixed-x` 是否自视口右侧起算。",
+          "values": []
+        },
+        {
+          "name": "variant",
+          "description": "绳/卡片视觉主题。\n\n**可选值：**\n- `default` — 深色工业风（默认）\n- `floema` — 浅色 Floema 风",
+          "values": [
+            {
+              "name": "default",
+              "description": "深色工业风（默认）"
+            },
+            {
+              "name": "floema",
+              "description": "浅色 Floema 风"
+            }
+          ]
+        },
+        {
+          "name": "size",
+          "description": "绳端卡片与绳粗细（不控制绳长）。\n\n**可选值：**\n- `mini` — 最小（默认）\n- `small` — 小号\n- `medium` — 中号",
+          "values": [
+            {
+              "name": "mini",
+              "description": "最小（默认）"
+            },
+            {
+              "name": "small",
+              "description": "小号"
+            },
+            {
+              "name": "medium",
+              "description": "中号"
+            }
+          ]
+        },
+        {
+          "name": "rope-length",
+          "description": "绳身长度（px），与 `size` 解耦，默认 260。",
+          "values": []
+        },
+        {
+          "name": "fixed-x",
+          "description": "水平偏移（px，可负）；未设则居中。",
+          "values": []
+        },
+        {
+          "name": "top",
+          "description": "距视口顶部（px，可负）；仅 fixed 时有效。",
+          "values": []
+        },
+        {
+          "name": "toggle-threshold",
+          "description": "下拉切换阈值（px）；未设则随绳长缩放。",
+          "values": []
+        },
+        {
+          "name": "card-offset",
+          "description": "绳端卡片距绳头间距（px，可为负）。",
+          "values": []
+        },
+        {
+          "name": "z-index",
+          "description": "叠放层级（写入 CSS 变量）。",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-search",
+      "description": "\n---\n\n\n### **Events:**\n - **input**\n- **enter**\n\n### **Methods:**\n \n\n- **render()** - 渲染搜索组件外壳、路径与输入区域。",
+      "attributes": [
+        {
+          "name": "close",
+          "values": []
+        },
+        {
+          "name": "disabled",
+          "values": []
+        },
+        {
+          "name": "placeholder",
+          "values": []
+        },
+        {
+          "name": "input-width",
+          "values": []
+        }
+      ],
+      "references": []
+    },
+    {
+      "name": "yn-toast",
+      "description": "顶部灵动岛式提示；也可用 `YnToast.show()` 等 API。\n---\n\n\n### **Events:**\n - **name**",
+      "attributes": [
+        {
+          "name": "type",
+          "description": "提示类型（影响配色与图标）。\n\n**可选值：**\n- `success` — 成功\n- `info` — 信息\n- `warning` — 警告\n- `error` — 错误",
+          "values": [
+            {
+              "name": "success",
+              "description": "成功"
+            },
+            {
+              "name": "info",
+              "description": "信息"
+            },
+            {
+              "name": "warning",
+              "description": "警告"
+            },
+            {
+              "name": "error",
+              "description": "错误"
+            }
+          ]
+        },
+        {
+          "name": "message",
+          "description": "提示文案，支持 HTML 片段（仅可信内容）。",
+          "values": []
+        },
+        {
+          "name": "duration",
+          "values": []
+        },
+        {
+          "name": "loading-duration",
+          "values": []
+        },
+        {
+          "name": "persist",
+          "description": "是否常驻不自动关闭。",
+          "values": []
+        }
+      ],
+      "references": []
+    }
+  ]
+}

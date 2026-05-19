@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vscode-html-languageservice/main/docs/customData.schema.json",
+  "version": 1.1,
+  "tags": [
+    {
+      "name": "yn-button",
+      "description": "\n---\n\n\n### **Methods:**\n - **render()** - 渲染按钮主体、图标、文案与 loading 内容。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-drawer",
+      "description": "\n---\n\n\n### **Events:**\n - **open-change**\n- **name**",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-group-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染分组容器与默认插槽。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-dropdown-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n- **render()** - 渲染下拉选择器。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-dropdown",
+      "description": "\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n\n- **close()** - 供外部 JS 调用的关闭方法。\n- **render()** - 渲染触发器、关闭图标与内容面板。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-input",
+      "description": "\n---\n\n\n### **Events:**\n - **yn-input**\n- **type**\n\n### **Methods:**\n - **render()** - 渲染输入框。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-navigation",
+      "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染导航外壳、SVG 形状与 tab 列表。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-pull-cord-switch",
+      "description": "向下拖拽绳端切换开/关。\n---\n\n\n### **Events:**\n - **fixed-move** - `fixed` 模式下水平拖拽结束，`detail: { x, reverse }`\n- **change** - 开关变化，`detail.checked` 为当前状态\n\n### **Slots:**\n - _default_ - 关闭态绳端内容（如 `yn-button`）\n- **activated** - 开启态绳端内容",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-pick",
+      "description": "\n---\n\n\n### **Events:**\n - **toggle**\n\n### **Methods:**\n - **render()** - 渲染 pick 容器、状态图标与插槽内容。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-search",
+      "description": "\n---\n\n\n### **Events:**\n - **input**\n- **enter**\n\n### **Methods:**\n \n\n- **render()** - 渲染搜索组件外壳、路径与输入区域。",
+      "attributes": [],
+      "references": []
+    },
+    {
+      "name": "yn-toast",
+      "description": "\n---\n\n\n### **Events:**\n - **name**",
+      "attributes": [],
+      "references": []
+    }
+  ]
+}

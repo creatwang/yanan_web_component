@@ -1,0 +1,1149 @@
+{
+  "$schema": "https://raw.githubusercontent.com/JetBrains/web-types/master/schema/web-types.json",
+  "name": "yn-web-component",
+  "version": "0.0.0",
+  "description-markup": "markdown",
+  "contributions": {
+    "html": {
+      "elements": [
+        {
+          "name": "yn-drawer",
+          "description": "\n---\n\n\n### **Events:**\n - **open-change**\n- **name**",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "width",
+              "value": {
+                "type": "number",
+                "default": "420"
+              }
+            },
+            {
+              "name": "title",
+              "value": {
+                "type": "string",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "close-on-backdrop",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": "CustomEvent"
+            },
+            {
+              "name": "name",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "open"
+              },
+              {
+                "name": "width",
+                "type": "number"
+              },
+              {
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "name": "closeOnBackdrop",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "type": "CustomEvent"
+              },
+              {
+                "name": "name",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-button",
+          "description": "通用按钮。用 `variant` 选配色、`size` 选尺寸；`loading` 为加载态。\n---\n\n\n### **Methods:**\n - **render()** - 渲染按钮主体、图标、文案与 loading 内容。\n\n### **Slots:**\n - **prefix** - 主文案前的图标等内容\n- **suffix** - 主文案后的图标等内容",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "disabled",
+              "description": "禁用按钮，不响应点击。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "variant",
+              "description": "按钮配色变体。\n\n**可选值：**\n- `primary` — 主色实心（默认）\n- `success` — 成功 / 确认\n- `warning` — 警告\n- `danger` — 危险 / 删除\n- `neutral` — 中性灰\n- `dark` — 深色底\n- `default` — 浅底描边",
+              "value": {
+                "type": [
+                  "primary",
+                  "success",
+                  "warning",
+                  "danger",
+                  "neutral",
+                  "dark",
+                  "default"
+                ],
+                "default": "\"primary\""
+              }
+            },
+            {
+              "name": "size",
+              "description": "按钮尺寸（内边距与字号）。\n\n**可选值：**\n- `mini` — 最小\n- `small` — 小号\n- `medium` — 中号（默认）",
+              "value": {
+                "type": [
+                  "mini",
+                  "small",
+                  "medium"
+                ],
+                "default": "\"medium\""
+              }
+            },
+            {
+              "name": "loading",
+              "description": "是否显示加载动画并禁用点击。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "loading-type",
+              "description": "`loading=true` 时加载图标位置。\n\n**可选值：**\n- `left` — 左侧（默认）\n- `center` — 居中\n- `right` — 右侧",
+              "value": {
+                "type": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "default": "\"left\""
+              }
+            },
+            {
+              "name": "hit-slop",
+              "description": "是否扩大可点击热区（默认 true）。",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "prefix",
+              "description": "主文案前的图标等内容"
+            },
+            {
+              "name": "suffix",
+              "description": "主文案后的图标等内容"
+            }
+          ],
+          "events": [],
+          "js": {
+            "properties": [
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "variant",
+                "type": "\"primary\" | \"success\" | \"warning\" | \"danger\" | \"neutral\" | \"dark\" | \"default\""
+              },
+              {
+                "name": "size",
+                "type": "\"mini\" | \"small\" | \"medium\""
+              },
+              {
+                "name": "loading",
+                "type": "boolean"
+              },
+              {
+                "name": "loadingType",
+                "type": "\"left\" | \"center\" | \"right\""
+              },
+              {
+                "name": "hitSlop",
+                "type": "boolean"
+              }
+            ],
+            "events": []
+          }
+        },
+        {
+          "name": "yn-group-pick",
+          "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染分组容器与默认插槽。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "multiple",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "selected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "ynPickSelectedSvg"
+              }
+            },
+            {
+              "name": "unselected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "show-unselected-icon",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "GroupValue"
+              },
+              {
+                "name": "multiple",
+                "type": "boolean"
+              },
+              {
+                "name": "selectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "unselectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "showUnselectedIcon",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-dropdown-pick",
+          "description": "\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n- **render()** - 渲染下拉选择器。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "value-field",
+              "value": {
+                "type": "string",
+                "default": "\"id\""
+              }
+            },
+            {
+              "name": "button-display-field",
+              "value": {
+                "type": "string",
+                "default": "\"label\""
+              }
+            },
+            {
+              "name": "placeholder",
+              "value": {
+                "type": "string",
+                "default": "\"Select\""
+              }
+            },
+            {
+              "name": "close-on-outside-click",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            },
+            {
+              "name": "disabled",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "button-bg",
+              "value": {
+                "type": "string",
+                "default": "\"#f8f6f2\""
+              }
+            },
+            {
+              "name": "button-color",
+              "value": {
+                "type": "string",
+                "default": "\"#241f21\""
+              }
+            },
+            {
+              "name": "open-button-bg",
+              "value": {
+                "type": "string",
+                "default": "\"#241f21\""
+              }
+            },
+            {
+              "name": "open-button-color",
+              "value": {
+                "type": "string",
+                "default": "\"#ffffff\""
+              }
+            },
+            {
+              "name": "panel-min-width",
+              "value": {
+                "type": "string",
+                "default": "\"132px\""
+              }
+            },
+            {
+              "name": "show-selected-icon",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "PickValue"
+              },
+              {
+                "name": "valueField",
+                "type": "string"
+              },
+              {
+                "name": "buttonDisplayField",
+                "type": "string"
+              },
+              {
+                "name": "placeholder",
+                "type": "string"
+              },
+              {
+                "name": "closeOnOutsideClick",
+                "type": "boolean"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "buttonBg",
+                "type": "string"
+              },
+              {
+                "name": "buttonColor",
+                "type": "string"
+              },
+              {
+                "name": "openButtonBg",
+                "type": "string"
+              },
+              {
+                "name": "openButtonColor",
+                "type": "string"
+              },
+              {
+                "name": "panelMinWidth",
+                "type": "string"
+              },
+              {
+                "name": "showSelectedIcon",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-dropdown",
+          "description": "下拉浮层：触发器为默认插槽，面板为 `panel` 插槽。\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n\n- **close()** - 供外部 JS 调用的关闭方法。\n- **render()** - 渲染触发器、关闭图标与内容面板。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "placement",
+              "description": "面板相对触发器的位置。\n\n**可选值：**\n- `top-start` — 上方 · 左对齐\n- `top` — 上方 · 居中\n- `top-end` — 上方 · 右对齐\n- `bottom-start` — 下方 · 左对齐（默认）\n- `bottom` — 下方 · 居中\n- `bottom-end` — 下方 · 右对齐\n- `left-start` — 左侧 · 上对齐\n- `left` — 左侧 · 居中\n- `left-end` — 左侧 · 下对齐\n- `right-start` — 右侧 · 上对齐\n- `right` — 右侧 · 居中\n- `right-end` — 右侧 · 下对齐",
+              "value": {
+                "type": [
+                  "top-start",
+                  "top",
+                  "top-end",
+                  "bottom-start",
+                  "bottom",
+                  "bottom-end",
+                  "left-start",
+                  "left",
+                  "left-end",
+                  "right-start",
+                  "right",
+                  "right-end"
+                ],
+                "default": "\"bottom-start\""
+              }
+            },
+            {
+              "name": "open",
+              "description": "面板是否展开（受控）。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "offset",
+              "description": "触发器与面板间距（px）。",
+              "value": {
+                "type": "number",
+                "default": "12"
+              }
+            },
+            {
+              "name": "motion-distance",
+              "value": {
+                "type": "number",
+                "default": "14"
+              }
+            },
+            {
+              "name": "panel-open-distance",
+              "value": {
+                "type": "number",
+                "default": "16"
+              }
+            },
+            {
+              "name": "panel-close-distance",
+              "value": {
+                "type": "number",
+                "default": "20"
+              }
+            },
+            {
+              "name": "viewport-padding",
+              "value": {
+                "type": "number",
+                "default": "12"
+              }
+            },
+            {
+              "name": "auto-flip",
+              "description": "空间不足时是否自动翻转方位。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "close-on-outside-click",
+              "description": "点击外部是否关闭。",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "placement",
+                "type": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+              },
+              {
+                "name": "open",
+                "type": "boolean"
+              },
+              {
+                "name": "offset",
+                "type": "number"
+              },
+              {
+                "name": "motionDistance",
+                "type": "number"
+              },
+              {
+                "name": "panelOpenDistance",
+                "type": "number"
+              },
+              {
+                "name": "panelCloseDistance",
+                "type": "number"
+              },
+              {
+                "name": "viewportPadding",
+                "type": "number"
+              },
+              {
+                "name": "autoFlip",
+                "type": "boolean"
+              },
+              {
+                "name": "closeOnOutsideClick",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-input",
+          "description": "文本输入框。\n---\n\n\n### **Events:**\n - **yn-input**\n- **type**\n\n### **Methods:**\n - **render()** - 渲染输入框。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "value",
+              "description": "当前输入值。",
+              "value": {
+                "type": "string",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "placeholder",
+              "description": "占位提示文案。",
+              "value": {
+                "type": "string",
+                "default": "\"请输入内容\""
+              }
+            },
+            {
+              "name": "disabled",
+              "description": "禁用输入。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "yn-input",
+              "type": "CustomEvent"
+            },
+            {
+              "name": "type",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "string"
+              },
+              {
+                "name": "placeholder",
+                "type": "string"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "yn-input",
+                "type": "CustomEvent"
+              },
+              {
+                "name": "type",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-navigation",
+          "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染导航外壳、SVG 形状与 tab 列表。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "false",
+              "value": {
+                "type": "NavigationNode",
+                "default": "{ PRODUTOS: \"/produtos\", SOBRE: \"/sobre\", SUSTENTABILIDADE: \"/sustentabilidade\", JORNAL: \"/jornal\" }"
+              }
+            },
+            {
+              "name": "active",
+              "value": {
+                "type": "string",
+                "default": "\"PRODUTOS\""
+              }
+            },
+            {
+              "name": "hit-slop",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "seo-mode",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "aria-label",
+              "value": {
+                "type": "string",
+                "default": "\"Primary navigation\""
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "items",
+                "type": "NavigationNode"
+              },
+              {
+                "name": "active",
+                "type": "string"
+              },
+              {
+                "name": "hitSlop",
+                "type": "boolean"
+              },
+              {
+                "name": "seoMode",
+                "type": "boolean"
+              },
+              {
+                "name": "ariaLabel",
+                "type": "string"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-pick",
+          "description": "\n---\n\n\n### **Events:**\n - **toggle**\n\n### **Methods:**\n - **render()** - 渲染 pick 容器、状态图标与插槽内容。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "selected",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "border",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            },
+            {
+              "name": "selected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "ynPickSelectedSvg"
+              }
+            },
+            {
+              "name": "unselected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "ynPickUnselectedSvg"
+              }
+            },
+            {
+              "name": "show-unselected-icon",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "toggle",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "string | number"
+              },
+              {
+                "name": "selected",
+                "type": "boolean"
+              },
+              {
+                "name": "border",
+                "type": "boolean"
+              },
+              {
+                "name": "selectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "unselectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "showUnselectedIcon",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "toggle",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-pull-cord-switch",
+          "description": "抽绳开关：下拉绳端切换开/关。支持 `fixed` 吸顶、`glow-up` 顶灯上扩；默认/activated 插槽放绳端按钮。\n---\n\n\n### **Events:**\n - **fixed-move** - `fixed` 模式下水平拖拽结束，`detail: { x, reverse }`\n- **change** - 开关变化，`detail.checked` 为当前状态\n\n### **Slots:**\n - _default_ - 关闭态绳端内容（如 `yn-button`）\n- **activated** - 开启态绳端内容",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "checked",
+              "description": "是否开启（绳端处于拉开/ON 状态）。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "glow-up",
+              "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下）。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "disabled",
+              "description": "禁用拖拽与切换。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "fixed",
+              "description": "吸附视口；配合 `fixed-x`、`top` 定位。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "reverse",
+              "description": "`fixed-x` 是否自视口右侧起算。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "variant",
+              "description": "绳/卡片视觉主题。\n\n**可选值：**\n- `default` — 深色工业风（默认）\n- `floema` — 浅色 Floema 风",
+              "value": {
+                "type": [
+                  "default",
+                  "floema"
+                ],
+                "default": "\"default\""
+              }
+            },
+            {
+              "name": "size",
+              "description": "绳端卡片与绳粗细（不控制绳长）。\n\n**可选值：**\n- `mini` — 最小（默认）\n- `small` — 小号\n- `medium` — 中号",
+              "value": {
+                "type": [
+                  "mini",
+                  "small",
+                  "medium"
+                ],
+                "default": "\"mini\""
+              }
+            },
+            {
+              "name": "rope-length",
+              "description": "绳身长度（px），与 `size` 解耦，默认 260。",
+              "value": {
+                "type": "string",
+                "default": "DEFAULT_ROPE_LENGTH"
+              }
+            },
+            {
+              "name": "fixed-x",
+              "description": "水平偏移（px，可负）；未设则居中。",
+              "value": {
+                "type": "number | undefined"
+              }
+            },
+            {
+              "name": "top",
+              "description": "距视口顶部（px，可负）；仅 fixed 时有效。",
+              "value": {
+                "type": "number | undefined"
+              }
+            },
+            {
+              "name": "toggle-threshold",
+              "description": "下拉切换阈值（px）；未设则随绳长缩放。",
+              "value": {
+                "type": "number | undefined"
+              }
+            },
+            {
+              "name": "card-offset",
+              "description": "绳端卡片距绳头间距（px，可为负）。",
+              "value": {
+                "type": "number | undefined"
+              }
+            },
+            {
+              "name": "z-index",
+              "description": "叠放层级（写入 CSS 变量）。",
+              "value": {
+                "type": "number",
+                "default": "1"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "关闭态绳端内容（如 `yn-button`）"
+            },
+            {
+              "name": "activated",
+              "description": "开启态绳端内容"
+            }
+          ],
+          "events": [
+            {
+              "name": "fixed-move",
+              "type": "CustomEvent",
+              "description": "`fixed` 模式下水平拖拽结束，`detail: { x, reverse }`"
+            },
+            {
+              "name": "change",
+              "type": "CustomEvent",
+              "description": "开关变化，`detail.checked` 为当前状态"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "checked",
+                "type": "boolean"
+              },
+              {
+                "name": "glowUp",
+                "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下半圆）",
+                "type": "boolean"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "fixed",
+                "type": "boolean"
+              },
+              {
+                "name": "reverse",
+                "type": "boolean"
+              },
+              {
+                "name": "variant",
+                "type": "\"default\" | \"floema\""
+              },
+              {
+                "name": "size",
+                "type": "\"mini\" | \"small\" | \"medium\""
+              },
+              {
+                "name": "ropeLength",
+                "description": "绳子长度（px），默认与原先 mini 一致；与 `size` 解耦，仅控制绳身高度与物理参数"
+              },
+              {
+                "name": "fixedX",
+                "type": "number | undefined"
+              },
+              {
+                "name": "top",
+                "description": "仅 `fixed=true` 时：距视口顶部的偏移（px，可为负）；负值 hover 滑出完全露出",
+                "type": "number | undefined"
+              },
+              {
+                "name": "toggleThreshold",
+                "type": "number | undefined"
+              },
+              {
+                "name": "cardOffset",
+                "description": "绳端卡片距绳头的间距（px，可为负）；未设置时随 `rope-length` 缩放。负值时 fixed 负偏移的 hover 滑出不可用",
+                "type": "number | undefined"
+              },
+              {
+                "name": "zIndex",
+                "description": "组件层级（映射 `--yn-pull-cord-switch-z-index`）；fixed 模式下控制相对页面的叠放顺序",
+                "type": "number"
+              }
+            ],
+            "events": [
+              {
+                "name": "fixed-move",
+                "type": "CustomEvent",
+                "description": "`fixed` 模式下水平拖拽结束，`detail: { x, reverse }`"
+              },
+              {
+                "name": "change",
+                "type": "CustomEvent",
+                "description": "开关变化，`detail.checked` 为当前状态"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-search",
+          "description": "\n---\n\n\n### **Events:**\n - **input**\n- **enter**\n\n### **Methods:**\n \n\n- **render()** - 渲染搜索组件外壳、路径与输入区域。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "close",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "disabled",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "placeholder",
+              "value": {
+                "type": "string",
+                "default": "\"O que estás à procura?\""
+              }
+            },
+            {
+              "name": "input-width",
+              "value": {
+                "type": "number",
+                "default": "514"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": "CustomEvent"
+            },
+            {
+              "name": "enter",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "close",
+                "type": "boolean"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "placeholder",
+                "type": "string"
+              },
+              {
+                "name": "inputWidth",
+                "type": "number"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "type": "CustomEvent"
+              },
+              {
+                "name": "enter",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-toast",
+          "description": "顶部灵动岛式提示；也可用 `YnToast.show()` 等 API。\n---\n\n\n### **Events:**\n - **name**",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "type",
+              "description": "提示类型（影响配色与图标）。\n\n**可选值：**\n- `success` — 成功\n- `info` — 信息\n- `warning` — 警告\n- `error` — 错误",
+              "value": {
+                "type": [
+                  "success",
+                  "info",
+                  "warning",
+                  "error"
+                ],
+                "default": "\"success\""
+              }
+            },
+            {
+              "name": "message",
+              "description": "提示文案，支持 HTML 片段（仅可信内容）。",
+              "value": {
+                "type": "string",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "duration",
+              "value": {
+                "type": "number",
+                "default": "2600"
+              }
+            },
+            {
+              "name": "loading-duration",
+              "value": {
+                "type": "number",
+                "default": "1400"
+              }
+            },
+            {
+              "name": "persist",
+              "description": "是否常驻不自动关闭。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            }
+          ],
+          "events": [
+            {
+              "name": "name",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "type",
+                "type": "\"success\" | \"info\" | \"warning\" | \"error\""
+              },
+              {
+                "name": "message",
+                "type": "string"
+              },
+              {
+                "name": "duration",
+                "type": "number"
+              },
+              {
+                "name": "loadingDuration",
+                "type": "number"
+              },
+              {
+                "name": "persist",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "name",
+                "type": "CustomEvent"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "css": {
+      "properties": [],
+      "pseudo-elements": []
+    }
+  }
+}

@@ -35,6 +35,15 @@ function scanLightDomSlots(host: HTMLElement) {
   return { hasDefault, hasActivated };
 }
 
+/**
+ * 向下拖拽绳端切换开/关。
+ *
+ * @slot - 关闭态绳端内容（如 `yn-button`）
+ * @slot activated - 开启态绳端内容
+ *
+ * @fires change - 开关变化，`detail.checked` 为当前状态
+ * @fires fixed-move - `fixed` 模式下水平拖拽结束，`detail: { x, reverse }`
+ */
 @customElement("yn-pull-cord-switch")
 export class YnPullCordSwitch extends LitElement {
   @property({ type: Boolean, reflect: true }) checked = false;
