@@ -60,13 +60,28 @@ export class YnDrawer extends LitElement {
   @property({ type: Boolean, attribute: "close-on-backdrop" })
   closeOnBackdrop = true;
 
+  /** `auto`：窄屏底部弹出，宽屏右侧滑入；`bottom` / `right` 可强制指定方向 */
+  @property({ type: String, reflect: true })
+  placement: "auto" | "right" | "bottom" = "auto";
+
+  /**
+   * 底部弹出时面板高度。默认 `90vh`；设为 `auto` 时高度随内容，关闭态仍用 `translateY(100%)` 整段滑入/滑出。
+   * 也可传任意 CSS 长度（如 `60vh`、`420px`），会同步到 `--yn-drawer-sheet-height`。
+   */
+  @property({ type: String, attribute: "sheet-height", reflect: true })
+  sheetHeight = "90vh";
+
   @query("#drawerPopover")
   private popoverEl!: HTMLElement;
 
   @query('slot[name="trigger"]')
   private triggerSlotEl!: HTMLSlotElement;
 
+  @query('slot[name="footer"]')
+  private footerSlotEl!: HTMLSlotElement;
+
   private _open = false;
+  private footerEmpty = true;
   private closeTimer = 0;
   private openTimer = 0;
   private pendingActionMeta:
@@ -100,10 +115,15 @@ export class YnDrawer extends LitElement {
       --yn-drawer-close-hover-bg: rgba(36, 31, 33, 0.08);
       --yn-drawer-content-color: #241f21;
       --yn-drawer-footer-bg: #ffffff;
-      --yn-drawer-open-duration: 620ms;
-      --yn-drawer-close-duration: 500ms;
+      --yn-drawer-open-duration: 380ms;
+      --yn-drawer-close-duration: 320ms;
       --yn-drawer-open-ease: cubic-bezier(0.22, 0.01, 0.35, 1);
       --yn-drawer-close-ease: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      --yn-drawer-mobile-radius: 16px;
+      --yn-drawer-mobile-shadow: 0 -12px 36px rgba(36, 31, 33, 0.18);
+      --yn-drawer-sheet-height: 90vh;
+      --yn-drawer-breakpoint: 1024px;
+      --yn-drawer-body-padding: 16px;
       display: block;
     }
 
@@ -151,6 +171,7 @@ export class YnDrawer extends LitElement {
       inset: 0;
       display: flex;
       justify-content: flex-end;
+      align-items: stretch;
       pointer-events: none;
     }
 
@@ -206,6 +227,96 @@ export class YnDrawer extends LitElement {
       opacity: 0;
     }
 
+    /* 窄屏 / placement=bottom：底部弹出，高度随内容 */
+    @media (max-width: 1023px) {
+      :host([placement="bottom"]),
+      :host([placement="auto"]) {
+        .drawer-surface {
+          align-items: flex-end;
+          justify-content: center;
+        }
+
+        .panel {
+          width: 100%;
+          max-width: 100vw;
+          height: var(--yn-drawer-sheet-height);
+          max-height: min(95vh, 100dvh);
+          transform: translateY(100%);
+          opacity: 1;
+          border-radius: var(--yn-drawer-mobile-radius) var(--yn-drawer-mobile-radius) 0 0;
+          box-shadow: var(--yn-drawer-mobile-shadow);
+          transition: transform var(--yn-drawer-open-duration) var(--yn-drawer-open-ease);
+        }
+
+        :host([sheet-height="auto"]) .panel {
+          height: auto;
+        }
+
+        .drawer-popover.visible .panel {
+          transform: translateY(0);
+        }
+
+        .drawer-popover.closing .panel {
+          transform: translateY(100%);
+          opacity: 1;
+          transition: transform var(--yn-drawer-close-duration) var(--yn-drawer-close-ease);
+        }
+
+        .body {
+          flex: 1;
+          min-height: 0;
+          overflow: auto;
+        }
+
+        :host([sheet-height="auto"]) .body {
+          flex: 0 1 auto;
+          overflow: visible;
+        }
+
+        .footer--empty {
+          display: none;
+        }
+      }
+    }
+
+    @media (min-width: 1024px) {
+      :host([placement="bottom"]) .drawer-surface {
+        align-items: flex-end;
+        justify-content: center;
+      }
+
+      :host([placement="bottom"]) .panel {
+        width: 100%;
+        height: var(--yn-drawer-sheet-height);
+        max-height: min(95vh, 100dvh);
+        transform: translateY(100%);
+        border-radius: var(--yn-drawer-mobile-radius) var(--yn-drawer-mobile-radius) 0 0;
+      }
+
+      :host([placement="bottom"][sheet-height="auto"]) .panel {
+        height: auto;
+      }
+
+      :host([placement="bottom"]) .body {
+        flex: 1;
+        min-height: 0;
+        overflow: auto;
+      }
+
+      :host([placement="bottom"][sheet-height="auto"]) .body {
+        flex: 0 1 auto;
+        overflow: visible;
+      }
+
+      :host([placement="bottom"]) .drawer-popover.visible .panel {
+        transform: translateY(0);
+      }
+
+      :host([placement="bottom"]) .drawer-popover.closing .panel {
+        transform: translateY(100%);
+      }
+    }
+
     .header {
       height: 56px;
       display: flex;
@@ -254,7 +365,17 @@ export class YnDrawer extends LitElement {
       flex: 1;
       min-height: 0;
       overflow: auto;
-      padding: 16px;
+      padding: var(--yn-drawer-body-padding);
+    }
+
+    .header-actions {
+      display: inline-flex;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .header-actions:empty {
+      display: none;
     }
 
     .footer {
@@ -263,11 +384,18 @@ export class YnDrawer extends LitElement {
       padding: 12px 16px;
       flex-shrink: 0;
     }
+
+    .footer--empty {
+      display: none;
+      border: 0;
+      padding: 0;
+    }
   `;
 
   connectedCallback() {
     super.connectedCallback();
     this.handleEscape = this.handleEscape.bind(this);
+    this.syncSheetHeight();
   }
 
   disconnectedCallback() {
@@ -283,12 +411,16 @@ export class YnDrawer extends LitElement {
   }
 
   protected firstUpdated() {
+    this.syncFooterEmptyState();
     this.syncPopoverState(true);
   }
 
   protected updated(changed: PropertyValues) {
     if (changed.has("width")) {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
+    }
+    if (changed.has("sheetHeight")) {
+      this.syncSheetHeight();
     }
     if (changed.has("open")) {
       const transitionMeta = this.pendingTransitionMeta ?? {
@@ -299,6 +431,15 @@ export class YnDrawer extends LitElement {
       this.syncPopoverState(false, transitionMeta);
       this.emitOpenChange(transitionMeta);
     }
+  }
+
+  private syncSheetHeight() {
+    const value = (this.sheetHeight || "90vh").trim();
+    if (value.toLowerCase() === "auto") {
+      this.style.removeProperty("--yn-drawer-sheet-height");
+      return;
+    }
+    this.style.setProperty("--yn-drawer-sheet-height", value);
   }
 
   private emitOpenChange(meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }) {
@@ -390,7 +531,7 @@ export class YnDrawer extends LitElement {
     requestAnimationFrame(() => {
       this.popoverEl.classList.add("visible");
     });
-    const openDuration = this.getMotionDuration("--yn-drawer-open-duration", 620);
+    const openDuration = this.getMotionDuration("--yn-drawer-open-duration", 380);
     this.openTimer = window.setTimeout(() => {
       this.emitLifecycleEvent("after-open", meta);
       this.openTimer = 0;
@@ -411,7 +552,7 @@ export class YnDrawer extends LitElement {
     }
     this.popoverEl.classList.remove("visible");
     this.popoverEl.classList.add("closing");
-    const closeDuration = this.getMotionDuration("--yn-drawer-close-duration", 500);
+    const closeDuration = this.getMotionDuration("--yn-drawer-close-duration", 320);
     this.closeTimer = window.setTimeout(() => {
       this.popoverEl.hidePopover();
       this.popoverEl.classList.remove("closing");
@@ -482,6 +623,24 @@ export class YnDrawer extends LitElement {
     this.setOpenWithMeta(false, { source: "escape" });
   }
 
+  private syncFooterEmptyState() {
+    if (!this.footerSlotEl) return;
+    const nodes = this.footerSlotEl.assignedNodes({ flatten: true });
+    this.footerEmpty = !nodes.some((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return Boolean(node.textContent?.trim());
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  private handleFooterSlotChange = () => {
+    this.syncFooterEmptyState();
+  };
+
   render() {
     return html`
       <span class="trigger-wrap" @click=${this.handleTriggerClick}>
@@ -499,6 +658,9 @@ export class YnDrawer extends LitElement {
                   <h2 class="title">${this.title}</h2>
                 </slot>
               </div>
+              <div class="header-actions">
+                <slot name="header-actions"></slot>
+              </div>
               <button class="close-btn" type="button" aria-label="Close drawer" @click=${this.handleCloseClick}>
                 ${unsafeSVG(ynClose20Svg)}
               </button>
@@ -506,8 +668,8 @@ export class YnDrawer extends LitElement {
             <div class="body">
               <slot name="content"></slot>
             </div>
-            <footer class="footer">
-              <slot name="footer"></slot>
+            <footer class="footer ${this.footerEmpty ? "footer--empty" : ""}">
+              <slot name="footer" @slotchange=${this.handleFooterSlotChange}></slot>
             </footer>
           </aside>
         </div>
