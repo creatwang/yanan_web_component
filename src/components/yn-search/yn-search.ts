@@ -82,9 +82,12 @@ export class YnSearch extends LitElement {
 
   static styles = css`
       :host {
-        --yn-search-bg-active: rgba(255, 255, 255, 0.96);
-        --yn-search-bg-idle: rgba(255, 255, 255, 0);
-        --yn-search-icon-color: #241f21;
+        --yn-search-bg-active: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.96));
+        --yn-search-bg-idle: transparent;
+        --yn-search-icon-color: var(--yn-color-text, #241f21);
+        --yn-search-field-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.7));
+        --yn-search-caret-color: var(--yn-color-text, #241f21);
+        --yn-search-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.6));
         --yn-search-fill-duration: 220ms;
         --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1);
         --yn-search-icon-duration: 220ms;
@@ -243,13 +246,13 @@ export class YnSearch extends LitElement {
         border: 0;
         outline: 0;
         background: transparent;
-        color: #241f21b3;
+        color: var(--yn-search-field-color, var(--yn-color-text-muted, #241f21b3));
         font-family: "Zimula", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
         font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px);
         font-variation-settings: "cnct" 1000, "wght" 500;
         letter-spacing: -0.02em;
         line-height: 1.4em;
-        caret-color: #241f21;
+        caret-color: var(--yn-search-caret-color, var(--yn-color-text, #241f21));
         padding-left: 3px;
         opacity: 0;
         transform: translateX(-10px);
@@ -262,7 +265,7 @@ export class YnSearch extends LitElement {
       }
 
       .field::placeholder {
-        color: #241f2199;
+        color: var(--yn-search-placeholder-color, var(--yn-color-text-muted, #241f2199));
       }
 
       .field::-webkit-calendar-picker-indicator {

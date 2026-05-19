@@ -133,6 +133,10 @@ export class YnDropdown extends LitElement {
 
   static styles = css`
     :host {
+      --yn-dropdown-close-icon-color: var(--yn-color-text, #241f21);
+      --yn-dropdown-panel-bg: var(--yn-color-bg-elevated, #ffffff);
+      --yn-dropdown-panel-shadow: var(--yn-color-shadow-md, 0 12px 36px rgba(36, 31, 33, 0.18));
+      --yn-dropdown-panel-motion-shadow: var(--yn-color-shadow-sm, 0 8px 20px rgba(36, 31, 33, 0.12));
       display: inline-block;
       position: relative;
       overflow: visible;
@@ -186,7 +190,7 @@ export class YnDropdown extends LitElement {
       height: var(--yn-dropdown-close-icon-size, 24px);
       border: none;
       background: transparent;
-      color: var(--yn-dropdown-close-icon-color, #241f21);
+      color: var(--yn-dropdown-close-icon-color);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -228,8 +232,8 @@ export class YnDropdown extends LitElement {
       min-width: var(--yn-dropdown-panel-min-width, 280px);
       border-radius: var(--yn-dropdown-panel-radius, 12px);
       border: var(--yn-dropdown-panel-border, none);
-      background: var(--yn-dropdown-panel-bg, #ffffff);
-      box-shadow: var(--yn-dropdown-panel-shadow, 0 12px 36px rgba(36, 31, 33, 0.18));
+      background: var(--yn-dropdown-panel-bg);
+      box-shadow: var(--yn-dropdown-panel-shadow);
       padding: var(--yn-dropdown-panel-padding, 12px);
       overflow: auto;
       z-index: var(--yn-dropdown-z-index, 1200);
@@ -274,7 +278,7 @@ export class YnDropdown extends LitElement {
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
-      box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12));
+      box-shadow: var(--yn-dropdown-panel-motion-shadow);
       --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-open-duration, 270ms);
       --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-open-duration, 270ms);
       --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-open-easing, cubic-bezier(0.22, 0.78, 0.24, 1));
@@ -286,7 +290,7 @@ export class YnDropdown extends LitElement {
       opacity: 0;
       visibility: visible;
       pointer-events: none;
-      box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12));
+      box-shadow: var(--yn-dropdown-panel-motion-shadow);
       --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-close-duration, 330ms);
       --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-close-duration, 330ms);
       --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-close-easing, cubic-bezier(0.4, 0, 0.2, 1));

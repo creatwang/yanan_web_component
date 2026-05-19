@@ -28,6 +28,8 @@ export class YnIconConnectButton extends LitElement {
 
   static styles = css`
       :host {
+        --yn-icon-connect-button-color: var(--yn-color-text, #241f21);
+        --yn-icon-connect-button-bg: var(--yn-color-accent, #ddd967);
         display: inline-block;
       }
 
@@ -42,7 +44,7 @@ export class YnIconConnectButton extends LitElement {
         height: var(--btn-height, 32px);
         isolation: isolate;
         contain: layout paint;
-        color: var(--yn-icon-connect-button-color, #241f21);
+        color: var(--yn-icon-connect-button-color);
         width: max-content;
         text-decoration: none;
       }
@@ -67,13 +69,13 @@ export class YnIconConnectButton extends LitElement {
         inset: 0;
         width: 100%;
         height: 100%;
-        fill: var(--yn-icon-connect-button-bg, #ddd967);
+        fill: var(--yn-icon-connect-button-bg);
         transform: translateZ(0);
         shape-rendering: geometricPrecision;
       }
 
       .svg path {
-        stroke: var(--yn-icon-connect-button-bg, #ddd967);
+        stroke: var(--yn-icon-connect-button-bg);
         stroke-width: 0.65;
         stroke-linejoin: round;
         stroke-linecap: round;
@@ -119,7 +121,7 @@ export class YnIconConnectButton extends LitElement {
       }
 
       .btn:focus-visible {
-        outline: 2px solid #e8f0ff;
+        outline: 2px solid var(--yn-color-focus-outline, #e8f0ff);
         outline-offset: 3px;
       }
     `;

@@ -165,16 +165,12 @@ export class YnButton extends LitElement {
     }
 
     :host([variant="default"]) .bg {
-      border-color: #eceef1;
-      box-shadow:
-        0 1px 2px rgba(36, 31, 33, 0.06),
-        0 6px 16px rgba(36, 31, 33, 0.08);
+      border-color: var(--yn-color-border, #eceef1);
+      box-shadow: var(--yn-color-shadow-sm);
     }
 
     :host([variant="default"]) .button:hover .bg {
-      box-shadow:
-        0 2px 6px rgba(36, 31, 33, 0.1),
-        0 12px 24px rgba(36, 31, 33, 0.14);
+      box-shadow: var(--yn-color-shadow-md);
     }
 
     .button:disabled {
@@ -204,44 +200,44 @@ export class YnButton extends LitElement {
         return {
           bg: "var(--yn-button-success-bg, #C6AF88)",
           hoverBg: "var(--yn-button-success-hover-bg, #B9A079)",
-          color: "var(--yn-button-success-color, #241f21)"
+          color: "var(--yn-button-success-color, var(--yn-color-text, #241f21))"
         };
       case "warning":
         return {
           bg: "var(--yn-button-warning-bg, #85A1C5)",
           hoverBg: "var(--yn-button-warning-hover-bg, #7593B9)",
-          color: "var(--yn-button-warning-color, #241f21)"
+          color: "var(--yn-button-warning-color, var(--yn-color-text, #241f21))"
         };
       case "danger":
         return {
           bg: "var(--yn-button-danger-bg, #BACFA3)",
           hoverBg: "var(--yn-button-danger-hover-bg, #A9BE91)",
-          color: "var(--yn-button-danger-color, #241f21)"
+          color: "var(--yn-button-danger-color, var(--yn-color-text, #241f21))"
         };
       case "neutral":
         return {
           bg: "var(--yn-button-neutral-bg, #D2CDC4)",
           hoverBg: "var(--yn-button-neutral-hover-bg, #C1BCB3)",
-          color: "var(--yn-button-neutral-color, #241f21)"
+          color: "var(--yn-button-neutral-color, var(--yn-color-text, #241f21))"
         };
       case "dark":
         return {
-          bg: "var(--yn-button-dark-bg, #241f21)",
-          hoverBg: "var(--yn-button-dark-hover-bg, rgba(36,31,33,.8))",
-          color: "var(--yn-button-dark-color, #ffffff)"
+          bg: "var(--yn-button-dark-bg, var(--yn-color-inverse-bg, #241f21))",
+          hoverBg: "var(--yn-button-dark-hover-bg, var(--yn-color-inverse-bg-hover, rgba(36, 31, 33, 0.8)))",
+          color: "var(--yn-button-dark-color, var(--yn-color-on-inverse, #ffffff))"
         };
       case "default":
         return {
-          bg: "var(--yn-button-default-bg, #ffffff)",
-          hoverBg: "var(--yn-button-default-hover-bg, #f3f4f6)",
-          color: "var(--yn-button-default-color, #241f21)"
+          bg: "var(--yn-button-default-bg, var(--yn-color-bg-elevated, #ffffff))",
+          hoverBg: "var(--yn-button-default-hover-bg, var(--yn-color-bg-muted, #f3f4f6))",
+          color: "var(--yn-button-default-color, var(--yn-color-text, #241f21))"
         };
       case "primary":
       default:
         return {
-          bg: "var(--yn-button-primary-bg, #F76C46)",
-          hoverBg: "var(--yn-button-primary-hover-bg, #E45F3E)",
-          color: "var(--yn-button-primary-color, #241f21)"
+          bg: "var(--yn-button-primary-bg, var(--yn-color-primary, #f76c46))",
+          hoverBg: "var(--yn-button-primary-hover-bg, var(--yn-color-primary-hover, #e45f3e))",
+          color: "var(--yn-button-primary-color, var(--yn-color-text, #241f21))"
         };
     }
   }
@@ -310,13 +306,13 @@ export class YnButton extends LitElement {
         };
       case "dark":
         return {
-          bg: "var(--yn-button-dark-disabled-bg, rgba(36,31,33,0.45))",
-          color: "var(--yn-button-dark-disabled-color, rgba(255,255,255,0.85))"
+          bg: "var(--yn-button-dark-disabled-bg, var(--yn-color-inverse-bg-hover, rgba(36, 31, 33, 0.45)))",
+          color: "var(--yn-button-dark-disabled-color, var(--yn-color-on-inverse, rgba(255, 255, 255, 0.85)))"
         };
       case "default":
         return {
-          bg: "var(--yn-button-default-disabled-bg, #f1f1f1)",
-          color: "var(--yn-button-default-disabled-color, #8a8a8a)"
+          bg: "var(--yn-button-default-disabled-bg, var(--yn-color-disabled-bg, #f1f1f1))",
+          color: "var(--yn-button-default-disabled-color, var(--yn-color-disabled-text, #8a8a8a))"
         };
       case "primary":
       default:

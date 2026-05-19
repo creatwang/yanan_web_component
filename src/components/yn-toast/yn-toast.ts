@@ -98,13 +98,13 @@ export class YnToast extends LitElement {
     :host {
       --yn-toast-height: 36px;
       --yn-toast-ball-size: 32px;
-      --yn-toast-bg: rgba(246, 241, 230, 0.92);
-      --yn-toast-text-color: #20231d;
-      --yn-toast-success-color: #667a48;
-      --yn-toast-info-color: #5f6f86;
-      --yn-toast-warning-color: #b87d55;
-      --yn-toast-error-color: #9a4f43;
-      --yn-toast-paper-color: #f3eddf;
+      --yn-toast-bg: var(--yn-color-surface-hover, rgba(246, 241, 230, 0.92));
+      --yn-toast-text-color: var(--yn-color-text, #20231d);
+      --yn-toast-success-color: var(--yn-color-success, #667a48);
+      --yn-toast-info-color: var(--yn-color-info, #5f6f86);
+      --yn-toast-warning-color: var(--yn-color-warning, #b87d55);
+      --yn-toast-error-color: var(--yn-color-error, #9a4f43);
+      --yn-toast-paper-color: var(--yn-color-bg-muted, #f3eddf);
       --yn-toast-max-width: 90vw;
       --yn-toast-top: 26px;
       --yn-toast-z-index: 1600;
@@ -112,12 +112,8 @@ export class YnToast extends LitElement {
       --yn-toast-message-padding: 0 14px 0 6px;
       --yn-toast-message-font-size: 0.8rem;
       --yn-toast-message-letter-spacing: 0.18em;
-      --yn-toast-mask-bg: rgba(32, 35, 29, 0.18);
-      --yn-toast-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.48),
-        inset 0 -1px 0 rgba(32, 35, 29, 0.06),
-        0 18px 45px rgba(62, 55, 42, 0.14),
-        0 5px 16px rgba(62, 55, 42, 0.08);
+      --yn-toast-mask-bg: var(--yn-color-backdrop, rgba(32, 35, 29, 0.18));
+      --yn-toast-shadow: var(--yn-color-toast-shadow);
       position: fixed;
       inset: 0;
       z-index: var(--yn-toast-z-index);
@@ -265,7 +261,7 @@ export class YnToast extends LitElement {
 
     .ring .track {
       fill: none;
-      stroke: rgba(32, 35, 29, 0.08);
+      stroke: var(--yn-color-toast-ring-track, rgba(32, 35, 29, 0.08));
       stroke-width: 2;
     }
 
@@ -276,7 +272,7 @@ export class YnToast extends LitElement {
       stroke-linecap: round;
       stroke-dasharray: 15 85;
       opacity: var(--spin-opacity, 0.96);
-      filter: drop-shadow(0 0 2px rgba(32, 35, 29, 0.08));
+      filter: drop-shadow(0 0 2px var(--yn-color-toast-ring-track, rgba(32, 35, 29, 0.08)));
       transform-origin: center;
       transform-box: fill-box;
     }

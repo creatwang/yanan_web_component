@@ -173,41 +173,41 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([variant="default"]) {
-      --yn-pull-cord-switch-bg-top: #1a1d24;
-      --yn-pull-cord-switch-bg-bottom: #12141a;
-      --yn-pull-cord-switch-bg-on-top: #2a2830;
-      --yn-pull-cord-switch-bg-on-bottom: #15141a;
-      --yn-pull-cord-switch-accent: rgba(255, 214, 102, 0.35);
-      --yn-pull-cord-switch-ceiling-bg: rgba(255, 255, 255, 0.08);
-      --yn-pull-cord-switch-anchor-color: #4a4f5c;
-      --yn-pull-cord-switch-rope-start: #6b5d4f;
-      --yn-pull-cord-switch-rope-end: #9a8468;
-      --yn-pull-cord-switch-card-bg: linear-gradient(180deg, #343a46 0%, #22262e 100%);
-      --yn-pull-cord-switch-card-border: rgba(255, 255, 255, 0.1);
-      --yn-pull-cord-switch-card-color: rgba(255, 255, 255, 0.88);
-      --yn-pull-cord-switch-card-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
-      --yn-pull-cord-switch-card-bg-on: linear-gradient(180deg, #3d4454 0%, #252a34 100%);
-      --yn-pull-cord-switch-card-border-on: rgba(255, 214, 102, 0.45);
-      --yn-pull-cord-switch-card-color-on: #ffd666;
+      --yn-pull-cord-switch-bg-top: var(--yn-color-cord-night-bg-top, #1a1d24);
+      --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-night-bg-bottom, #12141a);
+      --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-night-bg-on-top, #2a2830);
+      --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-night-bg-on-bottom, #15141a);
+      --yn-pull-cord-switch-accent: var(--yn-color-cord-night-accent, rgba(255, 214, 102, 0.35));
+      --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-night-ceiling-bg, rgba(255, 255, 255, 0.08));
+      --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-night-anchor, #4a4f5c);
+      --yn-pull-cord-switch-rope-start: var(--yn-color-cord-night-rope-start, #6b5d4f);
+      --yn-pull-cord-switch-rope-end: var(--yn-color-cord-night-rope-end, #9a8468);
+      --yn-pull-cord-switch-card-bg: var(--yn-color-cord-night-card-bg, linear-gradient(180deg, #343a46 0%, #22262e 100%));
+      --yn-pull-cord-switch-card-border: var(--yn-color-cord-night-card-border, rgba(255, 255, 255, 0.1));
+      --yn-pull-cord-switch-card-color: var(--yn-color-cord-night-card-color, rgba(255, 255, 255, 0.88));
+      --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-night-card-shadow, 0 8px 16px rgba(0, 0, 0, 0.45));
+      --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-night-card-bg-on, linear-gradient(180deg, #3d4454 0%, #252a34 100%));
+      --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-night-card-border-on, rgba(255, 214, 102, 0.45));
+      --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-night-card-color-on, #ffd666);
     }
 
     :host([variant="floema"]) {
-      --yn-pull-cord-switch-bg-top: #ebe4d4;
-      --yn-pull-cord-switch-bg-bottom: #ddd6c4;
-      --yn-pull-cord-switch-bg-on-top: #f2e8cf;
-      --yn-pull-cord-switch-bg-on-bottom: #e5d6b4;
-      --yn-pull-cord-switch-accent: rgba(212, 165, 116, 0.5);
-      --yn-pull-cord-switch-ceiling-bg: rgba(32, 35, 29, 0.07);
-      --yn-pull-cord-switch-anchor-color: #586247;
-      --yn-pull-cord-switch-rope-start: #6f5f4d;
-      --yn-pull-cord-switch-rope-end: #a0896c;
-      --yn-pull-cord-switch-card-bg: linear-gradient(180deg, #f8f3ea 0%, #ebe4d4 100%);
-      --yn-pull-cord-switch-card-border: rgba(32, 35, 29, 0.12);
-      --yn-pull-cord-switch-card-color: #20231d;
-      --yn-pull-cord-switch-card-shadow: 0 14px 28px rgba(48, 42, 34, 0.16);
-      --yn-pull-cord-switch-card-bg-on: linear-gradient(180deg, #6d7a58 0%, #586247 100%);
-      --yn-pull-cord-switch-card-border-on: rgba(243, 237, 223, 0.28);
-      --yn-pull-cord-switch-card-color-on: #f8f3ea;
+      --yn-pull-cord-switch-bg-top: var(--yn-color-cord-day-bg-top, #ebe4d4);
+      --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-day-bg-bottom, #ddd6c4);
+      --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-day-bg-on-top, #f2e8cf);
+      --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-day-bg-on-bottom, #e5d6b4);
+      --yn-pull-cord-switch-accent: var(--yn-color-cord-day-accent, rgba(212, 165, 116, 0.5));
+      --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-day-ceiling-bg, rgba(32, 35, 29, 0.07));
+      --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-day-anchor, #586247);
+      --yn-pull-cord-switch-rope-start: var(--yn-color-cord-day-rope-start, #6f5f4d);
+      --yn-pull-cord-switch-rope-end: var(--yn-color-cord-day-rope-end, #a0896c);
+      --yn-pull-cord-switch-card-bg: var(--yn-color-cord-day-card-bg, linear-gradient(180deg, #f8f3ea 0%, #ebe4d4 100%));
+      --yn-pull-cord-switch-card-border: var(--yn-color-cord-day-card-border, rgba(32, 35, 29, 0.12));
+      --yn-pull-cord-switch-card-color: var(--yn-color-cord-day-card-color, #20231d);
+      --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-day-card-shadow, 0 14px 28px rgba(48, 42, 34, 0.16));
+      --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-day-card-bg-on, linear-gradient(180deg, #6d7a58 0%, #586247 100%));
+      --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-day-card-border-on, rgba(243, 237, 223, 0.28));
+      --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-day-card-color-on, #f8f3ea);
     }
 
     :host([fixed]) {

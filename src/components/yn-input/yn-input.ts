@@ -13,22 +13,22 @@ export class YnInput extends LitElement {
     :host {
       --yn-input-width: 320px;
       --yn-input-height: 44px;
-      --yn-input-bg: rgba(255, 255, 255, 0.62);
-      --yn-input-bg-hover: rgba(255, 255, 255, 0.86);
-      --yn-input-bg-focus: #fffaf2;
-      --yn-input-bg-disabled: rgba(232, 225, 214, 0.76);
-      --yn-input-border-color: rgba(36, 31, 33, 0.22);
-      --yn-input-border-color-hover: rgba(36, 31, 33, 0.52);
-      --yn-input-border-color-focus: #241f21;
-      --yn-input-color: #241f21;
-      --yn-input-placeholder-color: rgba(36, 31, 33, 0.48);
-      --yn-input-disabled-color: rgba(36, 31, 33, 0.42);
-      --yn-input-focus-ring: rgba(36, 31, 33, 0.12);
+      --yn-input-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62));
+      --yn-input-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86));
+      --yn-input-bg-focus: var(--yn-color-surface-focus, #fffaf2);
+      --yn-input-bg-disabled: var(--yn-color-surface-disabled, rgba(232, 225, 214, 0.76));
+      --yn-input-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22));
+      --yn-input-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52));
+      --yn-input-border-color-focus: var(--yn-color-border-focus, #241f21);
+      --yn-input-color: var(--yn-color-text, #241f21);
+      --yn-input-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48));
+      --yn-input-disabled-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42));
+      --yn-input-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12));
       --yn-input-radius: 999px;
       --yn-input-padding: 0 10px;
       --yn-input-button-size: 28px;
-      --yn-input-button-color: #241f21;
-      --yn-input-button-bg-hover: rgba(36, 31, 33, 0.08);
+      --yn-input-button-color: var(--yn-color-text, #241f21);
+      --yn-input-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08));
       --yn-input-font-family:
         "Zimula", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
       --yn-input-font-size: 16px;

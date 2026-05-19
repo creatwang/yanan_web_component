@@ -42,6 +42,7 @@ export class YnPick extends LitElement {
 
   static styles = css`
       :host {
+        --yn-pick-border-color: var(--yn-color-border-focus, #241f21);
         display: inline-block;
       }
 
@@ -56,7 +57,7 @@ export class YnPick extends LitElement {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        border: var(--yn-pick-border-width, 2px) solid var(--yn-pick-border-color, #000000);
+        border: var(--yn-pick-border-width, 2px) solid var(--yn-pick-border-color, var(--yn-color-border-focus, #241f21));
         border-radius: var(--yn-pick-border-radius, 8px);
         box-sizing: border-box;
       }

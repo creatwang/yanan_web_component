@@ -92,6 +92,16 @@ export class YnNavigation extends LitElement {
         display: inline-block;
       }
 
+      :host {
+        --yn-navigation-fill-color: var(--yn-color-bg-elevated, #ffffff);
+        --yn-navigation-text-color: var(--yn-color-text, #241f21);
+        --yn-navigation-active-text-color: var(--yn-color-text, #241f21);
+        --yn-navigation-indicator-color: var(--yn-color-text, #241f21);
+        --yn-navigation-focus-color: var(--yn-color-focus-outline, #82b7ff);
+        --yn-navigation-glow-color: var(--yn-color-nav-glow, #e9e77847);
+        --yn-navigation-glow-fade: var(--yn-color-nav-glow-fade, #e9e77800);
+      }
+
       .nav {
         position: relative;
         width: 429px;

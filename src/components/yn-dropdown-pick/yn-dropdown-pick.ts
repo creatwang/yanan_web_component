@@ -51,16 +51,16 @@ export class YnDropdownPick extends LitElement {
   disabled = false;
 
   @property({ type: String, attribute: "button-bg" })
-  buttonBg = "#f8f6f2";
+  buttonBg = "var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))";
 
   @property({ type: String, attribute: "button-color" })
-  buttonColor = "#241f21";
+  buttonColor = "var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))";
 
   @property({ type: String, attribute: "open-button-bg" })
-  openButtonBg = "#241f21";
+  openButtonBg = "var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))";
 
   @property({ type: String, attribute: "open-button-color" })
-  openButtonColor = "#ffffff";
+  openButtonColor = "var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))";
 
   @property({ type: String, attribute: "panel-min-width" })
   panelMinWidth = "132px";
@@ -84,16 +84,23 @@ export class YnDropdownPick extends LitElement {
     :host {
       display: inline-block;
       position: relative;
-      --yn-dropdown-pick-panel-bg: #f2efea;
+      --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea);
       --yn-dropdown-pick-panel-radius: 12px;
       --yn-dropdown-pick-panel-padding: 6px;
       --yn-dropdown-pick-gap: 6px;
-      --yn-dropdown-pick-item-selected-bg: #e6e1d8;
+      --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8);
       --yn-dropdown-pick-item-content-right-space: 34px;
       --yn-dropdown-pick-button-radius: 10px;
       --yn-dropdown-pick-trigger-font-size: 12px;
       --yn-dropdown-pick-trigger-font-weight: 600;
-      --yn-dropdown-pick-shadow: 0 10px 24px rgba(36, 31, 33, 0.14);
+      --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14));
+      --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2);
+      --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21);
+      --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21);
+      --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff);
+      --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df);
+      --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21);
+      --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff);
     }
 
     .root {
@@ -218,14 +225,14 @@ export class YnDropdownPick extends LitElement {
   private handleItemMouseEnter = (event: Event) => {
     const contentEl = event.currentTarget as HTMLElement;
     if (contentEl.dataset.ynDpSelected === "1") return;
-    contentEl.style.background = "var(--yn-dropdown-pick-item-hover-bg, #ebe7df)";
+    contentEl.style.background = "var(--yn-dropdown-pick-item-hover-bg, var(--yn-color-surface-hover, #ebe7df))";
   };
 
   /** hover 离开时恢复背景。 */
   private handleItemMouseLeave = (event: Event) => {
     const contentEl = event.currentTarget as HTMLElement;
     if (contentEl.dataset.ynDpSelected === "1") {
-      contentEl.style.background = "var(--yn-dropdown-pick-item-selected-bg, #e6e1d8)";
+      contentEl.style.background = "var(--yn-dropdown-pick-item-selected-bg, var(--yn-color-bg-muted, #e6e1d8))";
       return;
     }
     contentEl.style.background = contentEl.dataset.ynDpOriginalBackground || "";
@@ -306,8 +313,8 @@ export class YnDropdownPick extends LitElement {
         checkEl.style.alignItems = "center";
         checkEl.style.justifyContent = "center";
         checkEl.style.borderRadius = "999px";
-        checkEl.style.background = "#241f21";
-        checkEl.style.color = "#ffffff";
+        checkEl.style.background = "var(--yn-dropdown-pick-check-bg, var(--yn-color-inverse-bg, #241f21))";
+        checkEl.style.color = "var(--yn-dropdown-pick-check-color, var(--yn-color-on-inverse, #ffffff))";
         checkEl.style.transition = "opacity 140ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)";
         checkEl.innerHTML = ynDropdownPickCheckSvg;
         contentEl.appendChild(checkEl);
@@ -318,7 +325,7 @@ export class YnDropdownPick extends LitElement {
       contentEl.dataset.ynDpSelected = selected ? "1" : "0";
 
       if (selected) {
-        contentEl.style.background = "var(--yn-dropdown-pick-item-selected-bg, #e6e1d8)";
+        contentEl.style.background = "var(--yn-dropdown-pick-item-selected-bg, var(--yn-color-bg-muted, #e6e1d8))";
       } else {
         contentEl.style.background = contentEl.dataset.ynDpOriginalBackground || "";
       }

@@ -176,6 +176,11 @@ export default {
   },
   "yn-toast": {
     summary: "顶部灵动岛提示；推荐 `YnToast.show()` / `success()` 等 API。",
+    cssVariables: {
+      "--yn-toast-bg": "胶囊背景",
+      "--yn-toast-text-color": "文字颜色",
+      "--yn-toast-success-color": "成功态强调色"
+    },
     attributes: {
       type: {
         description: "提示类型（影响配色与图标）。",
@@ -188,6 +193,108 @@ export default {
       },
       message: { description: "提示文案，支持 HTML 片段（仅可信内容）。" },
       persist: { description: "是否常驻不自动关闭。" }
+    }
+  },
+  ":root": {
+    summary:
+      "全局主题 token（`src/styles/theme.css`）。在 `html` 设置 `data-yn-theme=\"light|dark\"`，或跟随系统配色。组件 `--yn-*` 默认引用 `--yn-color-*`。",
+    cssVariables: {
+      "--yn-color-bg": "页面背景",
+      "--yn-color-bg-elevated": "抬升表面（面板、抽屉）",
+      "--yn-color-bg-muted": "弱化表面",
+      "--yn-color-surface": "半透明控件底",
+      "--yn-color-surface-hover": "控件悬停底",
+      "--yn-color-surface-focus": "控件聚焦底",
+      "--yn-color-surface-disabled": "禁用底",
+      "--yn-color-text": "主文字",
+      "--yn-color-text-muted": "弱化文字",
+      "--yn-color-text-disabled": "禁用文字",
+      "--yn-color-text-subtle": "辅助说明文字",
+      "--yn-color-border": "默认边框",
+      "--yn-color-border-strong": "强调边框",
+      "--yn-color-border-focus": "聚焦边框",
+      "--yn-color-divider": "分隔线",
+      "--yn-color-overlay-hover": "悬停叠层",
+      "--yn-color-overlay-active": "按压叠层",
+      "--yn-color-focus-ring": "聚焦环",
+      "--yn-color-focus-outline": "键盘聚焦描边",
+      "--yn-color-backdrop": "遮罩",
+      "--yn-color-shadow-sm": "小阴影",
+      "--yn-color-shadow-md": "中阴影",
+      "--yn-color-shadow-lg": "大阴影",
+      "--yn-color-on-inverse": "反色底上的文字",
+      "--yn-color-inverse-bg": "反色背景",
+      "--yn-color-inverse-bg-hover": "反色背景悬停",
+      "--yn-color-primary": "品牌主色",
+      "--yn-color-primary-hover": "品牌主色悬停",
+      "--yn-color-accent": "强调色",
+      "--yn-color-success": "成功态",
+      "--yn-color-info": "信息态",
+      "--yn-color-warning": "警告态",
+      "--yn-color-error": "错误态",
+      "--yn-color-cord-night-bg-top": "抽绳 default 场景顶色",
+      "--yn-color-cord-day-bg-top": "抽绳 floema 场景顶色"
+    }
+  },
+  "yn-quantity": {
+    summary: "Floema 风格产品数量选择器。",
+    cssVariables: {
+      "--yn-quantity-bg": "容器背景",
+      "--yn-quantity-color": "数字与图标颜色",
+      "--yn-quantity-border-color": "边框颜色",
+      "--yn-quantity-divider-color": "中间分隔线"
+    }
+  },
+  "yn-drawer": {
+    summary: "抽屉：侧滑或底部弹出。",
+    cssVariables: {
+      "--yn-drawer-bg": "面板背景",
+      "--yn-drawer-backdrop": "遮罩",
+      "--yn-drawer-title-color": "标题颜色",
+      "--yn-drawer-trigger-bg": "默认触发按钮背景"
+    }
+  },
+  "yn-search": {
+    summary: "Floema 风格搜索框。",
+    cssVariables: {
+      "--yn-search-bg-active": "展开背景",
+      "--yn-search-icon-color": "图标颜色",
+      "--yn-search-field-color": "输入文字颜色"
+    }
+  },
+  "yn-dropdown-pick": {
+    summary: "下拉单选，基于 yn-pick。",
+    cssVariables: {
+      "--yn-dropdown-pick-panel-bg": "面板背景",
+      "--yn-dropdown-pick-button-bg": "触发按钮背景",
+      "--yn-dropdown-pick-open-button-bg": "展开时触发按钮背景"
+    }
+  },
+  "yn-pick": {
+    summary: "可选卡片，带选中角标。",
+    cssVariables: {
+      "--yn-pick-border-color": "描边颜色"
+    }
+  },
+  "yn-group-pick": {
+    summary: "yn-pick 组，多选/单选。",
+    cssVariables: {
+      "--yn-group-pick-gap": "选项间距"
+    }
+  },
+  "yn-navigation": {
+    summary: "胶囊导航，SVG 形变。",
+    cssVariables: {
+      "--yn-navigation-fill-color": "轨道填充",
+      "--yn-navigation-text-color": "文字颜色",
+      "--yn-navigation-glow-color": "悬停光晕"
+    }
+  },
+  "yn-icon-connect-button": {
+    summary: "图标连接按钮。",
+    cssVariables: {
+      "--yn-icon-connect-button-color": "图标颜色",
+      "--yn-icon-connect-button-bg": "连接条颜色"
     }
   }
 };

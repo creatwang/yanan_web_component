@@ -21,6 +21,7 @@
       "import": "./dist/define.js",
       "require": "./dist/define.cjs"
     },
+    "./theme.css": "./src/styles/theme.css",
     "./asset/svg": {
       "types": "./dist/types/asset/svg/index.d.ts",
       "import": "./dist/asset/svg.js",

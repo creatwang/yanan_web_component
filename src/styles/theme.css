@@ -1,0 +1,288 @@
+/**
+ * Yanan Web Component 全局主题 token。
+ *
+ * 使用方式：
+ * 1. 在页面根节点设置 `data-yn-theme="light" | "dark"`；
+ * 2. 或不设置属性，跟随系统 `prefers-color-scheme`；
+ * 3. 组件内 `--yn-*` 默认引用 `--yn-color-*`，业务仍可覆写组件级变量。
+ */
+
+:root,
+[data-yn-theme="light"] {
+  color-scheme: light;
+
+  /* 页面与表面 */
+  --yn-color-bg: #f2efea;
+  --yn-color-bg-elevated: #ffffff;
+  --yn-color-bg-muted: #f3efe7;
+  --yn-color-surface: rgba(255, 255, 255, 0.62);
+  --yn-color-surface-hover: rgba(255, 255, 255, 0.86);
+  --yn-color-surface-focus: #fffaf2;
+  --yn-color-surface-disabled: rgba(232, 225, 214, 0.76);
+
+  /* 文本 */
+  --yn-color-text: #241f21;
+  --yn-color-text-muted: rgba(36, 31, 33, 0.48);
+  --yn-color-text-disabled: rgba(36, 31, 33, 0.42);
+  --yn-color-text-subtle: #6f696b;
+
+  /* 边框与分割 */
+  --yn-color-border: rgba(36, 31, 33, 0.22);
+  --yn-color-border-strong: rgba(36, 31, 33, 0.52);
+  --yn-color-border-focus: #241f21;
+  --yn-color-divider: rgba(36, 31, 33, 0.14);
+
+  /* 交互叠层 */
+  --yn-color-overlay-hover: rgba(36, 31, 33, 0.08);
+  --yn-color-overlay-active: rgba(36, 31, 33, 0.12);
+  --yn-color-focus-ring: rgba(36, 31, 33, 0.12);
+  --yn-color-focus-outline: #82b7ff;
+
+  /* 遮罩与阴影 */
+  --yn-color-backdrop: rgba(12, 10, 11, 0.36);
+  --yn-color-shadow-sm: 0 1px 2px rgba(36, 31, 33, 0.06), 0 6px 16px rgba(36, 31, 33, 0.08);
+  --yn-color-shadow-md: 0 12px 36px rgba(36, 31, 33, 0.18);
+  --yn-color-shadow-lg: 0 -12px 36px rgba(36, 31, 33, 0.18);
+  --yn-color-toast-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.48),
+    inset 0 -1px 0 rgba(32, 35, 29, 0.06),
+    0 18px 45px rgba(62, 55, 42, 0.14),
+    0 5px 16px rgba(62, 55, 42, 0.08);
+  --yn-color-toast-ring-track: rgba(32, 35, 29, 0.08);
+
+  /* 反色（深底浅字按钮等） */
+  --yn-color-on-inverse: #ffffff;
+  --yn-color-inverse-bg: #241f21;
+  --yn-color-inverse-bg-hover: rgba(36, 31, 33, 0.8);
+
+  /* 品牌与状态 */
+  --yn-color-primary: #f76c46;
+  --yn-color-primary-hover: #e45f3e;
+  --yn-color-accent: #ddd967;
+  --yn-color-success: #667a48;
+  --yn-color-info: #5f6f86;
+  --yn-color-warning: #b87d55;
+  --yn-color-error: #9a4f43;
+  --yn-color-disabled-bg: #f1f1f1;
+  --yn-color-disabled-text: #8a8a8a;
+
+  /* 导航光晕 */
+  --yn-color-nav-glow: #e9e77847;
+  --yn-color-nav-glow-fade: #e9e77800;
+
+  /* 抽绳场景：variant=default（夜间工业风） */
+  --yn-color-cord-night-bg-top: #1a1d24;
+  --yn-color-cord-night-bg-bottom: #12141a;
+  --yn-color-cord-night-bg-on-top: #2a2830;
+  --yn-color-cord-night-bg-on-bottom: #15141a;
+  --yn-color-cord-night-accent: rgba(255, 214, 102, 0.35);
+  --yn-color-cord-night-ceiling-bg: rgba(255, 255, 255, 0.08);
+  --yn-color-cord-night-anchor: #4a4f5c;
+  --yn-color-cord-night-rope-start: #6b5d4f;
+  --yn-color-cord-night-rope-end: #9a8468;
+  --yn-color-cord-night-card-bg: linear-gradient(180deg, #343a46 0%, #22262e 100%);
+  --yn-color-cord-night-card-border: rgba(255, 255, 255, 0.1);
+  --yn-color-cord-night-card-color: rgba(255, 255, 255, 0.88);
+  --yn-color-cord-night-card-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  --yn-color-cord-night-card-bg-on: linear-gradient(180deg, #3d4454 0%, #252a34 100%);
+  --yn-color-cord-night-card-border-on: rgba(255, 214, 102, 0.45);
+  --yn-color-cord-night-card-color-on: #ffd666;
+
+  /* 抽绳场景：variant=floema（日间暖色） */
+  --yn-color-cord-day-bg-top: #ebe4d4;
+  --yn-color-cord-day-bg-bottom: #ddd6c4;
+  --yn-color-cord-day-bg-on-top: #f2e8cf;
+  --yn-color-cord-day-bg-on-bottom: #e5d6b4;
+  --yn-color-cord-day-accent: rgba(212, 165, 116, 0.5);
+  --yn-color-cord-day-ceiling-bg: rgba(32, 35, 29, 0.07);
+  --yn-color-cord-day-anchor: #586247;
+  --yn-color-cord-day-rope-start: #6f5f4d;
+  --yn-color-cord-day-rope-end: #a0896c;
+  --yn-color-cord-day-card-bg: linear-gradient(180deg, #f8f3ea 0%, #ebe4d4 100%);
+  --yn-color-cord-day-card-border: rgba(32, 35, 29, 0.12);
+  --yn-color-cord-day-card-color: #20231d;
+  --yn-color-cord-day-card-shadow: 0 14px 28px rgba(48, 42, 34, 0.16);
+  --yn-color-cord-day-card-bg-on: linear-gradient(180deg, #6d7a58 0%, #586247 100%);
+  --yn-color-cord-day-card-border-on: rgba(243, 237, 223, 0.28);
+  --yn-color-cord-day-card-color-on: #f8f3ea;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-yn-theme="light"]) {
+    color-scheme: dark;
+
+    --yn-color-bg: #12141a;
+    --yn-color-bg-elevated: #1e222b;
+    --yn-color-bg-muted: #252a34;
+    --yn-color-surface: rgba(255, 255, 255, 0.08);
+    --yn-color-surface-hover: rgba(255, 255, 255, 0.14);
+    --yn-color-surface-focus: rgba(255, 255, 255, 0.18);
+    --yn-color-surface-disabled: rgba(255, 255, 255, 0.06);
+
+    --yn-color-text: rgba(255, 255, 255, 0.92);
+    --yn-color-text-muted: rgba(255, 255, 255, 0.56);
+    --yn-color-text-disabled: rgba(255, 255, 255, 0.32);
+    --yn-color-text-subtle: rgba(255, 255, 255, 0.62);
+
+    --yn-color-border: rgba(255, 255, 255, 0.14);
+    --yn-color-border-strong: rgba(255, 255, 255, 0.28);
+    --yn-color-border-focus: rgba(255, 255, 255, 0.72);
+    --yn-color-divider: rgba(255, 255, 255, 0.1);
+
+    --yn-color-overlay-hover: rgba(255, 255, 255, 0.08);
+    --yn-color-overlay-active: rgba(255, 255, 255, 0.14);
+    --yn-color-focus-ring: rgba(255, 255, 255, 0.16);
+    --yn-color-focus-outline: #6ba3ff;
+
+    --yn-color-backdrop: rgba(0, 0, 0, 0.56);
+    --yn-color-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.32);
+    --yn-color-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.45);
+    --yn-color-shadow-lg: 0 -16px 40px rgba(0, 0, 0, 0.45);
+    --yn-color-toast-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+      inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+      0 18px 45px rgba(0, 0, 0, 0.35),
+      0 5px 16px rgba(0, 0, 0, 0.22);
+    --yn-color-toast-ring-track: rgba(255, 255, 255, 0.12);
+
+    --yn-color-on-inverse: #12141a;
+    --yn-color-inverse-bg: #f2f2f2;
+    --yn-color-inverse-bg-hover: rgba(255, 255, 255, 0.86);
+
+    --yn-color-primary: #ff8a65;
+    --yn-color-primary-hover: #ff7043;
+    --yn-color-accent: #e6d85a;
+    --yn-color-success: #8fad6a;
+    --yn-color-info: #8ba3c4;
+    --yn-color-warning: #d4a07a;
+    --yn-color-error: #c47a6e;
+    --yn-color-disabled-bg: rgba(255, 255, 255, 0.08);
+    --yn-color-disabled-text: rgba(255, 255, 255, 0.38);
+
+    --yn-color-nav-glow: rgba(233, 231, 120, 0.28);
+    --yn-color-nav-glow-fade: rgba(233, 231, 120, 0);
+
+    --yn-color-cord-night-bg-top: #12141a;
+    --yn-color-cord-night-bg-bottom: #0c0e12;
+    --yn-color-cord-night-bg-on-top: #1e222b;
+    --yn-color-cord-night-bg-on-bottom: #151820;
+    --yn-color-cord-night-accent: rgba(255, 214, 102, 0.42);
+    --yn-color-cord-night-ceiling-bg: rgba(255, 255, 255, 0.06);
+    --yn-color-cord-night-anchor: #5c6370;
+    --yn-color-cord-night-rope-start: #7a6d5c;
+    --yn-color-cord-night-rope-end: #a89578;
+    --yn-color-cord-night-card-bg: linear-gradient(180deg, #2a303c 0%, #1a1e26 100%);
+    --yn-color-cord-night-card-border: rgba(255, 255, 255, 0.12);
+    --yn-color-cord-night-card-color: rgba(255, 255, 255, 0.9);
+    --yn-color-cord-night-card-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    --yn-color-cord-night-card-bg-on: linear-gradient(180deg, #353c4a 0%, #222830 100%);
+    --yn-color-cord-night-card-border-on: rgba(255, 214, 102, 0.5);
+    --yn-color-cord-night-card-color-on: #ffe08a;
+
+    --yn-color-cord-day-bg-top: #2a2830;
+    --yn-color-cord-day-bg-bottom: #1e1c22;
+    --yn-color-cord-day-bg-on-top: #35323c;
+    --yn-color-cord-day-bg-on-bottom: #26242c;
+    --yn-color-cord-day-accent: rgba(212, 165, 116, 0.45);
+    --yn-color-cord-day-ceiling-bg: rgba(255, 255, 255, 0.05);
+    --yn-color-cord-day-anchor: #6a7558;
+    --yn-color-cord-day-rope-start: #8a7864;
+    --yn-color-cord-day-rope-end: #b09a82;
+    --yn-color-cord-day-card-bg: linear-gradient(180deg, #3a383f 0%, #2a2830 100%);
+    --yn-color-cord-day-card-border: rgba(255, 255, 255, 0.1);
+    --yn-color-cord-day-card-color: rgba(255, 255, 255, 0.88);
+    --yn-color-cord-day-card-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+    --yn-color-cord-day-card-bg-on: linear-gradient(180deg, #5a6648 0%, #465238 100%);
+    --yn-color-cord-day-card-border-on: rgba(243, 237, 223, 0.22);
+    --yn-color-cord-day-card-color-on: #f2efea;
+  }
+}
+
+[data-yn-theme="dark"] {
+  color-scheme: dark;
+
+  --yn-color-bg: #12141a;
+  --yn-color-bg-elevated: #1e222b;
+  --yn-color-bg-muted: #252a34;
+  --yn-color-surface: rgba(255, 255, 255, 0.08);
+  --yn-color-surface-hover: rgba(255, 255, 255, 0.14);
+  --yn-color-surface-focus: rgba(255, 255, 255, 0.18);
+  --yn-color-surface-disabled: rgba(255, 255, 255, 0.06);
+
+  --yn-color-text: rgba(255, 255, 255, 0.92);
+  --yn-color-text-muted: rgba(255, 255, 255, 0.56);
+  --yn-color-text-disabled: rgba(255, 255, 255, 0.32);
+  --yn-color-text-subtle: rgba(255, 255, 255, 0.62);
+
+  --yn-color-border: rgba(255, 255, 255, 0.14);
+  --yn-color-border-strong: rgba(255, 255, 255, 0.28);
+  --yn-color-border-focus: rgba(255, 255, 255, 0.72);
+  --yn-color-divider: rgba(255, 255, 255, 0.1);
+
+  --yn-color-overlay-hover: rgba(255, 255, 255, 0.08);
+  --yn-color-overlay-active: rgba(255, 255, 255, 0.14);
+  --yn-color-focus-ring: rgba(255, 255, 255, 0.16);
+  --yn-color-focus-outline: #6ba3ff;
+
+  --yn-color-backdrop: rgba(0, 0, 0, 0.56);
+  --yn-color-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.32);
+  --yn-color-shadow-md: 0 16px 40px rgba(0, 0, 0, 0.45);
+  --yn-color-shadow-lg: 0 -16px 40px rgba(0, 0, 0, 0.45);
+  --yn-color-toast-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+    0 18px 45px rgba(0, 0, 0, 0.35),
+    0 5px 16px rgba(0, 0, 0, 0.22);
+  --yn-color-toast-ring-track: rgba(255, 255, 255, 0.12);
+
+  --yn-color-on-inverse: #12141a;
+  --yn-color-inverse-bg: #f2f2f2;
+  --yn-color-inverse-bg-hover: rgba(255, 255, 255, 0.86);
+
+  --yn-color-primary: #ff8a65;
+  --yn-color-primary-hover: #ff7043;
+  --yn-color-accent: #e6d85a;
+  --yn-color-success: #8fad6a;
+  --yn-color-info: #8ba3c4;
+  --yn-color-warning: #d4a07a;
+  --yn-color-error: #c47a6e;
+  --yn-color-disabled-bg: rgba(255, 255, 255, 0.08);
+  --yn-color-disabled-text: rgba(255, 255, 255, 0.38);
+
+  --yn-color-nav-glow: rgba(233, 231, 120, 0.28);
+  --yn-color-nav-glow-fade: rgba(233, 231, 120, 0);
+
+  --yn-color-cord-night-bg-top: #12141a;
+  --yn-color-cord-night-bg-bottom: #0c0e12;
+  --yn-color-cord-night-bg-on-top: #1e222b;
+  --yn-color-cord-night-bg-on-bottom: #151820;
+  --yn-color-cord-night-accent: rgba(255, 214, 102, 0.42);
+  --yn-color-cord-night-ceiling-bg: rgba(255, 255, 255, 0.06);
+  --yn-color-cord-night-anchor: #5c6370;
+  --yn-color-cord-night-rope-start: #7a6d5c;
+  --yn-color-cord-night-rope-end: #a89578;
+  --yn-color-cord-night-card-bg: linear-gradient(180deg, #2a303c 0%, #1a1e26 100%);
+  --yn-color-cord-night-card-border: rgba(255, 255, 255, 0.12);
+  --yn-color-cord-night-card-color: rgba(255, 255, 255, 0.9);
+  --yn-color-cord-night-card-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  --yn-color-cord-night-card-bg-on: linear-gradient(180deg, #353c4a 0%, #222830 100%);
+  --yn-color-cord-night-card-border-on: rgba(255, 214, 102, 0.5);
+  --yn-color-cord-night-card-color-on: #ffe08a;
+
+  --yn-color-cord-day-bg-top: #2a2830;
+  --yn-color-cord-day-bg-bottom: #1e1c22;
+  --yn-color-cord-day-bg-on-top: #35323c;
+  --yn-color-cord-day-bg-on-bottom: #26242c;
+  --yn-color-cord-day-accent: rgba(212, 165, 116, 0.45);
+  --yn-color-cord-day-ceiling-bg: rgba(255, 255, 255, 0.05);
+  --yn-color-cord-day-anchor: #6a7558;
+  --yn-color-cord-day-rope-start: #8a7864;
+  --yn-color-cord-day-rope-end: #b09a82;
+  --yn-color-cord-day-card-bg: linear-gradient(180deg, #3a383f 0%, #2a2830 100%);
+  --yn-color-cord-day-card-border: rgba(255, 255, 255, 0.1);
+  --yn-color-cord-day-card-color: rgba(255, 255, 255, 0.88);
+  --yn-color-cord-day-card-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  --yn-color-cord-day-card-bg-on: linear-gradient(180deg, #5a6648 0%, #465238 100%);
+  --yn-color-cord-day-card-border-on: rgba(243, 237, 223, 0.22);
+  --yn-color-cord-day-card-color-on: #f2efea;
+}
