@@ -38,6 +38,8 @@ function scanLightDomSlots(host: HTMLElement) {
 @customElement("yn-pull-cord-switch")
 export class YnPullCordSwitch extends LitElement {
   @property({ type: Boolean, reflect: true }) checked = false;
+  /** 开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下半圆） */
+  @property({ type: Boolean, attribute: "glow-up", reflect: true }) glowUp = false;
   @property({ type: Boolean, reflect: true }) disabled = false;
   @property({ type: Boolean, reflect: true }) fixed = false;
   @property({ type: Boolean, reflect: true }) reverse = false;
@@ -93,6 +95,7 @@ export class YnPullCordSwitch extends LitElement {
       --yn-pull-cord-switch-max-pull: 84px;
       --yn-pull-cord-switch-toggle-threshold: 52px;
       --yn-pull-cord-switch-canvas-width: 100%;
+      --yn-pull-cord-switch-glow-up-bleed: 72px;
       --yn-pull-cord-switch-slot-transition-duration: 0.28s;
       --yn-pull-cord-switch-fixed-peek-transition-duration: 0.34s;
       --yn-pull-cord-switch-slot-button-scale: 0.88;
@@ -207,7 +210,8 @@ export class YnPullCordSwitch extends LitElement {
       pointer-events: none;
       overflow: visible;
       --yn-pull-cord-switch-fixed-height: 220px;
-      --yn-pull-cord-switch-canvas-width: 100%;
+      /* host 仅 ~112px 宽，但光晕至少 280px；canvas 需宽于 host，居中绘制 */
+      --yn-pull-cord-switch-canvas-width: max(100%, 280px);
     }
 
     :host([fixed][data-fixed-peekable]) {
@@ -271,6 +275,11 @@ export class YnPullCordSwitch extends LitElement {
       display: block;
       background: transparent;
       cursor: grab;
+    }
+
+    :host([glow-up]) canvas.rope {
+      top: calc(-1 * var(--yn-pull-cord-switch-glow-up-bleed));
+      height: calc(100% + var(--yn-pull-cord-switch-glow-up-bleed));
     }
 
     :host([disabled]) canvas.rope {
@@ -472,6 +481,11 @@ export class YnPullCordSwitch extends LitElement {
           this.handlePeekLeave();
         }
       }
+    }
+
+    if (changed.has("glowUp")) {
+      this.engine?.invalidateLayout();
+      this.engine?.resize();
     }
 
     if (changed.has("toggleThreshold")) {
@@ -789,6 +803,7 @@ export class YnPullCordSwitch extends LitElement {
         canvas: this.ropeCanvas,
         host: this,
         getChecked: () => this.checked,
+        getGlowUp: () => this.glowUp,
         getDisabled: () => this.disabled,
         getToggleThreshold: () => this.toggleThreshold,
         getCardMetrics: () => this.measureCardMetrics(),

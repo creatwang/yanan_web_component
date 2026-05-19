@@ -18,6 +18,7 @@ import { logicalToCssLeft, peekCssLeft, peekCssTop } from "./pull-cord-layout";
 
 type Args = {
   checked: boolean;
+  glowUp: boolean;
   disabled: boolean;
   fixed: boolean;
   fixedX?: number;
@@ -30,6 +31,8 @@ type Args = {
   zIndex: number;
   /** 锚点额外下移比例，映射 `--yn-pull-cord-switch-anchor-y`（0=天花板贴顶） */
   anchorY: number;
+  /** `glow-up` 时画布向上延展（px），映射 `--yn-pull-cord-switch-glow-up-bleed` */
+  glowUpBleed?: number;
   toggleThreshold?: number;
   styleOverride?: string;
   cardSlot?: string;
@@ -93,6 +96,9 @@ const cordInlineStyle = (args: Args) => {
   if (args.anchorY != null && Number.isFinite(args.anchorY)) {
     parts.push(`--yn-pull-cord-switch-anchor-y:${args.anchorY}`);
   }
+  if (args.glowUp && args.glowUpBleed != null && Number.isFinite(args.glowUpBleed)) {
+    parts.push(`--yn-pull-cord-switch-glow-up-bleed:${args.glowUpBleed}px`);
+  }
   return parts.length ? parts.join(";") : "";
 };
 
@@ -124,7 +130,8 @@ const cordKey = (args: Args) =>
     args.cardSlot,
     args.activatedSlot,
     args.cardOffset ?? "",
-    args.toggleThreshold ?? ""
+    args.toggleThreshold ?? "",
+    args.glowUp
   ].join("|");
 
 const renderCord = (args: Args, updateArgs?: (patch: Partial<Args>) => void) =>
@@ -134,6 +141,7 @@ const renderCord = (args: Args, updateArgs?: (patch: Partial<Args>) => void) =>
     () => html`
   <yn-pull-cord-switch
     ?checked=${args.checked}
+    ?glow-up=${args.glowUp}
     ?disabled=${args.disabled}
     ?fixed=${args.fixed}
     fixed-x=${ifDefined(args.fixedX)}
@@ -219,12 +227,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "抽绳开关：向下拖拽绳端切换开/关，松手后 Verlet 多段绳弹性回弹。\n\n| 能力 | 属性 / 说明 |\n| --- | --- |\n| 绳长 | `rope-length`（px，默认 260），与 `size` 解耦 |\n| 绳端间距 | `card-offset`（px，可为负）：绳头到卡片锚点；负值时 fixed 的 hover 滑出关闭；未设则随绳长缩放 |\n| 视觉尺寸 | `size=\"mini\" \\| \"small\" \\| \"medium\"`：卡片、绳粗细、天花板宽度 |\n| 变体 | `variant=\"default\" \\| \"floema\"` |\n| 阈值 | `toggle-threshold` 可选；未设则随绳长缩放 |\n| 背景 | 组件不绘区域背景；外层 `div` + `applyPullCordShellBackground` |\n| 插槽 | 默认插槽 / `activated`：推荐 `yn-button`；无插槽时为内置 ON/OFF |\n| fixed | `fixed`、`fixed-x`（可负，hover 露出）、`top`（可负）、`reverse`、`fixed-move` |\n| 层级 | `z-index`（默认 `1`），或 CSS `--yn-pull-cord-switch-z-index` |\n| 锚点下移 | `--yn-pull-cord-switch-anchor-y`：额外下移比例，`0` 时天花板贴画布顶 |\n| 事件 | `change` → `{ checked }` |\n\n**样式隔离**：Shadow DOM；通过 `--yn-pull-cord-switch-*` 覆写。\n\n**导入**：按需 `import \"yn-web-component/components/yn-pull-cord-switch\"`（推荐）。"
+          "抽绳开关：向下拖拽绳端切换开/关，松手后 Verlet 多段绳弹性回弹。\n\n| 能力 | 属性 / 说明 |\n| --- | --- |\n| 绳长 | `rope-length`（px，默认 260），与 `size` 解耦 |\n| 绳端间距 | `card-offset`（px，可为负）：绳头到卡片锚点；负值时 fixed 的 hover 滑出关闭；未设则随绳长缩放 |\n| 视觉尺寸 | `size=\"mini\" \\| \"small\" \\| \"medium\"`：卡片、绳粗细、天花板宽度 |\n| 变体 | `variant=\"default\" \\| \"floema\"` |\n| 阈值 | `toggle-threshold` 可选；未设则随绳长缩放 |\n| 背景 | 组件不绘区域背景；外层 `div` + `applyPullCordShellBackground` |\n| 插槽 | 默认插槽 / `activated`：推荐 `yn-button`；无插槽时为内置 ON/OFF |\n| fixed | `fixed`、`fixed-x`（可负，hover 露出）、`top`（可负）、`reverse`、`fixed-move` |\n| 层级 | `z-index`（默认 `1`），或 CSS `--yn-pull-cord-switch-z-index` |\n| 锚点下移 | `--yn-pull-cord-switch-anchor-y`：额外下移比例，`0` 时天花板贴画布顶 |\n| 灯光上扩 | `glow-up`：开启且 checked 时顶灯向锚点上方对称扩散；`--yn-pull-cord-switch-glow-up-bleed` 控制画布向上延展（默认 72px） |\n| 事件 | `change` → `{ checked }` |\n\n**样式隔离**：Shadow DOM；通过 `--yn-pull-cord-switch-*` 覆写。\n\n**导入**：按需 `import \"yn-web-component/components/yn-pull-cord-switch\"`（推荐）。"
       }
     }
   },
   args: {
     checked: false,
+    glowUp: false,
     disabled: false,
     fixed: false,
     reverse: false,
@@ -242,6 +251,13 @@ const meta = {
     checked: {
       control: "boolean",
       description: "开关是否开启。",
+      table: { defaultValue: { summary: "false" } }
+    },
+    glowUp: {
+      control: "boolean",
+      name: "glow-up",
+      description:
+        "开启且 `checked` 时，顶灯光在锚点处对称扩散（含向上）；未开启时仅向下半圆扩散。可用 `--yn-pull-cord-switch-glow-up-bleed` 调节向上延展的画布高度（默认 72px）。",
       table: { defaultValue: { summary: "false" } }
     },
     disabled: {
@@ -317,6 +333,13 @@ const meta = {
       description:
         "锚点额外下移（相对画布高度的比例）。`0` 时天花板条贴顶、无顶部留白；增大则整体下移（如 `0.08`）。",
       table: { category: "CSS Variables", defaultValue: { summary: "0" } }
+    },
+    glowUpBleed: {
+      control: { type: "number", min: 40, max: 160, step: 4 },
+      name: "--yn-pull-cord-switch-glow-up-bleed",
+      description: "配合 `glow-up`：画布向上延展高度（px），避免顶灯在画布顶被裁切。",
+      table: { category: "CSS Variables", defaultValue: { summary: "72px" } },
+      if: { arg: "glowUp", eq: true }
     },
     toggleThreshold: {
       control: { type: "number", min: 40, max: 110, step: 2 },
@@ -577,6 +600,8 @@ export const Fixed: Story = {
     top: -32,
     reverse: false,
     zIndex: 101,
+    glowUp: true,
+    checked: true,
     cardSlot: "夜间",
     activatedSlot: "日间"
   },

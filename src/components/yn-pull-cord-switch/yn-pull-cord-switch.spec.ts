@@ -11,6 +11,15 @@ describe("yn-pull-cord-switch", () => {
     expect(el.shadowRoot?.querySelector(".card__label")?.textContent?.trim()).to.equal("OFF");
   });
 
+  it("reflects glow-up attribute", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch glow-up checked></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.glowUp).to.equal(true);
+    expect(el.hasAttribute("glow-up")).to.equal(true);
+  });
+
   it("reflects checked attribute", async () => {
     const el = await fixture<YnPullCordSwitch>(
       html`<yn-pull-cord-switch checked></yn-pull-cord-switch>`

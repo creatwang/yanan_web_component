@@ -3,6 +3,7 @@ const THEME_KEYS = [
   "--yn-pull-cord-switch-accent",
   "--yn-pull-cord-switch-glow-width",
   "--yn-pull-cord-switch-glow-height",
+  "--yn-pull-cord-switch-glow-up-bleed",
   "--yn-pull-cord-switch-ceiling-bg",
   "--yn-pull-cord-switch-anchor-color",
   "--yn-pull-cord-switch-rope-start",
@@ -30,6 +31,7 @@ const THEME_FALLBACKS: Record<ThemeKey, string> = {
   "--yn-pull-cord-switch-accent": "rgba(255, 214, 102, 0.35)",
   "--yn-pull-cord-switch-glow-width": "280",
   "--yn-pull-cord-switch-glow-height": "200",
+  "--yn-pull-cord-switch-glow-up-bleed": "72",
   "--yn-pull-cord-switch-ceiling-bg": "rgba(255,255,255,0.08)",
   "--yn-pull-cord-switch-anchor-color": "#4a4f5c",
   "--yn-pull-cord-switch-rope-start": "#6b5d4f",
@@ -103,6 +105,8 @@ export type PullCordRopeEngineOptions = {
   getToggleThreshold?: () => number | undefined;
   getCardMetrics?: () => PullCordCardMetrics | null;
   getCardAnchor?: () => PullCordCardAnchor;
+  /** 开启时顶灯光对称扩散，并预留画布向上延展区域 */
+  getGlowUp?: () => boolean;
   onCheckedChange: (checked: boolean) => void;
   onCardTransform: (transform: { x: number; y: number; tilt: number }) => void;
 };
@@ -120,10 +124,15 @@ const CARD_EPS = 0.4;
 const TILT_EPS = 0.002;
 const TAU = 6.283;
 
-const resolveAnchor = (canvasH: number, ceilingW: number, extra: number) => {
+const resolveAnchor = (
+  canvasH: number,
+  ceilingW: number,
+  extra: number,
+  topBleed = 0
+) => {
   const ceilingH = Math.max(7, ceilingW * 0.18);
   const anchorR = Math.max(3.5, ceilingW * 0.09);
-  const ceilingTop = canvasH * Math.max(0, extra);
+  const ceilingTop = topBleed + canvasH * Math.max(0, extra);
   const anchorCenterY = ceilingTop + ceilingH + anchorR;
   return { ceilingH, anchorR, ceilingTop, anchorCenterY };
 };
@@ -256,6 +265,24 @@ export class PullCordRopeEngine {
     this.wake();
   }
 
+  invalidateLayout() {
+    this.layoutW = 0;
+    this.snapKey = "";
+    this.gradKey = "";
+    this.theme.invalidate();
+  }
+
+  private glowUpEnabled() {
+    return this.options.getGlowUp?.() ?? false;
+  }
+
+  private glowTopBleed() {
+    if (!this.glowUpEnabled()) return 0;
+    this.theme.sync();
+    const bleed = this.theme.num("--yn-pull-cord-switch-glow-up-bleed");
+    return bleed > 0 ? bleed : 72;
+  }
+
   resize() {
     const rect = this.canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -307,7 +334,8 @@ export class PullCordRopeEngine {
         : { width: cardW, height: cardH };
     const override = this.options.getToggleThreshold?.();
     const extra = t.num("--yn-pull-cord-switch-anchor-y");
-    const key = `${this.theme.token}|${this.w}|${this.h}|${checked}|${card.width}|${card.height}|${override ?? ""}|${extra}`;
+    const topBleed = this.glowTopBleed();
+    const key = `${this.theme.token}|${this.w}|${this.h}|${checked}|${card.width}|${card.height}|${override ?? ""}|${extra}|${topBleed}`;
     if (key === this.snapKey) return;
     this.snapKey = key;
     if (this.anchorExtra !== extra) {
@@ -317,7 +345,7 @@ export class PullCordRopeEngine {
     const rawSeg = Math.round(t.num("--yn-pull-cord-switch-segment-count"));
     const seg = rawSeg >= 4 && rawSeg <= MAX_SEG ? rawSeg : 10;
     const ceilingW = t.num("--yn-pull-cord-switch-ceiling-width");
-    const anchor = resolveAnchor(this.h, ceilingW, extra);
+    const anchor = resolveAnchor(this.h, ceilingW, extra, topBleed);
     this.snap = {
       seg,
       segLen: t.num("--yn-pull-cord-switch-segment-len"),
@@ -344,7 +372,7 @@ export class PullCordRopeEngine {
 
   private relayout() {
     const { ceilingW } = this.snap;
-    const layout = resolveAnchor(this.h, ceilingW, this.anchorExtra);
+    const layout = resolveAnchor(this.h, ceilingW, this.anchorExtra, this.glowTopBleed());
     this.anchorX = this.w * 0.5;
     this.anchorY = layout.anchorCenterY;
     this.restEndY = this.anchorY + this.snap.seg * this.snap.segLen;
@@ -477,7 +505,8 @@ export class PullCordRopeEngine {
   private ensureGradients() {
     const { checked, seg } = this.snap;
     const end = seg;
-    const key = `${checked}|${this.theme.token}|${(this.px[end] * 0.25) | 0}|${(this.py[end] * 0.25) | 0}`;
+    const glowUp = this.glowUpEnabled();
+    const key = `${checked}|${glowUp}|${this.theme.token}|${(this.px[end] * 0.25) | 0}|${(this.py[end] * 0.25) | 0}`;
     if (key === this.gradKey) return;
     this.gradKey = key;
     this.ropeGrad = this.ctx.createLinearGradient(
@@ -492,16 +521,47 @@ export class PullCordRopeEngine {
       this.glowGrad = null;
       return;
     }
-    this.glowGrad = this.ctx.createRadialGradient(
-      this.anchorX,
-      this.anchorY,
-      4,
-      this.anchorX,
-      this.anchorY + 40,
-      120
-    );
+    if (glowUp) {
+      this.glowGrad = this.ctx.createRadialGradient(
+        this.anchorX,
+        this.anchorY,
+        4,
+        this.anchorX,
+        this.anchorY,
+        120
+      );
+    } else {
+      this.glowGrad = this.ctx.createRadialGradient(
+        this.anchorX,
+        this.anchorY,
+        4,
+        this.anchorX,
+        this.anchorY + 40,
+        120
+      );
+    }
     this.glowGrad.addColorStop(0, this.theme.get("--yn-pull-cord-switch-accent"));
     this.glowGrad.addColorStop(1, "rgba(255,214,102,0)");
+  }
+
+  private glowFillRect() {
+    const glowW = Math.max(280, this.theme.num("--yn-pull-cord-switch-glow-width") || 280);
+    const glowH = Math.max(200, this.theme.num("--yn-pull-cord-switch-glow-height") || 200);
+    if (this.glowUpEnabled()) {
+      const up = Math.max(this.glowTopBleed(), glowH * 0.55);
+      return {
+        x: this.anchorX - glowW / 2,
+        y: this.anchorY - up,
+        w: glowW,
+        h: up + glowH
+      };
+    }
+    return {
+      x: this.anchorX - glowW / 2,
+      y: this.anchorY - 20,
+      w: glowW,
+      h: glowH
+    };
   }
 
   private strokeRope(shadow: boolean) {
@@ -534,10 +594,9 @@ export class PullCordRopeEngine {
     ctx.fill();
 
     if (this.glowGrad) {
-      const glowW = Math.max(280, this.theme.num("--yn-pull-cord-switch-glow-width") || 280);
-      const glowH = Math.max(200, this.theme.num("--yn-pull-cord-switch-glow-height") || 200);
+      const glow = this.glowFillRect();
       ctx.fillStyle = this.glowGrad;
-      ctx.fillRect(this.anchorX - glowW / 2, this.anchorY - 20, glowW, glowH);
+      ctx.fillRect(glow.x, glow.y, glow.w, glow.h);
     }
 
     ctx.fillStyle = this.theme.get("--yn-pull-cord-switch-anchor-color");
