@@ -80,8 +80,12 @@ export class YnDrawer extends LitElement {
   @query('slot[name="footer"]')
   private footerSlotEl!: HTMLSlotElement;
 
+  @query('slot[name="backdrop-extra"]')
+  private backdropExtraSlotEl!: HTMLSlotElement;
+
   private _open = false;
   private footerEmpty = true;
+  private backdropExtraEmpty = true;
   private closeTimer = 0;
   private openTimer = 0;
   private pendingActionMeta:
@@ -124,6 +128,7 @@ export class YnDrawer extends LitElement {
       --yn-drawer-sheet-height: 90vh;
       --yn-drawer-breakpoint: 1024px;
       --yn-drawer-body-padding: 16px;
+      --yn-drawer-backdrop-extra-padding: 24px;
       display: block;
     }
 
@@ -225,6 +230,55 @@ export class YnDrawer extends LitElement {
       transition-timing-function: var(--yn-drawer-close-ease);
       transform: translateX(100%);
       opacity: 0;
+    }
+
+    .backdrop-extra {
+      display: none;
+    }
+
+    /* 宽屏右侧抽屉：遮罩区左侧展示 backdrop-extra（不替代遮罩层） */
+    @media (min-width: 1024px) {
+      :host([placement="right"]) .drawer-surface,
+      :host([placement="auto"]) .drawer-surface {
+        display: grid;
+        grid-template-columns: 1fr min(var(--yn-drawer-width), 100vw);
+        grid-template-rows: 1fr;
+        align-items: stretch;
+        justify-content: initial;
+      }
+
+      :host([placement="right"]) .backdrop,
+      :host([placement="auto"]) .backdrop {
+        grid-column: 1 / -1;
+        grid-row: 1;
+      }
+
+      :host([placement="right"]) .backdrop-extra:not(.backdrop-extra--empty),
+      :host([placement="auto"]) .backdrop-extra:not(.backdrop-extra--empty) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        grid-column: 1;
+        grid-row: 1;
+        z-index: 1;
+        min-width: 0;
+        padding: var(--yn-drawer-backdrop-extra-padding);
+        pointer-events: auto;
+        overflow: auto;
+      }
+
+      :host([placement="right"]) .panel,
+      :host([placement="auto"]) .panel {
+        grid-column: 2;
+        grid-row: 1;
+        position: relative;
+        width: 100%;
+        max-width: none;
+      }
+
+      :host([placement="bottom"]) .backdrop-extra {
+        display: none;
+      }
     }
 
     /* 窄屏 / placement=bottom：底部弹出，高度随内容 */
@@ -412,6 +466,7 @@ export class YnDrawer extends LitElement {
 
   protected firstUpdated() {
     this.syncFooterEmptyState();
+    this.syncBackdropExtraEmptyState();
     this.syncPopoverState(true);
   }
 
@@ -623,10 +678,10 @@ export class YnDrawer extends LitElement {
     this.setOpenWithMeta(false, { source: "escape" });
   }
 
-  private syncFooterEmptyState() {
-    if (!this.footerSlotEl) return;
-    const nodes = this.footerSlotEl.assignedNodes({ flatten: true });
-    this.footerEmpty = !nodes.some((node) => {
+  private slotHasMeaningfulContent(slotEl: HTMLSlotElement | undefined) {
+    if (!slotEl) return false;
+    const nodes = slotEl.assignedNodes({ flatten: true });
+    return nodes.some((node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         return Boolean(node.textContent?.trim());
       }
@@ -637,8 +692,20 @@ export class YnDrawer extends LitElement {
     });
   }
 
+  private syncFooterEmptyState() {
+    this.footerEmpty = !this.slotHasMeaningfulContent(this.footerSlotEl);
+  }
+
+  private syncBackdropExtraEmptyState() {
+    this.backdropExtraEmpty = !this.slotHasMeaningfulContent(this.backdropExtraSlotEl);
+  }
+
   private handleFooterSlotChange = () => {
     this.syncFooterEmptyState();
+  };
+
+  private handleBackdropExtraSlotChange = () => {
+    this.syncBackdropExtraEmptyState();
   };
 
   render() {
@@ -651,6 +718,12 @@ export class YnDrawer extends LitElement {
       <div id="drawerPopover" class="drawer-popover" popover="manual" @keydown=${this.handleEscape}>
         <div class="drawer-surface">
           <div class="backdrop" @click=${this.handleBackdropClick}></div>
+          <div
+            class="backdrop-extra ${this.backdropExtraEmpty ? "backdrop-extra--empty" : ""}"
+            @click=${(event: Event) => event.stopPropagation()}
+          >
+            <slot name="backdrop-extra" @slotchange=${this.handleBackdropExtraSlotChange}></slot>
+          </div>
           <aside class="panel" role="dialog" aria-modal="true" aria-label=${this.title || "Drawer"} @click=${(event: Event) => event.stopPropagation()}>
             <header class="header">
               <div class="header-main">

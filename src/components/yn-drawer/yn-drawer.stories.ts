@@ -32,6 +32,7 @@ type Args = {
   header?: string;
   content?: string;
   footer?: string;
+  backdropExtra?: string;
   show?: (payload?: unknown) => void;
   close?: (payload?: unknown) => void;
   toggle?: (payload?: unknown) => void;
@@ -49,7 +50,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "抽屉组件，基于原生 popover 封装。`placement=\"auto\"` 时窄屏自底部上滑，宽屏自右侧滑入；可用 `placement=\"bottom\"` 强制底部弹出。底部高度由 `sheet-height` 控制，默认 `90vh`；设为 `auto` 时高度随内容（`translateY(100%)` 按面板高度滑入）。\n\n生命周期事件：`before-open`、`after-open`、`before-close`、`after-close`。其中 `before-*` 事件可 `event.preventDefault()` 阻止状态变更。\n\n方法调用：`show(payload?)`、`close(payload?)`、`toggle(payload?)`，传入参数会透传到生命周期事件的 `event.detail.payload`。\n\n触发器参数：`trigger` 插槽节点支持 `drawer-payload`（支持 JSON 字符串）/ `trigger-payload` / `data-drawer-payload` 属性，也会透传到生命周期事件的 `event.detail.triggerPayload`。\n\n插槽优先级：`header` 插槽优先，未传入时回退到 `title` 属性文案。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；请使用公开 CSS 变量定制。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-drawer\"`"
+          "抽屉组件，基于原生 popover 封装。`placement=\"auto\"` 时窄屏自底部上滑，宽屏自右侧滑入；可用 `placement=\"bottom\"` 强制底部弹出。底部高度由 `sheet-height` 控制，默认 `90vh`；设为 `auto` 时高度随内容（`translateY(100%)` 按面板高度滑入）。\n\n生命周期事件：`before-open`、`after-open`、`before-close`、`after-close`。其中 `before-*` 事件可 `event.preventDefault()` 阻止状态变更。\n\n方法调用：`show(payload?)`、`close(payload?)`、`toggle(payload?)`，传入参数会透传到生命周期事件的 `event.detail.payload`。\n\n触发器参数：`trigger` 插槽节点支持 `drawer-payload`（支持 JSON 字符串）/ `trigger-payload` / `data-drawer-payload` 属性，也会透传到生命周期事件的 `event.detail.triggerPayload`。\n\n插槽优先级：`header` 插槽优先，未传入时回退到 `title` 属性文案。\n\n`backdrop-extra`：宽屏（≥1024px）且右侧抽屉时，在遮罩层左侧区域展示推荐等内容（遮罩仍全屏半透明，不替代遮罩）；窄屏隐藏。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；请使用公开 CSS 变量定制。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-drawer\"`"
       }
     }
   },
@@ -248,6 +249,17 @@ const meta = {
       table: {
         category: "Slots",
         defaultValue: { summary: "空" },
+        type: { summary: "HTMLElement" }
+      }
+    },
+    backdropExtra: {
+      name: "backdrop-extra",
+      control: false,
+      description:
+        "遮罩区扩展插槽（仅宽屏右侧抽屉生效）。内容显示在遮罩左侧、抽屉面板左侧；遮罩层仍全屏铺底。点击插槽内元素不会触发遮罩关闭。窄屏（<1024px）自动隐藏。",
+      table: {
+        category: "Slots",
+        defaultValue: { summary: "空（不展示扩展区）" },
         type: { summary: "HTMLElement" }
       }
     },
@@ -561,6 +573,87 @@ export const CartDrawer: Story = {
       await wait(360);
     });
   }
+};
+
+export const CartDrawerDesktop: Story = {
+  args: {
+    sheetHeight: "auto"
+  },
+  parameters: {
+    viewport: { defaultViewport: "desktop" },
+    docs: {
+      description: {
+        story:
+          "PC 端：右侧抽屉 + 遮罩左侧 `backdrop-extra` 推荐位（两个示例商品）。窄屏下该插槽自动隐藏。"
+      }
+    }
+  },
+  render: (args) => html`
+    <div class="yn-min-h-[640px] yn-bg-[#f5f1ea] yn-p-6">
+      <yn-drawer
+        ?open=${args.open}
+        .width=${args.width}
+        .title=${args.title}
+        placement=${args.placement}
+        sheet-height=${args.sheetHeight}
+        .closeOnBackdrop=${args.closeOnBackdrop}
+        style=${`--yn-drawer-z-index:${args.zIndex};--yn-drawer-bg:${args.drawerBg};--yn-drawer-shadow:${args.drawerShadow};--yn-drawer-backdrop:${args.backdropColor};--yn-drawer-header-border:transparent;--yn-drawer-footer-border:${args.footerBorder};--yn-drawer-title-color:${args.titleColor};--yn-drawer-close-color:${args.closeColor};--yn-drawer-close-hover-bg:${args.closeHoverBg};--yn-drawer-content-color:${args.contentColor};--yn-drawer-footer-bg:${args.footerBg};--yn-drawer-body-padding:0 16px 20px;--yn-drawer-open-duration:${args.openDuration};--yn-drawer-close-duration:${args.closeDuration};--yn-drawer-open-ease:${args.openEase};--yn-drawer-close-ease:${args.closeEase};`}
+        @open-change=${(event: Event) =>
+          args.onOpenChange?.(
+            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
+          )}
+        @before-open=${(event: Event) =>
+          args.onBeforeOpen?.(
+            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
+          )}
+        @after-open=${(event: Event) =>
+          args.onAfterOpen?.(
+            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
+          )}
+        @before-close=${(event: Event) =>
+          args.onBeforeClose?.(
+            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
+          )}
+        @after-close=${(event: Event) =>
+          args.onAfterClose?.(
+            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
+          )}
+      >
+        <div slot="backdrop-extra" class="yn-flex yn-gap-4">
+          <div class="yn-w-40 yn-rounded-xl yn-bg-white yn-p-4 yn-shadow-md">
+            <div class="yn-h-24 yn-rounded-lg yn-bg-[#f3efe7]"></div>
+            <p class="yn-mt-3 yn-text-sm yn-font-bold">Essential Tee</p>
+            <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 24.00</p>
+          </div>
+          <div class="yn-w-40 yn-rounded-xl yn-bg-white yn-p-4 yn-shadow-md">
+            <div class="yn-h-24 yn-rounded-lg yn-bg-[#f3efe7]"></div>
+            <p class="yn-mt-3 yn-text-sm yn-font-bold">Training Shorts</p>
+            <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 32.00</p>
+          </div>
+        </div>
+
+        <yn-button slot="trigger" variant="default">购物车</yn-button>
+
+        <span slot="header" class="yn-text-sm yn-font-bold yn-uppercase yn-tracking-[0.04em] yn-text-[#241f21]">
+          Your bag
+        </span>
+
+        <div slot="content" class="yn-flex yn-flex-col yn-items-center yn-pb-2 yn-text-center">
+          <img
+            src=${EMPTY_CART_IMAGE}
+            alt=""
+            width="280"
+            height="200"
+            class="yn-block yn-h-auto yn-w-full yn-max-w-[280px]"
+            decoding="async"
+          />
+          <h3 class="yn-mt-6 yn-text-base yn-font-bold yn-uppercase">Your bag is empty</h3>
+          <p class="yn-mt-2 yn-text-sm yn-text-[#6f696b]">There are no products in your bag</p>
+        </div>
+      </yn-drawer>
+    </div>
+  `,
+  play: CartDrawer.play
 };
 
 type YnDrawerWithMethods = HTMLElement & {
