@@ -10,8 +10,10 @@ type ButtonLoadingType = "left" | "center" | "right";
 /**
  * 通用按钮：通过 `variant`、`size` 控制外观，`loading` 显示加载态。
  *
- * @slot prefix - 主文案前的图标等内容
- * @slot suffix - 主文案后的图标等内容
+ * @slot - 按钮主文案
+ * @slot prefix-icon - 主文案前的图标
+ * @slot suffix-icon - 主文案后的图标
+ * @slot loading - 自定义 loading 图标
  */
 @customElement("yn-button")
 export class YnButton extends LitElement {

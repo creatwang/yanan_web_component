@@ -4,6 +4,827 @@
   "modules": [
     {
       "kind": "javascript-module",
+      "path": "src/components/yn-dropdown/yn-dropdown.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnDropdown",
+          "members": [
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+              },
+              "default": "\"bottom-start\"",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "offset",
+              "type": {
+                "text": "number"
+              },
+              "default": "12",
+              "attribute": "offset"
+            },
+            {
+              "kind": "field",
+              "name": "motionDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "14",
+              "attribute": "motion-distance"
+            },
+            {
+              "kind": "field",
+              "name": "panelOpenDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "16",
+              "attribute": "panel-open-distance"
+            },
+            {
+              "kind": "field",
+              "name": "panelCloseDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "20",
+              "attribute": "panel-close-distance"
+            },
+            {
+              "kind": "field",
+              "name": "viewportPadding",
+              "type": {
+                "text": "number"
+              },
+              "default": "12",
+              "attribute": "viewport-padding"
+            },
+            {
+              "kind": "field",
+              "name": "autoFlip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "auto-flip"
+            },
+            {
+              "kind": "field",
+              "name": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "attribute": "close-on-outside-click"
+            },
+            {
+              "kind": "field",
+              "name": "actualPlacement",
+              "type": {
+                "text": "YnDropdownPlacement"
+              },
+              "privacy": "private",
+              "default": "\"bottom-start\""
+            },
+            {
+              "kind": "field",
+              "name": "panelMotionSide",
+              "type": {
+                "text": "PlacementSide"
+              },
+              "privacy": "private",
+              "default": "\"bottom\""
+            },
+            {
+              "kind": "field",
+              "name": "panelStyle",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"left:0px;top:0px;\""
+            },
+            {
+              "kind": "field",
+              "name": "closing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "useButtonLabelMotion",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "positionRaf",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "resizeObserver",
+              "type": {
+                "text": "ResizeObserver | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "buttonLabelEl",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "viewportListenersActive",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { display: inline-block; position: relative; overflow: visible; } .root { display: inline-flex; flex-direction: column; } .trigger { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; } .trigger-content { display: inline-flex; align-items: center; transform: translate3d(0, 0, 0); opacity: 1; will-change: auto; transition: transform var(--yn-dropdown-trigger-duration, 220ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-trigger-opacity-duration, 160ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)); } :host([open]) .trigger-content { transform: translate3d(var(--yn-dropdown-motion-x, 0px), var(--yn-dropdown-motion-y, 0px), 0); opacity: 0; will-change: transform, opacity; } .trigger.button-trigger .trigger-content, :host([open]) .trigger.button-trigger .trigger-content { transform: translate3d(0, 0, 0); opacity: 1; transition: none; } .close-icon { position: absolute; left: 50%; right: auto; top: 50%; margin: 0; padding: 0; width: var(--yn-dropdown-close-icon-size, 24px); height: var(--yn-dropdown-close-icon-size, 24px); border: none; background: transparent; color: var(--yn-dropdown-close-icon-color, #241f21); display: inline-flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transform: translate3d( calc(-50% - var(--yn-dropdown-motion-x, 0px)), calc(-50% - var(--yn-dropdown-motion-y, 0px)), 0 ); transition: transform var(--yn-dropdown-close-duration, 220ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-close-opacity-duration, 180ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)); transition-delay: 0ms, 0ms; will-change: auto; } .close-icon ::slotted(*) { width: 100%; height: 100%; display: block; } :host([open]) .close-icon { pointer-events: auto; opacity: 1; transform: translate3d(-50%, -50%, 0); transition-delay: var(--yn-dropdown-close-enter-delay, 67ms), var(--yn-dropdown-close-enter-delay, 67ms); will-change: transform, opacity; } :host(:not([open])) .close-icon { transition-delay: 0ms, 0ms; } .panel { position: absolute; box-sizing: border-box; min-width: var(--yn-dropdown-panel-min-width, 280px); border-radius: var(--yn-dropdown-panel-radius, 12px); border: var(--yn-dropdown-panel-border, none); background: var(--yn-dropdown-panel-bg, #ffffff); box-shadow: var(--yn-dropdown-panel-shadow, 0 12px 36px rgba(36, 31, 33, 0.18)); padding: var(--yn-dropdown-panel-padding, 12px); overflow: auto; z-index: var(--yn-dropdown-z-index, 1200); opacity: 0; visibility: visible; pointer-events: none; transform: translate3d( var(--yn-dropdown-panel-open-shift-x, 0px), var(--yn-dropdown-panel-open-shift-y, 0px), 0 ); transform-origin: center center; backface-visibility: hidden; contain: layout paint; transition: transform var(--yn-dropdown-panel-motion-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)), opacity var(--yn-dropdown-panel-opacity-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); will-change: auto; } .panel:not(.open):not(.closing) { visibility: hidden; } .panel[data-side=\"top\"] { transform-origin: center bottom; } .panel[data-side=\"bottom\"] { transform-origin: center top; } .panel[data-side=\"left\"] { transform-origin: right center; } .panel[data-side=\"right\"] { transform-origin: left center; } .panel.open { opacity: 1; visibility: visible; pointer-events: auto; box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12)); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-open-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); transform: translate3d(0, 0, 0); will-change: transform, opacity; } .panel.closing { opacity: 0; visibility: visible; pointer-events: none; box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12)); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-close-easing, cubic-bezier(0.4, 0, 0.2, 1)); transform: translate3d( var(--yn-dropdown-panel-close-shift-x, 0px), var(--yn-dropdown-panel-close-shift-y, 0px), 0 ); will-change: transform, opacity; } `"
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后预热方向与位置，保证首开动画可用。"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<string, unknown>"
+                  }
+                }
+              ],
+              "description": "属性变化后同步定位、开关状态和联动动画。"
+            },
+            {
+              "kind": "method",
+              "name": "emitOpenChange",
+              "privacy": "private",
+              "description": "派发开关状态变化事件，供外部监听。"
+            },
+            {
+              "kind": "method",
+              "name": "setupResizeObserver",
+              "privacy": "private",
+              "description": "建立并刷新尺寸观察，触发器或面板尺寸变化时重算位置。"
+            },
+            {
+              "kind": "method",
+              "name": "toggleViewportListeners",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "active",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "仅在展开阶段启用视口监听，降低空闲期开销。"
+            },
+            {
+              "kind": "field",
+              "name": "handleViewportChange",
+              "privacy": "private",
+              "description": "视口尺寸或滚动变化时重算展开态位置。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentKeydown",
+              "privacy": "private",
+              "description": "监听 ESC 快捷关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentPointerDown",
+              "privacy": "private",
+              "description": "处理外部点击关闭逻辑。"
+            },
+            {
+              "kind": "field",
+              "name": "handleTriggerClick",
+              "privacy": "private",
+              "description": "处理触发器点击：展开或关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handleTriggerSlotChange",
+              "privacy": "private",
+              "description": "触发器插槽变化后刷新模式与定位。"
+            },
+            {
+              "kind": "field",
+              "name": "handleCloseIconClick",
+              "privacy": "private",
+              "description": "处理关闭图标点击并阻止冒泡到触发器。"
+            },
+            {
+              "kind": "method",
+              "name": "openDropdown",
+              "privacy": "private",
+              "description": "以固定流程打开下拉：锁定方向、预计算、再切换 open。"
+            },
+            {
+              "kind": "method",
+              "name": "closeDropdown",
+              "privacy": "private",
+              "description": "触发关闭态动画并切换 open。"
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "description": "供外部 JS 调用的关闭方法。"
+            },
+            {
+              "kind": "field",
+              "name": "handlePanelTransitionEnd",
+              "privacy": "private",
+              "description": "关闭过渡结束后复位 closing 状态。"
+            },
+            {
+              "kind": "method",
+              "name": "updateTriggerMode",
+              "privacy": "private",
+              "description": "判断触发器类型并同步按钮文本动画模式。"
+            },
+            {
+              "kind": "method",
+              "name": "resetButtonLabelStyle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "label",
+                  "type": {
+                    "text": "HTMLElement | null"
+                  }
+                }
+              ],
+              "description": "清理按钮文本上注入的内联动画样式。"
+            },
+            {
+              "kind": "method",
+              "name": "syncButtonLabelMotion",
+              "privacy": "private",
+              "description": "同步按钮文本在开关过程中的位移与透明度。"
+            },
+            {
+              "kind": "method",
+              "name": "schedulePosition",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "force",
+                  "default": "false"
+                }
+              ],
+              "description": "通过 RAF 合并定位计算，降低重复回流。"
+            },
+            {
+              "kind": "method",
+              "name": "positionPanel",
+              "privacy": "private",
+              "description": "按 placement 计算面板坐标并写入样式变量。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染触发器、关闭图标与内容面板。"
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-dropdown",
+          "summary": "下拉浮层：默认插槽为触发器，`content` 插槽为面板内容。",
+          "attributes": [
+            {
+              "name": "placement",
+              "fieldName": "placement",
+              "type": {
+                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+              },
+              "description": "面板相对触发器的位置。",
+              "default": "\"bottom-start\""
+            },
+            {
+              "name": "open",
+              "fieldName": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "面板是否展开（受控）。",
+              "default": "false"
+            },
+            {
+              "name": "offset",
+              "fieldName": "offset",
+              "type": {
+                "text": "number"
+              },
+              "description": "触发器与面板间距（px）。",
+              "default": "12"
+            },
+            {
+              "name": "motion-distance",
+              "fieldName": "motionDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "14"
+            },
+            {
+              "name": "panel-open-distance",
+              "fieldName": "panelOpenDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "16"
+            },
+            {
+              "name": "panel-close-distance",
+              "fieldName": "panelCloseDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "20"
+            },
+            {
+              "name": "viewport-padding",
+              "fieldName": "viewportPadding",
+              "type": {
+                "text": "number"
+              },
+              "default": "12"
+            },
+            {
+              "name": "auto-flip",
+              "fieldName": "autoFlip",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "空间不足时是否自动翻转方位。",
+              "default": "false"
+            },
+            {
+              "name": "close-on-outside-click",
+              "fieldName": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "点击外部是否关闭。",
+              "default": "true"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "触发器（如按钮）"
+            },
+            {
+              "name": "content",
+              "description": "下拉面板内容"
+            },
+            {
+              "name": "close-icon",
+              "description": "关闭图标（可选，默认内置 SVG）"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-dropdown-close-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-enter-delay",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-icon-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-icon-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-motion-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-motion-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-border",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-shift-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-shift-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-min-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-shift-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-shift-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-z-index",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnDropdown",
+          "declaration": {
+            "name": "YnDropdown",
+            "module": "src/components/yn-dropdown/yn-dropdown.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/yn-group-pick/yn-group-pick.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnGroupPick",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "GroupValue"
+              },
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "multiple"
+            },
+            {
+              "kind": "field",
+              "name": "selectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "ynPickSelectedSvg",
+              "attribute": "selected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "unselectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "\"\"",
+              "attribute": "unselected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "showUnselectedIcon",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "show-unselected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "picks",
+              "type": {
+                "text": "YnPick[]"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { display: block; } .group { display: flex; flex-wrap: wrap; gap: var(--yn-group-pick-gap, 12px); } `"
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后同步子项状态。"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<string, unknown>"
+                  }
+                }
+              ],
+              "description": "相关属性变化时刷新子项选中与图标状态。"
+            },
+            {
+              "kind": "method",
+              "name": "getCurrentIds",
+              "privacy": "private",
+              "description": "获取当前选中值数组表示。"
+            },
+            {
+              "kind": "method",
+              "name": "toComparable",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "将值转换为可比较字符串。"
+            },
+            {
+              "kind": "method",
+              "name": "isSelected",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "判断指定值是否处于选中状态。"
+            },
+            {
+              "kind": "method",
+              "name": "syncChildrenState",
+              "privacy": "private",
+              "description": "将组选中状态与图标配置同步到所有子 pick。"
+            },
+            {
+              "kind": "method",
+              "name": "emitChange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "text": "PickValue[]"
+                  }
+                },
+                {
+                  "name": "flag",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "派发组选中变化事件。"
+            },
+            {
+              "kind": "method",
+              "name": "onPickToggle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "处理子项切换并更新单选/多选值。"
+            },
+            {
+              "kind": "method",
+              "name": "onSlotChange",
+              "privacy": "private",
+              "description": "插槽子项变化时重新同步状态。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染分组容器与默认插槽。"
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-group-pick",
+          "attributes": [
+            {
+              "name": "multiple",
+              "fieldName": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "selected-icon",
+              "fieldName": "selectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "ynPickSelectedSvg"
+            },
+            {
+              "name": "unselected-icon",
+              "fieldName": "unselectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "\"\""
+            },
+            {
+              "name": "show-unselected-icon",
+              "fieldName": "showUnselectedIcon",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-group-pick-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnGroupPick",
+          "declaration": {
+            "name": "YnGroupPick",
+            "module": "src/components/yn-group-pick/yn-group-pick.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/yn-drawer/yn-drawer.ts",
       "declarations": [
         {
@@ -388,6 +1209,90 @@
               },
               "default": "true"
             }
+          ],
+          "slots": [
+            {
+              "name": "trigger",
+              "description": "具名插槽 `trigger`"
+            },
+            {
+              "name": "header",
+              "description": "具名插槽 `header`"
+            },
+            {
+              "name": "content",
+              "description": "具名插槽 `content`"
+            },
+            {
+              "name": "footer",
+              "description": "具名插槽 `footer`"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-drawer-backdrop",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-close-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-close-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-close-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-close-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-content-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-footer-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-footer-border",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-header-border",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-open-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-open-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-title-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-drawer-z-index",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
           ]
         }
       ],
@@ -412,12 +1317,20 @@
           "name": "YnButton",
           "slots": [
             {
-              "description": "主文案前的图标等内容",
-              "name": "prefix"
+              "name": "",
+              "description": "按钮主文案（默认插槽）"
             },
             {
-              "description": "主文案后的图标等内容",
-              "name": "suffix"
+              "name": "prefix-icon",
+              "description": "主文案前的图标（如 SVG）"
+            },
+            {
+              "name": "suffix-icon",
+              "description": "主文案后的图标"
+            },
+            {
+              "name": "loading",
+              "description": "`loading` 且 `loading-type` 非 left/center/right 时的自定义 loading 图标"
             }
           ],
           "members": [
@@ -609,7 +1522,7 @@
           },
           "customElement": true,
           "tagName": "yn-button",
-          "summary": "通用按钮。用 `variant` 选配色、`size` 选尺寸；`loading` 为加载态。",
+          "summary": "通用按钮。`variant` / `size` 控制外观；`loading` 为加载态。",
           "attributes": [
             {
               "name": "disabled",
@@ -665,6 +1578,192 @@
               "description": "是否扩大可点击热区（默认 true）。",
               "default": "true"
             }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-button-bg",
+              "description": "背景色"
+            },
+            {
+              "name": "--yn-button-content-gap",
+              "description": "图标与文案间距"
+            },
+            {
+              "name": "--yn-button-danger-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-danger-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-danger-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-danger-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-danger-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-dark-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-dark-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-dark-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-dark-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-dark-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-default-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-default-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-default-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-default-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-default-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-disabled-bg",
+              "description": "禁用背景"
+            },
+            {
+              "name": "--yn-button-disabled-color",
+              "description": "禁用文字色"
+            },
+            {
+              "name": "--yn-button-disabled-opacity",
+              "description": "禁用透明度"
+            },
+            {
+              "name": "--yn-button-hover-bg",
+              "description": "悬停背景色"
+            },
+            {
+              "name": "--yn-button-icon-only-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-icon-size",
+              "description": "插槽图标尺寸"
+            },
+            {
+              "name": "--yn-button-loading-size",
+              "description": "loading 图标尺寸"
+            },
+            {
+              "name": "--yn-button-neutral-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-neutral-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-neutral-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-neutral-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-neutral-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-primary-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-primary-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-primary-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-primary-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-primary-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-radius",
+              "description": "圆角"
+            },
+            {
+              "name": "--yn-button-success-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-success-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-success-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-success-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-success-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-warning-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-warning-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-warning-disabled-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-warning-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-warning-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-button-color",
+              "description": "文字颜色"
+            }
           ]
         }
       ],
@@ -675,255 +1774,6 @@
           "declaration": {
             "name": "YnButton",
             "module": "src/components/yn-button/yn-button.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/components/yn-group-pick/yn-group-pick.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "YnGroupPick",
-          "members": [
-            {
-              "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "GroupValue"
-              },
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "multiple",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "multiple"
-            },
-            {
-              "kind": "field",
-              "name": "selectedIcon",
-              "type": {
-                "text": "YnSvgSource"
-              },
-              "default": "ynPickSelectedSvg",
-              "attribute": "selected-icon"
-            },
-            {
-              "kind": "field",
-              "name": "unselectedIcon",
-              "type": {
-                "text": "YnSvgSource"
-              },
-              "default": "\"\"",
-              "attribute": "unselected-icon"
-            },
-            {
-              "kind": "field",
-              "name": "showUnselectedIcon",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "show-unselected-icon"
-            },
-            {
-              "kind": "field",
-              "name": "picks",
-              "type": {
-                "text": "YnPick[]"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { display: block; } .group { display: flex; flex-wrap: wrap; gap: var(--yn-group-pick-gap, 12px); } `"
-            },
-            {
-              "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后同步子项状态。"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "Map<string, unknown>"
-                  }
-                }
-              ],
-              "description": "相关属性变化时刷新子项选中与图标状态。"
-            },
-            {
-              "kind": "method",
-              "name": "getCurrentIds",
-              "privacy": "private",
-              "description": "获取当前选中值数组表示。"
-            },
-            {
-              "kind": "method",
-              "name": "toComparable",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "将值转换为可比较字符串。"
-            },
-            {
-              "kind": "method",
-              "name": "isSelected",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "判断指定值是否处于选中状态。"
-            },
-            {
-              "kind": "method",
-              "name": "syncChildrenState",
-              "privacy": "private",
-              "description": "将组选中状态与图标配置同步到所有子 pick。"
-            },
-            {
-              "kind": "method",
-              "name": "emitChange",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "ids",
-                  "type": {
-                    "text": "PickValue[]"
-                  }
-                },
-                {
-                  "name": "flag",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
-              "description": "派发组选中变化事件。"
-            },
-            {
-              "kind": "method",
-              "name": "onPickToggle",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ],
-              "description": "处理子项切换并更新单选/多选值。"
-            },
-            {
-              "kind": "method",
-              "name": "onSlotChange",
-              "privacy": "private",
-              "description": "插槽子项变化时重新同步状态。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染分组容器与默认插槽。"
-            }
-          ],
-          "events": [
-            {
-              "name": "change",
-              "type": {
-                "text": "CustomEvent"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-group-pick",
-          "attributes": [
-            {
-              "name": "multiple",
-              "fieldName": "multiple",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "selected-icon",
-              "fieldName": "selectedIcon",
-              "type": {
-                "text": "YnSvgSource"
-              },
-              "default": "ynPickSelectedSvg"
-            },
-            {
-              "name": "unselected-icon",
-              "fieldName": "unselectedIcon",
-              "type": {
-                "text": "YnSvgSource"
-              },
-              "default": "\"\""
-            },
-            {
-              "name": "show-unselected-icon",
-              "fieldName": "showUnselectedIcon",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnGroupPick",
-          "declaration": {
-            "name": "YnGroupPick",
-            "module": "src/components/yn-group-pick/yn-group-pick.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/components/yn-icon-connect-button/yn-icon-connect-button.ts",
-      "declarations": [],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnIconConnectButton",
-          "declaration": {
-            "name": "YnIconConnectButton",
-            "module": "../yn-icon-connect-button"
           }
         }
       ]
@@ -1368,6 +2218,58 @@
               },
               "default": "true"
             }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-dropdown-pick-button-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-content-right-space",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-selected-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-trigger-font-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-trigger-font-weight",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
           ]
         }
       ],
@@ -1384,439 +2286,15 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-dropdown/yn-dropdown.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "YnDropdown",
-          "members": [
-            {
-              "kind": "field",
-              "name": "placement",
-              "type": {
-                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
-              },
-              "default": "\"bottom-start\"",
-              "attribute": "placement"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "open"
-            },
-            {
-              "kind": "field",
-              "name": "offset",
-              "type": {
-                "text": "number"
-              },
-              "default": "12",
-              "attribute": "offset"
-            },
-            {
-              "kind": "field",
-              "name": "motionDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "14",
-              "attribute": "motion-distance"
-            },
-            {
-              "kind": "field",
-              "name": "panelOpenDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "16",
-              "attribute": "panel-open-distance"
-            },
-            {
-              "kind": "field",
-              "name": "panelCloseDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "20",
-              "attribute": "panel-close-distance"
-            },
-            {
-              "kind": "field",
-              "name": "viewportPadding",
-              "type": {
-                "text": "number"
-              },
-              "default": "12",
-              "attribute": "viewport-padding"
-            },
-            {
-              "kind": "field",
-              "name": "autoFlip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "auto-flip"
-            },
-            {
-              "kind": "field",
-              "name": "closeOnOutsideClick",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "attribute": "close-on-outside-click"
-            },
-            {
-              "kind": "field",
-              "name": "actualPlacement",
-              "type": {
-                "text": "YnDropdownPlacement"
-              },
-              "privacy": "private",
-              "default": "\"bottom-start\""
-            },
-            {
-              "kind": "field",
-              "name": "panelMotionSide",
-              "type": {
-                "text": "PlacementSide"
-              },
-              "privacy": "private",
-              "default": "\"bottom\""
-            },
-            {
-              "kind": "field",
-              "name": "panelStyle",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"left:0px;top:0px;\""
-            },
-            {
-              "kind": "field",
-              "name": "closing",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "useButtonLabelMotion",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "positionRaf",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0"
-            },
-            {
-              "kind": "field",
-              "name": "resizeObserver",
-              "type": {
-                "text": "ResizeObserver | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "buttonLabelEl",
-              "type": {
-                "text": "HTMLElement | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "viewportListenersActive",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { display: inline-block; position: relative; overflow: visible; } .root { display: inline-flex; flex-direction: column; } .trigger { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; } .trigger-content { display: inline-flex; align-items: center; transform: translate3d(0, 0, 0); opacity: 1; will-change: auto; transition: transform var(--yn-dropdown-trigger-duration, 220ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-trigger-opacity-duration, 160ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)); } :host([open]) .trigger-content { transform: translate3d(var(--yn-dropdown-motion-x, 0px), var(--yn-dropdown-motion-y, 0px), 0); opacity: 0; will-change: transform, opacity; } .trigger.button-trigger .trigger-content, :host([open]) .trigger.button-trigger .trigger-content { transform: translate3d(0, 0, 0); opacity: 1; transition: none; } .close-icon { position: absolute; left: 50%; right: auto; top: 50%; margin: 0; padding: 0; width: var(--yn-dropdown-close-icon-size, 24px); height: var(--yn-dropdown-close-icon-size, 24px); border: none; background: transparent; color: var(--yn-dropdown-close-icon-color, #241f21); display: inline-flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transform: translate3d( calc(-50% - var(--yn-dropdown-motion-x, 0px)), calc(-50% - var(--yn-dropdown-motion-y, 0px)), 0 ); transition: transform var(--yn-dropdown-close-duration, 220ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-close-opacity-duration, 180ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)); transition-delay: 0ms, 0ms; will-change: auto; } .close-icon ::slotted(*) { width: 100%; height: 100%; display: block; } :host([open]) .close-icon { pointer-events: auto; opacity: 1; transform: translate3d(-50%, -50%, 0); transition-delay: var(--yn-dropdown-close-enter-delay, 67ms), var(--yn-dropdown-close-enter-delay, 67ms); will-change: transform, opacity; } :host(:not([open])) .close-icon { transition-delay: 0ms, 0ms; } .panel { position: absolute; box-sizing: border-box; min-width: var(--yn-dropdown-panel-min-width, 280px); border-radius: var(--yn-dropdown-panel-radius, 12px); border: var(--yn-dropdown-panel-border, none); background: var(--yn-dropdown-panel-bg, #ffffff); box-shadow: var(--yn-dropdown-panel-shadow, 0 12px 36px rgba(36, 31, 33, 0.18)); padding: var(--yn-dropdown-panel-padding, 12px); overflow: auto; z-index: var(--yn-dropdown-z-index, 1200); opacity: 0; visibility: visible; pointer-events: none; transform: translate3d( var(--yn-dropdown-panel-open-shift-x, 0px), var(--yn-dropdown-panel-open-shift-y, 0px), 0 ); transform-origin: center center; backface-visibility: hidden; contain: layout paint; transition: transform var(--yn-dropdown-panel-motion-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)), opacity var(--yn-dropdown-panel-opacity-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); will-change: auto; } .panel:not(.open):not(.closing) { visibility: hidden; } .panel[data-side=\"top\"] { transform-origin: center bottom; } .panel[data-side=\"bottom\"] { transform-origin: center top; } .panel[data-side=\"left\"] { transform-origin: right center; } .panel[data-side=\"right\"] { transform-origin: left center; } .panel.open { opacity: 1; visibility: visible; pointer-events: auto; box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12)); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-open-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); transform: translate3d(0, 0, 0); will-change: transform, opacity; } .panel.closing { opacity: 0; visibility: visible; pointer-events: none; box-shadow: var(--yn-dropdown-panel-motion-shadow, 0 8px 20px rgba(36, 31, 33, 0.12)); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-close-easing, cubic-bezier(0.4, 0, 0.2, 1)); transform: translate3d( var(--yn-dropdown-panel-close-shift-x, 0px), var(--yn-dropdown-panel-close-shift-y, 0px), 0 ); will-change: transform, opacity; } `"
-            },
-            {
-              "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后预热方向与位置，保证首开动画可用。"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "Map<string, unknown>"
-                  }
-                }
-              ],
-              "description": "属性变化后同步定位、开关状态和联动动画。"
-            },
-            {
-              "kind": "method",
-              "name": "emitOpenChange",
-              "privacy": "private",
-              "description": "派发开关状态变化事件，供外部监听。"
-            },
-            {
-              "kind": "method",
-              "name": "setupResizeObserver",
-              "privacy": "private",
-              "description": "建立并刷新尺寸观察，触发器或面板尺寸变化时重算位置。"
-            },
-            {
-              "kind": "method",
-              "name": "toggleViewportListeners",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "active",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
-              "description": "仅在展开阶段启用视口监听，降低空闲期开销。"
-            },
-            {
-              "kind": "field",
-              "name": "handleViewportChange",
-              "privacy": "private",
-              "description": "视口尺寸或滚动变化时重算展开态位置。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentKeydown",
-              "privacy": "private",
-              "description": "监听 ESC 快捷关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentPointerDown",
-              "privacy": "private",
-              "description": "处理外部点击关闭逻辑。"
-            },
-            {
-              "kind": "field",
-              "name": "handleTriggerClick",
-              "privacy": "private",
-              "description": "处理触发器点击：展开或关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handleTriggerSlotChange",
-              "privacy": "private",
-              "description": "触发器插槽变化后刷新模式与定位。"
-            },
-            {
-              "kind": "field",
-              "name": "handleCloseIconClick",
-              "privacy": "private",
-              "description": "处理关闭图标点击并阻止冒泡到触发器。"
-            },
-            {
-              "kind": "method",
-              "name": "openDropdown",
-              "privacy": "private",
-              "description": "以固定流程打开下拉：锁定方向、预计算、再切换 open。"
-            },
-            {
-              "kind": "method",
-              "name": "closeDropdown",
-              "privacy": "private",
-              "description": "触发关闭态动画并切换 open。"
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "description": "供外部 JS 调用的关闭方法。"
-            },
-            {
-              "kind": "field",
-              "name": "handlePanelTransitionEnd",
-              "privacy": "private",
-              "description": "关闭过渡结束后复位 closing 状态。"
-            },
-            {
-              "kind": "method",
-              "name": "updateTriggerMode",
-              "privacy": "private",
-              "description": "判断触发器类型并同步按钮文本动画模式。"
-            },
-            {
-              "kind": "method",
-              "name": "resetButtonLabelStyle",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "label",
-                  "type": {
-                    "text": "HTMLElement | null"
-                  }
-                }
-              ],
-              "description": "清理按钮文本上注入的内联动画样式。"
-            },
-            {
-              "kind": "method",
-              "name": "syncButtonLabelMotion",
-              "privacy": "private",
-              "description": "同步按钮文本在开关过程中的位移与透明度。"
-            },
-            {
-              "kind": "method",
-              "name": "schedulePosition",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "force",
-                  "default": "false"
-                }
-              ],
-              "description": "通过 RAF 合并定位计算，降低重复回流。"
-            },
-            {
-              "kind": "method",
-              "name": "positionPanel",
-              "privacy": "private",
-              "description": "按 placement 计算面板坐标并写入样式变量。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染触发器、关闭图标与内容面板。"
-            }
-          ],
-          "events": [
-            {
-              "name": "open-change",
-              "type": {
-                "text": "CustomEvent"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-dropdown",
-          "summary": "下拉浮层：触发器为默认插槽，面板为 `panel` 插槽。",
-          "attributes": [
-            {
-              "name": "placement",
-              "fieldName": "placement",
-              "type": {
-                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
-              },
-              "description": "面板相对触发器的位置。",
-              "default": "\"bottom-start\""
-            },
-            {
-              "name": "open",
-              "fieldName": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "面板是否展开（受控）。",
-              "default": "false"
-            },
-            {
-              "name": "offset",
-              "fieldName": "offset",
-              "type": {
-                "text": "number"
-              },
-              "description": "触发器与面板间距（px）。",
-              "default": "12"
-            },
-            {
-              "name": "motion-distance",
-              "fieldName": "motionDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "14"
-            },
-            {
-              "name": "panel-open-distance",
-              "fieldName": "panelOpenDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "16"
-            },
-            {
-              "name": "panel-close-distance",
-              "fieldName": "panelCloseDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "20"
-            },
-            {
-              "name": "viewport-padding",
-              "fieldName": "viewportPadding",
-              "type": {
-                "text": "number"
-              },
-              "default": "12"
-            },
-            {
-              "name": "auto-flip",
-              "fieldName": "autoFlip",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "空间不足时是否自动翻转方位。",
-              "default": "false"
-            },
-            {
-              "name": "close-on-outside-click",
-              "fieldName": "closeOnOutsideClick",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "点击外部是否关闭。",
-              "default": "true"
-            }
-          ]
-        }
-      ],
+      "path": "src/components/yn-icon-connect-button/yn-icon-connect-button.ts",
+      "declarations": [],
       "exports": [
         {
           "kind": "js",
-          "name": "YnDropdown",
+          "name": "YnIconConnectButton",
           "declaration": {
-            "name": "YnDropdown",
-            "module": "src/components/yn-dropdown/yn-dropdown.ts"
+            "name": "YnIconConnectButton",
+            "module": "../yn-icon-connect-button"
           }
         }
       ]
@@ -1916,7 +2394,7 @@
           },
           "customElement": true,
           "tagName": "yn-input",
-          "summary": "文本输入框。",
+          "summary": "文本输入框。通过 CSS 变量定制宽高与配色。",
           "attributes": [
             {
               "name": "value",
@@ -1944,6 +2422,106 @@
               },
               "description": "禁用输入。",
               "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "prefix-button",
+              "description": "具名插槽 `prefix-button`"
+            },
+            {
+              "name": "suffix-button",
+              "description": "具名插槽 `suffix-button`"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-input-bg",
+              "description": "背景色"
+            },
+            {
+              "name": "--yn-input-bg-disabled",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-bg-focus",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-bg-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-border-color",
+              "description": "边框颜色"
+            },
+            {
+              "name": "--yn-input-border-color-focus",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-border-color-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-button-bg-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-button-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-button-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-color",
+              "description": "文字颜色"
+            },
+            {
+              "name": "--yn-input-disabled-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-focus-ring",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-font-family",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-font-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-height",
+              "description": "输入区域高度"
+            },
+            {
+              "name": "--yn-input-letter-spacing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-placeholder-color",
+              "description": "占位符颜色"
+            },
+            {
+              "name": "--yn-input-radius",
+              "description": "圆角"
+            },
+            {
+              "name": "--yn-input-width",
+              "description": "输入区域宽度"
+            },
+            {
+              "name": "--yn-input-focus-border-color",
+              "description": "聚焦边框颜色"
             }
           ]
         }
@@ -2885,6 +3463,36 @@
               },
               "default": "\"Primary navigation\""
             }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-navigation-active-text-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-fill-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-focus-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-glow-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-glow-fade",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-indicator-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-navigation-text-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
           ]
         }
       ],
@@ -3076,6 +3684,26 @@
               },
               "default": "false"
             }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-pick-border-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pick-border-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pick-border-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
           ]
         }
       ],
@@ -3100,12 +3728,12 @@
           "name": "YnPullCordSwitch",
           "slots": [
             {
-              "description": "关闭态绳端内容（如 `yn-button`）",
-              "name": ""
+              "name": "",
+              "description": "关闭态绳端内容（推荐 `yn-button`）"
             },
             {
-              "description": "开启态绳端内容",
-              "name": "activated"
+              "name": "activated",
+              "description": "开启态绳端内容（`slot=\"activated\"`）"
             }
           ],
           "members": [
@@ -3582,7 +4210,7 @@
           },
           "customElement": true,
           "tagName": "yn-pull-cord-switch",
-          "summary": "抽绳开关：下拉绳端切换开/关。支持 `fixed` 吸顶、`glow-up` 顶灯上扩；默认/activated 插槽放绳端按钮。",
+          "summary": "抽绳开关：下拉绳端切换开/关。`fixed` 吸顶；`glow-up` 顶灯上扩。Shadow DOM，请用下方 CSS 变量覆写。",
           "attributes": [
             {
               "name": "checked",
@@ -3691,8 +4319,190 @@
               "type": {
                 "text": "number"
               },
-              "description": "叠放层级（写入 CSS 变量）。",
+              "description": "叠放层级（同步写入 CSS 变量）。",
               "default": "1"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-pull-cord-switch-accent",
+              "description": "开启态顶灯光晕颜色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-anchor-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-bottom",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-on-bottom",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-on-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-canvas-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-bg",
+              "description": "绳端卡片背景"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-bg-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-border",
+              "description": "绳端卡片边框"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-border-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-color",
+              "description": "绳端卡片文字色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-color-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-dot-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-label-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-offset",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-ceiling-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-ceiling-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-disabled-opacity",
+              "description": "禁用透明度"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-peek-transition-duration",
+              "description": "fixed 负偏移 hover 动画时长"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-z",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-glow-up-bleed",
+              "description": "glow-up 时画布向上延展（px）"
+            },
+            {
+              "name": "--yn-pull-cord-switch-height",
+              "description": "组件区域高度"
+            },
+            {
+              "name": "--yn-pull-cord-switch-max-pull",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-end",
+              "description": "绳渐变终点色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-shadow-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-start",
+              "description": "绳渐变起点色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-segment-count",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-segment-len",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-slot-button-scale",
+              "description": "插槽内 yn-button 缩放"
+            },
+            {
+              "name": "--yn-pull-cord-switch-slot-transition-duration",
+              "description": "双插槽切换动画时长"
+            },
+            {
+              "name": "--yn-pull-cord-switch-toggle-threshold",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-z-index",
+              "description": "叠放层级"
+            },
+            {
+              "name": "--yn-pull-cord-switch-anchor-y",
+              "description": "锚点额外下移（相对画布高度比例，0=贴顶）"
             }
           ]
         }
@@ -3712,684 +4522,6 @@
           "declaration": {
             "name": "YnPullCordSwitch",
             "module": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/components/yn-search/yn-search.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "YnSearch",
-          "members": [
-            {
-              "kind": "field",
-              "name": "close",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "close"
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "disabled"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"O que estás à procura?\"",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "inputWidth",
-              "type": {
-                "text": "number"
-              },
-              "default": "514",
-              "attribute": "input-width"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "shellEl",
-              "type": {
-                "text": "HTMLDivElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "dynamicWrapEl",
-              "type": {
-                "text": "HTMLDivElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "shapeEl",
-              "type": {
-                "text": "SVGSVGElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "leftShapeEl",
-              "type": {
-                "text": "SVGSVGElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "bridgeEl",
-              "type": {
-                "text": "SVGPathElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "rect1El",
-              "type": {
-                "text": "SVGPathElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "inputEl",
-              "type": {
-                "text": "HTMLInputElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "datalistSlotEl",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "internalDatalistEl",
-              "type": {
-                "text": "HTMLDataListElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "shapeRaf",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0"
-            },
-            {
-              "kind": "field",
-              "name": "ready",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "datalistObserver",
-              "type": {
-                "text": "MutationObserver | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "observedDatalist",
-              "type": {
-                "text": "HTMLDataListElement | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "R",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "12.920000000000002"
-            },
-            {
-              "kind": "field",
-              "name": "RECT_START_CLOSED",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "44"
-            },
-            {
-              "kind": "field",
-              "name": "RECT_START_OPEN",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "54"
-            },
-            {
-              "kind": "field",
-              "name": "RETRACT_X",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "31.08"
-            },
-            {
-              "kind": "field",
-              "name": "TRANSITION_SPLIT",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "0.82"
-            },
-            {
-              "kind": "field",
-              "name": "GAP",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "10"
-            },
-            {
-              "kind": "field",
-              "name": "easeOpen",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "easeClose",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "lastRectPath",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastBridgePath",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastDynamicTransform",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastInputOpacity",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastInputTransform",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "bridgeClosed",
-              "type": {
-                "text": "object"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "{ x: [44, 44, 44, 44, 44, 44, 44, 44], y: [25.08, 25.08, 25.08, 25.08, 12.92, 12.92, 12.92, 12.92] }"
-            },
-            {
-              "kind": "field",
-              "name": "bridgeOpened",
-              "type": {
-                "text": "object"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "{ x: [ 43.02922778103873, 46.440616756960296, 51.4593832430397, 54.87077221896127, 54.87077221896127, 51.4593832430397, 46.440616756960296, 43.02922778103873 ], y: [ 29.947286628412307, 25.10807502694411, 25.10807502694411, 29.947286628412307, 8.052713371587695, 12.89192497305589, 12.89192497305589, 8.052713371587695 ] }"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { --yn-search-bg-active: rgba(255, 255, 255, 0.96); --yn-search-bg-idle: rgba(255, 255, 255, 0); --yn-search-icon-color: #241f21; --yn-search-fill-duration: 220ms; --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1); --yn-search-icon-duration: 220ms; --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1); display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .search-shell { position: relative; height: 38px; --bg-fill: var(--yn-search-bg-idle); } .search-shell.open, .search-shell:has(.toggle-btn:hover), .search-shell:has(.toggle-btn:focus-visible) { --bg-fill: var(--yn-search-bg-active); } .left-shape { position: absolute; top: 0; left: 0; width: 44px; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .left-shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .dynamic-wrap { position: absolute; top: 0; left: 44px; height: 38px; overflow: hidden; opacity: 1; pointer-events: none; } .search-shell.open .dynamic-wrap { opacity: 1; pointer-events: auto; } .shape { position: absolute; top: 0; left: 0; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .toggle-btn { position: absolute; left: 0; top: 0; width: 44px; height: 38px; border: 0; background: transparent; color: var(--yn-search-icon-color); cursor: pointer; display: grid; place-items: center; z-index: 2; } .toggle-btn:disabled { opacity: 0.6; cursor: not-allowed; } .icon { position: absolute; width: 20px; height: 20px; transition: opacity var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)), transform var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)); } .icon.search { opacity: 1; transform: scale(1); } .icon.close { opacity: 0; transform: scale(0.7) rotate(-80deg); } .search-shell.open .toggle-btn .icon.search { opacity: 0; transform: scale(0.7) rotate(80deg); } .search-shell.open .toggle-btn .icon.close { opacity: 1; transform: scale(1) rotate(0deg); } .search-input { position: absolute; top: 0; left: 0; margin-left: 10px; } .search-input .inner { display: flex; align-items: center; justify-content: center; width: 100%; height: 38px; padding: 2px 10px; pointer-events: none; } .search-shell.open .search-input .inner { pointer-events: auto; } .field { width: 100%; border: 0; outline: 0; background: transparent; color: #241f21b3; font-family: \"Zimula\", Arial, \"PingFang SC\", \"Microsoft YaHei\", sans-serif; font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px); font-variation-settings: \"cnct\" 1000, \"wght\" 500; letter-spacing: -0.02em; line-height: 1.4em; caret-color: #241f21; padding-left: 3px; opacity: 0; transform: translateX(-10px); transition: none; } .search-shell.open .field { opacity: 1; transform: translateX(0px); } .field::placeholder { color: #241f2199; } .field::-webkit-calendar-picker-indicator { display: none !important; -webkit-appearance: none; } .datalist-slot { display: none; } @media only screen and (max-width: 1023px) { .field, .field::placeholder { font-size: 16px; } } `"
-            },
-            {
-              "kind": "field",
-              "name": "rectEndOpen",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "dynamicWidth",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "shapeTAtButton",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后初始化尺寸并在打开态同步形状。"
-            },
-            {
-              "kind": "method",
-              "name": "getSourceDatalistFromSlot",
-              "privacy": "private",
-              "description": "从 slot 中获取外部 datalist 源节点。"
-            },
-            {
-              "kind": "method",
-              "name": "observeSourceDatalist",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "source",
-                  "type": {
-                    "text": "HTMLDataListElement | null"
-                  }
-                }
-              ],
-              "description": "监听外部 datalist 变化并同步到内部。"
-            },
-            {
-              "kind": "method",
-              "name": "syncDatalistFromSlot",
-              "privacy": "private",
-              "description": "将 slot datalist 内容同步到内部 datalist。"
-            },
-            {
-              "kind": "field",
-              "name": "onDatalistSlotChange",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "PropertyValues"
-                  }
-                }
-              ],
-              "description": "监听属性变化并刷新动画、壳层与事件输出。"
-            },
-            {
-              "kind": "method",
-              "name": "syncShell",
-              "privacy": "private",
-              "description": "同步宿主开关态到壳层 class。"
-            },
-            {
-              "kind": "method",
-              "name": "stopAnims",
-              "privacy": "private",
-              "description": "停止所有进行中的形状动画 RAF。"
-            },
-            {
-              "kind": "method",
-              "name": "lerp",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "a",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "b",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "线性插值工具。"
-            },
-            {
-              "kind": "method",
-              "name": "cubicBezier",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "x1",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "y1",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "x2",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "y2",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "生成 cubic-bezier easing 求值函数。"
-            },
-            {
-              "kind": "method",
-              "name": "buildRectPath",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "startX",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "endX",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "构建矩形胶囊路径。"
-            },
-            {
-              "kind": "method",
-              "name": "buildBridgePath",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "构建桥接路径，t 表示形态进度。"
-            },
-            {
-              "kind": "method",
-              "name": "applyShapeFromValues",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "startX",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "endX",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "按给定进度和区间写入路径数据。"
-            },
-            {
-              "kind": "method",
-              "name": "applyShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "依据当前宽度状态应用整体形状。"
-            },
-            {
-              "kind": "method",
-              "name": "syncInputToShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "opening",
-                  "type": {
-                    "text": "boolean"
-                  }
-                },
-                {
-                  "name": "rectWidth",
-                  "default": "0"
-                }
-              ],
-              "description": "根据形状进度同步输入框透明度与位移。"
-            },
-            {
-              "kind": "method",
-              "name": "animateShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "opening",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
-              "description": "执行开关阶段形状动画。"
-            },
-            {
-              "kind": "method",
-              "name": "onInput",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ],
-              "description": "处理输入并同步组件值。"
-            },
-            {
-              "kind": "method",
-              "name": "dispatchInputEvent",
-              "privacy": "private",
-              "description": "对外派发输入变化事件。"
-            },
-            {
-              "kind": "method",
-              "name": "onInputKeydown",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "KeyboardEvent"
-                  }
-                }
-              ],
-              "description": "处理输入框按键行为（回车等）。"
-            },
-            {
-              "kind": "method",
-              "name": "onToggle",
-              "privacy": "private",
-              "description": "处理图标点击切换：展开、关闭或清空。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染搜索组件外壳、路径与输入区域。"
-            }
-          ],
-          "events": [
-            {
-              "name": "input",
-              "type": {
-                "text": "CustomEvent"
-              }
-            },
-            {
-              "name": "enter",
-              "type": {
-                "text": "CustomEvent"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-search",
-          "attributes": [
-            {
-              "name": "close",
-              "fieldName": "close",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "disabled",
-              "fieldName": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "placeholder",
-              "fieldName": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"O que estás à procura?\""
-            },
-            {
-              "name": "input-width",
-              "fieldName": "inputWidth",
-              "type": {
-                "text": "number"
-              },
-              "default": "514"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnSearch",
-          "declaration": {
-            "name": "YnSearch",
-            "module": "src/components/yn-search/yn-search.ts"
           }
         }
       ]
@@ -5537,7 +5669,7 @@
           },
           "customElement": true,
           "tagName": "yn-toast",
-          "summary": "顶部灵动岛式提示；也可用 `YnToast.show()` 等 API。",
+          "summary": "顶部灵动岛提示；推荐 `YnToast.show()` / `success()` 等 API。",
           "attributes": [
             {
               "name": "type",
@@ -5582,6 +5714,80 @@
               "description": "是否常驻不自动关闭。",
               "default": "false"
             }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-toast-ball-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-error-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-info-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-mask-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-max-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-message-font-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-message-letter-spacing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-message-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-paper-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-success-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-text-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-warning-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-toast-z-index",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
           ]
         }
       ],
@@ -5592,6 +5798,720 @@
           "declaration": {
             "name": "YnToast",
             "module": "src/components/yn-toast/yn-toast.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/yn-search/yn-search.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnSearch",
+          "members": [
+            {
+              "kind": "field",
+              "name": "close",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "close"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"O que estás à procura?\"",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "inputWidth",
+              "type": {
+                "text": "number"
+              },
+              "default": "514",
+              "attribute": "input-width"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "shellEl",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "dynamicWrapEl",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "shapeEl",
+              "type": {
+                "text": "SVGSVGElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "leftShapeEl",
+              "type": {
+                "text": "SVGSVGElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "bridgeEl",
+              "type": {
+                "text": "SVGPathElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "rect1El",
+              "type": {
+                "text": "SVGPathElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "inputEl",
+              "type": {
+                "text": "HTMLInputElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "datalistSlotEl",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "internalDatalistEl",
+              "type": {
+                "text": "HTMLDataListElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "shapeRaf",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "ready",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "datalistObserver",
+              "type": {
+                "text": "MutationObserver | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "observedDatalist",
+              "type": {
+                "text": "HTMLDataListElement | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "R",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "12.920000000000002"
+            },
+            {
+              "kind": "field",
+              "name": "RECT_START_CLOSED",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "44"
+            },
+            {
+              "kind": "field",
+              "name": "RECT_START_OPEN",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "54"
+            },
+            {
+              "kind": "field",
+              "name": "RETRACT_X",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "31.08"
+            },
+            {
+              "kind": "field",
+              "name": "TRANSITION_SPLIT",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "0.82"
+            },
+            {
+              "kind": "field",
+              "name": "GAP",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "10"
+            },
+            {
+              "kind": "field",
+              "name": "easeOpen",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "easeClose",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "lastRectPath",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastBridgePath",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastDynamicTransform",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastInputOpacity",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastInputTransform",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "bridgeClosed",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "{ x: [44, 44, 44, 44, 44, 44, 44, 44], y: [25.08, 25.08, 25.08, 25.08, 12.92, 12.92, 12.92, 12.92] }"
+            },
+            {
+              "kind": "field",
+              "name": "bridgeOpened",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "{ x: [ 43.02922778103873, 46.440616756960296, 51.4593832430397, 54.87077221896127, 54.87077221896127, 51.4593832430397, 46.440616756960296, 43.02922778103873 ], y: [ 29.947286628412307, 25.10807502694411, 25.10807502694411, 29.947286628412307, 8.052713371587695, 12.89192497305589, 12.89192497305589, 8.052713371587695 ] }"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { --yn-search-bg-active: rgba(255, 255, 255, 0.96); --yn-search-bg-idle: rgba(255, 255, 255, 0); --yn-search-icon-color: #241f21; --yn-search-fill-duration: 220ms; --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1); --yn-search-icon-duration: 220ms; --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1); display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .search-shell { position: relative; height: 38px; --bg-fill: var(--yn-search-bg-idle); } .search-shell.open, .search-shell:has(.toggle-btn:hover), .search-shell:has(.toggle-btn:focus-visible) { --bg-fill: var(--yn-search-bg-active); } .left-shape { position: absolute; top: 0; left: 0; width: 44px; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .left-shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .dynamic-wrap { position: absolute; top: 0; left: 44px; height: 38px; overflow: hidden; opacity: 1; pointer-events: none; } .search-shell.open .dynamic-wrap { opacity: 1; pointer-events: auto; } .shape { position: absolute; top: 0; left: 0; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .toggle-btn { position: absolute; left: 0; top: 0; width: 44px; height: 38px; border: 0; background: transparent; color: var(--yn-search-icon-color); cursor: pointer; display: grid; place-items: center; z-index: 2; } .toggle-btn:disabled { opacity: 0.6; cursor: not-allowed; } .icon { position: absolute; width: 20px; height: 20px; transition: opacity var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)), transform var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)); } .icon.search { opacity: 1; transform: scale(1); } .icon.close { opacity: 0; transform: scale(0.7) rotate(-80deg); } .search-shell.open .toggle-btn .icon.search { opacity: 0; transform: scale(0.7) rotate(80deg); } .search-shell.open .toggle-btn .icon.close { opacity: 1; transform: scale(1) rotate(0deg); } .search-input { position: absolute; top: 0; left: 0; margin-left: 10px; } .search-input .inner { display: flex; align-items: center; justify-content: center; width: 100%; height: 38px; padding: 2px 10px; pointer-events: none; } .search-shell.open .search-input .inner { pointer-events: auto; } .field { width: 100%; border: 0; outline: 0; background: transparent; color: #241f21b3; font-family: \"Zimula\", Arial, \"PingFang SC\", \"Microsoft YaHei\", sans-serif; font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px); font-variation-settings: \"cnct\" 1000, \"wght\" 500; letter-spacing: -0.02em; line-height: 1.4em; caret-color: #241f21; padding-left: 3px; opacity: 0; transform: translateX(-10px); transition: none; } .search-shell.open .field { opacity: 1; transform: translateX(0px); } .field::placeholder { color: #241f2199; } .field::-webkit-calendar-picker-indicator { display: none !important; -webkit-appearance: none; } .datalist-slot { display: none; } @media only screen and (max-width: 1023px) { .field, .field::placeholder { font-size: 16px; } } `"
+            },
+            {
+              "kind": "field",
+              "name": "rectEndOpen",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "dynamicWidth",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "shapeTAtButton",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后初始化尺寸并在打开态同步形状。"
+            },
+            {
+              "kind": "method",
+              "name": "getSourceDatalistFromSlot",
+              "privacy": "private",
+              "description": "从 slot 中获取外部 datalist 源节点。"
+            },
+            {
+              "kind": "method",
+              "name": "observeSourceDatalist",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "text": "HTMLDataListElement | null"
+                  }
+                }
+              ],
+              "description": "监听外部 datalist 变化并同步到内部。"
+            },
+            {
+              "kind": "method",
+              "name": "syncDatalistFromSlot",
+              "privacy": "private",
+              "description": "将 slot datalist 内容同步到内部 datalist。"
+            },
+            {
+              "kind": "field",
+              "name": "onDatalistSlotChange",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "PropertyValues"
+                  }
+                }
+              ],
+              "description": "监听属性变化并刷新动画、壳层与事件输出。"
+            },
+            {
+              "kind": "method",
+              "name": "syncShell",
+              "privacy": "private",
+              "description": "同步宿主开关态到壳层 class。"
+            },
+            {
+              "kind": "method",
+              "name": "stopAnims",
+              "privacy": "private",
+              "description": "停止所有进行中的形状动画 RAF。"
+            },
+            {
+              "kind": "method",
+              "name": "lerp",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "a",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "线性插值工具。"
+            },
+            {
+              "kind": "method",
+              "name": "cubicBezier",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "x1",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y1",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "x2",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y2",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "生成 cubic-bezier easing 求值函数。"
+            },
+            {
+              "kind": "method",
+              "name": "buildRectPath",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "startX",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "endX",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "构建矩形胶囊路径。"
+            },
+            {
+              "kind": "method",
+              "name": "buildBridgePath",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "构建桥接路径，t 表示形态进度。"
+            },
+            {
+              "kind": "method",
+              "name": "applyShapeFromValues",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "startX",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "endX",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "按给定进度和区间写入路径数据。"
+            },
+            {
+              "kind": "method",
+              "name": "applyShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "依据当前宽度状态应用整体形状。"
+            },
+            {
+              "kind": "method",
+              "name": "syncInputToShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "opening",
+                  "type": {
+                    "text": "boolean"
+                  }
+                },
+                {
+                  "name": "rectWidth",
+                  "default": "0"
+                }
+              ],
+              "description": "根据形状进度同步输入框透明度与位移。"
+            },
+            {
+              "kind": "method",
+              "name": "animateShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "opening",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "执行开关阶段形状动画。"
+            },
+            {
+              "kind": "method",
+              "name": "onInput",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "处理输入并同步组件值。"
+            },
+            {
+              "kind": "method",
+              "name": "dispatchInputEvent",
+              "privacy": "private",
+              "description": "对外派发输入变化事件。"
+            },
+            {
+              "kind": "method",
+              "name": "onInputKeydown",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "处理输入框按键行为（回车等）。"
+            },
+            {
+              "kind": "method",
+              "name": "onToggle",
+              "privacy": "private",
+              "description": "处理图标点击切换：展开、关闭或清空。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染搜索组件外壳、路径与输入区域。"
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": {
+                "text": "CustomEvent"
+              }
+            },
+            {
+              "name": "enter",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-search",
+          "attributes": [
+            {
+              "name": "close",
+              "fieldName": "close",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "placeholder",
+              "fieldName": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"O que estás à procura?\""
+            },
+            {
+              "name": "input-width",
+              "fieldName": "inputWidth",
+              "type": {
+                "text": "number"
+              },
+              "default": "514"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-search-bg-active",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-bg-idle",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-fill-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-fill-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-icon-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-icon-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-icon-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnSearch",
+          "declaration": {
+            "name": "YnSearch",
+            "module": "src/components/yn-search/yn-search.ts"
           }
         }
       ]

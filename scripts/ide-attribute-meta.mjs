@@ -1,15 +1,39 @@
 /**
- * IDE 属性说明与枚举文案（HTML 补全悬停展示）。
- * 修改组件公开 API 后请同步此处，并运行 `pnpm analyze`。
+ * IDE 文档：HTML 属性、插槽、CSS 变量（`--yn-*`）。
+ * 修改公开 API 后请同步并运行 `pnpm analyze`。
  *
  * @typedef {{ description?: string, values?: Record<string, string> }} AttrMeta
- * @typedef {{ summary?: string, attributes?: Record<string, AttrMeta> }} TagMeta
+ * @typedef {{ name?: string, description: string }} SlotMeta
+ * @typedef {{
+ *   summary?: string;
+ *   slots?: SlotMeta[];
+ *   cssVariables?: Record<string, string>;
+ *   attributes?: Record<string, AttrMeta>;
+ * }} TagMeta
  */
 
 /** @type {Record<string, TagMeta>} */
 export default {
   "yn-button": {
-    summary: "通用按钮。用 `variant` 选配色、`size` 选尺寸；`loading` 为加载态。",
+    summary: "通用按钮。`variant` / `size` 控制外观；`loading` 为加载态。",
+    slots: [
+      { description: "按钮主文案（默认插槽）" },
+      { name: "prefix-icon", description: "主文案前的图标（如 SVG）" },
+      { name: "suffix-icon", description: "主文案后的图标" },
+      { name: "loading", description: "`loading` 且 `loading-type` 非 left/center/right 时的自定义 loading 图标" }
+    ],
+    cssVariables: {
+      "--yn-button-radius": "圆角",
+      "--yn-button-bg": "背景色",
+      "--yn-button-hover-bg": "悬停背景色",
+      "--yn-button-color": "文字颜色",
+      "--yn-button-content-gap": "图标与文案间距",
+      "--yn-button-icon-size": "插槽图标尺寸",
+      "--yn-button-loading-size": "loading 图标尺寸",
+      "--yn-button-disabled-bg": "禁用背景",
+      "--yn-button-disabled-color": "禁用文字色",
+      "--yn-button-disabled-opacity": "禁用透明度"
+    },
     attributes: {
       variant: {
         description: "按钮配色变体。",
@@ -39,20 +63,34 @@ export default {
           right: "右侧"
         }
       },
-      loading: {
-        description: "是否显示加载动画并禁用点击。"
-      },
-      disabled: {
-        description: "禁用按钮，不响应点击。"
-      },
-      "hit-slop": {
-        description: "是否扩大可点击热区（默认 true）。"
-      }
+      loading: { description: "是否显示加载动画并禁用点击。" },
+      disabled: { description: "禁用按钮，不响应点击。" },
+      "hit-slop": { description: "是否扩大可点击热区（默认 true）。" }
     }
   },
   "yn-pull-cord-switch": {
     summary:
-      "抽绳开关：下拉绳端切换开/关。支持 `fixed` 吸顶、`glow-up` 顶灯上扩；默认/activated 插槽放绳端按钮。",
+      "抽绳开关：下拉绳端切换开/关。`fixed` 吸顶；`glow-up` 顶灯上扩。Shadow DOM，请用下方 CSS 变量覆写。",
+    slots: [
+      { description: "关闭态绳端内容（推荐 `yn-button`）" },
+      { name: "activated", description: "开启态绳端内容（`slot=\"activated\"`）" }
+    ],
+    cssVariables: {
+      "--yn-pull-cord-switch-height": "组件区域高度",
+      "--yn-pull-cord-switch-z-index": "叠放层级",
+      "--yn-pull-cord-switch-anchor-y": "锚点额外下移（相对画布高度比例，0=贴顶）",
+      "--yn-pull-cord-switch-accent": "开启态顶灯光晕颜色",
+      "--yn-pull-cord-switch-glow-up-bleed": "glow-up 时画布向上延展（px）",
+      "--yn-pull-cord-switch-rope-start": "绳渐变起点色",
+      "--yn-pull-cord-switch-rope-end": "绳渐变终点色",
+      "--yn-pull-cord-switch-card-bg": "绳端卡片背景",
+      "--yn-pull-cord-switch-card-border": "绳端卡片边框",
+      "--yn-pull-cord-switch-card-color": "绳端卡片文字色",
+      "--yn-pull-cord-switch-slot-transition-duration": "双插槽切换动画时长",
+      "--yn-pull-cord-switch-slot-button-scale": "插槽内 yn-button 缩放",
+      "--yn-pull-cord-switch-fixed-peek-transition-duration": "fixed 负偏移 hover 动画时长",
+      "--yn-pull-cord-switch-disabled-opacity": "禁用透明度"
+    },
     attributes: {
       checked: { description: "是否开启（绳端处于拉开/ON 状态）。" },
       "glow-up": {
@@ -82,12 +120,23 @@ export default {
       reverse: { description: "`fixed-x` 是否自视口右侧起算。" },
       "card-offset": { description: "绳端卡片距绳头间距（px，可为负）。" },
       "toggle-threshold": { description: "下拉切换阈值（px）；未设则随绳长缩放。" },
-      "z-index": { description: "叠放层级（写入 CSS 变量）。" },
+      "z-index": { description: "叠放层级（同步写入 CSS 变量）。" },
       disabled: { description: "禁用拖拽与切换。" }
     }
   },
   "yn-input": {
-    summary: "文本输入框。",
+    summary: "文本输入框。通过 CSS 变量定制宽高与配色。",
+    slots: [],
+    cssVariables: {
+      "--yn-input-width": "输入区域宽度",
+      "--yn-input-height": "输入区域高度",
+      "--yn-input-bg": "背景色",
+      "--yn-input-color": "文字颜色",
+      "--yn-input-placeholder-color": "占位符颜色",
+      "--yn-input-border-color": "边框颜色",
+      "--yn-input-focus-border-color": "聚焦边框颜色",
+      "--yn-input-radius": "圆角"
+    },
     attributes: {
       value: { description: "当前输入值。" },
       placeholder: { description: "占位提示文案。" },
@@ -95,7 +144,12 @@ export default {
     }
   },
   "yn-dropdown": {
-    summary: "下拉浮层：触发器为默认插槽，面板为 `panel` 插槽。",
+    summary: "下拉浮层：默认插槽为触发器，`content` 插槽为面板内容。",
+    slots: [
+      { description: "触发器（如按钮）" },
+      { name: "content", description: "下拉面板内容" },
+      { name: "close-icon", description: "关闭图标（可选，默认内置 SVG）" }
+    ],
     attributes: {
       placement: {
         description: "面板相对触发器的位置。",
@@ -121,7 +175,7 @@ export default {
     }
   },
   "yn-toast": {
-    summary: "顶部灵动岛式提示；也可用 `YnToast.show()` 等 API。",
+    summary: "顶部灵动岛提示；推荐 `YnToast.show()` / `success()` 等 API。",
     attributes: {
       type: {
         description: "提示类型（影响配色与图标）。",

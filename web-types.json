@@ -7,405 +7,8 @@
     "html": {
       "elements": [
         {
-          "name": "yn-drawer",
-          "description": "\n---\n\n\n### **Events:**\n - **open-change**\n- **name**",
-          "doc-url": "",
-          "attributes": [
-            {
-              "name": "width",
-              "value": {
-                "type": "number",
-                "default": "420"
-              }
-            },
-            {
-              "name": "title",
-              "value": {
-                "type": "string",
-                "default": "\"\""
-              }
-            },
-            {
-              "name": "close-on-backdrop",
-              "value": {
-                "type": "boolean",
-                "default": "true"
-              }
-            }
-          ],
-          "events": [
-            {
-              "name": "open-change",
-              "type": "CustomEvent"
-            },
-            {
-              "name": "name",
-              "type": "CustomEvent"
-            }
-          ],
-          "js": {
-            "properties": [
-              {
-                "name": "open"
-              },
-              {
-                "name": "width",
-                "type": "number"
-              },
-              {
-                "name": "title",
-                "type": "string"
-              },
-              {
-                "name": "closeOnBackdrop",
-                "type": "boolean"
-              }
-            ],
-            "events": [
-              {
-                "name": "open-change",
-                "type": "CustomEvent"
-              },
-              {
-                "name": "name",
-                "type": "CustomEvent"
-              }
-            ]
-          }
-        },
-        {
-          "name": "yn-button",
-          "description": "通用按钮。用 `variant` 选配色、`size` 选尺寸；`loading` 为加载态。\n---\n\n\n### **Methods:**\n - **render()** - 渲染按钮主体、图标、文案与 loading 内容。\n\n### **Slots:**\n - **prefix** - 主文案前的图标等内容\n- **suffix** - 主文案后的图标等内容",
-          "doc-url": "",
-          "attributes": [
-            {
-              "name": "disabled",
-              "description": "禁用按钮，不响应点击。",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "variant",
-              "description": "按钮配色变体。\n\n**可选值：**\n- `primary` — 主色实心（默认）\n- `success` — 成功 / 确认\n- `warning` — 警告\n- `danger` — 危险 / 删除\n- `neutral` — 中性灰\n- `dark` — 深色底\n- `default` — 浅底描边",
-              "value": {
-                "type": [
-                  "primary",
-                  "success",
-                  "warning",
-                  "danger",
-                  "neutral",
-                  "dark",
-                  "default"
-                ],
-                "default": "\"primary\""
-              }
-            },
-            {
-              "name": "size",
-              "description": "按钮尺寸（内边距与字号）。\n\n**可选值：**\n- `mini` — 最小\n- `small` — 小号\n- `medium` — 中号（默认）",
-              "value": {
-                "type": [
-                  "mini",
-                  "small",
-                  "medium"
-                ],
-                "default": "\"medium\""
-              }
-            },
-            {
-              "name": "loading",
-              "description": "是否显示加载动画并禁用点击。",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "loading-type",
-              "description": "`loading=true` 时加载图标位置。\n\n**可选值：**\n- `left` — 左侧（默认）\n- `center` — 居中\n- `right` — 右侧",
-              "value": {
-                "type": [
-                  "left",
-                  "center",
-                  "right"
-                ],
-                "default": "\"left\""
-              }
-            },
-            {
-              "name": "hit-slop",
-              "description": "是否扩大可点击热区（默认 true）。",
-              "value": {
-                "type": "boolean",
-                "default": "true"
-              }
-            }
-          ],
-          "slots": [
-            {
-              "name": "prefix",
-              "description": "主文案前的图标等内容"
-            },
-            {
-              "name": "suffix",
-              "description": "主文案后的图标等内容"
-            }
-          ],
-          "events": [],
-          "js": {
-            "properties": [
-              {
-                "name": "disabled",
-                "type": "boolean"
-              },
-              {
-                "name": "variant",
-                "type": "\"primary\" | \"success\" | \"warning\" | \"danger\" | \"neutral\" | \"dark\" | \"default\""
-              },
-              {
-                "name": "size",
-                "type": "\"mini\" | \"small\" | \"medium\""
-              },
-              {
-                "name": "loading",
-                "type": "boolean"
-              },
-              {
-                "name": "loadingType",
-                "type": "\"left\" | \"center\" | \"right\""
-              },
-              {
-                "name": "hitSlop",
-                "type": "boolean"
-              }
-            ],
-            "events": []
-          }
-        },
-        {
-          "name": "yn-group-pick",
-          "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染分组容器与默认插槽。",
-          "doc-url": "",
-          "attributes": [
-            {
-              "name": "multiple",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "selected-icon",
-              "value": {
-                "type": "YnSvgSource",
-                "default": "ynPickSelectedSvg"
-              }
-            },
-            {
-              "name": "unselected-icon",
-              "value": {
-                "type": "YnSvgSource",
-                "default": "\"\""
-              }
-            },
-            {
-              "name": "show-unselected-icon",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            }
-          ],
-          "events": [
-            {
-              "name": "change",
-              "type": "CustomEvent"
-            }
-          ],
-          "js": {
-            "properties": [
-              {
-                "name": "value",
-                "type": "GroupValue"
-              },
-              {
-                "name": "multiple",
-                "type": "boolean"
-              },
-              {
-                "name": "selectedIcon",
-                "type": "YnSvgSource"
-              },
-              {
-                "name": "unselectedIcon",
-                "type": "YnSvgSource"
-              },
-              {
-                "name": "showUnselectedIcon",
-                "type": "boolean"
-              }
-            ],
-            "events": [
-              {
-                "name": "change",
-                "type": "CustomEvent"
-              }
-            ]
-          }
-        },
-        {
-          "name": "yn-dropdown-pick",
-          "description": "\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n- **render()** - 渲染下拉选择器。",
-          "doc-url": "",
-          "attributes": [
-            {
-              "name": "value-field",
-              "value": {
-                "type": "string",
-                "default": "\"id\""
-              }
-            },
-            {
-              "name": "button-display-field",
-              "value": {
-                "type": "string",
-                "default": "\"label\""
-              }
-            },
-            {
-              "name": "placeholder",
-              "value": {
-                "type": "string",
-                "default": "\"Select\""
-              }
-            },
-            {
-              "name": "close-on-outside-click",
-              "value": {
-                "type": "boolean",
-                "default": "true"
-              }
-            },
-            {
-              "name": "disabled",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "button-bg",
-              "value": {
-                "type": "string",
-                "default": "\"#f8f6f2\""
-              }
-            },
-            {
-              "name": "button-color",
-              "value": {
-                "type": "string",
-                "default": "\"#241f21\""
-              }
-            },
-            {
-              "name": "open-button-bg",
-              "value": {
-                "type": "string",
-                "default": "\"#241f21\""
-              }
-            },
-            {
-              "name": "open-button-color",
-              "value": {
-                "type": "string",
-                "default": "\"#ffffff\""
-              }
-            },
-            {
-              "name": "panel-min-width",
-              "value": {
-                "type": "string",
-                "default": "\"132px\""
-              }
-            },
-            {
-              "name": "show-selected-icon",
-              "value": {
-                "type": "boolean",
-                "default": "true"
-              }
-            }
-          ],
-          "events": [
-            {
-              "name": "open-change",
-              "type": "CustomEvent"
-            }
-          ],
-          "js": {
-            "properties": [
-              {
-                "name": "value",
-                "type": "PickValue"
-              },
-              {
-                "name": "valueField",
-                "type": "string"
-              },
-              {
-                "name": "buttonDisplayField",
-                "type": "string"
-              },
-              {
-                "name": "placeholder",
-                "type": "string"
-              },
-              {
-                "name": "closeOnOutsideClick",
-                "type": "boolean"
-              },
-              {
-                "name": "disabled",
-                "type": "boolean"
-              },
-              {
-                "name": "buttonBg",
-                "type": "string"
-              },
-              {
-                "name": "buttonColor",
-                "type": "string"
-              },
-              {
-                "name": "openButtonBg",
-                "type": "string"
-              },
-              {
-                "name": "openButtonColor",
-                "type": "string"
-              },
-              {
-                "name": "panelMinWidth",
-                "type": "string"
-              },
-              {
-                "name": "showSelectedIcon",
-                "type": "boolean"
-              }
-            ],
-            "events": [
-              {
-                "name": "open-change",
-                "type": "CustomEvent"
-              }
-            ]
-          }
-        },
-        {
           "name": "yn-dropdown",
-          "description": "下拉浮层：触发器为默认插槽，面板为 `panel` 插槽。\n---\n\n\n### **Events:**\n - **open-change**\n\n### **Methods:**\n \n\n- **close()** - 供外部 JS 调用的关闭方法。\n- **render()** - 渲染触发器、关闭图标与内容面板。",
+          "description": "下拉浮层：默认插槽为触发器，`content` 插槽为面板内容。\n\n### HTML 属性\n- `placement`（默认 bottom-start） — 面板相对触发器的位置。 — 可选：`top-start`、`top`、`top-end`、`bottom-start`、`bottom`、`bottom-end`、`left-start`、`left`、`left-end`、`right-start`、`right`、`right-end`\n- `open`（默认 false） — 面板是否展开（受控）。\n- `offset`（默认 12） — 触发器与面板间距（px）。\n- `motion-distance`（默认 14） — \n- `panel-open-distance`（默认 16） — \n- `panel-close-distance`（默认 20） — \n- `viewport-padding`（默认 12） — \n- `auto-flip`（默认 false） — 空间不足时是否自动翻转方位。\n- `close-on-outside-click`（默认 true） — 点击外部是否关闭。\n\n### 插槽\n- （默认） — 触发器（如按钮）\n- `content` — 下拉面板内容\n- `close-icon` — 关闭图标（可选，默认内置 SVG）\n\n### CSS 变量\n在标签上写 `style=\"--yn-dropdown-close-duration: …\"` 等形式覆写：\n- `--yn-dropdown-close-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-close-easing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-close-enter-delay` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-close-icon-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-close-icon-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-close-opacity-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-motion-x` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-motion-y` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-border` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-close-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-close-easing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-close-shift-x` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-close-shift-y` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-min-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-motion-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-motion-easing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-motion-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-opacity-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-open-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-open-easing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-open-shift-x` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-open-shift-y` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-padding` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-panel-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-trigger-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-trigger-easing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-trigger-opacity-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-z-index` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
           "doc-url": "",
           "attributes": [
             {
@@ -490,6 +93,20 @@
               }
             }
           ],
+          "slots": [
+            {
+              "name": "",
+              "description": "触发器（如按钮）"
+            },
+            {
+              "name": "content",
+              "description": "下拉面板内容"
+            },
+            {
+              "name": "close-icon",
+              "description": "关闭图标（可选，默认内置 SVG）"
+            }
+          ],
           "events": [
             {
               "name": "open-change",
@@ -541,11 +158,882 @@
                 "type": "CustomEvent"
               }
             ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-dropdown-close-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-close-easing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-close-enter-delay",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-close-icon-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-close-icon-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-close-opacity-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-motion-x",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-motion-y",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-border",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-close-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-close-easing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-close-shift-x",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-close-shift-y",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-min-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-motion-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-motion-easing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-motion-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-opacity-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-open-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-open-easing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-open-shift-x",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-open-shift-y",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-padding",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-panel-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-trigger-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-trigger-easing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-trigger-opacity-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-z-index",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-group-pick",
+          "description": "### HTML 属性\n- `multiple`（默认 false） — \n- `selected-icon`（默认 ynPickSelectedSvg） — \n- `unselected-icon`（默认 ） — \n- `show-unselected-icon`（默认 false） — \n\n### 插槽\n- （默认） — 默认插槽\n\n### CSS 变量\n在标签上写 `style=\"--yn-group-pick-gap: …\"` 等形式覆写：\n- `--yn-group-pick-gap` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "multiple",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "selected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "ynPickSelectedSvg"
+              }
+            },
+            {
+              "name": "unselected-icon",
+              "value": {
+                "type": "YnSvgSource",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "show-unselected-icon",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "GroupValue"
+              },
+              {
+                "name": "multiple",
+                "type": "boolean"
+              },
+              {
+                "name": "selectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "unselectedIcon",
+                "type": "YnSvgSource"
+              },
+              {
+                "name": "showUnselectedIcon",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "change",
+                "type": "CustomEvent"
+              }
+            ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-group-pick-gap",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-drawer",
+          "description": "### HTML 属性\n- `width`（默认 420） — \n- `title`（默认 ） — \n- `close-on-backdrop`（默认 true） — \n\n### 插槽\n- `trigger` — 具名插槽 `trigger`\n- `header` — 具名插槽 `header`\n- `content` — 具名插槽 `content`\n- `footer` — 具名插槽 `footer`\n\n### CSS 变量\n在标签上写 `style=\"--yn-drawer-backdrop: …\"` 等形式覆写：\n- `--yn-drawer-backdrop` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-close-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-close-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-close-ease` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-close-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-content-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-footer-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-footer-border` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-header-border` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-open-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-open-ease` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-title-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-drawer-z-index` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "width",
+              "value": {
+                "type": "number",
+                "default": "420"
+              }
+            },
+            {
+              "name": "title",
+              "value": {
+                "type": "string",
+                "default": "\"\""
+              }
+            },
+            {
+              "name": "close-on-backdrop",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "trigger",
+              "description": "具名插槽 `trigger`"
+            },
+            {
+              "name": "header",
+              "description": "具名插槽 `header`"
+            },
+            {
+              "name": "content",
+              "description": "具名插槽 `content`"
+            },
+            {
+              "name": "footer",
+              "description": "具名插槽 `footer`"
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": "CustomEvent"
+            },
+            {
+              "name": "name",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "open"
+              },
+              {
+                "name": "width",
+                "type": "number"
+              },
+              {
+                "name": "title",
+                "type": "string"
+              },
+              {
+                "name": "closeOnBackdrop",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "type": "CustomEvent"
+              },
+              {
+                "name": "name",
+                "type": "CustomEvent"
+              }
+            ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-drawer-backdrop",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-close-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-close-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-close-ease",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-close-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-content-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-footer-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-footer-border",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-header-border",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-open-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-open-ease",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-title-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-drawer-z-index",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-button",
+          "description": "通用按钮。`variant` / `size` 控制外观；`loading` 为加载态。\n\n### HTML 属性\n- `disabled`（默认 false） — 禁用按钮，不响应点击。\n- `variant`（默认 primary） — 按钮配色变体。 — 可选：`primary`、`success`、`warning`、`danger`、`neutral`、`dark`、`default`\n- `size`（默认 medium） — 按钮尺寸（内边距与字号）。 — 可选：`mini`、`small`、`medium`\n- `loading`（默认 false） — 是否显示加载动画并禁用点击。\n- `loading-type`（默认 left） — `loading=true` 时加载图标位置。 — 可选：`left`、`center`、`right`\n- `hit-slop`（默认 true） — 是否扩大可点击热区（默认 true）。\n\n### 插槽\n- （默认） — 按钮主文案（默认插槽）\n- `prefix-icon` — 主文案前的图标（如 SVG）\n- `suffix-icon` — 主文案后的图标\n- `loading` — `loading` 且 `loading-type` 非 left/center/right 时的自定义 loading 图标\n\n### CSS 变量\n在标签上写 `style=\"--yn-button-bg: …\"` 等形式覆写：\n- `--yn-button-bg` — 背景色\n- `--yn-button-content-gap` — 图标与文案间距\n- `--yn-button-danger-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-danger-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-danger-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-danger-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-danger-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-dark-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-dark-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-dark-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-dark-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-dark-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-default-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-default-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-default-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-default-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-default-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-disabled-bg` — 禁用背景\n- `--yn-button-disabled-color` — 禁用文字色\n- `--yn-button-disabled-opacity` — 禁用透明度\n- `--yn-button-hover-bg` — 悬停背景色\n- `--yn-button-icon-only-gap` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-icon-size` — 插槽图标尺寸\n- `--yn-button-loading-size` — loading 图标尺寸\n- `--yn-button-neutral-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-neutral-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-neutral-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-neutral-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-neutral-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-primary-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-primary-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-primary-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-primary-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-primary-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-radius` — 圆角\n- `--yn-button-success-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-success-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-success-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-success-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-success-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-warning-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-warning-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-warning-disabled-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-warning-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-warning-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-button-color` — 文字颜色",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "disabled",
+              "description": "禁用按钮，不响应点击。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "variant",
+              "description": "按钮配色变体。\n\n**可选值：**\n- `primary` — 主色实心（默认）\n- `success` — 成功 / 确认\n- `warning` — 警告\n- `danger` — 危险 / 删除\n- `neutral` — 中性灰\n- `dark` — 深色底\n- `default` — 浅底描边",
+              "value": {
+                "type": [
+                  "primary",
+                  "success",
+                  "warning",
+                  "danger",
+                  "neutral",
+                  "dark",
+                  "default"
+                ],
+                "default": "\"primary\""
+              }
+            },
+            {
+              "name": "size",
+              "description": "按钮尺寸（内边距与字号）。\n\n**可选值：**\n- `mini` — 最小\n- `small` — 小号\n- `medium` — 中号（默认）",
+              "value": {
+                "type": [
+                  "mini",
+                  "small",
+                  "medium"
+                ],
+                "default": "\"medium\""
+              }
+            },
+            {
+              "name": "loading",
+              "description": "是否显示加载动画并禁用点击。",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "loading-type",
+              "description": "`loading=true` 时加载图标位置。\n\n**可选值：**\n- `left` — 左侧（默认）\n- `center` — 居中\n- `right` — 右侧",
+              "value": {
+                "type": [
+                  "left",
+                  "center",
+                  "right"
+                ],
+                "default": "\"left\""
+              }
+            },
+            {
+              "name": "hit-slop",
+              "description": "是否扩大可点击热区（默认 true）。",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "按钮主文案（默认插槽）"
+            },
+            {
+              "name": "prefix-icon",
+              "description": "主文案前的图标（如 SVG）"
+            },
+            {
+              "name": "suffix-icon",
+              "description": "主文案后的图标"
+            },
+            {
+              "name": "loading",
+              "description": "`loading` 且 `loading-type` 非 left/center/right 时的自定义 loading 图标"
+            }
+          ],
+          "events": [],
+          "js": {
+            "properties": [
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "variant",
+                "type": "\"primary\" | \"success\" | \"warning\" | \"danger\" | \"neutral\" | \"dark\" | \"default\""
+              },
+              {
+                "name": "size",
+                "type": "\"mini\" | \"small\" | \"medium\""
+              },
+              {
+                "name": "loading",
+                "type": "boolean"
+              },
+              {
+                "name": "loadingType",
+                "type": "\"left\" | \"center\" | \"right\""
+              },
+              {
+                "name": "hitSlop",
+                "type": "boolean"
+              }
+            ],
+            "events": []
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-button-bg",
+                "description": "背景色"
+              },
+              {
+                "name": "--yn-button-content-gap",
+                "description": "图标与文案间距"
+              },
+              {
+                "name": "--yn-button-danger-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-danger-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-danger-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-danger-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-danger-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-dark-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-dark-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-dark-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-dark-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-dark-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-default-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-default-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-default-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-default-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-default-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-disabled-bg",
+                "description": "禁用背景"
+              },
+              {
+                "name": "--yn-button-disabled-color",
+                "description": "禁用文字色"
+              },
+              {
+                "name": "--yn-button-disabled-opacity",
+                "description": "禁用透明度"
+              },
+              {
+                "name": "--yn-button-hover-bg",
+                "description": "悬停背景色"
+              },
+              {
+                "name": "--yn-button-icon-only-gap",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-icon-size",
+                "description": "插槽图标尺寸"
+              },
+              {
+                "name": "--yn-button-loading-size",
+                "description": "loading 图标尺寸"
+              },
+              {
+                "name": "--yn-button-neutral-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-neutral-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-neutral-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-neutral-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-neutral-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-primary-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-primary-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-primary-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-primary-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-primary-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-radius",
+                "description": "圆角"
+              },
+              {
+                "name": "--yn-button-success-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-success-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-success-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-success-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-success-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-warning-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-warning-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-warning-disabled-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-warning-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-warning-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-button-color",
+                "description": "文字颜色"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-dropdown-pick",
+          "description": "### HTML 属性\n- `value-field`（默认 id） — \n- `button-display-field`（默认 label） — \n- `placeholder`（默认 Select） — \n- `close-on-outside-click`（默认 true） — \n- `disabled`（默认 false） — \n- `button-bg`（默认 #f8f6f2） — \n- `button-color`（默认 #241f21） — \n- `open-button-bg`（默认 #241f21） — \n- `open-button-color`（默认 #ffffff） — \n- `panel-min-width`（默认 132px） — \n- `show-selected-icon`（默认 true） — \n\n### 插槽\n- （默认） — 默认插槽\n\n### CSS 变量\n在标签上写 `style=\"--yn-dropdown-pick-button-radius: …\"` 等形式覆写：\n- `--yn-dropdown-pick-button-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-gap` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-item-content-right-space` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-item-hover-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-item-selected-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-panel-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-panel-padding` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-panel-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-trigger-font-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-dropdown-pick-trigger-font-weight` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "value-field",
+              "value": {
+                "type": "string",
+                "default": "\"id\""
+              }
+            },
+            {
+              "name": "button-display-field",
+              "value": {
+                "type": "string",
+                "default": "\"label\""
+              }
+            },
+            {
+              "name": "placeholder",
+              "value": {
+                "type": "string",
+                "default": "\"Select\""
+              }
+            },
+            {
+              "name": "close-on-outside-click",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            },
+            {
+              "name": "disabled",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "button-bg",
+              "value": {
+                "type": "string",
+                "default": "\"#f8f6f2\""
+              }
+            },
+            {
+              "name": "button-color",
+              "value": {
+                "type": "string",
+                "default": "\"#241f21\""
+              }
+            },
+            {
+              "name": "open-button-bg",
+              "value": {
+                "type": "string",
+                "default": "\"#241f21\""
+              }
+            },
+            {
+              "name": "open-button-color",
+              "value": {
+                "type": "string",
+                "default": "\"#ffffff\""
+              }
+            },
+            {
+              "name": "panel-min-width",
+              "value": {
+                "type": "string",
+                "default": "\"132px\""
+              }
+            },
+            {
+              "name": "show-selected-icon",
+              "value": {
+                "type": "boolean",
+                "default": "true"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "value",
+                "type": "PickValue"
+              },
+              {
+                "name": "valueField",
+                "type": "string"
+              },
+              {
+                "name": "buttonDisplayField",
+                "type": "string"
+              },
+              {
+                "name": "placeholder",
+                "type": "string"
+              },
+              {
+                "name": "closeOnOutsideClick",
+                "type": "boolean"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "buttonBg",
+                "type": "string"
+              },
+              {
+                "name": "buttonColor",
+                "type": "string"
+              },
+              {
+                "name": "openButtonBg",
+                "type": "string"
+              },
+              {
+                "name": "openButtonColor",
+                "type": "string"
+              },
+              {
+                "name": "panelMinWidth",
+                "type": "string"
+              },
+              {
+                "name": "showSelectedIcon",
+                "type": "boolean"
+              }
+            ],
+            "events": [
+              {
+                "name": "open-change",
+                "type": "CustomEvent"
+              }
+            ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-dropdown-pick-button-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-gap",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-item-content-right-space",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-item-hover-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-item-selected-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-panel-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-panel-padding",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-panel-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-trigger-font-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-dropdown-pick-trigger-font-weight",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
           }
         },
         {
           "name": "yn-input",
-          "description": "文本输入框。\n---\n\n\n### **Events:**\n - **yn-input**\n- **type**\n\n### **Methods:**\n - **render()** - 渲染输入框。",
+          "description": "文本输入框。通过 CSS 变量定制宽高与配色。\n\n### HTML 属性\n- `value`（默认 ） — 当前输入值。\n- `placeholder`（默认 请输入内容） — 占位提示文案。\n- `disabled`（默认 false） — 禁用输入。\n\n### 插槽\n- `prefix-button` — 具名插槽 `prefix-button`\n- `suffix-button` — 具名插槽 `suffix-button`\n\n### CSS 变量\n在标签上写 `style=\"--yn-input-bg: …\"` 等形式覆写：\n- `--yn-input-bg` — 背景色\n- `--yn-input-bg-disabled` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-bg-focus` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-bg-hover` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-border-color` — 边框颜色\n- `--yn-input-border-color-focus` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-border-color-hover` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-button-bg-hover` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-button-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-button-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-color` — 文字颜色\n- `--yn-input-disabled-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-focus-ring` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-font-family` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-font-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-height` — 输入区域高度\n- `--yn-input-letter-spacing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-padding` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-input-placeholder-color` — 占位符颜色\n- `--yn-input-radius` — 圆角\n- `--yn-input-width` — 输入区域宽度\n- `--yn-input-focus-border-color` — 聚焦边框颜色",
           "doc-url": "",
           "attributes": [
             {
@@ -571,6 +1059,16 @@
                 "type": "boolean",
                 "default": "false"
               }
+            }
+          ],
+          "slots": [
+            {
+              "name": "prefix-button",
+              "description": "具名插槽 `prefix-button`"
+            },
+            {
+              "name": "suffix-button",
+              "description": "具名插槽 `suffix-button`"
             }
           ],
           "events": [
@@ -608,11 +1106,103 @@
                 "type": "CustomEvent"
               }
             ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-input-bg",
+                "description": "背景色"
+              },
+              {
+                "name": "--yn-input-bg-disabled",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-bg-focus",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-bg-hover",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-border-color",
+                "description": "边框颜色"
+              },
+              {
+                "name": "--yn-input-border-color-focus",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-border-color-hover",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-button-bg-hover",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-button-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-button-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-color",
+                "description": "文字颜色"
+              },
+              {
+                "name": "--yn-input-disabled-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-focus-ring",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-font-family",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-font-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-height",
+                "description": "输入区域高度"
+              },
+              {
+                "name": "--yn-input-letter-spacing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-padding",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-input-placeholder-color",
+                "description": "占位符颜色"
+              },
+              {
+                "name": "--yn-input-radius",
+                "description": "圆角"
+              },
+              {
+                "name": "--yn-input-width",
+                "description": "输入区域宽度"
+              },
+              {
+                "name": "--yn-input-focus-border-color",
+                "description": "聚焦边框颜色"
+              }
+            ]
           }
         },
         {
           "name": "yn-navigation",
-          "description": "\n---\n\n\n### **Events:**\n - **change**\n\n### **Methods:**\n \n\n- **render()** - 渲染导航外壳、SVG 形状与 tab 列表。",
+          "description": "### HTML 属性\n- `false`（默认 { PRODUTOS: \"/produtos\", SOBRE: \"/sobre\", SUSTENTABILIDADE: \"/sustentabilidade\", JORNAL: \"/jornal\" }） — \n- `active`（默认 PRODUTOS） — \n- `hit-slop`（默认 false） — \n- `seo-mode`（默认 false） — \n- `aria-label`（默认 Primary navigation） — \n\n### CSS 变量\n在标签上写 `style=\"--yn-navigation-active-text-color: …\"` 等形式覆写：\n- `--yn-navigation-active-text-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-fill-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-focus-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-glow-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-glow-fade` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-indicator-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-navigation-text-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
           "doc-url": "",
           "attributes": [
             {
@@ -686,11 +1276,43 @@
                 "type": "CustomEvent"
               }
             ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-navigation-active-text-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-fill-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-focus-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-glow-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-glow-fade",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-indicator-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-navigation-text-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
           }
         },
         {
           "name": "yn-pick",
-          "description": "\n---\n\n\n### **Events:**\n - **toggle**\n\n### **Methods:**\n - **render()** - 渲染 pick 容器、状态图标与插槽内容。",
+          "description": "### HTML 属性\n- `selected`（默认 false） — \n- `border`（默认 true） — \n- `selected-icon`（默认 ynPickSelectedSvg） — \n- `unselected-icon`（默认 ynPickUnselectedSvg） — \n- `show-unselected-icon`（默认 false） — \n\n### 插槽\n- （默认） — 默认插槽\n\n### CSS 变量\n在标签上写 `style=\"--yn-pick-border-color: …\"` 等形式覆写：\n- `--yn-pick-border-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pick-border-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pick-border-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
           "doc-url": "",
           "attributes": [
             {
@@ -727,6 +1349,12 @@
                 "type": "boolean",
                 "default": "false"
               }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
             }
           ],
           "events": [
@@ -768,11 +1396,27 @@
                 "type": "CustomEvent"
               }
             ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-pick-border-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pick-border-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pick-border-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
           }
         },
         {
           "name": "yn-pull-cord-switch",
-          "description": "抽绳开关：下拉绳端切换开/关。支持 `fixed` 吸顶、`glow-up` 顶灯上扩；默认/activated 插槽放绳端按钮。\n---\n\n\n### **Events:**\n - **fixed-move** - `fixed` 模式下水平拖拽结束，`detail: { x, reverse }`\n- **change** - 开关变化，`detail.checked` 为当前状态\n\n### **Slots:**\n - _default_ - 关闭态绳端内容（如 `yn-button`）\n- **activated** - 开启态绳端内容",
+          "description": "抽绳开关：下拉绳端切换开/关。`fixed` 吸顶；`glow-up` 顶灯上扩。Shadow DOM，请用下方 CSS 变量覆写。\n\n### HTML 属性\n- `checked`（默认 false） — 是否开启（绳端处于拉开/ON 状态）。\n- `glow-up`（默认 false） — 开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下）。\n- `disabled`（默认 false） — 禁用拖拽与切换。\n- `fixed`（默认 false） — 吸附视口；配合 `fixed-x`、`top` 定位。\n- `reverse`（默认 false） — `fixed-x` 是否自视口右侧起算。\n- `variant`（默认 default） — 绳/卡片视觉主题。 — 可选：`default`、`floema`\n- `size`（默认 mini） — 绳端卡片与绳粗细（不控制绳长）。 — 可选：`mini`、`small`、`medium`\n- `rope-length`（默认 DEFAULT_ROPE_LENGTH） — 绳身长度（px），与 `size` 解耦，默认 260。\n- `fixed-x` — 水平偏移（px，可负）；未设则居中。\n- `top` — 距视口顶部（px，可负）；仅 fixed 时有效。\n- `toggle-threshold` — 下拉切换阈值（px）；未设则随绳长缩放。\n- `card-offset` — 绳端卡片距绳头间距（px，可为负）。\n- `z-index`（默认 1） — 叠放层级（同步写入 CSS 变量）。\n\n### 插槽\n- （默认） — 关闭态绳端内容（推荐 `yn-button`）\n- `activated` — 开启态绳端内容（`slot=\"activated\"`）\n\n### CSS 变量\n在标签上写 `style=\"--yn-pull-cord-switch-accent: …\"` 等形式覆写：\n- `--yn-pull-cord-switch-accent` — 开启态顶灯光晕颜色\n- `--yn-pull-cord-switch-anchor-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-bg-bottom` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-bg-on-bottom` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-bg-on-top` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-bg-top` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-canvas-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-bg` — 绳端卡片背景\n- `--yn-pull-cord-switch-card-bg-on` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-border` — 绳端卡片边框\n- `--yn-pull-cord-switch-card-border-on` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-color` — 绳端卡片文字色\n- `--yn-pull-cord-switch-card-color-on` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-dot-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-gap` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-height` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-label-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-offset` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-padding` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-card-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-ceiling-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-ceiling-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-disabled-opacity` — 禁用透明度\n- `--yn-pull-cord-switch-fixed-height` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-fixed-peek-transition-duration` — fixed 负偏移 hover 动画时长\n- `--yn-pull-cord-switch-fixed-top` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-fixed-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-fixed-z` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-glow-up-bleed` — glow-up 时画布向上延展（px）\n- `--yn-pull-cord-switch-height` — 组件区域高度\n- `--yn-pull-cord-switch-max-pull` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-radius` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-rope-end` — 绳渐变终点色\n- `--yn-pull-cord-switch-rope-shadow-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-rope-start` — 绳渐变起点色\n- `--yn-pull-cord-switch-rope-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-segment-count` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-segment-len` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-slot-button-scale` — 插槽内 yn-button 缩放\n- `--yn-pull-cord-switch-slot-transition-duration` — 双插槽切换动画时长\n- `--yn-pull-cord-switch-toggle-threshold` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-pull-cord-switch-z-index` — 叠放层级\n- `--yn-pull-cord-switch-anchor-y` — 锚点额外下移（相对画布高度比例，0=贴顶）",
           "doc-url": "",
           "attributes": [
             {
@@ -876,7 +1520,7 @@
             },
             {
               "name": "z-index",
-              "description": "叠放层级（写入 CSS 变量）。",
+              "description": "叠放层级（同步写入 CSS 变量）。",
               "value": {
                 "type": "number",
                 "default": "1"
@@ -886,11 +1530,11 @@
           "slots": [
             {
               "name": "",
-              "description": "关闭态绳端内容（如 `yn-button`）"
+              "description": "关闭态绳端内容（推荐 `yn-button`）"
             },
             {
               "name": "activated",
-              "description": "开启态绳端内容"
+              "description": "开启态绳端内容（`slot=\"activated\"`）"
             }
           ],
           "events": [
@@ -976,86 +1620,195 @@
                 "description": "开关变化，`detail.checked` 为当前状态"
               }
             ]
-          }
-        },
-        {
-          "name": "yn-search",
-          "description": "\n---\n\n\n### **Events:**\n - **input**\n- **enter**\n\n### **Methods:**\n \n\n- **render()** - 渲染搜索组件外壳、路径与输入区域。",
-          "doc-url": "",
-          "attributes": [
-            {
-              "name": "close",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "disabled",
-              "value": {
-                "type": "boolean",
-                "default": "false"
-              }
-            },
-            {
-              "name": "placeholder",
-              "value": {
-                "type": "string",
-                "default": "\"O que estás à procura?\""
-              }
-            },
-            {
-              "name": "input-width",
-              "value": {
-                "type": "number",
-                "default": "514"
-              }
-            }
-          ],
-          "events": [
-            {
-              "name": "input",
-              "type": "CustomEvent"
-            },
-            {
-              "name": "enter",
-              "type": "CustomEvent"
-            }
-          ],
-          "js": {
+          },
+          "css": {
             "properties": [
               {
-                "name": "close",
-                "type": "boolean"
+                "name": "--yn-pull-cord-switch-accent",
+                "description": "开启态顶灯光晕颜色"
               },
               {
-                "name": "disabled",
-                "type": "boolean"
+                "name": "--yn-pull-cord-switch-anchor-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
               },
               {
-                "name": "placeholder",
-                "type": "string"
+                "name": "--yn-pull-cord-switch-bg-bottom",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
               },
               {
-                "name": "inputWidth",
-                "type": "number"
-              }
-            ],
-            "events": [
-              {
-                "name": "input",
-                "type": "CustomEvent"
+                "name": "--yn-pull-cord-switch-bg-on-bottom",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
               },
               {
-                "name": "enter",
-                "type": "CustomEvent"
+                "name": "--yn-pull-cord-switch-bg-on-top",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-bg-top",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-canvas-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-bg",
+                "description": "绳端卡片背景"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-bg-on",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-border",
+                "description": "绳端卡片边框"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-border-on",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-color",
+                "description": "绳端卡片文字色"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-color-on",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-dot-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-gap",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-height",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-label-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-offset",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-padding",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-card-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-ceiling-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-ceiling-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-disabled-opacity",
+                "description": "禁用透明度"
+              },
+              {
+                "name": "--yn-pull-cord-switch-fixed-height",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-fixed-peek-transition-duration",
+                "description": "fixed 负偏移 hover 动画时长"
+              },
+              {
+                "name": "--yn-pull-cord-switch-fixed-top",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-fixed-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-fixed-z",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-glow-up-bleed",
+                "description": "glow-up 时画布向上延展（px）"
+              },
+              {
+                "name": "--yn-pull-cord-switch-height",
+                "description": "组件区域高度"
+              },
+              {
+                "name": "--yn-pull-cord-switch-max-pull",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-radius",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-rope-end",
+                "description": "绳渐变终点色"
+              },
+              {
+                "name": "--yn-pull-cord-switch-rope-shadow-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-rope-start",
+                "description": "绳渐变起点色"
+              },
+              {
+                "name": "--yn-pull-cord-switch-rope-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-segment-count",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-segment-len",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-slot-button-scale",
+                "description": "插槽内 yn-button 缩放"
+              },
+              {
+                "name": "--yn-pull-cord-switch-slot-transition-duration",
+                "description": "双插槽切换动画时长"
+              },
+              {
+                "name": "--yn-pull-cord-switch-toggle-threshold",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-pull-cord-switch-z-index",
+                "description": "叠放层级"
+              },
+              {
+                "name": "--yn-pull-cord-switch-anchor-y",
+                "description": "锚点额外下移（相对画布高度比例，0=贴顶）"
               }
             ]
           }
         },
         {
           "name": "yn-toast",
-          "description": "顶部灵动岛式提示；也可用 `YnToast.show()` 等 API。\n---\n\n\n### **Events:**\n - **name**",
+          "description": "顶部灵动岛提示；推荐 `YnToast.show()` / `success()` 等 API。\n\n### HTML 属性\n- `type`（默认 success） — 提示类型（影响配色与图标）。 — 可选：`success`、`info`、`warning`、`error`\n- `message`（默认 ） — 提示文案，支持 HTML 片段（仅可信内容）。\n- `duration`（默认 2600） — \n- `loading-duration`（默认 1400） — \n- `persist`（默认 false） — 是否常驻不自动关闭。\n\n### CSS 变量\n在标签上写 `style=\"--yn-toast-ball-size: …\"` 等形式覆写：\n- `--yn-toast-ball-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-ease` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-error-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-height` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-info-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-mask-bg` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-max-width` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-message-font-size` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-message-letter-spacing` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-message-padding` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-paper-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-shadow` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-success-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-text-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-top` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-warning-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-toast-z-index` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
           "doc-url": "",
           "attributes": [
             {
@@ -1137,12 +1890,1026 @@
                 "type": "CustomEvent"
               }
             ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-toast-ball-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-ease",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-error-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-height",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-info-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-mask-bg",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-max-width",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-message-font-size",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-message-letter-spacing",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-message-padding",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-paper-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-shadow",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-success-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-text-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-top",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-warning-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-toast-z-index",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
+          }
+        },
+        {
+          "name": "yn-search",
+          "description": "### HTML 属性\n- `close`（默认 false） — \n- `disabled`（默认 false） — \n- `placeholder`（默认 O que estás à procura?） — \n- `input-width`（默认 514） — \n\n### 插槽\n- （默认） — 默认插槽\n\n### CSS 变量\n在标签上写 `style=\"--yn-search-bg-active: …\"` 等形式覆写：\n- `--yn-search-bg-active` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-bg-idle` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-fill-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-fill-ease` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-icon-color` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-icon-duration` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。\n- `--yn-search-icon-ease` — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。",
+          "doc-url": "",
+          "attributes": [
+            {
+              "name": "close",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "disabled",
+              "value": {
+                "type": "boolean",
+                "default": "false"
+              }
+            },
+            {
+              "name": "placeholder",
+              "value": {
+                "type": "string",
+                "default": "\"O que estás à procura?\""
+              }
+            },
+            {
+              "name": "input-width",
+              "value": {
+                "type": "number",
+                "default": "514"
+              }
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": "CustomEvent"
+            },
+            {
+              "name": "enter",
+              "type": "CustomEvent"
+            }
+          ],
+          "js": {
+            "properties": [
+              {
+                "name": "close",
+                "type": "boolean"
+              },
+              {
+                "name": "disabled",
+                "type": "boolean"
+              },
+              {
+                "name": "placeholder",
+                "type": "string"
+              },
+              {
+                "name": "inputWidth",
+                "type": "number"
+              }
+            ],
+            "events": [
+              {
+                "name": "input",
+                "type": "CustomEvent"
+              },
+              {
+                "name": "enter",
+                "type": "CustomEvent"
+              }
+            ]
+          },
+          "css": {
+            "properties": [
+              {
+                "name": "--yn-search-bg-active",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-bg-idle",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-fill-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-fill-ease",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-icon-color",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-icon-duration",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              },
+              {
+                "name": "--yn-search-icon-ease",
+                "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+              }
+            ]
           }
         }
       ]
     },
     "css": {
-      "properties": [],
+      "properties": [
+        {
+          "name": "--yn-dropdown-close-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-close-easing",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-close-enter-delay",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-close-icon-color",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-close-icon-size",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-close-opacity-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-motion-x",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-motion-y",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-bg",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-border",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-close-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-close-easing",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-close-shift-x",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-close-shift-y",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-min-width",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-motion-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-motion-easing",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-motion-shadow",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-opacity-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-open-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-open-easing",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-open-shift-x",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-open-shift-y",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-padding",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-radius",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-panel-shadow",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-trigger-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-trigger-easing",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-trigger-opacity-duration",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-z-index",
+          "description": "**yn-dropdown** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-group-pick-gap",
+          "description": "**yn-group-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-backdrop",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-bg",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-close-color",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-close-duration",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-close-ease",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-close-hover-bg",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-content-color",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-footer-bg",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-footer-border",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-header-border",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-open-duration",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-open-ease",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-shadow",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-title-color",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-width",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-drawer-z-index",
+          "description": "**yn-drawer** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-bg",
+          "description": "**yn-button** — 背景色"
+        },
+        {
+          "name": "--yn-button-content-gap",
+          "description": "**yn-button** — 图标与文案间距"
+        },
+        {
+          "name": "--yn-button-danger-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-danger-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-danger-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-danger-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-danger-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-dark-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-dark-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-dark-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-dark-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-dark-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-default-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-default-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-default-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-default-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-default-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-disabled-bg",
+          "description": "**yn-button** — 禁用背景"
+        },
+        {
+          "name": "--yn-button-disabled-color",
+          "description": "**yn-button** — 禁用文字色"
+        },
+        {
+          "name": "--yn-button-disabled-opacity",
+          "description": "**yn-button** — 禁用透明度"
+        },
+        {
+          "name": "--yn-button-hover-bg",
+          "description": "**yn-button** — 悬停背景色"
+        },
+        {
+          "name": "--yn-button-icon-only-gap",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-icon-size",
+          "description": "**yn-button** — 插槽图标尺寸"
+        },
+        {
+          "name": "--yn-button-loading-size",
+          "description": "**yn-button** — loading 图标尺寸"
+        },
+        {
+          "name": "--yn-button-neutral-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-neutral-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-neutral-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-neutral-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-neutral-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-primary-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-primary-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-primary-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-primary-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-primary-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-radius",
+          "description": "**yn-button** — 圆角"
+        },
+        {
+          "name": "--yn-button-success-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-success-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-success-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-success-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-success-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-warning-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-warning-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-warning-disabled-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-warning-disabled-color",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-warning-hover-bg",
+          "description": "**yn-button** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-button-color",
+          "description": "**yn-button** — 文字颜色"
+        },
+        {
+          "name": "--yn-dropdown-pick-button-radius",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-gap",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-item-content-right-space",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-item-hover-bg",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-item-selected-bg",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-panel-bg",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-panel-padding",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-panel-radius",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-shadow",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-trigger-font-size",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-dropdown-pick-trigger-font-weight",
+          "description": "**yn-dropdown-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-bg",
+          "description": "**yn-input** — 背景色"
+        },
+        {
+          "name": "--yn-input-bg-disabled",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-bg-focus",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-bg-hover",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-border-color",
+          "description": "**yn-input** — 边框颜色"
+        },
+        {
+          "name": "--yn-input-border-color-focus",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-border-color-hover",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-button-bg-hover",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-button-color",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-button-size",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-color",
+          "description": "**yn-input** — 文字颜色"
+        },
+        {
+          "name": "--yn-input-disabled-color",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-focus-ring",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-font-family",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-font-size",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-height",
+          "description": "**yn-input** — 输入区域高度"
+        },
+        {
+          "name": "--yn-input-letter-spacing",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-padding",
+          "description": "**yn-input** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-input-placeholder-color",
+          "description": "**yn-input** — 占位符颜色"
+        },
+        {
+          "name": "--yn-input-radius",
+          "description": "**yn-input** — 圆角"
+        },
+        {
+          "name": "--yn-input-width",
+          "description": "**yn-input** — 输入区域宽度"
+        },
+        {
+          "name": "--yn-input-focus-border-color",
+          "description": "**yn-input** — 聚焦边框颜色"
+        },
+        {
+          "name": "--yn-navigation-active-text-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-fill-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-focus-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-glow-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-glow-fade",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-indicator-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-navigation-text-color",
+          "description": "**yn-navigation** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pick-border-color",
+          "description": "**yn-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pick-border-radius",
+          "description": "**yn-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pick-border-width",
+          "description": "**yn-pick** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-accent",
+          "description": "**yn-pull-cord-switch** — 开启态顶灯光晕颜色"
+        },
+        {
+          "name": "--yn-pull-cord-switch-anchor-color",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-bg-bottom",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-bg-on-bottom",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-bg-on-top",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-bg-top",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-canvas-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-bg",
+          "description": "**yn-pull-cord-switch** — 绳端卡片背景"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-bg-on",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-border",
+          "description": "**yn-pull-cord-switch** — 绳端卡片边框"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-border-on",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-color",
+          "description": "**yn-pull-cord-switch** — 绳端卡片文字色"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-color-on",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-dot-size",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-gap",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-height",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-label-size",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-offset",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-padding",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-radius",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-shadow",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-card-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-ceiling-bg",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-ceiling-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-disabled-opacity",
+          "description": "**yn-pull-cord-switch** — 禁用透明度"
+        },
+        {
+          "name": "--yn-pull-cord-switch-fixed-height",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-fixed-peek-transition-duration",
+          "description": "**yn-pull-cord-switch** — fixed 负偏移 hover 动画时长"
+        },
+        {
+          "name": "--yn-pull-cord-switch-fixed-top",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-fixed-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-fixed-z",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-glow-up-bleed",
+          "description": "**yn-pull-cord-switch** — glow-up 时画布向上延展（px）"
+        },
+        {
+          "name": "--yn-pull-cord-switch-height",
+          "description": "**yn-pull-cord-switch** — 组件区域高度"
+        },
+        {
+          "name": "--yn-pull-cord-switch-max-pull",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-radius",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-rope-end",
+          "description": "**yn-pull-cord-switch** — 绳渐变终点色"
+        },
+        {
+          "name": "--yn-pull-cord-switch-rope-shadow-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-rope-start",
+          "description": "**yn-pull-cord-switch** — 绳渐变起点色"
+        },
+        {
+          "name": "--yn-pull-cord-switch-rope-width",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-segment-count",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-segment-len",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-slot-button-scale",
+          "description": "**yn-pull-cord-switch** — 插槽内 yn-button 缩放"
+        },
+        {
+          "name": "--yn-pull-cord-switch-slot-transition-duration",
+          "description": "**yn-pull-cord-switch** — 双插槽切换动画时长"
+        },
+        {
+          "name": "--yn-pull-cord-switch-toggle-threshold",
+          "description": "**yn-pull-cord-switch** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-pull-cord-switch-z-index",
+          "description": "**yn-pull-cord-switch** — 叠放层级"
+        },
+        {
+          "name": "--yn-pull-cord-switch-anchor-y",
+          "description": "**yn-pull-cord-switch** — 锚点额外下移（相对画布高度比例，0=贴顶）"
+        },
+        {
+          "name": "--yn-toast-ball-size",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-bg",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-ease",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-error-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-height",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-info-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-mask-bg",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-max-width",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-message-font-size",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-message-letter-spacing",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-message-padding",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-paper-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-shadow",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-success-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-text-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-top",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-warning-color",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-toast-z-index",
+          "description": "**yn-toast** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-bg-active",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-bg-idle",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-fill-duration",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-fill-ease",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-icon-color",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-icon-duration",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        },
+        {
+          "name": "--yn-search-icon-ease",
+          "description": "**yn-search** — 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        }
+      ],
       "pseudo-elements": []
     }
   }

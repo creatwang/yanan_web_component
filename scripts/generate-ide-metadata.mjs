@@ -84,8 +84,142 @@ const formatAttrDescription = (description, valueDocs) => {
   return parts.join("\n\n");
 };
 
-/** @param {string} tag @param {import('custom-elements-manifest').Attribute} attr */
+/** @param {string} tag @param {{ name: string }} attr */
 const getAttrMeta = (tag, attr) => tagMeta[tag]?.attributes?.[attr.name];
+
+const DEFAULT_CSS_VAR_DESC = "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。";
+
+/** @param {string} source @param {string} tagName */
+const extractCssVariables = (source, tagName) => {
+  const prefix = `--${tagName}-`;
+  /** @type {Set<string>} */
+  const names = new Set();
+  for (const m of source.matchAll(/(--yn-[a-z0-9-]+)/gi)) {
+    const name = m[1];
+    if (name.startsWith("--_")) continue;
+    if (name.startsWith(prefix)) names.add(name);
+  }
+  return [...names].sort();
+};
+
+/** @param {string} source */
+const parseSlotsFromJsDoc = (source) => {
+  /** @type {import('./ide-attribute-meta.mjs').TagMeta['slots']} */
+  const slots = [];
+  for (const m of source.matchAll(/@slot\s+([^\n*]+)/g)) {
+    const line = m[1].trim();
+    const dash = line.indexOf(" - ");
+    if (dash >= 0) {
+      const rawName = line.slice(0, dash).trim();
+      slots.push({
+        name: rawName === "-" || rawName === "" ? undefined : rawName,
+        description: line.slice(dash + 3).trim()
+      });
+    } else if (line) {
+      slots.push({ description: line });
+    }
+  }
+  return slots;
+};
+
+/** @param {string} source */
+const parseSlotsFromTemplate = (source) => {
+  /** @type {Map<string, string>} */
+  const names = new Map();
+  if (/<slot(?:\s|>)/.test(source) && !/<slot\s+name=/.test(source.split("render")[1] ?? source)) {
+    names.set("", "默认插槽");
+  }
+  for (const m of source.matchAll(/<slot\s+name=["']([^"']+)["']/g)) {
+    if (!names.has(m[1])) names.set(m[1], "");
+  }
+  return [...names.entries()].map(([name, description]) =>
+    name ? { name, description: description || `具名插槽 \`${name}\`` } : { description: description || "默认插槽" }
+  );
+};
+
+/** @param {...import('./ide-attribute-meta.mjs').TagMeta['slots']} lists 先传入的优先（meta > JSDoc > 模板推断） */
+const mergeSlots = (...lists) => {
+  /** @type {Map<string, import('./ide-attribute-meta.mjs').TagMeta['slots'][0]>} */
+  const map = new Map();
+  for (const list of lists) {
+    for (const slot of list ?? []) {
+      const key = slot.name ?? "";
+      const fallback = slot.name ? `具名插槽 \`${slot.name}\`` : "默认插槽";
+      const existing = map.get(key);
+      if (!existing) {
+        map.set(key, { name: slot.name, description: slot.description || fallback });
+        continue;
+      }
+      if (
+        slot.description &&
+        (!existing.description ||
+          existing.description === fallback ||
+          existing.description.startsWith("具名插槽"))
+      ) {
+        existing.description = slot.description;
+      }
+    }
+  }
+  return [...map.values()];
+};
+
+/** @param {string} tagName @param {string} source @param {import('./ide-attribute-meta.mjs').TagMeta | undefined} meta */
+const resolveComponentDocs = (tagName, source, meta) => {
+  const extractedCss = extractCssVariables(source, tagName);
+  /** @type {Record<string, string>} */
+  const cssVariables = {};
+  for (const name of extractedCss) {
+    cssVariables[name] = meta?.cssVariables?.[name] ?? DEFAULT_CSS_VAR_DESC;
+  }
+  for (const [name, desc] of Object.entries(meta?.cssVariables ?? {})) {
+    cssVariables[name] = desc;
+  }
+
+  const slots = mergeSlots(meta?.slots, parseSlotsFromJsDoc(source), parseSlotsFromTemplate(source));
+
+  return { cssVariables, slots };
+};
+
+/** @param {import('./ide-attribute-meta.mjs').TagMeta | undefined} meta @param {{ name: string, description?: string, value?: { default?: string } }[]} attributes @param {import('./ide-attribute-meta.mjs').TagMeta['slots']} slots @param {Record<string, string>} cssVariables */
+const buildTagOverview = (meta, attributes, slots, cssVariables) => {
+  const parts = [];
+  if (meta?.summary) parts.push(meta.summary);
+
+  if (attributes.length) {
+    const lines = attributes.map((attr) => {
+      const am = meta?.attributes?.[attr.name];
+      const head = am?.description ?? attr.description ?? "";
+      const values = am?.values
+        ? ` — 可选：${Object.keys(am.values)
+            .map((k) => `\`${k}\``)
+            .join("、")}`
+        : "";
+      const def = attr.value?.default ? `（默认 ${attr.value.default.replace(/^"|"$/g, "")}）` : "";
+      return `- \`${attr.name}\`${def} — ${head}${values}`;
+    });
+    parts.push(`### HTML 属性\n${lines.join("\n")}`);
+  }
+
+  if (slots.length) {
+    const lines = slots.map((slot) => {
+      const label = slot.name ? `\`${slot.name}\`` : "（默认）";
+      return `- ${label} — ${slot.description}`;
+    });
+    parts.push(`### 插槽\n${lines.join("\n")}`);
+  }
+
+  if (Object.keys(cssVariables).length) {
+    const lines = Object.entries(cssVariables).map(([name, desc]) => `- \`${name}\` — ${desc}`);
+    parts.push(
+      `### CSS 变量\n在标签上写 \`style="${Object.keys(cssVariables)[0]}: …"\` 等形式覆写：\n${lines.join("\n")}`
+    );
+  }
+
+  return parts.join("\n\n");
+};
+
+/** @type {Map<string, { source: string, attributes: import('custom-elements-manifest').Attribute[] }>} */
+const componentIndex = new Map();
 
 manifest.modules = manifest.modules.filter(
   (mod) => mod.path !== "src/components/yn-icon-connect-button.ts"
@@ -155,6 +289,23 @@ for (const mod of manifest.modules) {
     }
 
     if (attributes.length) decl.attributes = attributes;
+
+    if (tagName) {
+      const docs = resolveComponentDocs(tagName, source, tagMeta[tagName]);
+      if (docs.slots.length) {
+        decl.slots = docs.slots.map((slot) => ({
+          name: slot.name ?? "",
+          description: slot.description
+        }));
+      }
+      if (Object.keys(docs.cssVariables).length) {
+        decl.cssProperties = Object.entries(docs.cssVariables).map(([name, description]) => ({
+          name,
+          description
+        }));
+      }
+      componentIndex.set(tagName, { source, attributes });
+    }
   }
 }
 
@@ -178,32 +329,56 @@ generateVsCodeCustomElementData(manifest, {
 /** @param {string} path */
 const patchWebTypes = (path) => {
   const data = JSON.parse(readFileSync(path, "utf8"));
+  /** @type {Record<string, string>} */
+  const globalCss = {};
+
   for (const el of data.contributions?.html?.elements ?? []) {
     const meta = tagMeta[el.name];
-    if (meta?.summary) {
-      const parts = (el.description ?? "").split("\n---\n");
-      const body = parts.length > 1 ? parts.slice(1).join("\n---\n") : "";
-      el.description = body ? `${meta.summary}\n---\n${body}` : meta.summary;
-    }
+    const indexed = componentIndex.get(el.name);
+    const docs = indexed
+      ? resolveComponentDocs(el.name, indexed.source, meta)
+      : { cssVariables: meta?.cssVariables ?? {}, slots: meta?.slots ?? [] };
+
     for (const attr of el.attributes ?? []) {
       const am = meta?.attributes?.[attr.name];
       if (!am) continue;
-      const desc = formatAttrDescription(
-        am.description ?? attr.description,
-        am.values
-      );
+      const desc = formatAttrDescription(am.description ?? attr.description, am.values);
       if (desc) attr.description = desc;
       if (am.values) {
         const literals = Object.keys(am.values);
         attr.value = attr.value ?? {};
         attr.value.type = literals.length > 1 ? literals : literals[0] ?? attr.value.type;
-        if (!attr.value.default && literals.length) {
-          const def = attr.value.default?.replace?.(/^"|"$/g, "");
-          if (def && literals.includes(def)) attr.value.default = def;
-        }
       }
     }
+
+    if (docs.slots.length) {
+      el.slots = docs.slots.map((slot) => ({
+        name: slot.name ?? "",
+        description: slot.description
+      }));
+    }
+
+    if (Object.keys(docs.cssVariables).length) {
+      el.css = {
+        properties: Object.entries(docs.cssVariables).map(([name, description]) => {
+          globalCss[name] = globalCss[name]
+            ? `${globalCss[name]}；**${el.name}**`
+            : `**${el.name}** — ${description}`;
+          return { name, description };
+        })
+      };
+    }
+
+    const overview = buildTagOverview(meta, el.attributes ?? [], docs.slots, docs.cssVariables);
+    if (overview) el.description = overview;
   }
+
+  data.contributions.css = data.contributions.css ?? { properties: [], "pseudo-elements": [] };
+  data.contributions.css.properties = Object.entries(globalCss).map(([name, description]) => ({
+    name,
+    description
+  }));
+
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
 };
 
@@ -212,11 +387,11 @@ const patchVsCodeHtml = (path) => {
   const data = JSON.parse(readFileSync(path, "utf8"));
   for (const tag of data.tags ?? []) {
     const meta = tagMeta[tag.name];
-    if (meta?.summary) {
-      const parts = (tag.description ?? "").split("\n---\n");
-      const body = parts.length > 1 ? parts.slice(1).join("\n---\n") : parts[0] ?? "";
-      tag.description = body && body !== meta.summary ? `${meta.summary}\n---\n${body}` : meta.summary;
-    }
+    const indexed = componentIndex.get(tag.name);
+    const docs = indexed
+      ? resolveComponentDocs(tag.name, indexed.source, meta)
+      : { cssVariables: meta?.cssVariables ?? {}, slots: meta?.slots ?? [] };
+
     for (const attr of tag.attributes ?? []) {
       const am = meta?.attributes?.[attr.name];
       if (!am) continue;
@@ -229,11 +404,49 @@ const patchVsCodeHtml = (path) => {
         }));
       }
     }
+
+    const overview = buildTagOverview(
+      meta,
+      (tag.attributes ?? []).map((a) => ({ name: a.name, description: a.description })),
+      docs.slots,
+      docs.cssVariables
+    );
+    if (overview) {
+      tag.description = {
+        kind: "markdown",
+        value: overview
+      };
+    }
   }
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`);
 };
 
+/** @param {string} path */
+const writeVsCodeCss = (path) => {
+  /** @type {Record<string, string>} */
+  const merged = {};
+  for (const [tag, { source }] of componentIndex) {
+    const docs = resolveComponentDocs(tag, source, tagMeta[tag]);
+    for (const [name, desc] of Object.entries(docs.cssVariables)) {
+      merged[name] = merged[name] ? `${merged[name]}\n\n**${tag}:** ${desc}` : `**${tag}:** ${desc}`;
+    }
+  }
+  const payload = {
+    version: 1.1,
+    properties: Object.entries(merged)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, description]) => ({
+        name,
+        description: { kind: "markdown", value: description }
+      }))
+  };
+  writeFileSync(path, `${JSON.stringify(payload, null, 2)}\n`);
+};
+
 patchWebTypes(webTypesPath);
 patchVsCodeHtml(vscodeHtmlPath);
+writeVsCodeCss(resolve(root, ".vscode/css-custom-data.json"));
 
-console.log("IDE metadata: custom-elements.json, web-types.json, .vscode/html-custom-data.json");
+console.log(
+  "IDE metadata: custom-elements.json, web-types.json, .vscode/html-custom-data.json, .vscode/css-custom-data.json"
+);
