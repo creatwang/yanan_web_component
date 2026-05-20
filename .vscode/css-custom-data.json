@@ -327,14 +327,35 @@
       "name": "--yn-checkout-address-bg",
       "description": {
         "kind": "markdown",
-        "value": "**yn-checkout-address:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        "value": "**yn-checkout-address:** 组件背景（卡片可设 transparent）"
+      }
+    },
+    {
+      "name": "--yn-checkout-address-color",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-checkout-address:** 主文字色（默认继承宿主）"
+      }
+    },
+    {
+      "name": "--yn-checkout-address-field-height",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-checkout-address:** 输入框高度"
       }
     },
     {
       "name": "--yn-checkout-address-padding",
       "description": {
         "kind": "markdown",
-        "value": "**yn-checkout-address:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+        "value": "**yn-checkout-address:** 内容区内边距"
+      }
+    },
+    {
+      "name": "--yn-checkout-address-radius",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-checkout-address:** 输入框与面板圆角"
       }
     },
     {

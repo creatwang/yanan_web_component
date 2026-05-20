@@ -45,7 +45,10 @@ export function isPostalRequiredForCountry(countryCode: string): boolean {
 export type ValidateCheckoutInput = {
   provider: AddressProviderMode | null;
   isDr5hn: boolean;
+  isManual: boolean;
   countryCode: string;
+  countryName: string;
+  stateName: string | null;
   cityName: string;
   cityId: number | null;
   dr5hnRegionLevel: RegionSearchLevel | null;
@@ -69,6 +72,14 @@ const pushError = (
 };
 
 export function isRegionComplete(input: ValidateCheckoutInput): boolean {
+  if (input.isManual) {
+    return (
+      Boolean(input.countryCode.trim()) &&
+      Boolean(input.countryName.trim()) &&
+      Boolean(input.stateName?.trim()) &&
+      Boolean(input.cityName.trim())
+    );
+  }
   if (!input.countryCode.trim()) {
     return false;
   }
@@ -82,7 +93,18 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
   const errors: YnCheckoutAddressValidationError[] = [];
   const country = input.countryCode.trim().toUpperCase();
 
-  if (!country) {
+  if (input.isManual) {
+    const manualOk =
+      Boolean(country) &&
+      Boolean(input.countryName.trim()) &&
+      Boolean(input.stateName?.trim()) &&
+      Boolean(input.cityName.trim());
+    if (!manualOk) {
+      pushError(errors, "region", "REGION_REQUIRED", input.messages.errorManualRegionIncomplete);
+    } else if (input.regionFilter && !passesCountryFilter(country, input.regionFilter)) {
+      pushError(errors, "region", "REGION_NOT_ALLOWED", input.messages.errorRegionNotAllowed);
+    }
+  } else if (!country) {
     pushError(errors, "region", "REGION_REQUIRED", input.messages.errorRegionRequired);
   } else if (input.regionFilter && !passesCountryFilter(country, input.regionFilter)) {
     pushError(errors, "region", "REGION_NOT_ALLOWED", input.messages.errorRegionNotAllowed);
@@ -159,5 +181,13 @@ export const fieldToInputIdDr5hn: Record<YnCheckoutAddressField, string> = {
   phoneNumber: "yn-ca-d-phone",
   line1: "yn-ca-d-line1",
   postalCode: "yn-ca-d-zip",
+  email: "yn-ca-email",
+};
+
+export const fieldToInputIdManual: Record<YnCheckoutAddressField, string> = {
+  region: "yn-ca-m-country-code",
+  phoneNumber: "yn-ca-m-phone",
+  line1: "yn-ca-m-line1",
+  postalCode: "yn-ca-m-zip",
   email: "yn-ca-email",
 };

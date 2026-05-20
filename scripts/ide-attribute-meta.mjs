@@ -299,5 +299,53 @@ export default {
       "--yn-icon-connect-button-color": "图标颜色",
       "--yn-icon-connect-button-bg": "连接条颜色"
     }
+  },
+  "yn-checkout-address": {
+    summary:
+      "跨境结账地址：Google Key → dr5hn CDN → Photon → 均不可用则 manual 手填国家/省/市；dr5hn 失败降级 Photon，Photon 失败切 manual。分步表单；change 为 { value, validation }；YnCheckoutAddressValue 回显。",
+    slots: [],
+    cssVariables: {
+      "--yn-checkout-address-bg": "组件背景（卡片可设 transparent）",
+      "--yn-checkout-address-padding": "内容区内边距",
+      "--yn-checkout-address-radius": "输入框与面板圆角",
+      "--yn-checkout-address-field-height": "输入框高度",
+      "--yn-checkout-address-color": "主文字色（默认继承宿主）"
+    },
+    attributes: {
+      dev: {
+        description: "为 true 时在表单下方展示 value / validation JSON 调试面板。"
+      },
+      disabled: { description: "禁用交互。" },
+      locale: {
+        description: "界面语言；可与 messages 局部覆盖搭配店铺 i18n。",
+        values: {
+          en: "English",
+          "zh-CN": "简体中文"
+        }
+      },
+      messages: {
+        description:
+          "局部覆盖内置文案（Partial<YnCheckoutAddressMessages>，非 HTML 属性，通过 property 传入）。"
+      },
+      value: {
+        description:
+          "受控回显 YnCheckoutAddressValue；更新时同步表单，不重新探测数据源。"
+      },
+      "exclude-regions": {
+        description:
+          "排除国家/省/市（YnCheckoutExcludeRegions 对象，property 传入）。未设置时不默认排除 CN。"
+      },
+      "include-countries": {
+        description: "非空时仅允许列表内 ISO2 国家（string[]，property 传入）。"
+      },
+      "google-maps-api-key": {
+        description:
+          "Google Places API Key；未设时读取构建环境变量 VITE_GOOGLE_MAPS_API_KEY。"
+      },
+      "show-email": { description: "展示联系邮箱输入框（默认 false）。" },
+      "email-required": {
+        description: "邮箱必填并校验格式（需同时 show-email，默认 false）。"
+      }
+    }
   }
 };

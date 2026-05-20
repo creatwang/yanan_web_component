@@ -1,5 +1,5 @@
 /** 地址数据源：探测完成后为 google | dr5hn | photon；探测中为 null。 */
-export type YnCheckoutProvider = "google" | "dr5hn" | "photon" | null;
+export type YnCheckoutProvider = "google" | "dr5hn" | "photon" | "manual" | null;
 
 /**
  * 结账地址统一值（Google / dr5hn / Photon 保存、回显、编辑均使用此结构）。
@@ -100,11 +100,17 @@ export type YnCheckoutAddressMessages = {
   usageHintDr5hn: string;
   /** Photon 地址搜索模式下的使用说明 */
   usageHintPhoton: string;
+  /** 全部联想不可用时的手动填写指引 */
+  usageHintManual: string;
   /** 仅 dev 面板展示：数据源标签 */
   activeProvider: string;
   providerGoogle: string;
   providerDr5hn: string;
   providerPhoton: string;
+  providerManual: string;
+  servicesUnavailable: string;
+  manualCountryCodeLabel: string;
+  manualCountryCodePlaceholder: string;
   probeFailed: string;
   probeFailedFallback: string;
   retryProbe: string;
@@ -122,6 +128,7 @@ export type YnCheckoutAddressMessages = {
   regionSearchLevelCity: string;
   regionSearchLevelState: string;
   regionSearchLevelCountry: string;
+  regionEdit: string;
   sectionRegion: string;
   sectionContact: string;
   /** 同时展示邮箱与电话时的区块标题 */
@@ -151,6 +158,7 @@ export type YnCheckoutAddressMessages = {
   email: string;
   emailPlaceholder: string;
   errorRegionRequired: string;
+  errorManualRegionIncomplete: string;
   errorRegionCityLevel: string;
   errorRegionNotAllowed: string;
   errorPhoneRequired: string;

@@ -31,6 +31,15 @@ const buildLine1 = (props: PhotonFeature["properties"]) => {
   return parts.join(" ").trim() || props.name || "";
 };
 
+/** 探测 Photon API 是否可访问（用于选源兜底） */
+export async function probePhotonReachable(signal?: AbortSignal): Promise<boolean> {
+  const url = new URL(PHOTON_ENDPOINT);
+  url.searchParams.set("q", "paris");
+  url.searchParams.set("limit", "1");
+  const response = await fetch(url, { signal });
+  return response.ok;
+}
+
 export async function searchPhoton(query: string, signal?: AbortSignal): Promise<AddressSuggestion[]> {
   const url = new URL(PHOTON_ENDPOINT);
   url.searchParams.set("q", query);

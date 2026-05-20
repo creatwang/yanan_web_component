@@ -1,4 +1,4 @@
-import { loadGoogleMaps } from "./address-providers";
+import { loadGoogleMaps, probePhotonReachable } from "./address-providers";
 
 import { loadCountries } from "./dr5hn-region-service";
 
@@ -6,7 +6,7 @@ import type { YnCheckoutRegionFilter } from "./types";
 
 
 
-export type AddressProviderMode = "google" | "dr5hn" | "photon";
+export type AddressProviderMode = "google" | "dr5hn" | "photon" | "manual";
 
 
 
@@ -110,11 +110,13 @@ function resolveGoogleKey(explicit?: string) {
 
  * 2) 无 Key 或 Google 失败 → 探测 dr5hn（CDN 国家表可拉取且过滤后非空）
 
- * 3) dr5hn 不可用 → photon
+ * 3) dr5hn 不可用 → 探测 Photon 是否可达 → photon
+
+ * 4) 三者均不可用 → manual（见 YnCheckoutAddress 类说明）
 
  *
 
- * 运行时：若已走 dr5hn 但单次搜索无数据/失败，由组件降级 photon（见 switchToPhotonFromDr5hn）。
+ * 运行时：dr5hn 无匹配/失败 → 降级 photon；photon 仍失败 → manual。
 
  */
 
@@ -184,7 +186,35 @@ export async function probeAddressProvider(options?: {
 
   } catch {
 
-    /* photon */
+    /* try photon below */
+
+  }
+
+
+
+  try {
+
+    const photonOk = await withTimeout(probePhotonReachable(), PROBE_TIMEOUT_MS, signal);
+
+    if (photonOk) {
+
+      const reason = googleAttempted
+
+        ? "Google and dr5hn unavailable; using Photon fallback"
+
+        : key
+
+          ? "dr5hn unavailable; using Photon fallback"
+
+          : "No Google API key and dr5hn unavailable; using Photon fallback";
+
+      return { mode: "photon", reason };
+
+    }
+
+  } catch {
+
+    /* manual */
 
   }
 
@@ -192,17 +222,17 @@ export async function probeAddressProvider(options?: {
 
   const reason = googleAttempted
 
-    ? "Google and dr5hn unavailable; using Photon fallback"
+    ? "Google, dr5hn, and Photon unavailable; manual region entry"
 
     : key
 
-      ? "dr5hn unavailable; using Photon fallback"
+      ? "dr5hn and Photon unavailable; manual region entry"
 
-      : "No Google API key and dr5hn unavailable; using Photon fallback";
+      : "No Google API key; dr5hn and Photon unavailable; manual region entry";
 
 
 
-  return { mode: "photon", reason };
+  return { mode: "manual", reason };
 
 }
 

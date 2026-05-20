@@ -19,10 +19,124 @@ export const checkoutAddressFormStyles = css`
 
   .stack {
     display: grid;
-    gap: clamp(12px, 2.5vw, 16px);
+    gap: clamp(14px, 2.5vw, 18px);
     min-width: 0;
     padding: var(--yn-checkout-address-padding, 0);
     border-radius: inherit;
+  }
+
+  .form-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--yn-checkout-address-radius, 14px);
+    border: 1px solid var(--yn-color-divider, rgba(36, 31, 33, 0.12));
+    background: var(--yn-color-bg-elevated, #fff);
+    min-width: 0;
+  }
+
+  .form-panel--region {
+    padding: 16px;
+  }
+
+  .panel-title {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--yn-checkout-address-color, var(--yn-color-text, #241f21));
+  }
+
+  .field-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--yn-color-text-subtle, #6f696b);
+  }
+
+  .banner--hint {
+    margin: 0;
+  }
+
+  .region-summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .region-summary__main {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .region-summary__kicker {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48));
+  }
+
+  .region-summary__value {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .region-summary__edit {
+    flex-shrink: 0;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--yn-color-bg-muted, #f3efe7);
+    color: var(--yn-checkout-address-color, var(--yn-color-text, #241f21));
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 180ms ease;
+  }
+
+  .region-summary__edit:hover:not(:disabled) {
+    background: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08));
+  }
+
+  .region-summary__edit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .fields-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    min-width: 0;
+  }
+
+  @media (max-width: 520px) {
+    .fields-secondary {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  .field--compact-postal .hint--error {
+    grid-column: 1 / -1;
+  }
+
+  .contact-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
   }
 
   .banner {
@@ -39,6 +153,40 @@ export const checkoutAddressFormStyles = css`
   .banner strong {
     color: var(--yn-checkout-address-color, var(--yn-color-text, #241f21));
     font-weight: 700;
+  }
+
+  .banner--warn {
+    border-color: var(--yn-color-warning, #b87d55);
+    background: rgba(184, 125, 85, 0.1);
+  }
+
+  .banner--warn .retry {
+    margin-top: 10px;
+  }
+
+  .retry {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--yn-color-border, rgba(36, 31, 33, 0.22));
+    background: var(--yn-color-bg-elevated, #fff);
+    color: inherit;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .retry:hover {
+    border-color: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52));
+  }
+
+  .manual-region {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vw, 14px);
+    min-width: 0;
   }
 
   .dev-meta {

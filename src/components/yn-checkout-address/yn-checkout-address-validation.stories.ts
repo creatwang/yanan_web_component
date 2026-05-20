@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html, render } from "lit";
 import type { YnCheckoutAddress } from "./yn-checkout-address";
 import "./yn-checkout-address";
+import { CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO } from "./component-doc";
 import { SAMPLE_ECHO_VALUE } from "./yn-checkout-address.stories";
 import type { YnCheckoutAddressChangeDetail, YnCheckoutAddressValidation } from "./types";
 
@@ -49,65 +50,131 @@ const handleFillValidSample = (root: HTMLElement) => {
     regionComplete: true,
     formReady: true,
   });
-  host.dev = true;
   const validation = host.validate();
   renderValidationResult(root, validation);
 };
 
+const INTEGRATION_HTML = `<!-- 结账页：配送地址 -->
+<section class="checkout-block">
+  <h2>配送地址</h2>
+  <yn-checkout-address
+    id="shipping-address"
+    locale="zh-CN"
+    show-email
+    email-required
+    google-maps-api-key="\${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}"
+  ></yn-checkout-address>
+  <button type="button" id="place-order">提交订单</button>
+</section>`;
+
+const INTEGRATION_JS = `import '@yanan/yn-web-component/components/yn-checkout-address';
+// 或全量：import '@yanan/yn-web-component/define';
+
+const addressEl = document.getElementById('shipping-address');
+
+addressEl.addEventListener('change', (event) => {
+  const { value, validation } = event.detail;
+  // value：统一地址结构；validation：内置校验结果
+  orderBtn.disabled = !validation.formReady;
+  checkoutDraft.shipping = value;
+});
+
+document.getElementById('place-order').addEventListener('click', () => {
+  if (!addressEl.reportValidity()) return;
+  const { value } = addressEl.validate();
+  submitOrder({ shippingAddress: value });
+});
+
+// 回显（订单编辑 / 草稿）
+addressEl.value = savedShippingAddress;`;
+
+const INTEGRATION_TREE = `// 推荐按需导入（Tree Shaking）
+import '@yanan/yn-web-component/components/yn-checkout-address';
+
+import type {
+  YnCheckoutAddressChangeDetail,
+  YnCheckoutAddressValue,
+} from '@yanan/yn-web-component';`;
+
 const renderCheckoutValidation = (args: Args) => html`
-  <div
-    data-validation-demo
-    style="background:var(--yn-color-bg,#f2efea);padding:24px;max-width:680px;margin:0 auto;"
-  >
-    <p style="margin:0 0 16px;font-size:13px;line-height:1.55;color:var(--yn-color-text-muted,rgba(36,31,33,.55));">
-      模拟结账页：点「提交订单」调用 <code>reportValidity()</code>；点「填入合法示例」写入
-      <code>.value</code>。下方会实时显示校验结果。
-    </p>
-    <yn-checkout-address
-      id="checkout-validation-demo"
-      style="--yn-checkout-address-bg:#fffaf2;--yn-checkout-address-padding:16px;--yn-checkout-address-radius:16px;display:block;"
-      ?dev=${args.dev}
-      locale=${args.locale}
-      show-email
-      email-required
-      @change=${(event: Event) => {
-        const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
-        args.onChange?.(event as CustomEvent<YnCheckoutAddressChangeDetail>);
-        const root = (event.target as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-        if (root) renderValidationResult(root, detail.validation);
-      }}
-    ></yn-checkout-address>
-    <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
-      <button
-        type="button"
-        data-testid="validate-submit"
-        style="padding:10px 18px;border-radius:999px;border:0;background:var(--yn-color-primary,#f76c46);color:#fff;font:inherit;font-weight:600;cursor:pointer;"
-        @click=${(e: Event) => {
-          const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-          if (root) handleValidateSubmit(root);
+  <div data-validation-demo class="checkout-demo">
+    <header class="checkout-demo__head">
+      <h1 class="checkout-demo__title">${args.locale === "zh-CN" ? "模拟结账" : "Checkout"}</h1>
+      <p class="checkout-demo__lead">
+        ${args.locale === "zh-CN"
+          ? "先选地区，再填写联系方式与地址；字段分步展示，减少一眼要填很多的压迫感。"
+          : "Pick a region first, then contact and address details appear step by step."}
+      </p>
+    </header>
+
+    <section class="checkout-demo__card">
+      <h2 class="checkout-demo__section">${args.locale === "zh-CN" ? "配送地址" : "Shipping"}</h2>
+      <yn-checkout-address
+        id="checkout-validation-demo"
+        class="checkout-demo__address"
+        ?dev=${args.dev}
+        locale=${args.locale}
+        show-email
+        email-required
+        @change=${(event: Event) => {
+          const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
+          args.onChange?.(event as CustomEvent<YnCheckoutAddressChangeDetail>);
+          const root = (event.target as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
+          if (root) renderValidationResult(root, detail.validation);
         }}
-      >
-        ${args.locale === "zh-CN" ? "提交订单（校验）" : "Place order (validate)"}
-      </button>
-      <button
-        type="button"
-        data-testid="echo-valid-value"
-        style="padding:10px 18px;border-radius:999px;border:1px solid var(--yn-color-border,rgba(36,31,33,.22));background:#fff;font:inherit;cursor:pointer;"
-        @click=${(e: Event) => {
-          const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-          if (root) handleFillValidSample(root);
-        }}
-      >
-        ${args.locale === "zh-CN" ? "填入合法示例" : "Fill valid sample"}
-      </button>
-    </div>
-    <div
-      data-validate-result
-      data-testid="validate-result"
-      style="margin-top:14px;font-size:12px;line-height:1.6;color:var(--yn-color-text,#241f21);white-space:pre-wrap;"
-    >
-      validation: —（填写或点击按钮后更新）
-    </div>
+      ></yn-checkout-address>
+
+      <div class="checkout-demo__actions">
+        <button
+          type="button"
+          class="checkout-demo__primary"
+          data-testid="validate-submit"
+          @click=${(e: Event) => {
+            const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
+            if (root) handleValidateSubmit(root);
+          }}
+        >
+          ${args.locale === "zh-CN" ? "提交订单" : "Place order"}
+        </button>
+        <button
+          type="button"
+          class="checkout-demo__ghost"
+          data-testid="echo-valid-value"
+          @click=${(e: Event) => {
+            const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
+            if (root) handleFillValidSample(root);
+          }}
+        >
+          ${args.locale === "zh-CN" ? "填入示例" : "Fill sample"}
+        </button>
+      </div>
+      <p class="checkout-demo__status" data-validate-result data-testid="validate-result">
+        validation: —
+      </p>
+    </section>
+
+    <section class="checkout-demo__code">
+      <h2 class="checkout-demo__section">
+        ${args.locale === "zh-CN" ? "接入示例" : "Integration"}
+      </h2>
+      <p class="checkout-demo__code-lead">
+        ${args.locale === "zh-CN"
+          ? "在独立站结账页挂载组件，用 change / validate / reportValidity 与下单按钮联动。"
+          : "Wire the component to your checkout with change, validate, and reportValidity."}
+      </p>
+      <details class="checkout-demo__snippet" open>
+        <summary>HTML</summary>
+        <pre><code>${INTEGRATION_HTML}</code></pre>
+      </details>
+      <details class="checkout-demo__snippet">
+        <summary>JavaScript</summary>
+        <pre><code>${INTEGRATION_JS}</code></pre>
+      </details>
+      <details class="checkout-demo__snippet">
+        <summary>TypeScript / 按需导入</summary>
+        <pre><code>${INTEGRATION_TREE}</code></pre>
+      </details>
+    </section>
   </div>
 `;
 
@@ -117,8 +184,9 @@ const meta = {
   parameters: {
     docs: {
       description: {
-        component:
-          "完整校验演示见 **结账校验（完整演示）** story：`validate()` / `reportValidity()`、邮箱、dr5hn 城市级、按国家邮编。",
+        component: `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
+
+完整校验与结账页接入见 **结账校验（完整演示）** story（含 \`validate()\` / \`reportValidity()\` 与底部接入代码）。`,
       },
     },
   },
@@ -131,7 +199,7 @@ type Story = StoryObj<Args>;
 export const CheckoutValidation: Story = {
   name: "结账校验（完整演示）",
   args: {
-    dev: true,
+    dev: false,
     locale: "zh-CN",
     showEmail: true,
     emailRequired: true,
@@ -140,8 +208,8 @@ export const CheckoutValidation: Story = {
   argTypes: {
     dev: {
       control: "boolean",
-      description: "展示 value + validation 调试 JSON。",
-      table: { defaultValue: { summary: "true" } },
+      description: "为 true 时在表单下方展示 JSON 调试面板。",
+      table: { defaultValue: { summary: "false" } },
     },
     locale: {
       control: "select",
@@ -157,7 +225,7 @@ export const CheckoutValidation: Story = {
     emailRequired: {
       name: "email-required",
       control: "boolean",
-      description: "邮箱必填并校验格式。",
+      description: "邮箱必填（需同时开启 show-email）。",
       table: { defaultValue: { summary: "true" } },
     },
     onChange: {
@@ -174,13 +242,132 @@ export const CheckoutValidation: Story = {
   parameters: {
     docs: {
       description: {
-        story: `### 操作说明
-1. 直接点 **提交订单（校验）** → 应显示 invalid 与字段错误
-2. 点 **填入合法示例** → 应显示 valid
-3. 修改表单字段时，下方结果随 \`change\` 更新`,
+        story: `### 交互
+1. 先完成**地区搜索** → 出现联系方式、详细地址面板
+2. **提交订单** → \`reportValidity()\`
+3. **填入示例** → 快速查看 valid 状态
+
+### 接入
+Story 底部提供 HTML / JS / 按需导入示例，可直接复制到结账页。`,
       },
     },
+    layout: "padded",
   },
+  decorators: [
+    (story) => html`
+      <style>
+        .checkout-demo {
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 8px 0 32px;
+          font-family: inherit;
+          color: var(--yn-color-text, #241f21);
+        }
+        .checkout-demo__head {
+          margin-bottom: 20px;
+        }
+        .checkout-demo__title {
+          margin: 0 0 8px;
+          font-size: 1.5rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+        }
+        .checkout-demo__lead {
+          margin: 0;
+          font-size: 0.875rem;
+          line-height: 1.55;
+          color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.55));
+        }
+        .checkout-demo__card {
+          padding: 20px;
+          border-radius: 20px;
+          background: var(--yn-color-bg, #f2efea);
+          border: 1px solid var(--yn-color-divider, rgba(36, 31, 33, 0.1));
+        }
+        .checkout-demo__section {
+          margin: 0 0 14px;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        .checkout-demo__address {
+          display: block;
+          --yn-checkout-address-bg: transparent;
+          --yn-checkout-address-padding: 0;
+          --yn-checkout-address-radius: 14px;
+        }
+        .checkout-demo__actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 18px;
+        }
+        .checkout-demo__primary {
+          padding: 11px 22px;
+          border: 0;
+          border-radius: 999px;
+          background: var(--yn-color-primary, #f76c46);
+          color: #fff;
+          font: inherit;
+          font-weight: 600;
+          cursor: pointer;
+        }
+        .checkout-demo__ghost {
+          padding: 11px 18px;
+          border-radius: 999px;
+          border: 1px solid var(--yn-color-border, rgba(36, 31, 33, 0.22));
+          background: #fff;
+          font: inherit;
+          cursor: pointer;
+        }
+        .checkout-demo__status {
+          margin: 14px 0 0;
+          font-size: 0.75rem;
+          line-height: 1.55;
+          color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.55));
+          white-space: pre-wrap;
+        }
+        .checkout-demo__code {
+          margin-top: 28px;
+        }
+        .checkout-demo__code-lead {
+          margin: 0 0 12px;
+          font-size: 0.8125rem;
+          line-height: 1.55;
+          color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.55));
+        }
+        .checkout-demo__snippet {
+          margin-bottom: 10px;
+          border-radius: 12px;
+          border: 1px solid var(--yn-color-divider, rgba(36, 31, 33, 0.12));
+          background: var(--yn-color-bg-elevated, #fff);
+          overflow: hidden;
+        }
+        .checkout-demo__snippet summary {
+          padding: 10px 14px;
+          font-size: 0.8125rem;
+          font-weight: 600;
+          cursor: pointer;
+          list-style: none;
+        }
+        .checkout-demo__snippet summary::-webkit-details-marker {
+          display: none;
+        }
+        .checkout-demo__snippet pre {
+          margin: 0;
+          padding: 12px 14px 14px;
+          overflow: auto;
+          font-size: 0.6875rem;
+          line-height: 1.5;
+          background: var(--yn-color-bg-muted, #f3efe7);
+        }
+        .checkout-demo__snippet code {
+          font-family: ui-monospace, "Cascadia Code", monospace;
+          white-space: pre;
+        }
+      </style>
+      ${story()}
+    `,
+  ],
   play: async ({ canvasElement, step }) => {
     const root = canvasElement.querySelector<HTMLElement>("[data-validation-demo]");
     const host = root?.querySelector("#checkout-validation-demo") as YnCheckoutAddress | null;
@@ -191,7 +378,12 @@ export const CheckoutValidation: Story = {
 
     await step("等待地址服务就绪", async () => {
       for (let i = 0; i < 40; i += 1) {
-        if (host.shadowRoot?.querySelector('input[type="search"]')) return;
+        if (
+          host.shadowRoot?.querySelector(".search-field__input") ||
+          host.shadowRoot?.querySelector(".region-summary")
+        ) {
+          return;
+        }
         await wait(300);
       }
       throw new Error("探测超时");

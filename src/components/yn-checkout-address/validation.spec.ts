@@ -5,7 +5,10 @@ import { validateCheckoutAddress } from "./validation";
 const base = () => ({
   provider: "dr5hn" as const,
   isDr5hn: true,
+  isManual: false,
   countryCode: "AE",
+  countryName: "United Arab Emirates",
+  stateName: "Dubai",
   cityName: "Dubai",
   cityId: 1,
   dr5hnRegionLevel: "city" as const,
@@ -62,6 +65,40 @@ describe("validateCheckoutAddress", () => {
     const r = validateCheckoutAddress(base());
     expect(r.formReady).toBe(true);
     expect(r.valid).toBe(true);
+  });
+
+  it("passes manual mode when country, state, and city are filled", () => {
+    const r = validateCheckoutAddress({
+      ...base(),
+      provider: "manual",
+      isDr5hn: false,
+      isManual: true,
+      countryCode: "AE",
+      countryName: "United Arab Emirates",
+      stateName: "Dubai",
+      cityName: "Dubai",
+      cityId: null,
+      dr5hnRegionLevel: null,
+    });
+    expect(r.valid).toBe(true);
+    expect(r.regionComplete).toBe(true);
+  });
+
+  it("requires full manual region", () => {
+    const r = validateCheckoutAddress({
+      ...base(),
+      provider: "manual",
+      isDr5hn: false,
+      isManual: true,
+      countryCode: "AE",
+      countryName: "UAE",
+      stateName: "",
+      cityName: "Dubai",
+      cityId: null,
+      dr5hnRegionLevel: null,
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors.some((e) => e.code === "REGION_REQUIRED")).toBe(true);
   });
 
   it("rejects invalid email when required", () => {

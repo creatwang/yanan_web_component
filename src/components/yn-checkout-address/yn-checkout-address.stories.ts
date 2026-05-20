@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import type { YnCheckoutAddress } from "./yn-checkout-address";
 import "./yn-checkout-address";
+import { CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO } from "./component-doc";
 import type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressMessages,
@@ -146,7 +147,7 @@ const renderAddressWithEchoControls = (
   </div>
 `;
 
-const componentDescription = `跨境独立站结账地址：**优先检测 Google API Key** → 无 Key 或 Google 失败则 **探测 dr5hn CDN** → 再不可用则 Photon；运行中若 dr5hn 搜索无匹配或失败，会**清空区域并降级 Photon** 用同一关键词重搜。保存 / 回显 / 编辑均使用 \`YnCheckoutAddressValue\`。
+const componentDescription = `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
 
 ## Controls 说明
 
