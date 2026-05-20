@@ -475,56 +475,22 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts",
+      "path": "src/components/yn-checkout-address/yn-checkout-address.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "",
-          "name": "YnDropdownPick",
+          "description": "跨境独立站结账地址：优先 Google Key → 探测 dr5hn → Photon；\ndr5hn 搜索无匹配或失败时清空区域并运行时降级 Photon。\n统一 `YnCheckoutAddressValue` 用于保存、回显与编辑。\n\n样式：`--yn-checkout-address-bg`（背景色）、`--yn-checkout-address-padding` 等。",
+          "name": "YnCheckoutAddress",
           "members": [
             {
               "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "PickValue"
-              },
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "valueField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\"",
-              "attribute": "value-field"
-            },
-            {
-              "kind": "field",
-              "name": "buttonDisplayField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"label\"",
-              "attribute": "button-display-field"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Select\"",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "closeOnOutsideClick",
+              "name": "dev",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "attribute": "close-on-outside-click"
+              "default": "false",
+              "description": "为 true 时在表单下方展示 JSON 调试面板",
+              "attribute": "dev"
             },
             {
               "kind": "field",
@@ -537,61 +503,138 @@
             },
             {
               "kind": "field",
-              "name": "buttonBg",
+              "name": "locale",
               "type": {
-                "text": "string"
+                "text": "YnCheckoutAddressLocale"
               },
-              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\"",
-              "attribute": "button-bg"
+              "default": "\"en\"",
+              "description": "界面语言；文案可通过 `messages` 局部覆盖（适合店铺 i18n JSON 片段）",
+              "attribute": "locale"
             },
             {
               "kind": "field",
-              "name": "buttonColor",
+              "name": "messages",
               "type": {
-                "text": "string"
+                "text": "Partial<YnCheckoutAddressMessages> | undefined"
               },
-              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\"",
-              "attribute": "button-color"
+              "description": "局部覆盖内置文案（与店铺 i18n JSON 片段对齐）",
+              "attribute": "false"
             },
             {
               "kind": "field",
-              "name": "openButtonBg",
+              "name": "value",
               "type": {
-                "text": "string"
+                "text": "YnCheckoutAddressValue | null"
               },
-              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\"",
-              "attribute": "open-button-bg"
+              "default": "null",
+              "description": "受控回显值。父组件更新 `.value` 时同步表单，不会重新探测或触发搜索。",
+              "attribute": "false"
             },
             {
               "kind": "field",
-              "name": "openButtonColor",
+              "name": "excludeRegions",
               "type": {
-                "text": "string"
+                "text": "YnCheckoutExcludeRegions | undefined"
               },
-              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\"",
-              "attribute": "open-button-color"
+              "description": "排除的国家 / 省州 / 城市（由业务传入；未设置时不排除任何国家，含 CN）。",
+              "attribute": "false"
             },
             {
               "kind": "field",
-              "name": "panelMinWidth",
+              "name": "includeCountries",
               "type": {
-                "text": "string"
+                "text": "string[] | undefined"
               },
-              "default": "\"132px\"",
-              "attribute": "panel-min-width"
+              "description": "非空时仅允许这些国家（ISO2）",
+              "attribute": "false"
             },
             {
               "kind": "field",
-              "name": "showSelectedIcon",
+              "name": "googleMapsApiKey",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"\"",
+              "description": "Google Maps Places API Key；未设时尝试构建环境变量 `VITE_GOOGLE_MAPS_API_KEY`",
+              "attribute": "google-maps-api-key"
+            },
+            {
+              "kind": "field",
+              "name": "showEmail",
               "type": {
                 "text": "boolean"
               },
-              "default": "true",
-              "attribute": "show-selected-icon"
+              "default": "false",
+              "description": "为 true 时展示联系邮箱输入框",
+              "attribute": "show-email"
             },
             {
               "kind": "field",
-              "name": "open",
+              "name": "emailRequired",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "为 true 且 showEmail 时邮箱必填",
+              "attribute": "email-required"
+            },
+            {
+              "kind": "field",
+              "name": "phase",
+              "type": {
+                "text": "ProbePhase"
+              },
+              "privacy": "private",
+              "default": "\"probing\""
+            },
+            {
+              "kind": "field",
+              "name": "activeProvider",
+              "type": {
+                "text": "AddressProviderMode | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "probeReason",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "query",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "suggestions",
+              "type": {
+                "text": "AddressSuggestion[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "dr5hnSuggestions",
+              "type": {
+                "text": "Dr5hnRegionSuggestion[]"
+              },
+              "privacy": "private",
+              "default": "[]"
+            },
+            {
+              "kind": "field",
+              "name": "suggestionsOpen",
               "type": {
                 "text": "boolean"
               },
@@ -600,222 +643,666 @@
             },
             {
               "kind": "field",
-              "name": "selectedNode",
+              "name": "searching",
               "type": {
-                "text": "YnDropdownPickNode | null"
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "searchError",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "countryCode",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "countryName",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "stateCode",
+              "type": {
+                "text": "string | null"
               },
               "privacy": "private",
               "default": "null"
             },
             {
               "kind": "field",
-              "name": "postSelectTimer",
+              "name": "stateName",
               "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0"
-            },
-            {
-              "kind": "field",
-              "name": "pendingSelectionCleanup",
-              "type": {
-                "text": "(() => void) | null"
+                "text": "string | null"
               },
               "privacy": "private",
               "default": "null"
             },
             {
               "kind": "field",
-              "name": "picks",
+              "name": "cityId",
               "type": {
-                "text": "YnPick[]"
+                "text": "number | null"
               },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "cityName",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "phonecode",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "currency",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "phoneNumber",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "email",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "line1",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "line2",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "postalCode",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "googleReady",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "debounceTimer",
+              "type": {
+                "text": "number | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "abortController",
+              "type": {
+                "text": "AbortController | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "probeAbort",
+              "type": {
+                "text": "AbortController | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "dr5hnRegionLevel",
+              "type": {
+                "text": "RegionSearchLevel | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "showFieldErrors",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "lastEmitted",
+              "type": {
+                "text": "YnCheckoutAddressChangeDetail | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "suppressEmit",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "msg",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "regionFilter",
+              "type": {
+                "text": "YnCheckoutRegionFilter"
+              },
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "isDr5hnMode",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "willUpdate",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<string, unknown>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "resetFormForEmptyValue",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "setValue",
+              "parameters": [
+                {
+                  "name": "v",
+                  "type": {
+                    "text": "YnCheckoutAddressValue | null"
+                  }
+                }
+              ],
+              "description": "受控回显：父组件写入 .value 时调用（与 attribute 变更等效）"
+            },
+            {
+              "kind": "method",
+              "name": "hasEchoValue",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "applyExternalValue",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "v",
+                  "type": {
+                    "text": "YnCheckoutAddressValue"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "runProbe",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "resolveGoogleKey",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncGoogleMode",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "text": "\"google\" | \"photon\""
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "providerLabel",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "text": "AddressProviderMode"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "usageHintForProvider",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "text": "AddressProviderMode"
+                  }
+                }
+              ],
+              "description": "表单顶部用户指引（可通过 messages.usageHint* 或 usageHint 覆盖）"
+            },
+            {
+              "kind": "method",
+              "name": "buildValidateInput",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "validate",
+              "return": {
+                "type": {
+                  "text": "YnCheckoutAddressValidation"
+                }
+              },
+              "description": "执行内置校验（提交订单前调用）"
+            },
+            {
+              "kind": "method",
+              "name": "reportValidity",
+              "return": {
+                "type": {
+                  "text": "boolean"
+                }
+              },
+              "description": "展示校验错误并聚焦第一个无效字段"
+            },
+            {
+              "kind": "method",
+              "name": "buildValue",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "YnCheckoutAddressValue"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "validation",
+                  "optional": true,
+                  "type": {
+                    "text": "YnCheckoutAddressValidation"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "buildChangeDetail",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "YnCheckoutAddressChangeDetail"
+                }
+              }
+            },
+            {
+              "kind": "method",
+              "name": "emitChange",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "fieldError",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "YnCheckoutAddressField"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "inputClass",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "YnCheckoutAddressField"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "renderEmailFields",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "options",
+                  "optional": true,
+                  "type": {
+                    "text": "{ hideVisibleLabel?: boolean }"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "isPostalRequired",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderPostalField",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "inputId",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "phoneInputWrapClass",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderContactSection",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "phoneInputId",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "clearRegion",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "resolveStateCode",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "country",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "name",
+                  "type": {
+                    "text": "string | null"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "applyCountryMeta",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "code",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "applyGoogleSuggestion",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "suggestion",
+                  "type": {
+                    "text": "AddressSuggestion"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "applyDr5hnRegion",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "item",
+                  "type": {
+                    "text": "Dr5hnRegionSuggestion"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "scheduleSearch",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "switchToPhotonFromDr5hn",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "query",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "AbortSignal"
+                  }
+                }
+              ],
+              "description": "dr5hn 无数据或请求失败：清空已选区域并切到 Photon，用同一关键词重搜"
+            },
+            {
+              "kind": "method",
+              "name": "runAddressSearch",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "signal",
+                  "type": {
+                    "text": "AbortSignal"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "runSearch",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "handleSearchInput",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "clearSearch",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "handleFieldInput",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "dr5hnLevelLabel",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "level",
+                  "type": {
+                    "text": "Dr5hnRegionSuggestion[\"level\"]"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "renderSkeleton",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderSearch",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderGoogleFields",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderDr5hnFields",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderDevPanel",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderForm",
               "privacy": "private"
             },
             {
               "kind": "field",
               "name": "styles",
               "static": true,
-              "default": "css` :host { display: inline-block; position: relative; --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea); --yn-dropdown-pick-panel-radius: 12px; --yn-dropdown-pick-panel-padding: 6px; --yn-dropdown-pick-gap: 6px; --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8); --yn-dropdown-pick-item-content-right-space: 34px; --yn-dropdown-pick-button-radius: 10px; --yn-dropdown-pick-trigger-font-size: 12px; --yn-dropdown-pick-trigger-font-weight: 600; --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14)); --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2); --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21); --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff); --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df); --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff); } .root { position: relative; display: inline-block; } .trigger { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: var(--yn-dropdown-pick-button-radius, 10px); padding: 6px 10px; min-height: 28px; cursor: pointer; background: var(--_btn-bg); color: var(--_btn-color); transition: background-color 180ms ease, color 180ms ease; font-size: var(--yn-dropdown-pick-trigger-font-size, 12px); font-weight: var(--yn-dropdown-pick-trigger-font-weight, 600); line-height: 1; white-space: nowrap; } .trigger:disabled { opacity: 0.55; cursor: not-allowed; } .caret { width: 10px; height: 10px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 180ms ease; transform-origin: center; } .caret.open { transform: rotate(180deg); } .panel { position: absolute; top: calc(100% + 8px); right: 0; min-width: var(--_panel-min-width); padding: var(--yn-dropdown-pick-panel-padding, 6px); border-radius: var(--yn-dropdown-pick-panel-radius, 12px); background: var(--yn-dropdown-pick-panel-bg, #f2efea); box-shadow: var(--yn-dropdown-pick-shadow, 0 10px 24px rgba(36, 31, 33, 0.14)); opacity: 0; transform: translate3d(0, -8px, 0); visibility: hidden; pointer-events: none; transition: transform 220ms cubic-bezier(0.22, 0.78, 0.24, 1), opacity 220ms cubic-bezier(0.22, 0.78, 0.24, 1); z-index: 1200; } .panel.open { opacity: 1; transform: translate3d(0, 0, 0); visibility: visible; pointer-events: auto; } .pick-list { display: flex; flex-direction: column; gap: var(--yn-dropdown-pick-gap, 6px); } ::slotted(yn-pick) { display: block; width: 100%; } `"
+              "default": "checkoutAddressFormStyles"
             },
             {
               "kind": "method",
-              "name": "clearPendingSelectionTask",
-              "privacy": "private",
-              "description": "清理“等待选中视觉完成”相关监听和计时器。"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "PropertyValues<this>"
-                  }
-                }
-              ],
-              "description": "监听关键属性变化并同步选中项。"
-            },
-            {
-              "kind": "field",
-              "name": "handleSlotChange",
-              "privacy": "private",
-              "description": "同步插槽 pick 的默认配置。"
-            },
-            {
-              "kind": "field",
-              "name": "handleItemMouseEnter",
-              "privacy": "private",
-              "description": "非选中项进入 hover 时应用背景。"
-            },
-            {
-              "kind": "field",
-              "name": "handleItemMouseLeave",
-              "privacy": "private",
-              "description": "hover 离开时恢复背景。"
-            },
-            {
-              "kind": "method",
-              "name": "syncPickState",
-              "privacy": "private",
-              "description": "同步 pick 的单选态和默认视觉配置。"
-            },
-            {
-              "kind": "method",
-              "name": "syncSelectedByValue",
-              "privacy": "private",
-              "description": "根据当前 value 同步 selectedNode。"
-            },
-            {
-              "kind": "method",
-              "name": "isSameValue",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "a",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                },
-                {
-                  "name": "b",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "统一值比较，兼容 number/string。"
-            },
-            {
-              "kind": "method",
-              "name": "findPickByValue",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "在当前插槽项中查找指定值的 pick。"
-            },
-            {
-              "kind": "method",
-              "name": "extractNodeFromPick",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "YnDropdownPickNode | null"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "pick",
-                  "type": {
-                    "text": "YnPick | null"
-                  }
-                }
-              ],
-              "description": "从 pick 上提取节点数据（优先 data-node JSON）。"
-            },
-            {
-              "kind": "method",
-              "name": "readNodeField",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "node",
-                  "type": {
-                    "text": "YnDropdownPickNode | null"
-                  }
-                },
-                {
-                  "name": "field",
-                  "type": {
-                    "text": "string"
-                  }
-                }
-              ],
-              "description": "从 node 中读取字段文本。"
-            },
-            {
-              "kind": "method",
-              "name": "getButtonText",
-              "privacy": "private",
-              "description": "计算按钮文案。"
-            },
-            {
-              "kind": "method",
-              "name": "toggleOpen",
-              "privacy": "private",
-              "description": "切换弹层开关。"
-            },
-            {
-              "kind": "method",
-              "name": "closePanel",
-              "privacy": "private",
-              "description": "关闭弹层。"
-            },
-            {
-              "kind": "method",
-              "name": "emitOpenChange",
-              "privacy": "private",
-              "description": "对外派发开关变化事件。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentPointerDown",
-              "privacy": "private",
-              "description": "外部点击时自动关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentKeydown",
-              "privacy": "private",
-              "description": "Esc 快捷关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handlePickToggle",
-              "privacy": "private",
-              "description": "处理子项 toggle 事件，维持单选并回传 node。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染下拉选择器。"
+              "name": "render"
             }
           ],
           "events": [
             {
-              "name": "open-change",
+              "name": "change",
               "type": {
                 "text": "CustomEvent"
-              }
+              },
+              "description": "地址变化，`detail` 为 `{ value, validation }`"
             }
           ],
           "superclass": {
@@ -823,40 +1310,16 @@
             "package": "lit"
           },
           "customElement": true,
-          "tagName": "yn-dropdown-pick",
-          "summary": "下拉单选，基于 yn-pick。",
+          "tagName": "yn-checkout-address",
           "attributes": [
             {
-              "name": "value-field",
-              "fieldName": "valueField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\""
-            },
-            {
-              "name": "button-display-field",
-              "fieldName": "buttonDisplayField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"label\""
-            },
-            {
-              "name": "placeholder",
-              "fieldName": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Select\""
-            },
-            {
-              "name": "close-on-outside-click",
-              "fieldName": "closeOnOutsideClick",
+              "name": "dev",
+              "fieldName": "dev",
               "type": {
                 "text": "boolean"
               },
-              "default": "true"
+              "description": "为 true 时在表单下方展示 JSON 调试面板",
+              "default": "false"
             },
             {
               "name": "disabled",
@@ -867,127 +1330,82 @@
               "default": "false"
             },
             {
-              "name": "button-bg",
-              "fieldName": "buttonBg",
+              "name": "locale",
+              "fieldName": "locale",
+              "type": {
+                "text": "YnCheckoutAddressLocale"
+              },
+              "description": "界面语言；文案可通过 `messages` 局部覆盖（适合店铺 i18n JSON 片段）",
+              "default": "\"en\""
+            },
+            {
+              "name": "false",
+              "fieldName": "messages",
+              "type": {
+                "text": "Partial<YnCheckoutAddressMessages> | undefined"
+              },
+              "description": "局部覆盖内置文案（与店铺 i18n JSON 片段对齐）"
+            },
+            {
+              "name": "false",
+              "fieldName": "value",
+              "type": {
+                "text": "YnCheckoutAddressValue | null"
+              },
+              "description": "受控回显值。父组件更新 `.value` 时同步表单，不会重新探测或触发搜索。",
+              "default": "null"
+            },
+            {
+              "name": "false",
+              "fieldName": "excludeRegions",
+              "type": {
+                "text": "YnCheckoutExcludeRegions | undefined"
+              },
+              "description": "排除的国家 / 省州 / 城市（由业务传入；未设置时不排除任何国家，含 CN）。"
+            },
+            {
+              "name": "false",
+              "fieldName": "includeCountries",
+              "type": {
+                "text": "string[] | undefined"
+              },
+              "description": "非空时仅允许这些国家（ISO2）"
+            },
+            {
+              "name": "google-maps-api-key",
+              "fieldName": "googleMapsApiKey",
               "type": {
                 "text": "string"
               },
-              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\""
+              "description": "Google Maps Places API Key；未设时尝试构建环境变量 `VITE_GOOGLE_MAPS_API_KEY`",
+              "default": "\"\""
             },
             {
-              "name": "button-color",
-              "fieldName": "buttonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\""
-            },
-            {
-              "name": "open-button-bg",
-              "fieldName": "openButtonBg",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\""
-            },
-            {
-              "name": "open-button-color",
-              "fieldName": "openButtonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\""
-            },
-            {
-              "name": "panel-min-width",
-              "fieldName": "panelMinWidth",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"132px\""
-            },
-            {
-              "name": "show-selected-icon",
-              "fieldName": "showSelectedIcon",
+              "name": "show-email",
+              "fieldName": "showEmail",
               "type": {
                 "text": "boolean"
               },
-              "default": "true"
-            }
-          ],
-          "slots": [
+              "description": "为 true 时展示联系邮箱输入框",
+              "default": "false"
+            },
             {
-              "name": "",
-              "description": "默认插槽"
+              "name": "email-required",
+              "fieldName": "emailRequired",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "为 true 且 showEmail 时邮箱必填",
+              "default": "false"
             }
           ],
           "cssProperties": [
             {
-              "name": "--yn-dropdown-pick-button-bg",
-              "description": "触发按钮背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-button-color",
+              "name": "--yn-checkout-address-bg",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-pick-button-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-check-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-check-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-gap",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-content-right-space",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-hover-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-selected-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-open-button-bg",
-              "description": "展开时触发按钮背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-open-button-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-bg",
-              "description": "面板背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-padding",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-shadow",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-trigger-font-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-trigger-font-weight",
+              "name": "--yn-checkout-address-padding",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             }
           ]
@@ -996,10 +1414,130 @@
       "exports": [
         {
           "kind": "js",
-          "name": "YnDropdownPick",
+          "name": "YnCheckoutAddress",
           "declaration": {
-            "name": "YnDropdownPick",
-            "module": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts"
+            "name": "YnCheckoutAddress",
+            "module": "src/components/yn-checkout-address/yn-checkout-address.ts"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressChangeDetail",
+          "declaration": {
+            "name": "YnCheckoutAddressChangeDetail",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressField",
+          "declaration": {
+            "name": "YnCheckoutAddressField",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressErrorCode",
+          "declaration": {
+            "name": "YnCheckoutAddressErrorCode",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressLocale",
+          "declaration": {
+            "name": "YnCheckoutAddressLocale",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressMessages",
+          "declaration": {
+            "name": "YnCheckoutAddressMessages",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressValidation",
+          "declaration": {
+            "name": "YnCheckoutAddressValidation",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressValidationError",
+          "declaration": {
+            "name": "YnCheckoutAddressValidationError",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressValue",
+          "declaration": {
+            "name": "YnCheckoutAddressValue",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutExcludeRegions",
+          "declaration": {
+            "name": "YnCheckoutExcludeRegions",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutProvider",
+          "declaration": {
+            "name": "YnCheckoutProvider",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutRegionFilter",
+          "declaration": {
+            "name": "YnCheckoutRegionFilter",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "validateCheckoutAddress",
+          "declaration": {
+            "name": "validateCheckoutAddress",
+            "module": "./validation"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "POSTAL_REQUIRED_COUNTRIES",
+          "declaration": {
+            "name": "POSTAL_REQUIRED_COUNTRIES",
+            "module": "./validation"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "isPostalRequiredForCountry",
+          "declaration": {
+            "name": "isPostalRequiredForCountry",
+            "module": "./validation"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "emptyCheckoutAddressValue",
+          "declaration": {
+            "name": "emptyCheckoutAddressValue",
+            "module": "./types"
           }
         }
       ]
@@ -1641,56 +2179,155 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-group-pick/yn-group-pick.ts",
+      "path": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "",
-          "name": "YnGroupPick",
+          "name": "YnDropdownPick",
           "members": [
             {
               "kind": "field",
               "name": "value",
               "type": {
-                "text": "GroupValue"
+                "text": "PickValue"
               },
               "default": "\"\""
             },
             {
               "kind": "field",
-              "name": "multiple",
+              "name": "valueField",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"id\"",
+              "attribute": "value-field"
+            },
+            {
+              "kind": "field",
+              "name": "buttonDisplayField",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"label\"",
+              "attribute": "button-display-field"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select\"",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "attribute": "close-on-outside-click"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
               "type": {
                 "text": "boolean"
               },
               "default": "false",
-              "attribute": "multiple"
+              "attribute": "disabled"
             },
             {
               "kind": "field",
-              "name": "selectedIcon",
+              "name": "buttonBg",
               "type": {
-                "text": "YnSvgSource"
+                "text": "string"
               },
-              "default": "ynPickSelectedSvg",
-              "attribute": "selected-icon"
+              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\"",
+              "attribute": "button-bg"
             },
             {
               "kind": "field",
-              "name": "unselectedIcon",
+              "name": "buttonColor",
               "type": {
-                "text": "YnSvgSource"
+                "text": "string"
               },
-              "default": "\"\"",
-              "attribute": "unselected-icon"
+              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\"",
+              "attribute": "button-color"
             },
             {
               "kind": "field",
-              "name": "showUnselectedIcon",
+              "name": "openButtonBg",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\"",
+              "attribute": "open-button-bg"
+            },
+            {
+              "kind": "field",
+              "name": "openButtonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\"",
+              "attribute": "open-button-color"
+            },
+            {
+              "kind": "field",
+              "name": "panelMinWidth",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"132px\"",
+              "attribute": "panel-min-width"
+            },
+            {
+              "kind": "field",
+              "name": "showSelectedIcon",
               "type": {
                 "text": "boolean"
               },
-              "default": "false",
-              "attribute": "show-unselected-icon"
+              "default": "true",
+              "attribute": "show-selected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "selectedNode",
+              "type": {
+                "text": "YnDropdownPickNode | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "postSelectTimer",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "pendingSelectionCleanup",
+              "type": {
+                "text": "(() => void) | null"
+              },
+              "privacy": "private",
+              "default": "null"
             },
             {
               "kind": "field",
@@ -1704,13 +2341,13 @@
               "kind": "field",
               "name": "styles",
               "static": true,
-              "default": "css` :host { display: block; } .group { display: flex; flex-wrap: wrap; gap: var(--yn-group-pick-gap, 12px); } `"
+              "default": "css` :host { display: inline-block; position: relative; --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea); --yn-dropdown-pick-panel-radius: 12px; --yn-dropdown-pick-panel-padding: 6px; --yn-dropdown-pick-gap: 6px; --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8); --yn-dropdown-pick-item-content-right-space: 34px; --yn-dropdown-pick-button-radius: 10px; --yn-dropdown-pick-trigger-font-size: 12px; --yn-dropdown-pick-trigger-font-weight: 600; --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14)); --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2); --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21); --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff); --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df); --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff); } .root { position: relative; display: inline-block; } .trigger { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: var(--yn-dropdown-pick-button-radius, 10px); padding: 6px 10px; min-height: 28px; cursor: pointer; background: var(--_btn-bg); color: var(--_btn-color); transition: background-color 180ms ease, color 180ms ease; font-size: var(--yn-dropdown-pick-trigger-font-size, 12px); font-weight: var(--yn-dropdown-pick-trigger-font-weight, 600); line-height: 1; white-space: nowrap; } .trigger:disabled { opacity: 0.55; cursor: not-allowed; } .caret { width: 10px; height: 10px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 180ms ease; transform-origin: center; } .caret.open { transform: rotate(180deg); } .panel { position: absolute; top: calc(100% + 8px); right: 0; min-width: var(--_panel-min-width); padding: var(--yn-dropdown-pick-panel-padding, 6px); border-radius: var(--yn-dropdown-pick-panel-radius, 12px); background: var(--yn-dropdown-pick-panel-bg, #f2efea); box-shadow: var(--yn-dropdown-pick-shadow, 0 10px 24px rgba(36, 31, 33, 0.14)); opacity: 0; transform: translate3d(0, -8px, 0); visibility: hidden; pointer-events: none; transition: transform 220ms cubic-bezier(0.22, 0.78, 0.24, 1), opacity 220ms cubic-bezier(0.22, 0.78, 0.24, 1); z-index: 1200; } .panel.open { opacity: 1; transform: translate3d(0, 0, 0); visibility: visible; pointer-events: auto; } .pick-list { display: flex; flex-direction: column; gap: var(--yn-dropdown-pick-gap, 6px); } ::slotted(yn-pick) { display: block; width: 100%; } `"
             },
             {
               "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后同步子项状态。"
+              "name": "clearPendingSelectionTask",
+              "privacy": "private",
+              "description": "清理“等待选中视觉完成”相关监听和计时器。"
             },
             {
               "kind": "method",
@@ -1720,101 +2357,166 @@
                 {
                   "name": "changed",
                   "type": {
-                    "text": "Map<string, unknown>"
+                    "text": "PropertyValues<this>"
                   }
                 }
               ],
-              "description": "相关属性变化时刷新子项选中与图标状态。"
+              "description": "监听关键属性变化并同步选中项。"
             },
             {
-              "kind": "method",
-              "name": "getCurrentIds",
+              "kind": "field",
+              "name": "handleSlotChange",
               "privacy": "private",
-              "description": "获取当前选中值数组表示。"
+              "description": "同步插槽 pick 的默认配置。"
+            },
+            {
+              "kind": "field",
+              "name": "handleItemMouseEnter",
+              "privacy": "private",
+              "description": "非选中项进入 hover 时应用背景。"
+            },
+            {
+              "kind": "field",
+              "name": "handleItemMouseLeave",
+              "privacy": "private",
+              "description": "hover 离开时恢复背景。"
             },
             {
               "kind": "method",
-              "name": "toComparable",
+              "name": "syncPickState",
+              "privacy": "private",
+              "description": "同步 pick 的单选态和默认视觉配置。"
+            },
+            {
+              "kind": "method",
+              "name": "syncSelectedByValue",
+              "privacy": "private",
+              "description": "根据当前 value 同步 selectedNode。"
+            },
+            {
+              "kind": "method",
+              "name": "isSameValue",
               "privacy": "private",
               "parameters": [
                 {
-                  "name": "value",
+                  "name": "a",
                   "type": {
                     "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "将值转换为可比较字符串。"
-            },
-            {
-              "kind": "method",
-              "name": "isSelected",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "判断指定值是否处于选中状态。"
-            },
-            {
-              "kind": "method",
-              "name": "syncChildrenState",
-              "privacy": "private",
-              "description": "将组选中状态与图标配置同步到所有子 pick。"
-            },
-            {
-              "kind": "method",
-              "name": "emitChange",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "ids",
-                  "type": {
-                    "text": "PickValue[]"
                   }
                 },
                 {
-                  "name": "flag",
+                  "name": "b",
                   "type": {
-                    "text": "boolean"
+                    "text": "PickValue"
                   }
                 }
               ],
-              "description": "派发组选中变化事件。"
+              "description": "统一值比较，兼容 number/string。"
             },
             {
               "kind": "method",
-              "name": "onPickToggle",
+              "name": "findPickByValue",
               "privacy": "private",
               "parameters": [
                 {
-                  "name": "event",
+                  "name": "value",
                   "type": {
-                    "text": "Event"
+                    "text": "PickValue"
                   }
                 }
               ],
-              "description": "处理子项切换并更新单选/多选值。"
+              "description": "在当前插槽项中查找指定值的 pick。"
             },
             {
               "kind": "method",
-              "name": "onSlotChange",
+              "name": "extractNodeFromPick",
               "privacy": "private",
-              "description": "插槽子项变化时重新同步状态。"
+              "return": {
+                "type": {
+                  "text": "YnDropdownPickNode | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "pick",
+                  "type": {
+                    "text": "YnPick | null"
+                  }
+                }
+              ],
+              "description": "从 pick 上提取节点数据（优先 data-node JSON）。"
+            },
+            {
+              "kind": "method",
+              "name": "readNodeField",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "text": "YnDropdownPickNode | null"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "从 node 中读取字段文本。"
+            },
+            {
+              "kind": "method",
+              "name": "getButtonText",
+              "privacy": "private",
+              "description": "计算按钮文案。"
+            },
+            {
+              "kind": "method",
+              "name": "toggleOpen",
+              "privacy": "private",
+              "description": "切换弹层开关。"
+            },
+            {
+              "kind": "method",
+              "name": "closePanel",
+              "privacy": "private",
+              "description": "关闭弹层。"
+            },
+            {
+              "kind": "method",
+              "name": "emitOpenChange",
+              "privacy": "private",
+              "description": "对外派发开关变化事件。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentPointerDown",
+              "privacy": "private",
+              "description": "外部点击时自动关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentKeydown",
+              "privacy": "private",
+              "description": "Esc 快捷关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handlePickToggle",
+              "privacy": "private",
+              "description": "处理子项 toggle 事件，维持单选并回传 node。"
             },
             {
               "kind": "method",
               "name": "render",
-              "description": "渲染分组容器与默认插槽。"
+              "description": "渲染下拉选择器。"
             }
           ],
           "events": [
             {
-              "name": "change",
+              "name": "open-change",
               "type": {
                 "text": "CustomEvent"
               }
@@ -1825,40 +2527,96 @@
             "package": "lit"
           },
           "customElement": true,
-          "tagName": "yn-group-pick",
-          "summary": "yn-pick 组，多选/单选。",
+          "tagName": "yn-dropdown-pick",
+          "summary": "下拉单选，基于 yn-pick。",
           "attributes": [
             {
-              "name": "multiple",
-              "fieldName": "multiple",
+              "name": "value-field",
+              "fieldName": "valueField",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"id\""
+            },
+            {
+              "name": "button-display-field",
+              "fieldName": "buttonDisplayField",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"label\""
+            },
+            {
+              "name": "placeholder",
+              "fieldName": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"Select\""
+            },
+            {
+              "name": "close-on-outside-click",
+              "fieldName": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
               "type": {
                 "text": "boolean"
               },
               "default": "false"
             },
             {
-              "name": "selected-icon",
-              "fieldName": "selectedIcon",
+              "name": "button-bg",
+              "fieldName": "buttonBg",
               "type": {
-                "text": "YnSvgSource"
+                "text": "string"
               },
-              "default": "ynPickSelectedSvg"
+              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\""
             },
             {
-              "name": "unselected-icon",
-              "fieldName": "unselectedIcon",
+              "name": "button-color",
+              "fieldName": "buttonColor",
               "type": {
-                "text": "YnSvgSource"
+                "text": "string"
               },
-              "default": "\"\""
+              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\""
             },
             {
-              "name": "show-unselected-icon",
-              "fieldName": "showUnselectedIcon",
+              "name": "open-button-bg",
+              "fieldName": "openButtonBg",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\""
+            },
+            {
+              "name": "open-button-color",
+              "fieldName": "openButtonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\""
+            },
+            {
+              "name": "panel-min-width",
+              "fieldName": "panelMinWidth",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"132px\""
+            },
+            {
+              "name": "show-selected-icon",
+              "fieldName": "showSelectedIcon",
               "type": {
                 "text": "boolean"
               },
-              "default": "false"
+              "default": "true"
             }
           ],
           "slots": [
@@ -1869,8 +2627,72 @@
           ],
           "cssProperties": [
             {
-              "name": "--yn-group-pick-gap",
-              "description": "选项间距"
+              "name": "--yn-dropdown-pick-button-bg",
+              "description": "触发按钮背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-button-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-button-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-check-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-check-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-content-right-space",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-hover-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-item-selected-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-open-button-bg",
+              "description": "展开时触发按钮背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-open-button-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-bg",
+              "description": "面板背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-trigger-font-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-pick-trigger-font-weight",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             }
           ]
         }
@@ -1878,10 +2700,10 @@
       "exports": [
         {
           "kind": "js",
-          "name": "YnGroupPick",
+          "name": "YnDropdownPick",
           "declaration": {
-            "name": "YnGroupPick",
-            "module": "src/components/yn-group-pick/yn-group-pick.ts"
+            "name": "YnDropdownPick",
+            "module": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts"
           }
         }
       ]
@@ -2463,6 +3285,253 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/yn-group-pick/yn-group-pick.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnGroupPick",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "GroupValue"
+              },
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "multiple"
+            },
+            {
+              "kind": "field",
+              "name": "selectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "ynPickSelectedSvg",
+              "attribute": "selected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "unselectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "\"\"",
+              "attribute": "unselected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "showUnselectedIcon",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "show-unselected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "picks",
+              "type": {
+                "text": "YnPick[]"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { display: block; } .group { display: flex; flex-wrap: wrap; gap: var(--yn-group-pick-gap, 12px); } `"
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后同步子项状态。"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<string, unknown>"
+                  }
+                }
+              ],
+              "description": "相关属性变化时刷新子项选中与图标状态。"
+            },
+            {
+              "kind": "method",
+              "name": "getCurrentIds",
+              "privacy": "private",
+              "description": "获取当前选中值数组表示。"
+            },
+            {
+              "kind": "method",
+              "name": "toComparable",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "将值转换为可比较字符串。"
+            },
+            {
+              "kind": "method",
+              "name": "isSelected",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "判断指定值是否处于选中状态。"
+            },
+            {
+              "kind": "method",
+              "name": "syncChildrenState",
+              "privacy": "private",
+              "description": "将组选中状态与图标配置同步到所有子 pick。"
+            },
+            {
+              "kind": "method",
+              "name": "emitChange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "text": "PickValue[]"
+                  }
+                },
+                {
+                  "name": "flag",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "派发组选中变化事件。"
+            },
+            {
+              "kind": "method",
+              "name": "onPickToggle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "处理子项切换并更新单选/多选值。"
+            },
+            {
+              "kind": "method",
+              "name": "onSlotChange",
+              "privacy": "private",
+              "description": "插槽子项变化时重新同步状态。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染分组容器与默认插槽。"
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-group-pick",
+          "summary": "yn-pick 组，多选/单选。",
+          "attributes": [
+            {
+              "name": "multiple",
+              "fieldName": "multiple",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "selected-icon",
+              "fieldName": "selectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "ynPickSelectedSvg"
+            },
+            {
+              "name": "unselected-icon",
+              "fieldName": "unselectedIcon",
+              "type": {
+                "text": "YnSvgSource"
+              },
+              "default": "\"\""
+            },
+            {
+              "name": "show-unselected-icon",
+              "fieldName": "showUnselectedIcon",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-group-pick-gap",
+              "description": "选项间距"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnGroupPick",
+          "declaration": {
+            "name": "YnGroupPick",
+            "module": "src/components/yn-group-pick/yn-group-pick.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/yn-icon-connect-button/yn-icon-connect-button.ts",
       "declarations": [],
       "exports": [
@@ -2514,9 +3583,59 @@
             },
             {
               "kind": "field",
+              "name": "hasPrefixButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "hasSuffixButton",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "method",
+              "name": "hasSlotContent",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "slot",
+                  "type": {
+                    "text": "HTMLSlotElement"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "field",
+              "name": "handlePrefixSlotChange",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "handleSuffixSlotChange",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated"
+            },
+            {
+              "kind": "method",
+              "name": "syncSlotButtons",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
               "name": "styles",
               "static": true,
-              "default": "css` :host { --yn-input-width: 320px; --yn-input-height: 44px; --yn-input-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-input-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-input-bg-focus: var(--yn-color-surface-focus, #fffaf2); --yn-input-bg-disabled: var(--yn-color-surface-disabled, rgba(232, 225, 214, 0.76)); --yn-input-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-input-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-input-border-color-focus: var(--yn-color-border-focus, #241f21); --yn-input-color: var(--yn-color-text, #241f21); --yn-input-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48)); --yn-input-disabled-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-input-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12)); --yn-input-radius: 999px; --yn-input-padding: 0 10px; --yn-input-button-size: 28px; --yn-input-button-color: var(--yn-color-text, #241f21); --yn-input-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-input-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-input-font-size: 16px; --yn-input-letter-spacing: -0.01em; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .field { width: var(--yn-input-width); min-width: 0; height: var(--yn-input-height); display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--yn-input-border-color); border-radius: var(--yn-input-radius); background: var(--yn-input-bg); padding: 0 4px; overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), box-shadow 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1), transform 220ms cubic-bezier(0.4, 0, 1, 1); } .field:hover:not(.is-disabled) { border-color: var(--yn-input-border-color-hover); background: var(--yn-input-bg-hover); } .field:focus-within { border-color: var(--yn-input-border-color-focus); background: var(--yn-input-bg-focus); box-shadow: 0 0 0 3px var(--yn-input-focus-ring); transform: translateY(-1px); } .field.is-disabled { border-color: transparent; background: var(--yn-input-bg-disabled); } .input { width: 100%; min-width: 0; height: 100%; flex: 1; border: 0; background: transparent; padding: var(--yn-input-padding); color: var(--yn-input-color); font-family: var(--yn-input-font-family); font-size: var(--yn-input-font-size); letter-spacing: var(--yn-input-letter-spacing); line-height: 1; outline: none; -webkit-appearance: none; appearance: none; } .input::placeholder { color: var(--yn-input-placeholder-color); opacity: 1; } .input:disabled { cursor: not-allowed; background: transparent; color: var(--yn-input-disabled-color); } .action { width: var(--yn-input-button-size); height: var(--yn-input-button-size); display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: var(--yn-input-button-color); padding: 0; cursor: pointer; transition: background-color 180ms ease, opacity 180ms ease; } .action:hover:not(:disabled), .action:focus-visible { background: var(--yn-input-button-bg-hover); outline: none; } .action:disabled { cursor: not-allowed; opacity: 0.42; } ::slotted(svg[slot=\"prefix-button\"]), ::slotted(svg[slot=\"suffix-button\"]) { width: 20px; height: 20px; display: block; } `"
+              "default": "css` :host { --yn-input-width: 320px; --yn-input-height: 44px; --yn-input-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-input-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-input-bg-focus: var(--yn-color-surface-focus, #fffaf2); --yn-input-bg-disabled: var(--yn-color-surface-disabled, rgba(232, 225, 214, 0.76)); --yn-input-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-input-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-input-border-color-focus: var(--yn-color-border-focus, #241f21); --yn-input-color: var(--yn-color-text, #241f21); --yn-input-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48)); --yn-input-disabled-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-input-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12)); --yn-input-radius: 999px; --yn-input-padding: 0 14px; --yn-input-padding-with-action: 0 6px; --yn-input-field-padding-x: 8px; --yn-input-action-gap: 4px; --yn-input-button-size: 28px; --yn-input-button-color: var(--yn-color-text, #241f21); --yn-input-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-input-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-input-font-size: 16px; --yn-input-letter-spacing: -0.01em; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .field { width: var(--yn-input-width); min-width: 0; height: var(--yn-input-height); display: inline-flex; align-items: center; gap: var(--yn-input-action-gap); border: 1px solid var(--yn-input-border-color); border-radius: var(--yn-input-radius); background: var(--yn-input-bg); padding: 0 var(--yn-input-field-padding-x); overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), box-shadow 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1); } .field:hover:not(.is-disabled) { border-color: var(--yn-input-border-color-hover); background: var(--yn-input-bg-hover); } .field:focus-within { border-color: var(--yn-input-border-color-focus); background: var(--yn-input-bg-focus); box-shadow: 0 0 0 3px var(--yn-input-focus-ring); } .field.is-disabled { border-color: transparent; background: var(--yn-input-bg-disabled); } .field.has-prefix .input, .field.has-suffix .input { padding: var(--yn-input-padding-with-action); } .input { width: 100%; min-width: 0; height: 100%; flex: 1; border: 0; background: transparent; padding: var(--yn-input-padding); color: var(--yn-input-color); font-family: var(--yn-input-font-family); font-size: var(--yn-input-font-size); letter-spacing: var(--yn-input-letter-spacing); line-height: 1; outline: none; -webkit-appearance: none; appearance: none; } .input::placeholder { color: var(--yn-input-placeholder-color); opacity: 1; } .input:disabled { cursor: not-allowed; background: transparent; color: var(--yn-input-disabled-color); } .action-prefix { margin-inline-start: 2px; } .action-suffix { margin-inline-end: 2px; } .action { width: var(--yn-input-button-size); height: var(--yn-input-button-size); display: inline-flex; flex: 0 0 auto; align-items: center; justify-content: center; border: 0; border-radius: 999px; background: transparent; color: var(--yn-input-button-color); padding: 0; cursor: pointer; transition: background-color 180ms ease, opacity 180ms ease; } .action:hover:not(:disabled), .action:focus-visible { background: var(--yn-input-button-bg-hover); outline: none; } .action:disabled { cursor: not-allowed; opacity: 0.42; } ::slotted(svg[slot=\"prefix-button\"]), ::slotted(svg[slot=\"suffix-button\"]) { width: 20px; height: 20px; display: block; } `"
             },
             {
               "kind": "method",
@@ -2603,6 +3722,10 @@
           ],
           "slots": [
             {
+              "name": "",
+              "description": "默认插槽"
+            },
+            {
               "name": "prefix-button",
               "description": "具名插槽 `prefix-button`"
             },
@@ -2612,6 +3735,10 @@
             }
           ],
           "cssProperties": [
+            {
+              "name": "--yn-input-action-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
             {
               "name": "--yn-input-bg",
               "description": "背景色"
@@ -2661,6 +3788,10 @@
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
+              "name": "--yn-input-field-padding-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
               "name": "--yn-input-focus-ring",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
@@ -2682,6 +3813,10 @@
             },
             {
               "name": "--yn-input-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-input-padding-with-action",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
@@ -4707,733 +5842,6 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-search/yn-search.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "YnSearch",
-          "members": [
-            {
-              "kind": "field",
-              "name": "close",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "close"
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "disabled"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"O que estás à procura?\"",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "inputWidth",
-              "type": {
-                "text": "number"
-              },
-              "default": "514",
-              "attribute": "input-width"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "shellEl",
-              "type": {
-                "text": "HTMLDivElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "dynamicWrapEl",
-              "type": {
-                "text": "HTMLDivElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "shapeEl",
-              "type": {
-                "text": "SVGSVGElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "leftShapeEl",
-              "type": {
-                "text": "SVGSVGElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "bridgeEl",
-              "type": {
-                "text": "SVGPathElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "rect1El",
-              "type": {
-                "text": "SVGPathElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "inputEl",
-              "type": {
-                "text": "HTMLInputElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "datalistSlotEl",
-              "type": {
-                "text": "HTMLSlotElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "internalDatalistEl",
-              "type": {
-                "text": "HTMLDataListElement"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "shapeRaf",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0"
-            },
-            {
-              "kind": "field",
-              "name": "ready",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "datalistObserver",
-              "type": {
-                "text": "MutationObserver | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "observedDatalist",
-              "type": {
-                "text": "HTMLDataListElement | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "R",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "12.920000000000002"
-            },
-            {
-              "kind": "field",
-              "name": "RECT_START_CLOSED",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "44"
-            },
-            {
-              "kind": "field",
-              "name": "RECT_START_OPEN",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "54"
-            },
-            {
-              "kind": "field",
-              "name": "RETRACT_X",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "31.08"
-            },
-            {
-              "kind": "field",
-              "name": "TRANSITION_SPLIT",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "0.82"
-            },
-            {
-              "kind": "field",
-              "name": "GAP",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "10"
-            },
-            {
-              "kind": "field",
-              "name": "easeOpen",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "easeClose",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "lastRectPath",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastBridgePath",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastDynamicTransform",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastInputOpacity",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "lastInputTransform",
-              "type": {
-                "text": "string"
-              },
-              "privacy": "private",
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "bridgeClosed",
-              "type": {
-                "text": "object"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "{ x: [44, 44, 44, 44, 44, 44, 44, 44], y: [25.08, 25.08, 25.08, 25.08, 12.92, 12.92, 12.92, 12.92] }"
-            },
-            {
-              "kind": "field",
-              "name": "bridgeOpened",
-              "type": {
-                "text": "object"
-              },
-              "privacy": "private",
-              "readonly": true,
-              "default": "{ x: [ 43.02922778103873, 46.440616756960296, 51.4593832430397, 54.87077221896127, 54.87077221896127, 51.4593832430397, 46.440616756960296, 43.02922778103873 ], y: [ 29.947286628412307, 25.10807502694411, 25.10807502694411, 29.947286628412307, 8.052713371587695, 12.89192497305589, 12.89192497305589, 8.052713371587695 ] }"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { --yn-search-bg-active: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.96)); --yn-search-bg-idle: transparent; --yn-search-icon-color: var(--yn-color-text, #241f21); --yn-search-field-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.7)); --yn-search-caret-color: var(--yn-color-text, #241f21); --yn-search-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.6)); --yn-search-fill-duration: 220ms; --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1); --yn-search-icon-duration: 220ms; --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1); display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .search-shell { position: relative; height: 38px; --bg-fill: var(--yn-search-bg-idle); } .search-shell.open, .search-shell:has(.toggle-btn:hover), .search-shell:has(.toggle-btn:focus-visible) { --bg-fill: var(--yn-search-bg-active); } .left-shape { position: absolute; top: 0; left: 0; width: 44px; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .left-shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .dynamic-wrap { position: absolute; top: 0; left: 44px; height: 38px; overflow: hidden; opacity: 1; pointer-events: none; } .search-shell.open .dynamic-wrap { opacity: 1; pointer-events: auto; } .shape { position: absolute; top: 0; left: 0; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .toggle-btn { position: absolute; left: 0; top: 0; width: 44px; height: 38px; border: 0; background: transparent; color: var(--yn-search-icon-color); cursor: pointer; display: grid; place-items: center; z-index: 2; } .toggle-btn:disabled { opacity: 0.6; cursor: not-allowed; } .icon { position: absolute; width: 20px; height: 20px; transition: opacity var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)), transform var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)); } .icon.search { opacity: 1; transform: scale(1); } .icon.close { opacity: 0; transform: scale(0.7) rotate(-80deg); } .search-shell.open .toggle-btn .icon.search { opacity: 0; transform: scale(0.7) rotate(80deg); } .search-shell.open .toggle-btn .icon.close { opacity: 1; transform: scale(1) rotate(0deg); } .search-input { position: absolute; top: 0; left: 0; margin-left: 10px; } .search-input .inner { display: flex; align-items: center; justify-content: center; width: 100%; height: 38px; padding: 2px 10px; pointer-events: none; } .search-shell.open .search-input .inner { pointer-events: auto; } .field { width: 100%; border: 0; outline: 0; background: transparent; color: var(--yn-search-field-color, var(--yn-color-text-muted, #241f21b3)); font-family: \"Zimula\", Arial, \"PingFang SC\", \"Microsoft YaHei\", sans-serif; font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px); font-variation-settings: \"cnct\" 1000, \"wght\" 500; letter-spacing: -0.02em; line-height: 1.4em; caret-color: var(--yn-search-caret-color, var(--yn-color-text, #241f21)); padding-left: 3px; opacity: 0; transform: translateX(-10px); transition: none; } .search-shell.open .field { opacity: 1; transform: translateX(0px); } .field::placeholder { color: var(--yn-search-placeholder-color, var(--yn-color-text-muted, #241f2199)); } .field::-webkit-calendar-picker-indicator { display: none !important; -webkit-appearance: none; } .datalist-slot { display: none; } @media only screen and (max-width: 1023px) { .field, .field::placeholder { font-size: 16px; } } `"
-            },
-            {
-              "kind": "field",
-              "name": "rectEndOpen",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "dynamicWidth",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "shapeTAtButton",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后初始化尺寸并在打开态同步形状。"
-            },
-            {
-              "kind": "method",
-              "name": "getSourceDatalistFromSlot",
-              "privacy": "private",
-              "description": "从 slot 中获取外部 datalist 源节点。"
-            },
-            {
-              "kind": "method",
-              "name": "observeSourceDatalist",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "source",
-                  "type": {
-                    "text": "HTMLDataListElement | null"
-                  }
-                }
-              ],
-              "description": "监听外部 datalist 变化并同步到内部。"
-            },
-            {
-              "kind": "method",
-              "name": "syncDatalistFromSlot",
-              "privacy": "private",
-              "description": "将 slot datalist 内容同步到内部 datalist。"
-            },
-            {
-              "kind": "field",
-              "name": "onDatalistSlotChange",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "PropertyValues"
-                  }
-                }
-              ],
-              "description": "监听属性变化并刷新动画、壳层与事件输出。"
-            },
-            {
-              "kind": "method",
-              "name": "syncShell",
-              "privacy": "private",
-              "description": "同步宿主开关态到壳层 class。"
-            },
-            {
-              "kind": "method",
-              "name": "stopAnims",
-              "privacy": "private",
-              "description": "停止所有进行中的形状动画 RAF。"
-            },
-            {
-              "kind": "method",
-              "name": "lerp",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "a",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "b",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "线性插值工具。"
-            },
-            {
-              "kind": "method",
-              "name": "cubicBezier",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "x1",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "y1",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "x2",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "y2",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "生成 cubic-bezier easing 求值函数。"
-            },
-            {
-              "kind": "method",
-              "name": "buildRectPath",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "startX",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "endX",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "构建矩形胶囊路径。"
-            },
-            {
-              "kind": "method",
-              "name": "buildBridgePath",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "构建桥接路径，t 表示形态进度。"
-            },
-            {
-              "kind": "method",
-              "name": "applyShapeFromValues",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "startX",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "endX",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "按给定进度和区间写入路径数据。"
-            },
-            {
-              "kind": "method",
-              "name": "applyShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ],
-              "description": "依据当前宽度状态应用整体形状。"
-            },
-            {
-              "kind": "method",
-              "name": "syncInputToShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "t",
-                  "type": {
-                    "text": "number"
-                  }
-                },
-                {
-                  "name": "opening",
-                  "type": {
-                    "text": "boolean"
-                  }
-                },
-                {
-                  "name": "rectWidth",
-                  "default": "0"
-                }
-              ],
-              "description": "根据形状进度同步输入框透明度与位移。"
-            },
-            {
-              "kind": "method",
-              "name": "animateShape",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "opening",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
-              "description": "执行开关阶段形状动画。"
-            },
-            {
-              "kind": "method",
-              "name": "onInput",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ],
-              "description": "处理输入并同步组件值。"
-            },
-            {
-              "kind": "method",
-              "name": "dispatchInputEvent",
-              "privacy": "private",
-              "description": "对外派发输入变化事件。"
-            },
-            {
-              "kind": "method",
-              "name": "onInputKeydown",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "KeyboardEvent"
-                  }
-                }
-              ],
-              "description": "处理输入框按键行为（回车等）。"
-            },
-            {
-              "kind": "method",
-              "name": "onToggle",
-              "privacy": "private",
-              "description": "处理图标点击切换：展开、关闭或清空。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染搜索组件外壳、路径与输入区域。"
-            }
-          ],
-          "events": [
-            {
-              "name": "input",
-              "type": {
-                "text": "CustomEvent"
-              }
-            },
-            {
-              "name": "enter",
-              "type": {
-                "text": "CustomEvent"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-search",
-          "summary": "Floema 风格搜索框。",
-          "attributes": [
-            {
-              "name": "close",
-              "fieldName": "close",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "disabled",
-              "fieldName": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "placeholder",
-              "fieldName": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"O que estás à procura?\""
-            },
-            {
-              "name": "input-width",
-              "fieldName": "inputWidth",
-              "type": {
-                "text": "number"
-              },
-              "default": "514"
-            }
-          ],
-          "slots": [
-            {
-              "name": "",
-              "description": "默认插槽"
-            }
-          ],
-          "cssProperties": [
-            {
-              "name": "--yn-search-bg-active",
-              "description": "展开背景"
-            },
-            {
-              "name": "--yn-search-bg-idle",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-caret-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-field-color",
-              "description": "输入文字颜色"
-            },
-            {
-              "name": "--yn-search-fill-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-fill-ease",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-icon-color",
-              "description": "图标颜色"
-            },
-            {
-              "name": "--yn-search-icon-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-icon-ease",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-search-placeholder-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnSearch",
-          "declaration": {
-            "name": "YnSearch",
-            "module": "src/components/yn-search/yn-search.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/components/yn-quantity/yn-quantity.ts",
       "declarations": [
         {
@@ -5490,7 +5898,7 @@
               "kind": "field",
               "name": "styles",
               "static": true,
-              "default": "css` :host { --yn-quantity-width: auto; --yn-quantity-height: 44px; --yn-quantity-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-quantity-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-quantity-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-quantity-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-quantity-color: var(--yn-color-text, #241f21); --yn-quantity-muted-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-quantity-divider-color: var(--yn-color-divider, rgba(36, 31, 33, 0.14)); --yn-quantity-button-size: 32px; --yn-quantity-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-quantity-button-bg-active: var(--yn-color-overlay-active, rgba(36, 31, 33, 0.14)); --yn-quantity-button-hover-radius: 999px; --yn-quantity-inner-gap: 6px; --yn-quantity-padding: 4px 6px; --yn-quantity-radius: 999px; --yn-quantity-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-quantity-font-size: 16px; --yn-quantity-letter-spacing: -0.01em; --yn-quantity-value-min-width: 2.5ch; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .stepper { display: inline-flex; align-items: center; gap: var(--yn-quantity-inner-gap); width: var(--yn-quantity-width); min-width: 0; height: var(--yn-quantity-height); padding: var(--yn-quantity-padding); border: 1px solid var(--yn-quantity-border-color); border-radius: var(--yn-quantity-radius); background: var(--yn-quantity-bg); overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1), transform 220ms cubic-bezier(0.4, 0, 1, 1); } .stepper:hover:not(.is-disabled) { border-color: var(--yn-quantity-border-color-hover); background: var(--yn-quantity-bg-hover); } .stepper:focus-within:not(.is-disabled) { border-color: var(--yn-quantity-border-color-hover); background: var(--yn-quantity-bg-hover); transform: translateY(-1px); } .stepper.is-disabled { opacity: 0.72; pointer-events: none; } .btn { position: relative; width: var(--yn-quantity-button-size); height: var(--yn-quantity-button-size); flex: 0 0 var(--yn-quantity-button-size); display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--yn-quantity-color); padding: 0; cursor: pointer; } .btn::before { content: \"\"; position: absolute; inset: 0; border-radius: var(--yn-quantity-button-hover-radius); background: transparent; transition: background-color 180ms ease, transform 160ms ease; } .btn:hover:not(:disabled)::before { background: var(--yn-quantity-button-bg-hover); } .btn:active:not(:disabled)::before { background: var(--yn-quantity-button-bg-active); transform: scale(0.94); } .btn:focus-visible::before { outline: 2px solid var(--yn-quantity-color); outline-offset: 0; } .btn svg { position: relative; z-index: 1; } .btn:disabled { color: var(--yn-quantity-muted-color); cursor: not-allowed; } .value-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: var(--yn-quantity-value-min-width); flex: 1 1 auto; padding: 0 4px; } .value-wrap::before, .value-wrap::after { content: \"\"; position: absolute; top: 22%; bottom: 22%; width: 1px; background: var(--yn-quantity-divider-color); } .value-wrap::before { left: 0; } .value-wrap::after { right: 0; } .value { width: 100%; min-width: var(--yn-quantity-value-min-width); border: 0; background: transparent; color: var(--yn-quantity-color); font-family: var(--yn-quantity-font-family); font-size: var(--yn-quantity-font-size); letter-spacing: var(--yn-quantity-letter-spacing); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; padding: 0; outline: none; -moz-appearance: textfield; appearance: textfield; } .value::-webkit-outer-spin-button, .value::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .value:disabled { color: var(--yn-quantity-muted-color); } `"
+              "default": "css` :host { --yn-quantity-width: auto; --yn-quantity-height: 44px; --yn-quantity-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-quantity-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-quantity-bg-focus: var(--yn-color-surface-focus, #fffaf2); --yn-quantity-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-quantity-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-quantity-border-color-focus: var(--yn-color-border-focus, #241f21); --yn-quantity-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12)); --yn-quantity-color: var(--yn-color-text, #241f21); --yn-quantity-muted-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-quantity-divider-color: var(--yn-color-divider, rgba(36, 31, 33, 0.14)); --yn-quantity-button-size: 32px; --yn-quantity-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-quantity-button-bg-active: var(--yn-color-overlay-active, rgba(36, 31, 33, 0.14)); --yn-quantity-button-hover-radius: 999px; --yn-quantity-inner-gap: 6px; --yn-quantity-padding: 4px 6px; --yn-quantity-radius: 999px; --yn-quantity-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-quantity-font-size: 16px; --yn-quantity-letter-spacing: -0.01em; --yn-quantity-value-min-width: 2.5ch; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .stepper { display: inline-flex; align-items: center; gap: var(--yn-quantity-inner-gap); width: var(--yn-quantity-width); min-width: 0; height: var(--yn-quantity-height); padding: var(--yn-quantity-padding); border: 1px solid var(--yn-quantity-border-color); border-radius: var(--yn-quantity-radius); background: var(--yn-quantity-bg); overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), box-shadow 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1); } .stepper:hover:not(.is-disabled) { border-color: var(--yn-quantity-border-color-hover); background: var(--yn-quantity-bg-hover); } .stepper:focus-within:not(.is-disabled) { border-color: var(--yn-quantity-border-color-focus); background: var(--yn-quantity-bg-focus); box-shadow: 0 0 0 3px var(--yn-quantity-focus-ring); } .stepper.is-disabled { opacity: 0.72; pointer-events: none; } .btn { position: relative; width: var(--yn-quantity-button-size); height: var(--yn-quantity-button-size); flex: 0 0 var(--yn-quantity-button-size); display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--yn-quantity-color); padding: 0; cursor: pointer; } .btn::before { content: \"\"; position: absolute; inset: 0; border-radius: var(--yn-quantity-button-hover-radius); background: transparent; transition: background-color 180ms ease, transform 160ms ease; } .btn:hover:not(:disabled)::before { background: var(--yn-quantity-button-bg-hover); } .btn:active:not(:disabled)::before { background: var(--yn-quantity-button-bg-active); transform: scale(0.94); } .btn:focus-visible::before { outline: 2px solid var(--yn-quantity-color); outline-offset: 0; } .btn svg { position: relative; z-index: 1; } .btn:disabled { color: var(--yn-quantity-muted-color); cursor: not-allowed; } .value-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: var(--yn-quantity-value-min-width); flex: 1 1 auto; padding: 0 4px; } .value-wrap::before, .value-wrap::after { content: \"\"; position: absolute; top: 22%; bottom: 22%; width: 1px; background: var(--yn-quantity-divider-color); } .value-wrap::before { left: 0; } .value-wrap::after { right: 0; } .value { width: 100%; min-width: var(--yn-quantity-value-min-width); border: 0; background: transparent; color: var(--yn-quantity-color); font-family: var(--yn-quantity-font-family); font-size: var(--yn-quantity-font-size); letter-spacing: var(--yn-quantity-letter-spacing); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; padding: 0; outline: none; -moz-appearance: textfield; appearance: textfield; } .value::-webkit-outer-spin-button, .value::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .value:disabled { color: var(--yn-quantity-muted-color); } `"
             },
             {
               "kind": "field",
@@ -5629,12 +6037,20 @@
               "description": "容器背景"
             },
             {
+              "name": "--yn-quantity-bg-focus",
+              "description": "聚焦背景"
+            },
+            {
               "name": "--yn-quantity-bg-hover",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
               "name": "--yn-quantity-border-color",
               "description": "边框颜色"
+            },
+            {
+              "name": "--yn-quantity-border-color-focus",
+              "description": "聚焦边框颜色"
             },
             {
               "name": "--yn-quantity-border-color-hover",
@@ -5663,6 +6079,10 @@
             {
               "name": "--yn-quantity-divider-color",
               "description": "中间分隔线"
+            },
+            {
+              "name": "--yn-quantity-focus-ring",
+              "description": "聚焦外圈阴影"
             },
             {
               "name": "--yn-quantity-font-family",
@@ -6990,6 +7410,733 @@
           "declaration": {
             "name": "YnToast",
             "module": "src/components/yn-toast/yn-toast.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/yn-search/yn-search.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnSearch",
+          "members": [
+            {
+              "kind": "field",
+              "name": "close",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "close"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"O que estás à procura?\"",
+              "attribute": "placeholder"
+            },
+            {
+              "kind": "field",
+              "name": "inputWidth",
+              "type": {
+                "text": "number"
+              },
+              "default": "514",
+              "attribute": "input-width"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "shellEl",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "dynamicWrapEl",
+              "type": {
+                "text": "HTMLDivElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "shapeEl",
+              "type": {
+                "text": "SVGSVGElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "leftShapeEl",
+              "type": {
+                "text": "SVGSVGElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "bridgeEl",
+              "type": {
+                "text": "SVGPathElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "rect1El",
+              "type": {
+                "text": "SVGPathElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "inputEl",
+              "type": {
+                "text": "HTMLInputElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "datalistSlotEl",
+              "type": {
+                "text": "HTMLSlotElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "internalDatalistEl",
+              "type": {
+                "text": "HTMLDataListElement"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "shapeRaf",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "ready",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "datalistObserver",
+              "type": {
+                "text": "MutationObserver | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "observedDatalist",
+              "type": {
+                "text": "HTMLDataListElement | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "R",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "12.920000000000002"
+            },
+            {
+              "kind": "field",
+              "name": "RECT_START_CLOSED",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "44"
+            },
+            {
+              "kind": "field",
+              "name": "RECT_START_OPEN",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "54"
+            },
+            {
+              "kind": "field",
+              "name": "RETRACT_X",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "31.08"
+            },
+            {
+              "kind": "field",
+              "name": "TRANSITION_SPLIT",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "0.82"
+            },
+            {
+              "kind": "field",
+              "name": "GAP",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "10"
+            },
+            {
+              "kind": "field",
+              "name": "easeOpen",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "easeClose",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "lastRectPath",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastBridgePath",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastDynamicTransform",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastInputOpacity",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "lastInputTransform",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "bridgeClosed",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "{ x: [44, 44, 44, 44, 44, 44, 44, 44], y: [25.08, 25.08, 25.08, 25.08, 12.92, 12.92, 12.92, 12.92] }"
+            },
+            {
+              "kind": "field",
+              "name": "bridgeOpened",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "private",
+              "readonly": true,
+              "default": "{ x: [ 43.02922778103873, 46.440616756960296, 51.4593832430397, 54.87077221896127, 54.87077221896127, 51.4593832430397, 46.440616756960296, 43.02922778103873 ], y: [ 29.947286628412307, 25.10807502694411, 25.10807502694411, 29.947286628412307, 8.052713371587695, 12.89192497305589, 12.89192497305589, 8.052713371587695 ] }"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { --yn-search-bg-active: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.96)); --yn-search-bg-idle: transparent; --yn-search-icon-color: var(--yn-color-text, #241f21); --yn-search-field-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.7)); --yn-search-caret-color: var(--yn-color-text, #241f21); --yn-search-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.6)); --yn-search-fill-duration: 220ms; --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1); --yn-search-icon-duration: 220ms; --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1); display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .search-shell { position: relative; height: 38px; --bg-fill: var(--yn-search-bg-idle); } .search-shell.open, .search-shell:has(.toggle-btn:hover), .search-shell:has(.toggle-btn:focus-visible) { --bg-fill: var(--yn-search-bg-active); } .left-shape { position: absolute; top: 0; left: 0; width: 44px; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .left-shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .dynamic-wrap { position: absolute; top: 0; left: 44px; height: 38px; overflow: hidden; opacity: 1; pointer-events: none; } .search-shell.open .dynamic-wrap { opacity: 1; pointer-events: auto; } .shape { position: absolute; top: 0; left: 0; height: 38px; fill: var(--bg-fill); transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .shape path { stroke: var(--bg-fill); stroke-width: 0.65; stroke-linejoin: round; stroke-linecap: round; transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)), stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)); } .toggle-btn { position: absolute; left: 0; top: 0; width: 44px; height: 38px; border: 0; background: transparent; color: var(--yn-search-icon-color); cursor: pointer; display: grid; place-items: center; z-index: 2; } .toggle-btn:disabled { opacity: 0.6; cursor: not-allowed; } .icon { position: absolute; width: 20px; height: 20px; transition: opacity var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)), transform var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)); } .icon.search { opacity: 1; transform: scale(1); } .icon.close { opacity: 0; transform: scale(0.7) rotate(-80deg); } .search-shell.open .toggle-btn .icon.search { opacity: 0; transform: scale(0.7) rotate(80deg); } .search-shell.open .toggle-btn .icon.close { opacity: 1; transform: scale(1) rotate(0deg); } .search-input { position: absolute; top: 0; left: 0; margin-left: 10px; } .search-input .inner { display: flex; align-items: center; justify-content: center; width: 100%; height: 38px; padding: 2px 10px; pointer-events: none; } .search-shell.open .search-input .inner { pointer-events: auto; } .field { width: 100%; border: 0; outline: 0; background: transparent; color: var(--yn-search-field-color, var(--yn-color-text-muted, #241f21b3)); font-family: \"Zimula\", Arial, \"PingFang SC\", \"Microsoft YaHei\", sans-serif; font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px); font-variation-settings: \"cnct\" 1000, \"wght\" 500; letter-spacing: -0.02em; line-height: 1.4em; caret-color: var(--yn-search-caret-color, var(--yn-color-text, #241f21)); padding-left: 3px; opacity: 0; transform: translateX(-10px); transition: none; } .search-shell.open .field { opacity: 1; transform: translateX(0px); } .field::placeholder { color: var(--yn-search-placeholder-color, var(--yn-color-text-muted, #241f2199)); } .field::-webkit-calendar-picker-indicator { display: none !important; -webkit-appearance: none; } .datalist-slot { display: none; } @media only screen and (max-width: 1023px) { .field, .field::placeholder { font-size: 16px; } } `"
+            },
+            {
+              "kind": "field",
+              "name": "rectEndOpen",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "dynamicWidth",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "shapeTAtButton",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后初始化尺寸并在打开态同步形状。"
+            },
+            {
+              "kind": "method",
+              "name": "getSourceDatalistFromSlot",
+              "privacy": "private",
+              "description": "从 slot 中获取外部 datalist 源节点。"
+            },
+            {
+              "kind": "method",
+              "name": "observeSourceDatalist",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "text": "HTMLDataListElement | null"
+                  }
+                }
+              ],
+              "description": "监听外部 datalist 变化并同步到内部。"
+            },
+            {
+              "kind": "method",
+              "name": "syncDatalistFromSlot",
+              "privacy": "private",
+              "description": "将 slot datalist 内容同步到内部 datalist。"
+            },
+            {
+              "kind": "field",
+              "name": "onDatalistSlotChange",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "PropertyValues"
+                  }
+                }
+              ],
+              "description": "监听属性变化并刷新动画、壳层与事件输出。"
+            },
+            {
+              "kind": "method",
+              "name": "syncShell",
+              "privacy": "private",
+              "description": "同步宿主开关态到壳层 class。"
+            },
+            {
+              "kind": "method",
+              "name": "stopAnims",
+              "privacy": "private",
+              "description": "停止所有进行中的形状动画 RAF。"
+            },
+            {
+              "kind": "method",
+              "name": "lerp",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "a",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "线性插值工具。"
+            },
+            {
+              "kind": "method",
+              "name": "cubicBezier",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "x1",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y1",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "x2",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "y2",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "生成 cubic-bezier easing 求值函数。"
+            },
+            {
+              "kind": "method",
+              "name": "buildRectPath",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "startX",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "endX",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "构建矩形胶囊路径。"
+            },
+            {
+              "kind": "method",
+              "name": "buildBridgePath",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "构建桥接路径，t 表示形态进度。"
+            },
+            {
+              "kind": "method",
+              "name": "applyShapeFromValues",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "startX",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "endX",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "按给定进度和区间写入路径数据。"
+            },
+            {
+              "kind": "method",
+              "name": "applyShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ],
+              "description": "依据当前宽度状态应用整体形状。"
+            },
+            {
+              "kind": "method",
+              "name": "syncInputToShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "t",
+                  "type": {
+                    "text": "number"
+                  }
+                },
+                {
+                  "name": "opening",
+                  "type": {
+                    "text": "boolean"
+                  }
+                },
+                {
+                  "name": "rectWidth",
+                  "default": "0"
+                }
+              ],
+              "description": "根据形状进度同步输入框透明度与位移。"
+            },
+            {
+              "kind": "method",
+              "name": "animateShape",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "opening",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "执行开关阶段形状动画。"
+            },
+            {
+              "kind": "method",
+              "name": "onInput",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ],
+              "description": "处理输入并同步组件值。"
+            },
+            {
+              "kind": "method",
+              "name": "dispatchInputEvent",
+              "privacy": "private",
+              "description": "对外派发输入变化事件。"
+            },
+            {
+              "kind": "method",
+              "name": "onInputKeydown",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "KeyboardEvent"
+                  }
+                }
+              ],
+              "description": "处理输入框按键行为（回车等）。"
+            },
+            {
+              "kind": "method",
+              "name": "onToggle",
+              "privacy": "private",
+              "description": "处理图标点击切换：展开、关闭或清空。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染搜索组件外壳、路径与输入区域。"
+            }
+          ],
+          "events": [
+            {
+              "name": "input",
+              "type": {
+                "text": "CustomEvent"
+              }
+            },
+            {
+              "name": "enter",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-search",
+          "summary": "Floema 风格搜索框。",
+          "attributes": [
+            {
+              "name": "close",
+              "fieldName": "close",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "placeholder",
+              "fieldName": "placeholder",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"O que estás à procura?\""
+            },
+            {
+              "name": "input-width",
+              "fieldName": "inputWidth",
+              "type": {
+                "text": "number"
+              },
+              "default": "514"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "默认插槽"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-search-bg-active",
+              "description": "展开背景"
+            },
+            {
+              "name": "--yn-search-bg-idle",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-caret-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-field-color",
+              "description": "输入文字颜色"
+            },
+            {
+              "name": "--yn-search-fill-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-fill-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-icon-color",
+              "description": "图标颜色"
+            },
+            {
+              "name": "--yn-search-icon-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-icon-ease",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-search-placeholder-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnSearch",
+          "declaration": {
+            "name": "YnSearch",
+            "module": "src/components/yn-search/yn-search.ts"
           }
         }
       ]

@@ -324,6 +324,20 @@
       }
     },
     {
+      "name": "--yn-checkout-address-bg",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-checkout-address:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
+      "name": "--yn-checkout-address-padding",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-checkout-address:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
       "name": "--yn-drawer-backdrop",
       "description": {
         "kind": "markdown",
@@ -828,6 +842,13 @@
       }
     },
     {
+      "name": "--yn-input-action-gap",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
       "name": "--yn-input-bg",
       "description": {
         "kind": "markdown",
@@ -912,6 +933,13 @@
       }
     },
     {
+      "name": "--yn-input-field-padding-x",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
       "name": "--yn-input-focus-border-color",
       "description": {
         "kind": "markdown",
@@ -955,6 +983,13 @@
     },
     {
       "name": "--yn-input-padding",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
+      "name": "--yn-input-padding-with-action",
       "description": {
         "kind": "markdown",
         "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
@@ -1374,6 +1409,13 @@
       }
     },
     {
+      "name": "--yn-quantity-bg-focus",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-quantity:** 聚焦背景"
+      }
+    },
+    {
       "name": "--yn-quantity-bg-hover",
       "description": {
         "kind": "markdown",
@@ -1385,6 +1427,13 @@
       "description": {
         "kind": "markdown",
         "value": "**yn-quantity:** 边框颜色"
+      }
+    },
+    {
+      "name": "--yn-quantity-border-color-focus",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-quantity:** 聚焦边框颜色"
       }
     },
     {
@@ -1434,6 +1483,13 @@
       "description": {
         "kind": "markdown",
         "value": "**yn-quantity:** 中间分隔线"
+      }
+    },
+    {
+      "name": "--yn-quantity-focus-ring",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-quantity:** 聚焦外圈阴影"
       }
     },
     {

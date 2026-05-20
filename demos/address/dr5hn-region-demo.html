@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-yn-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>dr5hn 区域搜索 Demo</title>
+    <link rel="stylesheet" href="./demo-page.css" />
+  </head>
+  <body>
+    <div id="boot-warn" role="alert"></div>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">Demo 2 / dr5hn 版</p>
+        <h1>区域搜索（dr5hn）</h1>
+        <p class="lead">
+          <strong>一行搜索</strong>国家 / 省州 / 城市（仅行政区划，无街道门牌）。
+          <strong>排除中国大陆 CN</strong>，搜 Beijing 会提示不在范围内。
+        </p>
+        <p class="nav-links">
+          <a href="./unified-address-demo.html">统一自动选源 Demo（推荐）</a>
+          ·
+          <a href="./google-address-demo.html">Google 独立 Demo</a>
+        </p>
+      </header>
+      <main class="layout">
+        <section class="card card--form">
+          <p class="card__title">收货地址</p>
+          <demo-dr5hn-region id="app"></demo-dr5hn-region>
+          <p class="tips">
+            试：<code>Dubai</code>、<code>London</code>、<code>Singapore</code>。
+            数据：<code>@countrystatecity/countries-browser</code> + jsDelivr。
+          </p>
+        </section>
+        <aside class="card">
+          <p class="card__title">结果</p>
+          <ul class="meta-list" id="summary">
+            <li><span>国家</span><strong>—</strong></li>
+          </ul>
+          <pre id="payload">// 选中后显示 JSON</pre>
+        </aside>
+      </main>
+    </div>
+    <script>
+      window.__DEMO_TAG__ = "demo-dr5hn-region";
+    </script>
+    <script type="module" src="./dr5hn-region-demo.ts"></script>
+    <script src="./demo-boot.js"></script>
+  </body>
+</html>

@@ -92,6 +92,11 @@
       "import": "./dist/components/yn-quantity.js",
       "require": "./dist/components/yn-quantity.cjs"
     },
+    "./components/yn-checkout-address": {
+      "types": "./dist/types/components/yn-checkout-address/yn-checkout-address.d.ts",
+      "import": "./dist/components/yn-checkout-address.js",
+      "require": "./dist/components/yn-checkout-address.cjs"
+    },
     "./umd": {
       "default": "./dist/index.umd.js"
     },
@@ -106,6 +111,9 @@
     "dev": "vite",
     "dev:pull-cord": "vite --open /demos/pull-cord-switch-demo.html",
     "dev:menu-mobile-bg": "vite --open /demos/menu-mobile-bg-demo.html",
+    "dev:unified-address": "vite --open /demos/address/unified-address-demo.html",
+    "dev:google-address": "vite --open /demos/address/google-address-demo.html",
+    "dev:dr5hn-region": "vite --open /demos/address/dr5hn-region-demo.html",
     "build": "vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "analyze": "cem analyze && node scripts/generate-ide-metadata.mjs",
@@ -129,6 +137,7 @@
   "license": "MIT",
   "packageManager": "pnpm@10.17.1",
   "dependencies": {
+    "@countrystatecity/countries-browser": "^1.0.0",
     "lit": "^3.3.2"
   },
   "devDependencies": {

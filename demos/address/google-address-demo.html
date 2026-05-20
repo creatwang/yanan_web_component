@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-yn-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Google / Photon 地址 Demo</title>
+    <link rel="stylesheet" href="./demo-page.css" />
+  </head>
+  <body>
+    <div id="boot-warn" role="alert"></div>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">Demo 1 / Google 版</p>
+        <h1>地址搜索（Google Places）</h1>
+        <p class="lead">
+          <strong>一行搜索</strong>，选中后自动带入国家、省州、城市、详细地址与区号。
+          <strong>不过滤中国</strong>（可搜 Beijing）。无 Key 时用 Photon 兜底。
+        </p>
+        <p class="nav-links">
+          <a href="./unified-address-demo.html">统一自动选源 Demo（推荐）</a>
+          ·
+          <a href="./dr5hn-region-demo.html">dr5hn 独立 Demo</a>
+        </p>
+      </header>
+      <main class="layout">
+        <section class="card card--form">
+          <p class="card__title">表单</p>
+          <demo-google-address id="app"></demo-google-address>
+          <p class="tips">
+            试：<code>10 Downing Street London</code>、<code>Beijing Chang'an Avenue</code>。
+            Key：<code>VITE_GOOGLE_MAPS_API_KEY</code>（见 <code>.env.example</code>）。
+          </p>
+        </section>
+        <aside class="card">
+          <p class="card__title">结果</p>
+          <ul class="meta-list" id="summary">
+            <li><span>状态</span><strong>—</strong></li>
+          </ul>
+          <pre id="payload">// 选中后显示 JSON</pre>
+        </aside>
+      </main>
+    </div>
+    <script>
+      window.__DEMO_TAG__ = "demo-google-address";
+    </script>
+    <script type="module" src="./google-address-demo.ts"></script>
+    <script src="./demo-boot.js"></script>
+  </body>
+</html>

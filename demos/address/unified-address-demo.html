@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-yn-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>统一结账地址 Demo</title>
+    <link rel="stylesheet" href="./demo-page.css" />
+  </head>
+  <body>
+    <div id="boot-warn" role="alert"></div>
+    <div class="page">
+      <header class="hero">
+        <p class="eyebrow">推荐 · 统一组件</p>
+        <h1>结账地址（自动选源）</h1>
+        <p class="lead">
+          正式组件 <code>yn-checkout-address</code>：挂载后异步探测
+          <strong>Google Key</strong> → <strong>dr5hn CDN</strong> → <strong>Photon</strong>，等待期间显示骨架屏。
+        </p>
+        <p class="nav-links">
+          <a href="./google-address-demo.html">独立 Demo：Google</a>
+          ·
+          <a href="./dr5hn-region-demo.html">独立 Demo：dr5hn</a>
+        </p>
+      </header>
+      <main class="layout">
+        <section class="card card--form">
+          <p class="card__title">收货地址</p>
+          <yn-checkout-address id="app" locale="zh-CN"></yn-checkout-address>
+          <p class="tips">
+            配置 <code>VITE_GOOGLE_MAPS_API_KEY</code> 可优先 Google；断网或 CDN 失败会自动降级。
+          </p>
+        </section>
+        <aside class="card">
+          <p class="card__title">结果</p>
+          <p class="tips" id="probe-info" style="margin-top: 0">检测中…</p>
+          <ul class="meta-list" id="summary">
+            <li><span>数据源</span><strong>—</strong></li>
+          </ul>
+          <pre id="payload">// 填写后显示 JSON</pre>
+        </aside>
+      </main>
+    </div>
+    <script>
+      window.__DEMO_TAG__ = "yn-checkout-address";
+    </script>
+    <script type="module" src="./unified-address-demo.ts"></script>
+    <script src="./demo-boot.js"></script>
+  </body>
+</html>

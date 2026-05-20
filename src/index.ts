@@ -11,6 +11,26 @@ export { YnDrawer } from "./components/yn-drawer/yn-drawer";
 export { YnToast } from "./components/yn-toast/yn-toast";
 export { YnPullCordSwitch } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 export { YnQuantity } from "./components/yn-quantity/yn-quantity";
+export { YnCheckoutAddress } from "./components/yn-checkout-address/yn-checkout-address";
+export type {
+  YnCheckoutAddressChangeDetail,
+  YnCheckoutAddressField,
+  YnCheckoutAddressErrorCode,
+  YnCheckoutAddressLocale,
+  YnCheckoutAddressMessages,
+  YnCheckoutAddressValidation,
+  YnCheckoutAddressValidationError,
+  YnCheckoutAddressValue,
+  YnCheckoutExcludeRegions,
+  YnCheckoutProvider,
+  YnCheckoutRegionFilter,
+} from "./components/yn-checkout-address/types";
+export {
+  validateCheckoutAddress,
+  POSTAL_REQUIRED_COUNTRIES,
+  isPostalRequiredForCountry,
+} from "./components/yn-checkout-address/validation";
+export { emptyCheckoutAddressValue } from "./components/yn-checkout-address/types";
 export type {
   YnPullCordSwitchSize,
   YnPullCordSwitchVariant

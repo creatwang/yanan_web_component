@@ -19,7 +19,8 @@ export default defineConfig({
         "components/yn-drawer": "src/components/yn-drawer/yn-drawer.ts",
         "components/yn-toast": "src/components/yn-toast/yn-toast.ts",
         "components/yn-pull-cord-switch": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts",
-        "components/yn-quantity": "src/components/yn-quantity/yn-quantity.ts"
+        "components/yn-quantity": "src/components/yn-quantity/yn-quantity.ts",
+        "components/yn-checkout-address": "src/components/yn-checkout-address/yn-checkout-address.ts"
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => {

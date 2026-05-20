@@ -11,3 +11,4 @@ import "./components/yn-drawer/yn-drawer";
 import "./components/yn-toast/yn-toast";
 import "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 import "./components/yn-quantity/yn-quantity";
+import "./components/yn-checkout-address/yn-checkout-address";

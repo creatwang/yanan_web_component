@@ -1,0 +1,189 @@
+/** 地址数据源：探测完成后为 google | dr5hn | photon；探测中为 null。 */
+export type YnCheckoutProvider = "google" | "dr5hn" | "photon" | null;
+
+/**
+ * 结账地址统一值（Google / dr5hn / Photon 保存、回显、编辑均使用此结构）。
+ * 绑定 `.value` 回显时不会重新探测或重搜；用户编辑仅更新字段并触发 `change`。
+ */
+export type YnCheckoutAddressValue = {
+  provider: YnCheckoutProvider;
+  /** 探测说明（仅 dev 或调试时有用，业务可忽略） */
+  probeReason: string;
+  countryCode: string;
+  countryName: string;
+  stateCode: string | null;
+  stateName: string | null;
+  cityName: string;
+  cityId: number | null;
+  phonecode: string;
+  phoneNumber: string;
+  /** 联系邮箱；需 `show-email` 才展示输入框 */
+  email: string;
+  line1: string;
+  line2: string;
+  postalCode: string;
+  currency: string;
+  /** 国家+城市已选定（dr5hn 需城市级；Google/Photon 有国家与城市名即可） */
+  regionComplete: boolean;
+  /**
+   * 软就绪：主要必填已填，可用于预启用下单按钮。
+   * 硬校验以 `validate().valid` 为准（含邮编、邮箱等）。
+   */
+  formReady: boolean;
+  /** 搜索框展示文案，回显时优先使用；未设则按地区字段拼接 */
+  searchLabel?: string;
+};
+
+export type YnCheckoutAddressField =
+  | "region"
+  | "phoneNumber"
+  | "line1"
+  | "postalCode"
+  | "email";
+
+export type YnCheckoutAddressErrorCode =
+  | "REGION_REQUIRED"
+  | "REGION_CITY_LEVEL_REQUIRED"
+  | "REGION_NOT_ALLOWED"
+  | "PHONE_REQUIRED"
+  | "PHONE_INVALID"
+  | "LINE1_REQUIRED"
+  | "LINE1_TOO_SHORT"
+  | "POSTAL_REQUIRED"
+  | "EMAIL_REQUIRED"
+  | "EMAIL_INVALID";
+
+export type YnCheckoutAddressValidationError = {
+  field: YnCheckoutAddressField;
+  code: YnCheckoutAddressErrorCode;
+  message: string;
+};
+
+export type YnCheckoutAddressValidation = {
+  valid: boolean;
+  regionComplete: boolean;
+  formReady: boolean;
+  errors: YnCheckoutAddressValidationError[];
+};
+
+/** `change` 事件 detail */
+export type YnCheckoutAddressChangeDetail = {
+  value: YnCheckoutAddressValue;
+  validation: YnCheckoutAddressValidation;
+};
+
+/** 排除国家 / 省州 / 城市（ISO2 与 dr5hn cityId） */
+export type YnCheckoutExcludeRegions = {
+  countries?: string[];
+  states?: Array<{ countryCode: string; stateCode: string }>;
+  cities?: Array<{ countryCode: string; cityId: number }>;
+};
+
+export type YnCheckoutRegionFilter = {
+  excludeRegions?: YnCheckoutExcludeRegions;
+  /** 非空时仅允许列表内国家（ISO2，大小写不敏感） */
+  includeCountries?: string[];
+};
+
+export type YnCheckoutAddressLocale = "en" | "zh-CN";
+
+export type YnCheckoutAddressMessages = {
+  probing: string;
+  /**
+   * 表单顶部用户指引（可通过 messages 覆盖）。
+   * 若设置 `usageHint`，则忽略分数据源的三条指引。
+   */
+  usageHint?: string;
+  /** Google Places 模式下的使用说明 */
+  usageHintGoogle: string;
+  /** dr5hn：搜索国家/省/州/城市并选择带标记项的指引 */
+  usageHintDr5hn: string;
+  /** Photon 地址搜索模式下的使用说明 */
+  usageHintPhoton: string;
+  /** 仅 dev 面板展示：数据源标签 */
+  activeProvider: string;
+  providerGoogle: string;
+  providerDr5hn: string;
+  providerPhoton: string;
+  probeFailed: string;
+  probeFailedFallback: string;
+  retryProbe: string;
+  addressSearchLabel: string;
+  addressSearchPlaceholder: string;
+  regionSearchLabel: string;
+  regionSearchPlaceholder: string;
+  searchClear: string;
+  searching: string;
+  searchFailed: string;
+  regionSearchNoResults: string;
+  regionSearchChinaExcluded: string;
+  regionSearchCountryOnly: string;
+  regionSearchStateOnly: string;
+  regionSearchLevelCity: string;
+  regionSearchLevelState: string;
+  regionSearchLevelCountry: string;
+  sectionRegion: string;
+  sectionContact: string;
+  /** 同时展示邮箱与电话时的区块标题 */
+  sectionContactDetails: string;
+  sectionAddress: string;
+  country: string;
+  state: string;
+  cityDistrict: string;
+  empty: string;
+  phoneDial: string;
+  phonePrefixEmpty: string;
+  phoneNumber: string;
+  phonePlaceholder: string;
+  detailAddress: string;
+  detailAddress2: string;
+  detailAddress2Placeholder: string;
+  detailAddressPlaceholder: string;
+  postal: string;
+  postalPlaceholder: string;
+  postalPlaceholderRequired: string;
+  fieldMarkRequired: string;
+  fieldMarkOptional: string;
+  dr5hnSubmitHint: string;
+  /** dr5hn 无匹配数据时降级 Photon 的说明 */
+  dr5hnFallbackToPhoton: string;
+  devPanelTitle: string;
+  email: string;
+  emailPlaceholder: string;
+  errorRegionRequired: string;
+  errorRegionCityLevel: string;
+  errorRegionNotAllowed: string;
+  errorPhoneRequired: string;
+  errorPhoneInvalid: string;
+  errorLine1Required: string;
+  errorLine1TooShort: string;
+  errorPostalRequired: string;
+  errorEmailRequired: string;
+  errorEmailInvalid: string;
+  validateSubmitLabel: string;
+  validateSummaryTitle: string;
+};
+
+export const emptyCheckoutAddressValue = (
+  provider: YnCheckoutProvider = null,
+  probeReason = "",
+): YnCheckoutAddressValue => ({
+  provider,
+  probeReason,
+  countryCode: "",
+  countryName: "",
+  stateCode: null,
+  stateName: null,
+  cityName: "",
+  cityId: null,
+  phonecode: "",
+  phoneNumber: "",
+  email: "",
+  line1: "",
+  line2: "",
+  postalCode: "",
+  currency: "",
+  regionComplete: false,
+  formReady: false,
+  searchLabel: "",
+});
