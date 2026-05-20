@@ -31,8 +31,11 @@ export class YnQuantity extends LitElement {
       --yn-quantity-height: 44px;
       --yn-quantity-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62));
       --yn-quantity-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86));
+      --yn-quantity-bg-focus: var(--yn-color-surface-focus, #fffaf2);
       --yn-quantity-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22));
       --yn-quantity-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52));
+      --yn-quantity-border-color-focus: var(--yn-color-border-focus, #241f21);
+      --yn-quantity-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12));
       --yn-quantity-color: var(--yn-color-text, #241f21);
       --yn-quantity-muted-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42));
       --yn-quantity-divider-color: var(--yn-color-divider, rgba(36, 31, 33, 0.14));
@@ -75,8 +78,8 @@ export class YnQuantity extends LitElement {
       overflow: hidden;
       transition:
         border-color 220ms cubic-bezier(0.4, 0, 1, 1),
-        background-color 220ms cubic-bezier(0.4, 0, 1, 1),
-        transform 220ms cubic-bezier(0.4, 0, 1, 1);
+        box-shadow 220ms cubic-bezier(0.4, 0, 1, 1),
+        background-color 220ms cubic-bezier(0.4, 0, 1, 1);
     }
 
     .stepper:hover:not(.is-disabled) {
@@ -85,9 +88,9 @@ export class YnQuantity extends LitElement {
     }
 
     .stepper:focus-within:not(.is-disabled) {
-      border-color: var(--yn-quantity-border-color-hover);
-      background: var(--yn-quantity-bg-hover);
-      transform: translateY(-1px);
+      border-color: var(--yn-quantity-border-color-focus);
+      background: var(--yn-quantity-bg-focus);
+      box-shadow: 0 0 0 3px var(--yn-quantity-focus-ring);
     }
 
     .stepper.is-disabled {

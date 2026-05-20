@@ -1,13 +1,43 @@
 import { LitElement, css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
+import { customElement, property, state } from "lit/decorators.js";
 
 @customElement("yn-input")
 export class YnInput extends LitElement {
   @property({ type: String }) value = "";
   @property({ type: String }) placeholder = "请输入内容";
   @property({ type: Boolean }) disabled = false;
+
+  @state() private hasPrefixButton = false;
+  @state() private hasSuffixButton = false;
+
+  private hasSlotContent(slot: HTMLSlotElement) {
+    return slot.assignedElements({ flatten: true }).length > 0;
+  }
+
+  private handlePrefixSlotChange = (event: Event) => {
+    const slot = event.target as HTMLSlotElement;
+    this.hasPrefixButton = this.hasSlotContent(slot);
+  };
+
+  private handleSuffixSlotChange = (event: Event) => {
+    const slot = event.target as HTMLSlotElement;
+    this.hasSuffixButton = this.hasSlotContent(slot);
+  };
+
+  override firstUpdated() {
+    this.syncSlotButtons();
+  }
+
+  private syncSlotButtons() {
+    const prefixSlot = this.renderRoot.querySelector<HTMLSlotElement>('slot[name="prefix-button"]');
+    const suffixSlot = this.renderRoot.querySelector<HTMLSlotElement>('slot[name="suffix-button"]');
+    if (prefixSlot) {
+      this.hasPrefixButton = this.hasSlotContent(prefixSlot);
+    }
+    if (suffixSlot) {
+      this.hasSuffixButton = this.hasSlotContent(suffixSlot);
+    }
+  }
 
   static styles = css`
     :host {
@@ -25,7 +55,10 @@ export class YnInput extends LitElement {
       --yn-input-disabled-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42));
       --yn-input-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12));
       --yn-input-radius: 999px;
-      --yn-input-padding: 0 10px;
+      --yn-input-padding: 0 14px;
+      --yn-input-padding-with-action: 0 6px;
+      --yn-input-field-padding-x: 8px;
+      --yn-input-action-gap: 4px;
       --yn-input-button-size: 28px;
       --yn-input-button-color: var(--yn-color-text, #241f21);
       --yn-input-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08));
@@ -52,17 +85,16 @@ export class YnInput extends LitElement {
       height: var(--yn-input-height);
       display: inline-flex;
       align-items: center;
-      gap: 0;
+      gap: var(--yn-input-action-gap);
       border: 1px solid var(--yn-input-border-color);
       border-radius: var(--yn-input-radius);
       background: var(--yn-input-bg);
-      padding: 0 4px;
+      padding: 0 var(--yn-input-field-padding-x);
       overflow: hidden;
       transition:
         border-color 220ms cubic-bezier(0.4, 0, 1, 1),
         box-shadow 220ms cubic-bezier(0.4, 0, 1, 1),
-        background-color 220ms cubic-bezier(0.4, 0, 1, 1),
-        transform 220ms cubic-bezier(0.4, 0, 1, 1);
+        background-color 220ms cubic-bezier(0.4, 0, 1, 1);
     }
 
     .field:hover:not(.is-disabled) {
@@ -74,12 +106,16 @@ export class YnInput extends LitElement {
       border-color: var(--yn-input-border-color-focus);
       background: var(--yn-input-bg-focus);
       box-shadow: 0 0 0 3px var(--yn-input-focus-ring);
-      transform: translateY(-1px);
     }
 
     .field.is-disabled {
       border-color: transparent;
       background: var(--yn-input-bg-disabled);
+    }
+
+    .field.has-prefix .input,
+    .field.has-suffix .input {
+      padding: var(--yn-input-padding-with-action);
     }
 
     .input {
@@ -109,6 +145,14 @@ export class YnInput extends LitElement {
       cursor: not-allowed;
       background: transparent;
       color: var(--yn-input-disabled-color);
+    }
+
+    .action-prefix {
+      margin-inline-start: 2px;
+    }
+
+    .action-suffix {
+      margin-inline-end: 2px;
     }
 
     .action {
@@ -173,17 +217,36 @@ export class YnInput extends LitElement {
 
   /** 渲染输入框。 */
   render() {
+    const fieldClass = [
+      "field",
+      this.disabled ? "is-disabled" : "",
+      this.hasPrefixButton ? "has-prefix" : "",
+      this.hasSuffixButton ? "has-suffix" : ""
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     return html`
-      <div class=${`field${this.disabled ? " is-disabled" : ""}`}>
-        <button
-          class="action action-prefix"
-          type="button"
-          ?disabled=${this.disabled}
-          aria-label="前置操作"
-          @click=${() => this.emitButtonEvent("yn-prefix-click")}
-        >
-          <slot name="prefix-button">${unsafeSVG(ynSearchSvg)}</slot>
-        </button>
+      <div class=${fieldClass}>
+        ${this.hasPrefixButton
+          ? html`
+              <button
+                class="action action-prefix"
+                type="button"
+                ?disabled=${this.disabled}
+                aria-label="前置操作"
+                @click=${() => this.emitButtonEvent("yn-prefix-click")}
+              >
+                <slot name="prefix-button" @slotchange=${this.handlePrefixSlotChange}></slot>
+              </button>
+            `
+          : html`
+              <slot
+                name="prefix-button"
+                hidden
+                @slotchange=${this.handlePrefixSlotChange}
+              ></slot>
+            `}
         <input
           class="input"
           .value=${this.value}
@@ -191,15 +254,25 @@ export class YnInput extends LitElement {
           ?disabled=${this.disabled}
           @input=${this.handleInput}
         />
-        <button
-          class="action action-suffix"
-          type="button"
-          ?disabled=${this.disabled}
-          aria-label="后置操作"
-          @click=${() => this.emitButtonEvent("yn-suffix-click")}
-        >
-          <slot name="suffix-button">${unsafeSVG(ynSearchCloseSvg)}</slot>
-        </button>
+        ${this.hasSuffixButton
+          ? html`
+              <button
+                class="action action-suffix"
+                type="button"
+                ?disabled=${this.disabled}
+                aria-label="后置操作"
+                @click=${() => this.emitButtonEvent("yn-suffix-click")}
+              >
+                <slot name="suffix-button" @slotchange=${this.handleSuffixSlotChange}></slot>
+              </button>
+            `
+          : html`
+              <slot
+                name="suffix-button"
+                hidden
+                @slotchange=${this.handleSuffixSlotChange}
+              ></slot>
+            `}
       </div>
     `;
   }

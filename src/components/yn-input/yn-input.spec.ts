@@ -9,6 +9,12 @@ describe("yn-input", () => {
     expect(input?.getAttribute("placeholder")).to.equal("搜索");
   });
 
+  it("does not render action buttons without slots", async () => {
+    const el = await fixture<YnInput>(html`<yn-input></yn-input>`);
+    expect(el.shadowRoot?.querySelector(".action-prefix")).to.equal(null);
+    expect(el.shadowRoot?.querySelector(".action-suffix")).to.equal(null);
+  });
+
   it("emits yn-input event with current value", async () => {
     const el = await fixture<YnInput>(html`<yn-input></yn-input>`);
     let emittedValue = "";
@@ -35,6 +41,11 @@ describe("yn-input", () => {
       </yn-input>
     `);
 
+    await el.updateComplete;
+
+    expect(el.shadowRoot?.querySelector(".action-prefix")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector(".action-suffix")).to.not.equal(null);
+
     const prefixSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="prefix-button"]');
     const suffixSlot = el.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="suffix-button"]');
     expect(prefixSlot?.assignedElements({ flatten: true }).length).to.equal(1);
@@ -42,7 +53,14 @@ describe("yn-input", () => {
   });
 
   it("emits prefix and suffix click events with current value", async () => {
-    const el = await fixture<YnInput>(html`<yn-input value="hello"></yn-input>`);
+    const el = await fixture<YnInput>(html`
+      <yn-input value="hello">
+        <span slot="prefix-button">P</span>
+        <span slot="suffix-button">S</span>
+      </yn-input>
+    `);
+    await el.updateComplete;
+
     let prefixValue = "";
     let suffixValue = "";
 
@@ -67,7 +85,14 @@ describe("yn-input", () => {
   });
 
   it("disables prefix and suffix buttons when disabled", async () => {
-    const el = await fixture<YnInput>(html`<yn-input disabled></yn-input>`);
+    const el = await fixture<YnInput>(html`
+      <yn-input disabled>
+        <span slot="prefix-button">P</span>
+        <span slot="suffix-button">S</span>
+      </yn-input>
+    `);
+    await el.updateComplete;
+
     let prefixClicked = false;
     let suffixClicked = false;
 

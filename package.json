@@ -87,6 +87,11 @@
       "import": "./dist/components/yn-pull-cord-switch.js",
       "require": "./dist/components/yn-pull-cord-switch.cjs"
     },
+    "./components/yn-quantity": {
+      "types": "./dist/types/components/yn-quantity/yn-quantity.d.ts",
+      "import": "./dist/components/yn-quantity.js",
+      "require": "./dist/components/yn-quantity.cjs"
+    },
     "./umd": {
       "default": "./dist/index.umd.js"
     },

@@ -10,6 +10,7 @@ export { YnDropdownPick } from "./components/yn-dropdown-pick/yn-dropdown-pick";
 export { YnDrawer } from "./components/yn-drawer/yn-drawer";
 export { YnToast } from "./components/yn-toast/yn-toast";
 export { YnPullCordSwitch } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
+export { YnQuantity } from "./components/yn-quantity/yn-quantity";
 export type {
   YnPullCordSwitchSize,
   YnPullCordSwitchVariant

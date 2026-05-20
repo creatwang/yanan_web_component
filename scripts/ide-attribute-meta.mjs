@@ -240,8 +240,11 @@ export default {
     summary: "Floema 风格产品数量选择器。",
     cssVariables: {
       "--yn-quantity-bg": "容器背景",
+      "--yn-quantity-bg-focus": "聚焦背景",
       "--yn-quantity-color": "数字与图标颜色",
       "--yn-quantity-border-color": "边框颜色",
+      "--yn-quantity-border-color-focus": "聚焦边框颜色",
+      "--yn-quantity-focus-ring": "聚焦外圈阴影",
       "--yn-quantity-divider-color": "中间分隔线"
     }
   },

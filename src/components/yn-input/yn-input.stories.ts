@@ -60,7 +60,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Floema 风格的输入框组件，使用暖色半透明背景、细线边框和胶囊圆角，支持受控 value、占位文案、禁用状态、前置按钮和后置按钮。\n\n事件：输入变化时触发 `yn-input`；前置按钮点击触发 `yn-prefix-click`；后置按钮点击触发 `yn-suffix-click`。三个事件的 `event.detail` 均为 `{ value: string }`。\n\n插槽：`prefix-button` 用于覆盖前置按钮内容，默认使用项目 `ynSearchSvg`；`suffix-button` 用于覆盖后置按钮内容，默认使用项目 `ynSearchCloseSvg`。插槽内容优先，未传入时使用默认 SVG。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；应通过公开 CSS 变量定制样式：\n- `--yn-input-width`\n- `--yn-input-height`\n- `--yn-input-bg`\n- `--yn-input-bg-hover`\n- `--yn-input-bg-focus`\n- `--yn-input-bg-disabled`\n- `--yn-input-border-color`\n- `--yn-input-border-color-hover`\n- `--yn-input-border-color-focus`\n- `--yn-input-color`\n- `--yn-input-placeholder-color`\n- `--yn-input-disabled-color`\n- `--yn-input-focus-ring`\n- `--yn-input-radius`\n- `--yn-input-padding`\n- `--yn-input-button-size`\n- `--yn-input-button-color`\n- `--yn-input-button-bg-hover`\n- `--yn-input-font-family`\n- `--yn-input-font-size`\n- `--yn-input-letter-spacing`\n\n示例：\n```html\n<yn-input @yn-prefix-click=\"...\" @yn-suffix-click=\"...\">\n  <span slot=\"prefix-button\">...</span>\n  <span slot=\"suffix-button\">...</span>\n</yn-input>\n```"
+          "Floema 风格的输入框组件，使用暖色半透明背景、细线边框和胶囊圆角，支持受控 value、占位文案、禁用状态。\n\n**默认无前后置图标**；仅在传入 `prefix-button` / `suffix-button` 插槽时渲染对应按钮。\n\n事件：输入变化时触发 `yn-input`；前置按钮点击触发 `yn-prefix-click`；后置按钮点击触发 `yn-suffix-click`。三个事件的 `event.detail` 均为 `{ value: string }`。\n\n插槽：`prefix-button`、`suffix-button` 为可选；传入后显示可点击按钮，插槽内容即按钮图标。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；应通过公开 CSS 变量定制样式：\n- `--yn-input-width`\n- `--yn-input-height`\n- `--yn-input-bg`\n- `--yn-input-bg-hover`\n- `--yn-input-bg-focus`\n- `--yn-input-bg-disabled`\n- `--yn-input-border-color`\n- `--yn-input-border-color-hover`\n- `--yn-input-border-color-focus`\n- `--yn-input-color`\n- `--yn-input-placeholder-color`\n- `--yn-input-disabled-color`\n- `--yn-input-focus-ring`\n- `--yn-input-radius`\n- `--yn-input-padding`\n- `--yn-input-button-size`\n- `--yn-input-button-color`\n- `--yn-input-button-bg-hover`\n- `--yn-input-font-family`\n- `--yn-input-font-size`\n- `--yn-input-letter-spacing`\n\n示例：\n```html\n<yn-input @yn-prefix-click=\"...\" @yn-suffix-click=\"...\">\n  <span slot=\"prefix-button\">...</span>\n  <span slot=\"suffix-button\">...</span>\n</yn-input>\n```"
       }
     }
   },
@@ -82,7 +82,7 @@ const meta = {
     disabledColor: "rgba(36, 31, 33, 0.42)",
     focusRing: "rgba(36, 31, 33, 0.12)",
     radius: "999px",
-    padding: "0 10px",
+    padding: "0 14px",
     buttonSize: "28px",
     buttonColor: "#241f21",
     buttonBgHover: "rgba(36, 31, 33, 0.08)",
@@ -196,7 +196,7 @@ const meta = {
       control: false,
       name: "--yn-input-padding",
       description: "输入框内边距。",
-      table: { category: "CSS Variables", defaultValue: { summary: "0 10px" } }
+      table: { category: "CSS Variables", defaultValue: { summary: "0 14px" } }
     },
     buttonSize: {
       control: false,
@@ -240,7 +240,7 @@ const meta = {
     prefixButtonSlot: {
       name: "prefix-button",
       description:
-        "前置按钮内容插槽。未传入时显示项目内置 `ynSearchSvg`；传入后插槽内容优先。最小示例：`<span slot=\"prefix-button\">...</span>`。",
+        "可选前置按钮插槽。未传入时不渲染前置按钮。最小示例：`<span slot=\"prefix-button\">...</span>`。",
       control: false,
       table: {
         category: "Slots",
@@ -250,7 +250,7 @@ const meta = {
     suffixButtonSlot: {
       name: "suffix-button",
       description:
-        "后置按钮内容插槽。未传入时显示项目内置 `ynSearchCloseSvg`；传入后插槽内容优先。最小示例：`<span slot=\"suffix-button\">...</span>`。",
+        "可选后置按钮插槽。未传入时不渲染后置按钮。最小示例：`<span slot=\"suffix-button\">...</span>`。",
       control: false,
       table: {
         category: "Slots",
@@ -293,15 +293,14 @@ const meta = {
 export default meta;
 type Story = StoryObj<Args>;
 
-const playInputInteractions: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+type PlayContext = Parameters<NonNullable<Story["play"]>>[0];
+
+const runInputValueStep = async (canvasElement: ParentNode, step: PlayContext["step"]) => {
   const inputEl = canvasElement.querySelector("yn-input");
   if (!(inputEl instanceof HTMLElement) || !inputEl.shadowRoot) return;
 
   const innerInput = inputEl.shadowRoot.querySelector("input");
   if (!(innerInput instanceof HTMLInputElement)) return;
-  const prefixButton = inputEl.shadowRoot.querySelector<HTMLButtonElement>(".action-prefix");
-  const suffixButton = inputEl.shadowRoot.querySelector<HTMLButtonElement>(".action-suffix");
-  if (!(prefixButton instanceof HTMLButtonElement) || !(suffixButton instanceof HTMLButtonElement)) return;
 
   await step("输入文本：更新组件 value 并派发 yn-input", async () => {
     let inputValue = "";
@@ -323,6 +322,23 @@ const playInputInteractions: NonNullable<Story["play"]> = async ({ canvasElement
       throw new Error("yn-input 事件未携带当前 value");
     }
   });
+};
+
+const playInputValue: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+  await runInputValueStep(canvasElement, step);
+};
+
+const playSlottedButtonInteractions: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+  await runInputValueStep(canvasElement, step);
+
+  const inputEl = canvasElement.querySelector("yn-input");
+  if (!(inputEl instanceof HTMLElement) || !inputEl.shadowRoot) return;
+
+  const prefixButton = inputEl.shadowRoot.querySelector<HTMLButtonElement>(".action-prefix");
+  const suffixButton = inputEl.shadowRoot.querySelector<HTMLButtonElement>(".action-suffix");
+  if (!(prefixButton instanceof HTMLButtonElement) || !(suffixButton instanceof HTMLButtonElement)) {
+    throw new Error("带插槽示例应渲染前后置按钮");
+  }
 
   await step("点击前置按钮：派发 yn-prefix-click", async () => {
     let prefixValue = "";
@@ -361,7 +377,7 @@ const playInputInteractions: NonNullable<Story["play"]> = async ({ canvasElement
 
 export const Default: Story = {
   render: renderInput,
-  play: playInputInteractions
+  play: playInputValue
 };
 
 export const Filled: Story = {
@@ -380,7 +396,7 @@ export const SlottedButtons: Story = {
     suffixButtonSlot: ynSearchCloseSvg
   },
   render: renderInput,
-  play: playInputInteractions
+  play: playSlottedButtonInteractions
 };
 
 export const Interactions: Story = {
@@ -390,5 +406,5 @@ export const Interactions: Story = {
     suffixButtonSlot: ynSearchCloseSvg
   },
   render: renderInput,
-  play: playInputInteractions
+  play: playSlottedButtonInteractions
 };
