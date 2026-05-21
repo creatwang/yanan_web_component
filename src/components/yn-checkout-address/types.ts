@@ -134,6 +134,10 @@ export type YnCheckoutAddressMessages = {
   /** 同时展示邮箱与电话时的区块标题 */
   sectionContactDetails: string;
   sectionAddress: string;
+  /** 步骤 2：街道与联系方式（Isaac Yuen 式：地区确认后再填配送地址） */
+  sectionShipping: string;
+  /** Address line 2 下方说明（公寓、单元等，选填） */
+  line2Helper: string;
   country: string;
   state: string;
   cityDistrict: string;

@@ -1,5 +1,5 @@
 import { getCountryByCode, getStatesOfCountry } from "@countrystatecity/countries-browser";
-import { LitElement, html, nothing, type PropertyValues } from "lit";
+import { LitElement, html, nothing, type TemplateResult, type PropertyValues } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSearchCloseSvg } from "../../asset/svg";
 import { customElement, property, state } from "lit/decorators.js";
@@ -188,10 +188,9 @@ export class YnCheckoutAddress extends LitElement {
     return {
       boot,
       main: !boot,
-      provider: !boot && !manual && ap != null,
+      provider: !boot && !manual && ap != null && vm === "region",
       manual: !boot && manual && !this.filterRefreshing,
       details: vm === "checkout",
-      hint: !boot && !manual && ap != null && !this.regionConfirmed,
     };
   }
 
@@ -659,6 +658,48 @@ export class YnCheckoutAddress extends LitElement {
     });
   }
 
+  /** Flutter / Material 式上浮 label（`placeholder=" "` + label 置于 input 之后） */
+  private renderFloatField(opts: {
+    id: string;
+    label: string;
+    value: string;
+    onInput: (event: Event) => void;
+    errorField?: YnCheckoutAddressField;
+    invalidField?: YnCheckoutAddressField;
+    disabled?: boolean;
+    autocomplete?: string;
+    inputmode?: string;
+    type?: string;
+    maxlength?: number;
+    controlClass?: string;
+    trailing?: TemplateResult;
+    helper?: string;
+  }) {
+    const invalid = opts.invalidField ? this.inputClass(opts.invalidField) : "";
+    return html`
+      <div class="float-field ${opts.trailing ? "float-field--has-trailing" : ""}">
+        <div class="float-field__control ${opts.controlClass ?? ""}">
+          <input
+            id=${opts.id}
+            type=${opts.type ?? "text"}
+            placeholder=" "
+            autocomplete=${opts.autocomplete ?? "off"}
+            inputmode=${opts.inputmode ?? nothing}
+            maxlength=${opts.maxlength ?? nothing}
+            ?disabled=${opts.disabled}
+            class=${invalid}
+            .value=${opts.value}
+            @input=${opts.onInput}
+          />
+          <label class="float-field__label" for=${opts.id}>${opts.label}</label>
+          ${opts.trailing ?? nothing}
+        </div>
+        ${opts.helper ? html`<p class="field-helper">${opts.helper}</p>` : nothing}
+        ${opts.errorField ? this.fieldError(opts.errorField) : nothing}
+      </div>
+    `;
+  }
+
   private fieldError(field: YnCheckoutAddressField) {
     if (!this.showFieldErrors) {
       return nothing;
@@ -675,133 +716,91 @@ export class YnCheckoutAddress extends LitElement {
     return invalid ? "input--invalid" : "";
   }
 
-  private renderEmailFields(options?: { hideVisibleLabel?: boolean }) {
+  private renderEmailFields() {
     if (!this.showEmail) {
       return nothing;
     }
-    const labelClass = options?.hideVisibleLabel ? "visually-hidden" : "";
-    return html`
-      <div class="field field--email">
-        <label class=${labelClass} for="yn-ca-email">${this.msg.email}</label>
-        <input
-          id="yn-ca-email"
-          type="email"
-          autocomplete="email"
-          placeholder=${this.msg.emailPlaceholder}
-          aria-label=${options?.hideVisibleLabel ? this.msg.email : nothing}
-          ?disabled=${this.disabled}
-          class=${this.inputClass("email")}
-          .value=${this.email}
-          @input=${this.handleFieldInput("email")}
-        />
-        ${this.fieldError("email")}
-      </div>
-    `;
+    return this.renderFloatField({
+      id: "yn-ca-email",
+      label: this.msg.email,
+      value: this.email,
+      type: "email",
+      autocomplete: "email",
+      errorField: "email",
+      invalidField: "email",
+      disabled: this.disabled,
+      onInput: this.handleFieldInput("email"),
+    });
   }
 
   private isPostalRequired() {
     return isPostalRequiredForCountry(this.countryCode);
   }
 
-  private renderPostalField(inputId: string, options?: { compact?: boolean }) {
+  private renderPostalField(inputId: string) {
     const required = this.isPostalRequired();
-    const mark = required ? this.msg.fieldMarkRequired : this.msg.fieldMarkOptional;
-    const placeholder = required
-      ? `${this.msg.postal}（${this.msg.postalPlaceholderRequired}）`
-      : `${this.msg.postal}（${this.msg.postalPlaceholder}）`;
-
-    if (options?.compact) {
-      return html`
-        <div class="field field--compact-postal">
-          <input
-            id=${inputId}
-            autocomplete="postal-code"
-            placeholder=${placeholder}
-            aria-label=${this.msg.postal}
-            ?disabled=${this.disabled}
-            ?required=${required}
-            aria-required=${required ? "true" : "false"}
-            class=${this.inputClass("postalCode")}
-            .value=${this.postalCode}
-            @input=${this.handleFieldInput("postalCode")}
-          />
-          ${this.fieldError("postalCode")}
-        </div>
-      `;
-    }
-
-    return html`
-      <div class="field">
-        <label class="field-label" for=${inputId}>
-          ${this.msg.postal}
-          <span class="field-mark ${required ? "field-mark--required" : "field-mark--optional"}"
-            >${mark}</span
-          >
-        </label>
-        <input
-          id=${inputId}
-          autocomplete="postal-code"
-          placeholder=${placeholder}
-          ?disabled=${this.disabled}
-          ?required=${required}
-          aria-required=${required ? "true" : "false"}
-          class=${this.inputClass("postalCode")}
-          .value=${this.postalCode}
-          @input=${this.handleFieldInput("postalCode")}
-        />
-        ${this.fieldError("postalCode")}
-      </div>
-    `;
+    const label = required
+      ? `${this.msg.postal} *`
+      : `${this.msg.postal} (${this.msg.fieldMarkOptional})`;
+    return this.renderFloatField({
+      id: inputId,
+      label,
+      value: this.postalCode,
+      autocomplete: "postal-code",
+      errorField: "postalCode",
+      invalidField: "postalCode",
+      disabled: this.disabled,
+      onInput: this.handleFieldInput("postalCode"),
+    });
   }
 
-  private phoneInputWrapClass() {
-    const base = "phone-input";
-    if (!this.showFieldErrors) {
-      return base;
-    }
-    const invalid = this.getValidation().errors.some((e) => e.field === "phoneNumber");
-    return invalid ? `${base} phone-input--invalid` : base;
+  private phoneControlClass() {
+    const invalid =
+      this.showFieldErrors &&
+      this.getValidation().errors.some((e) => e.field === "phoneNumber");
+    return `float-field__control--phone${invalid ? " float-field__control--invalid" : ""}`;
   }
 
-  private renderContactSection(phoneInputId: string) {
+  private renderPhoneField(phoneInputId: string) {
     const phonePrefix = this.phonecode ? `+${this.phonecode}` : this.msg.phonePrefixEmpty;
-    const sectionTitle = this.showEmail ? this.msg.sectionContactDetails : this.msg.sectionContact;
     const phoneDisabled =
       this.disabled || (!this.isManualMode && this.activeProvider === "dr5hn" && !this.phonecode);
+    const phoneInvalid = this.inputClass("phoneNumber");
 
     return html`
-      <div class="contact-section" aria-labelledby="yn-ca-contact-heading">
-        <h3 id="yn-ca-contact-heading" class="panel-title">${sectionTitle}</h3>
-        ${this.renderEmailFields({ hideVisibleLabel: this.showEmail })}
-        <div class="field field--phone">
-          <label class="field-label" for=${phoneInputId}>${this.msg.phoneNumber}</label>
-          <div class=${this.phoneInputWrapClass()}>
+        <div class="float-field float-field--phone">
+          <div class="float-field__control ${this.phoneControlClass()}">
+            <label class="float-field__label" for=${phoneInputId}>
+              ${this.msg.phoneNumber}<span class="float-field__required" aria-hidden="true">*</span>
+            </label>
             ${this.phonecode
               ? html`<span
                   id="${phoneInputId}-prefix"
-                  class="phone-input__prefix"
+                  class="float-field__prefix"
                   aria-label="${this.msg.phoneDial} ${phonePrefix}"
                   >${phonePrefix}</span
                 >`
-              : html`<span class="phone-input__prefix phone-input__prefix--empty" aria-hidden="true"
+              : html`<span class="float-field__prefix float-field__prefix--empty" aria-hidden="true"
                   >${phonePrefix}</span
                 >`}
-            <input
-              id=${phoneInputId}
-              class="phone-input__control"
-              type="tel"
-              inputmode="numeric"
-              autocomplete="tel-national"
-              placeholder=${this.msg.phonePlaceholder}
-              aria-describedby=${this.phonecode ? `${phoneInputId}-prefix` : nothing}
-              ?disabled=${phoneDisabled}
-              .value=${this.phoneNumber}
-              @input=${this.handleFieldInput("phone")}
-            />
+            <div class="float-field__inner">
+              <input
+                id=${phoneInputId}
+                class=${`float-field__input ${phoneInvalid}`}
+                type="tel"
+                inputmode="numeric"
+                autocomplete="tel-national"
+                placeholder=" "
+                aria-required="true"
+                aria-describedby=${this.phonecode ? `${phoneInputId}-prefix` : nothing}
+                ?disabled=${phoneDisabled}
+                .value=${this.phoneNumber}
+                @input=${this.handleFieldInput("phone")}
+              />
+            </div>
           </div>
           ${this.fieldError("phoneNumber")}
         </div>
-      </div>
     `;
   }
 
@@ -1115,7 +1114,7 @@ export class YnCheckoutAddress extends LitElement {
     return html`
       <div class="stack skeleton-stack" aria-busy="true" aria-live="polite">
         <p class="skeleton-hint">${this.msg.probing}</p>
-        <div class="form-panel form-panel--region skeleton-panel">
+        <div class="checkout-step skeleton-panel">
           <div class="skeleton-line skeleton-line--label"></div>
           <div class="skeleton-line skeleton-line--field"></div>
         </div>
@@ -1123,24 +1122,30 @@ export class YnCheckoutAddress extends LitElement {
     `;
   }
 
-  private renderRegionSummary() {
+  private regionSummaryText() {
+    return buildRegionSummary({
+      searchLabel: this.query,
+      cityName: this.cityName,
+      stateName: this.stateName,
+      countryName: this.countryName,
+      countryCode: this.countryCode,
+    });
+  }
+
+  /** 已确认地区：紧凑条，避免再占一整张卡片（结账 UX 常见模式） */
+  private renderRegionChip() {
     return html`
-      <div class="region-summary">
-        <div class="region-summary__main">
-          <span class="region-summary__kicker">${this.msg.sectionRegion}</span>
-          <p class="region-summary__value">
-            ${buildRegionSummary({
-              searchLabel: this.query,
-              cityName: this.cityName,
-              stateName: this.stateName,
-              countryName: this.countryName,
-              countryCode: this.countryCode,
-            })}
-          </p>
+      <div class="region-chip">
+        <div class="region-chip__body">
+          <span class="region-chip__step" aria-hidden="true">1</span>
+          <div class="region-chip__text">
+            <span class="region-chip__label">${this.msg.sectionRegion}</span>
+            <p class="region-chip__value">${this.regionSummaryText()}</p>
+          </div>
         </div>
         <button
           type="button"
-          class="region-summary__edit"
+          class="region-chip__edit"
           ?disabled=${this.disabled}
           @click=${this.startRegionEdit}
         >
@@ -1150,34 +1155,48 @@ export class YnCheckoutAddress extends LitElement {
     `;
   }
 
+  /** 步骤 1：仅搜索/选择配送地区（联想优先） */
+  private renderRegionStep() {
+    const mode = this.activeProvider!;
+    return html`
+      <section class="checkout-step checkout-step--region">
+        <header class="step-header">
+          <span class="step-badge" aria-hidden="true">1</span>
+          <div class="step-header__body">
+            <h2 class="step-title">${this.msg.sectionRegion}</h2>
+            <p class="step-lead">${this.usageHintForProvider(mode)}</p>
+          </div>
+        </header>
+        ${this.renderSearch()}
+      </section>
+    `;
+  }
+
   private renderSearch() {
     const searchId = this.fields.region;
     const label = this.isDr5hnMode
       ? this.msg.regionSearchLabel
       : this.msg.addressSearchLabel;
-    const placeholder = this.isDr5hnMode
-      ? this.msg.regionSearchPlaceholder
-      : this.msg.addressSearchPlaceholder;
 
     const showClear = Boolean(this.query.trim()) && !this.disabled;
 
     return html`
-      <div class="field search-wrap">
-        <label class="field-label" for=${searchId}>${label}</label>
-        <div class="search-field">
+      <div class="float-field float-field--search search-wrap">
+        <div class="float-field__control float-field__control--search">
           <input
             id=${searchId}
-            class="search-field__input ${this.inputClass("region")}"
+            class=${`float-field__input ${this.inputClass("region")}`}
             type="text"
             role="combobox"
             aria-autocomplete="list"
             aria-expanded=${this.suggestionsOpen ? "true" : "false"}
             autocomplete="off"
-            placeholder=${placeholder}
+            placeholder=" "
             ?disabled=${this.disabled}
             .value=${this.query}
             @input=${this.handleSearchInput}
           />
+          <label class="float-field__label" for=${searchId}>${label}</label>
           ${showClear
             ? html`
                 <button
@@ -1226,59 +1245,53 @@ export class YnCheckoutAddress extends LitElement {
     `;
   }
 
-  private renderRegionPanel() {
+  /**
+   * 步骤 2：街道 + 联系（文章建议：Line1 主地址、Line2 明确 apt/unit、邮编独立一行）
+   */
+  private renderShippingSection(
+    phoneId: string,
+    line1Id: string,
+    line2Id: string,
+    zipId: string,
+  ) {
     return html`
-      <section class="form-panel form-panel--region">
-        ${this.showRegionSearch ? this.renderSearch() : this.renderRegionSummary()}
-      </section>
-    `;
-  }
-
-  private renderAddressPanel(line1Id: string, line2Id: string, zipId: string) {
-    return html`
-      <section class="form-panel form-panel--address">
-        <h3 class="panel-title">${this.msg.sectionAddress}</h3>
-        <div class="field">
-          <input
-            id=${line1Id}
-            autocomplete="address-line1"
-            aria-label=${this.msg.detailAddress}
-            placeholder=${this.msg.detailAddressPlaceholder}
-            ?disabled=${this.disabled}
-            class=${this.inputClass("line1")}
-            .value=${this.line1}
-            @input=${this.handleFieldInput("line1")}
-          />
-          ${this.fieldError("line1")}
+      <section class="checkout-card" aria-labelledby="yn-ca-shipping-title">
+        ${this.renderRegionChip()}
+        <header class="step-header step-header--inset">
+          <span class="step-badge" aria-hidden="true">2</span>
+          <h2 id="yn-ca-shipping-title" class="step-title">${this.msg.sectionShipping}</h2>
+        </header>
+        <div class="field-stack">
+          ${this.renderEmailFields()}
+          ${this.renderPhoneField(phoneId)}
+          ${this.renderFloatField({
+            id: line1Id,
+            label: `${this.msg.detailAddress} *`,
+            value: this.line1,
+            autocomplete: "address-line1",
+            errorField: "line1",
+            invalidField: "line1",
+            disabled: this.disabled,
+            onInput: this.handleFieldInput("line1"),
+          })}
+          ${this.renderFloatField({
+            id: line2Id,
+            label: `${this.msg.detailAddress2} (${this.msg.fieldMarkOptional})`,
+            value: this.line2,
+            autocomplete: "address-line2",
+            helper: this.msg.line2Helper,
+            disabled: this.disabled,
+            onInput: this.handleFieldInput("line2"),
+          })}
+          ${this.renderPostalField(zipId)}
         </div>
-        <div class="fields-secondary">
-          <input
-            id=${line2Id}
-            autocomplete="address-line2"
-            aria-label=${this.msg.detailAddress2}
-            placeholder=${this.msg.detailAddress2Placeholder}
-            ?disabled=${this.disabled}
-            .value=${this.line2}
-            @input=${this.handleFieldInput("line2")}
-          />
-          ${this.renderPostalField(zipId, { compact: true })}
-        </div>
       </section>
-    `;
-  }
-
-  private renderDetailsPanels(phoneId: string, line1Id: string, line2Id: string, zipId: string) {
-    return html`
-      <section class="form-panel form-panel--contact form-panel--details">
-        ${this.renderContactSection(phoneId)}
-      </section>
-      <div class="form-panel--details">${this.renderAddressPanel(line1Id, line2Id, zipId)}</div>
     `;
   }
 
   private renderCheckoutDetails() {
     const { phone, line1, line2, zip } = this.fields;
-    return this.renderDetailsPanels(phone, line1, line2, zip);
+    return this.renderShippingSection(phone, line1, line2, zip);
   }
 
   private renderDevPanel() {
@@ -1316,57 +1329,46 @@ export class YnCheckoutAddress extends LitElement {
 
   private renderManualRegionSection() {
     return html`
-      <section class="form-panel form-panel--region manual-region" aria-labelledby="yn-ca-manual-region-heading">
-        <h3 id="yn-ca-manual-region-heading" class="panel-title">${this.msg.sectionRegion}</h3>
-        <div class="field">
-          <label class="field-label" for="yn-ca-m-country-name">${this.msg.country}</label>
-          <input
-            id="yn-ca-m-country-name"
-            type="text"
-            autocomplete="country-name"
-            ?disabled=${this.disabled}
-            .value=${this.countryName}
-            @input=${this.onManualField("countryName")}
-          />
-        </div>
+      <section class="checkout-step checkout-card manual-region" aria-labelledby="yn-ca-manual-region-heading">
+        <header class="step-header">
+          <span class="step-badge" aria-hidden="true">1</span>
+          <h2 id="yn-ca-manual-region-heading" class="step-title">${this.msg.sectionRegion}</h2>
+        </header>
+        ${this.renderFloatField({
+          id: "yn-ca-m-country-name",
+          label: this.msg.country,
+          value: this.countryName,
+          autocomplete: "country-name",
+          disabled: this.disabled,
+          onInput: this.onManualField("countryName"),
+        })}
         <div class="grid-3">
-          <div class="field">
-            <label class="field-label" for="yn-ca-m-country-code">${this.msg.manualCountryCodeLabel}</label>
-            <input
-              id="yn-ca-m-country-code"
-              type="text"
-              inputmode="text"
-              autocomplete="off"
-              maxlength="2"
-              placeholder=${this.msg.manualCountryCodePlaceholder}
-              ?disabled=${this.disabled}
-              class=${this.inputClass("region")}
-              .value=${this.countryCode}
-              @input=${this.onManualField("countryCode")}
-            />
-          </div>
-          <div class="field">
-            <label class="field-label" for="yn-ca-m-state">${this.msg.state}</label>
-            <input
-              id="yn-ca-m-state"
-              type="text"
-              autocomplete="address-level1"
-              ?disabled=${this.disabled}
-              .value=${this.stateName ?? ""}
-              @input=${this.onManualField("stateName")}
-            />
-          </div>
-          <div class="field">
-            <label class="field-label" for="yn-ca-m-city">${this.msg.cityDistrict}</label>
-            <input
-              id="yn-ca-m-city"
-              type="text"
-              autocomplete="address-level2"
-              ?disabled=${this.disabled}
-              .value=${this.cityName}
-              @input=${this.onManualField("cityName")}
-            />
-          </div>
+          ${this.renderFloatField({
+            id: "yn-ca-m-country-code",
+            label: this.msg.manualCountryCodePlaceholder,
+            value: this.countryCode,
+            maxlength: 2,
+            invalidField: "region",
+            errorField: "region",
+            disabled: this.disabled,
+            onInput: this.onManualField("countryCode"),
+          })}
+          ${this.renderFloatField({
+            id: "yn-ca-m-state",
+            label: this.msg.state,
+            value: this.stateName ?? "",
+            autocomplete: "address-level1",
+            disabled: this.disabled,
+            onInput: this.onManualField("stateName"),
+          })}
+          ${this.renderFloatField({
+            id: "yn-ca-m-city",
+            label: this.msg.cityDistrict,
+            value: this.cityName,
+            autocomplete: "address-level2",
+            disabled: this.disabled,
+            onInput: this.onManualField("cityName"),
+          })}
         </div>
         ${this.fieldError("region")}
       </section>
@@ -1378,17 +1380,13 @@ export class YnCheckoutAddress extends LitElement {
   /** 固定 DOM 结构，用 hidden / data-view 控制显隐，避免切换筛选时整块挂载/卸载导致闪动 */
   override render() {
     const L = this.layerVis;
-    const ap = this.activeProvider;
 
     return html`
       <div class="checkout-address" data-view=${this.viewMode}>
         <div class="layer layer-booting" ?hidden=${!L.boot}>${this.renderSkeleton()}</div>
         <div class="stack layer layer-main" ?hidden=${!L.main}>
           <div class="layer layer-provider" ?hidden=${!L.provider}>
-            ${L.hint && ap
-              ? html`<p class="banner banner--hint">${this.usageHintForProvider(ap)}</p>`
-              : nothing}
-            ${this.renderRegionPanel()}
+            ${this.renderRegionStep()}
           </div>
           <div class="layer layer-manual" ?hidden=${!L.manual}>
             ${this.renderManualBanner()}${this.renderManualRegionSection()}

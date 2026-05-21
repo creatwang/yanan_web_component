@@ -166,9 +166,13 @@ import "yn-web-component/theme.css";
 | 变量 | 默认 | 说明 |
 | --- | --- | --- |
 | \`--yn-checkout-address-bg\` | \`transparent\` | 组件背景色 |
-| \`--yn-checkout-address-padding\` | \`0\` | 内容区内边距（配合背景色） |
-| \`--yn-checkout-address-field-height\` | \`44px\` | 输入框高度 |
-| \`--yn-checkout-address-radius\` | \`12px\` | 圆角 |
+| \`--yn-checkout-address-bg-muted\` | \`#f2efea\` | 页面底衬（[Floema](https://www.floema.com/)） |
+| \`--yn-checkout-address-primary\` | \`#f76c46\` | 主色（焦点/上浮 label） |
+| \`--yn-checkout-address-outline\` | \`#d2cdc4\` | 输入框描边 |
+| \`--yn-checkout-address-label\` | \`#7a716d\` | 标签静止色 |
+| \`--yn-checkout-address-padding\` | \`0\` | 内容区内边距 |
+| \`--yn-checkout-address-field-height\` | \`56px\` | 输入框最小高度 |
+| \`--yn-checkout-address-radius\` | \`12px\` | 卡片圆角 |
 
 组件使用 **Shadow DOM**；样式请用 \`--yn-checkout-address-*\` 或 \`--yn-color-*\` 覆盖（未列入 Controls，可在 Canvas 用 style 验证）。`;
 
