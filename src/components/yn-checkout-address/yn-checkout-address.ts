@@ -1,7 +1,7 @@
 import { getCountryByCode, getStatesOfCountry } from "@countrystatecity/countries-browser";
 import { LitElement, html, nothing, type TemplateResult, type PropertyValues } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { ynSearchCloseSvg } from "../../asset/svg";
+import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
 import { customElement, property, state } from "lit/decorators.js";
 import type { AddressSuggestion } from "./address-providers";
 import {
@@ -131,8 +131,11 @@ export class YnCheckoutAddress extends LitElement {
   @state() private cityName = "";
   @state() private phonecode = "";
   @state() private currency = "";
+  @state() private firstName = "";
+  @state() private lastName = "";
   @state() private phoneNumber = "";
   @state() private email = "";
+  @state() private notes = "";
   @state() private line1 = "";
   @state() private line2 = "";
   @state() private postalCode = "";
@@ -166,6 +169,11 @@ export class YnCheckoutAddress extends LitElement {
 
   private get isDr5hnMode() {
     return this.activeProvider === "dr5hn";
+  }
+
+  /** dr5hn：单框搜国家/省/市；Photon / Google 为配送地址搜索（标签与指引文案不同） */
+  private get isDr5hnRegionSearch() {
+    return this.isDr5hnMode;
   }
 
   private get isManualMode() {
@@ -202,13 +210,35 @@ export class YnCheckoutAddress extends LitElement {
       return false;
     }
     if (this.isDr5hnMode) {
-      return this.dr5hnRegionLevel === "city" && Boolean(this.cityId);
+      return (
+        this.dr5hnRegionLevel === "city" &&
+        Boolean(this.cityName.trim()) &&
+        this.cityId != null
+      );
     }
-    return Boolean(this.cityName.trim());
+    return Boolean(this.cityName.trim() || this.stateName?.trim());
   }
 
-  private get showRegionSearch() {
-    return !this.regionConfirmed || this.regionEditing;
+  /** dr5hn / Photon：选中国家或州省即可进入配送步骤；Google 需有城市或州省 */
+  private get canShowShippingStep() {
+    if (!this.countryCode.trim()) {
+      return false;
+    }
+    if (this.isManualMode) {
+      return this.regionConfirmed;
+    }
+    if (this.isDr5hnMode) {
+      return true;
+    }
+    return this.regionConfirmed;
+  }
+
+  /** 在配送卡片内展示地区搜索（修改地区 / 尚未选到城市级） */
+  private get showInlineRegionSearch() {
+    if (this.isManualMode || this.viewMode !== "checkout") {
+      return false;
+    }
+    return this.regionEditing || !this.regionConfirmed;
   }
 
   private syncViewEmit() {
@@ -228,6 +258,12 @@ export class YnCheckoutAddress extends LitElement {
   private startRegionEdit = () => {
     this.regionEditing = true;
     this.suggestionsOpen = false;
+    if (this.isManualMode && this.regionConfirmed) {
+      this.viewMode = "manual";
+      this.emitChange();
+    } else {
+      this.syncViewEmit();
+    }
     this.updateComplete.then(() => {
       this.shadowRoot?.querySelector<HTMLInputElement>(`#${this.fields.region}`)?.focus();
     });
@@ -269,11 +305,14 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private clearDetailFields() {
+    this.firstName = "";
+    this.lastName = "";
     this.phoneNumber = "";
     this.email = "";
     this.line1 = "";
     this.line2 = "";
     this.postalCode = "";
+    this.notes = "";
   }
 
   /** 国家/地区筛选变更：不重新探测；中止进行中的搜索，避免降级到 manual 造成闪动 */
@@ -372,10 +411,13 @@ export class YnCheckoutAddress extends LitElement {
       return;
     }
     if (this.isManualMode) {
-      this.viewMode = this.regionConfirmed ? "checkout" : "manual";
+      this.viewMode =
+        this.regionEditing || !this.regionConfirmed
+          ? "manual"
+          : "checkout";
       return;
     }
-    this.viewMode = this.regionConfirmed ? "checkout" : "region";
+    this.viewMode = this.canShowShippingStep ? "checkout" : "region";
   }
 
   private resetFormForEmptyValue() {
@@ -413,11 +455,14 @@ export class YnCheckoutAddress extends LitElement {
     this.cityName = v.cityName;
     this.phonecode = v.phonecode;
     this.currency = v.currency;
+    this.firstName = v.firstName ?? "";
+    this.lastName = v.lastName ?? "";
     this.phoneNumber = v.phoneNumber;
     this.email = v.email ?? "";
     this.line1 = v.line1;
     this.line2 = v.line2;
     this.postalCode = v.postalCode;
+    this.notes = v.notes ?? "";
     this.query = buildSearchLabel(v);
     this.lastEmitted = null;
     this.suggestionsOpen = false;
@@ -541,6 +586,8 @@ export class YnCheckoutAddress extends LitElement {
       cityName: this.cityName,
       cityId: this.cityId,
       dr5hnRegionLevel: this.dr5hnRegionLevel,
+      firstName: this.firstName,
+      lastName: this.lastName,
       phoneNumber: this.phoneNumber,
       line1: this.line1,
       postalCode: this.postalCode,
@@ -598,11 +645,14 @@ export class YnCheckoutAddress extends LitElement {
       cityName: this.cityName.trim(),
       cityId: this.cityId,
       phonecode: this.phonecode,
+      firstName: this.firstName.trim(),
+      lastName: this.lastName.trim(),
       phoneNumber: this.phoneNumber.trim(),
       email: this.email.trim(),
       line1: this.line1.trim(),
       line2: this.line2.trim(),
       postalCode: this.postalCode.trim(),
+      notes: this.notes.trim(),
       currency: this.currency,
       regionComplete: v.regionComplete,
       formReady: v.formReady,
@@ -696,6 +746,35 @@ export class YnCheckoutAddress extends LitElement {
         </div>
         ${opts.helper ? html`<p class="field-helper">${opts.helper}</p>` : nothing}
         ${opts.errorField ? this.fieldError(opts.errorField) : nothing}
+      </div>
+    `;
+  }
+
+  private renderFloatTextarea(opts: {
+    id: string;
+    label: string;
+    value: string;
+    onInput: (event: Event) => void;
+    disabled?: boolean;
+    maxlength?: number;
+    helper?: string;
+  }) {
+    return html`
+      <div class="float-field float-field--multiline">
+        <div class="float-field__control float-field__control--textarea">
+          <label class="float-field__label" for=${opts.id}>${opts.label}</label>
+          <textarea
+            id=${opts.id}
+            class="float-field__textarea"
+            placeholder=" "
+            rows="3"
+            maxlength=${opts.maxlength ?? 500}
+            ?disabled=${opts.disabled}
+            .value=${opts.value}
+            @input=${opts.onInput}
+          ></textarea>
+        </div>
+        ${opts.helper ? html`<p class="field-helper">${opts.helper}</p>` : nothing}
       </div>
     `;
   }
@@ -868,8 +947,8 @@ export class YnCheckoutAddress extends LitElement {
       return;
     }
 
-    this.line1 = resolved.line1;
-    this.cityName = resolved.city;
+    this.line1 = resolved.line1.trim();
+    this.cityName = resolved.city.trim();
     this.stateName = resolved.stateName;
     this.postalCode = resolved.postalCode;
     this.countryCode = resolved.countryCode;
@@ -1090,13 +1169,19 @@ export class YnCheckoutAddress extends LitElement {
     };
 
   private handleFieldInput =
-    (field: "line1" | "line2" | "postalCode" | "phone" | "email") => (event: Event) => {
-      const input = event.target as HTMLInputElement;
+    (
+      field: "firstName" | "lastName" | "line1" | "line2" | "postalCode" | "phone" | "email" | "notes",
+    ) =>
+    (event: Event) => {
+      const input = event.target as HTMLInputElement | HTMLTextAreaElement;
+      if (field === "firstName") this.firstName = input.value;
+      if (field === "lastName") this.lastName = input.value;
       if (field === "line1") this.line1 = input.value;
       if (field === "line2") this.line2 = input.value;
       if (field === "postalCode") this.postalCode = input.value;
       if (field === "phone") this.phoneNumber = input.value.replace(/\D/g, "");
       if (field === "email") this.email = input.value;
+      if (field === "notes") this.notes = input.value;
       this.emitChange();
     };
 
@@ -1174,7 +1259,7 @@ export class YnCheckoutAddress extends LitElement {
 
   private renderSearch() {
     const searchId = this.fields.region;
-    const label = this.isDr5hnMode
+    const label = this.isDr5hnRegionSearch
       ? this.msg.regionSearchLabel
       : this.msg.addressSearchLabel;
 
@@ -1201,14 +1286,18 @@ export class YnCheckoutAddress extends LitElement {
             ? html`
                 <button
                   type="button"
-                  class="search-field__clear"
+                  class="search-field__trailing search-field__clear"
                   aria-label=${this.msg.searchClear}
                   @click=${this.clearSearch}
                 >
                   ${unsafeSVG(ynSearchCloseSvg)}
                 </button>
               `
-            : nothing}
+            : html`
+                <span class="search-field__trailing search-field__hint" aria-hidden="true">
+                  ${unsafeSVG(ynSearchSvg)}
+                </span>
+              `}
         </div>
         ${this.fieldError("region")}
         ${this.searching ? html`<p class="hint">${this.msg.searching}</p>` : nothing}
@@ -1249,19 +1338,51 @@ export class YnCheckoutAddress extends LitElement {
    * 步骤 2：街道 + 联系（文章建议：Line1 主地址、Line2 明确 apt/unit、邮编独立一行）
    */
   private renderShippingSection(
+    firstNameId: string,
+    lastNameId: string,
     phoneId: string,
     line1Id: string,
     line2Id: string,
     zipId: string,
+    notesId: string,
   ) {
     return html`
       <section class="checkout-card" aria-labelledby="yn-ca-shipping-title">
         ${this.renderRegionChip()}
+        ${this.showInlineRegionSearch && this.activeProvider === "photon"
+          ? html`<p class="step-lead step-lead--inline">${this.msg.usageHintPhoton}</p>`
+          : nothing}
+        ${this.showInlineRegionSearch && this.isDr5hnMode
+          ? html`<p class="step-lead step-lead--inline">${this.msg.usageHintDr5hn}</p>`
+          : nothing}
+        ${this.showInlineRegionSearch ? this.renderSearch() : nothing}
         <header class="step-header step-header--inset">
           <span class="step-badge" aria-hidden="true">2</span>
           <h2 id="yn-ca-shipping-title" class="step-title">${this.msg.sectionShipping}</h2>
         </header>
         <div class="field-stack">
+          <div class="grid-2">
+            ${this.renderFloatField({
+              id: firstNameId,
+              label: `${this.msg.firstName} *`,
+              value: this.firstName,
+              autocomplete: "given-name",
+              errorField: "firstName",
+              invalidField: "firstName",
+              disabled: this.disabled,
+              onInput: this.handleFieldInput("firstName"),
+            })}
+            ${this.renderFloatField({
+              id: lastNameId,
+              label: `${this.msg.lastName} *`,
+              value: this.lastName,
+              autocomplete: "family-name",
+              errorField: "lastName",
+              invalidField: "lastName",
+              disabled: this.disabled,
+              onInput: this.handleFieldInput("lastName"),
+            })}
+          </div>
           ${this.renderEmailFields()}
           ${this.renderPhoneField(phoneId)}
           ${this.renderFloatField({
@@ -1284,14 +1405,22 @@ export class YnCheckoutAddress extends LitElement {
             onInput: this.handleFieldInput("line2"),
           })}
           ${this.renderPostalField(zipId)}
+          ${this.renderFloatTextarea({
+            id: notesId,
+            label: this.msg.notes,
+            helper: `${this.msg.fieldMarkOptional} · ${this.msg.notesPlaceholder}`,
+            value: this.notes,
+            disabled: this.disabled,
+            onInput: this.handleFieldInput("notes"),
+          })}
         </div>
       </section>
     `;
   }
 
   private renderCheckoutDetails() {
-    const { phone, line1, line2, zip } = this.fields;
-    return this.renderShippingSection(phone, line1, line2, zip);
+    const { firstName, lastName, phone, line1, line2, zip, notes } = this.fields;
+    return this.renderShippingSection(firstName, lastName, phone, line1, line2, zip, notes);
   }
 
   private renderDevPanel() {

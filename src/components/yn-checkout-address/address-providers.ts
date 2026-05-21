@@ -61,9 +61,25 @@ export async function searchPhoton(query: string, signal?: AbortSignal): Promise
     if (!countryCode) {
       return;
     }
-    const line1 = buildLine1(props);
-    const city = props.city ?? props.state ?? "";
-    const label = [line1, city, props.state, props.country].filter(Boolean).join(", ");
+    const hasStreet = Boolean(props.street?.trim() || props.housenumber?.trim());
+    const line1 = hasStreet ? buildLine1(props) : "";
+
+    let city = props.city?.trim() ?? "";
+    let stateName = props.state?.trim() || null;
+    // 州/省/行政区条目常只有 name（如 New South Wales, Australia），无 city 字段
+    if (!city && stateName) {
+      city = stateName;
+    }
+    if (!city && props.name?.trim() && props.name.trim() !== props.country?.trim()) {
+      city = props.name.trim();
+      if (!stateName) {
+        stateName = city;
+      }
+    }
+
+    const label = [line1, city, stateName && stateName !== city ? stateName : null, props.country]
+      .filter(Boolean)
+      .join(", ");
     if (!label) {
       return;
     }
@@ -72,7 +88,7 @@ export async function searchPhoton(query: string, signal?: AbortSignal): Promise
       label,
       line1,
       city,
-      stateName: props.state ?? null,
+      stateName,
       postalCode: props.postcode ?? "",
       countryCode,
       countryName: props.country ?? countryCode,

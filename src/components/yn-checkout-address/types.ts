@@ -17,11 +17,15 @@ export type YnCheckoutAddressValue = {
   cityId: number | null;
   phonecode: string;
   phoneNumber: string;
+  firstName: string;
+  lastName: string;
   /** 联系邮箱；需 `show-email` 才展示输入框 */
   email: string;
   line1: string;
   line2: string;
   postalCode: string;
+  /** 订单备注（选填） */
+  notes: string;
   currency: string;
   /** 国家+城市已选定（dr5hn 需城市级；Google/Photon 有国家与城市名即可） */
   regionComplete: boolean;
@@ -36,6 +40,8 @@ export type YnCheckoutAddressValue = {
 
 export type YnCheckoutAddressField =
   | "region"
+  | "firstName"
+  | "lastName"
   | "phoneNumber"
   | "line1"
   | "postalCode"
@@ -45,6 +51,8 @@ export type YnCheckoutAddressErrorCode =
   | "REGION_REQUIRED"
   | "REGION_CITY_LEVEL_REQUIRED"
   | "REGION_NOT_ALLOWED"
+  | "FIRST_NAME_REQUIRED"
+  | "LAST_NAME_REQUIRED"
   | "PHONE_REQUIRED"
   | "PHONE_INVALID"
   | "LINE1_REQUIRED"
@@ -146,6 +154,10 @@ export type YnCheckoutAddressMessages = {
   phonePrefixEmpty: string;
   phoneNumber: string;
   phonePlaceholder: string;
+  firstName: string;
+  lastName: string;
+  notes: string;
+  notesPlaceholder: string;
   detailAddress: string;
   detailAddress2: string;
   detailAddress2Placeholder: string;
@@ -165,6 +177,8 @@ export type YnCheckoutAddressMessages = {
   errorManualRegionIncomplete: string;
   errorRegionCityLevel: string;
   errorRegionNotAllowed: string;
+  errorFirstNameRequired: string;
+  errorLastNameRequired: string;
   errorPhoneRequired: string;
   errorPhoneInvalid: string;
   errorLine1Required: string;
@@ -190,10 +204,13 @@ export const emptyCheckoutAddressValue = (
   cityId: null,
   phonecode: "",
   phoneNumber: "",
+  firstName: "",
+  lastName: "",
   email: "",
   line1: "",
   line2: "",
   postalCode: "",
+  notes: "",
   currency: "",
   regionComplete: false,
   formReady: false,

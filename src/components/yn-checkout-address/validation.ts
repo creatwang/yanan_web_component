@@ -52,6 +52,8 @@ export type ValidateCheckoutInput = {
   cityName: string;
   cityId: number | null;
   dr5hnRegionLevel: RegionSearchLevel | null;
+  firstName: string;
+  lastName: string;
   phoneNumber: string;
   line1: string;
   postalCode: string;
@@ -116,6 +118,13 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
     pushError(errors, "region", "REGION_REQUIRED", input.messages.errorRegionRequired);
   }
 
+  if (!input.firstName.trim()) {
+    pushError(errors, "firstName", "FIRST_NAME_REQUIRED", input.messages.errorFirstNameRequired);
+  }
+  if (!input.lastName.trim()) {
+    pushError(errors, "lastName", "LAST_NAME_REQUIRED", input.messages.errorLastNameRequired);
+  }
+
   const phone = input.phoneNumber.replace(/\D/g, "");
   if (!phone) {
     pushError(errors, "phoneNumber", "PHONE_REQUIRED", input.messages.errorPhoneRequired);
@@ -147,6 +156,8 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
   const regionComplete = isRegionComplete(input);
   const coreOk =
     regionComplete &&
+    Boolean(input.firstName.trim()) &&
+    Boolean(input.lastName.trim()) &&
     phone.length >= PHONE_MIN_LEN &&
     phone.length <= PHONE_MAX_LEN &&
     line1.length >= LINE1_MIN_LEN;

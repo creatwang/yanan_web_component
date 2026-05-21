@@ -2,7 +2,7 @@ import { css } from "lit";
 
 /**
  * 结账地址 — Floema 配色 + Flutter 式上浮 label
- * 参考 https://www.floema.com/（暖灰底、#241f21 字、#f76c46 主色）
+ * 参考 https://www.floema.com/（暖灰底、#241f21 字；主色默认偏灰褐，避免过艳橙）
  */
 export const checkoutAddressFormStyles = css`
   :host {
@@ -16,8 +16,9 @@ export const checkoutAddressFormStyles = css`
     --flo-bg: var(--yn-checkout-address-bg-muted, #f2efea);
     --flo-surface: var(--yn-checkout-address-surface, #f9f8f6);
     --flo-card: var(--yn-checkout-address-card-bg, #ffffff);
-    --flo-primary: var(--yn-checkout-address-primary, #f76c46);
-    --flo-primary-hover: var(--yn-color-primary-hover, #e45f3e);
+    --flo-primary: var(--yn-checkout-address-primary, #8a7468);
+    --flo-primary-hover: var(--yn-color-primary-hover, #75655a);
+    --flo-primary-soft: color-mix(in srgb, var(--flo-primary) 12%, transparent);
     --flo-on-surface: var(--yn-checkout-address-color, #241f21);
     --flo-muted: var(--yn-checkout-address-label, #7a716d);
     --flo-outline: var(--yn-checkout-address-outline, #d2cdc4);
@@ -96,7 +97,7 @@ export const checkoutAddressFormStyles = css`
     width: 28px;
     height: 28px;
     border-radius: 50%;
-    background: color-mix(in srgb, var(--flo-primary) 14%, var(--flo-card));
+    background: color-mix(in srgb, var(--flo-primary) 10%, var(--flo-card));
     color: var(--flo-primary);
     font-size: 0.8125rem;
     font-weight: 600;
@@ -116,6 +117,10 @@ export const checkoutAddressFormStyles = css`
     font-size: 0.875rem;
     line-height: 1.5;
     color: var(--flo-muted);
+  }
+
+  .step-lead--inline {
+    margin: 0 0 12px;
   }
 
   .region-chip {
@@ -144,7 +149,7 @@ export const checkoutAddressFormStyles = css`
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: color-mix(in srgb, var(--flo-primary) 18%, transparent);
+    background: color-mix(in srgb, var(--flo-primary) 12%, transparent);
     color: var(--flo-primary);
     font-size: 0.75rem;
     font-weight: 600;
@@ -241,7 +246,7 @@ export const checkoutAddressFormStyles = css`
   }
 
   .banner--warn {
-    border-color: color-mix(in srgb, var(--yn-color-warning, #b87d55) 40%, transparent);
+    border-color: color-mix(in srgb, var(--yn-color-warning, #a68b6b) 35%, transparent);
     background: color-mix(in srgb, var(--yn-color-warning, #b87d55) 10%, var(--flo-card));
   }
 
@@ -280,7 +285,7 @@ export const checkoutAddressFormStyles = css`
       box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .float-field__control:hover:not(:has(input:disabled)) {
+  .float-field__control:hover:not(:has(input:disabled)):not(:has(textarea:disabled)) {
     border-color: var(--flo-outline-strong);
   }
 
@@ -309,7 +314,9 @@ export const checkoutAddressFormStyles = css`
   }
 
   .float-field__input,
-  .float-field__control > input {
+  .float-field__textarea,
+  .float-field__control > input,
+  .float-field__control > textarea {
     flex: 1;
     width: 100%;
     min-width: 0;
@@ -360,12 +367,47 @@ export const checkoutAddressFormStyles = css`
     color: inherit;
   }
 
+  /* 多行备注：label 始终在顶边切口（避免空态时 label 垂直居中显得空荡） */
+  .float-field--multiline .float-field__control--textarea {
+    align-items: stretch;
+    min-height: 0;
+  }
+
+  .float-field--multiline .float-field__control--textarea > .float-field__label {
+    left: 10px;
+    top: 0;
+    max-width: calc(100% - 20px);
+    transform: translateY(-50%) scale(0.92);
+    font-size: var(--flo-label-float);
+    color: var(--flo-muted);
+    background: var(--flo-card);
+  }
+
+  .float-field--multiline .float-field__control--textarea:focus-within > .float-field__label {
+    color: var(--flo-primary);
+  }
+
+  .float-field--multiline .float-field__textarea {
+    display: block;
+    width: 100%;
+    min-height: 96px;
+    max-height: min(220px, 40dvh);
+    margin: 0;
+    padding: 22px 14px 12px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
   /* 上浮：label 坐在顶边上，背景遮住描边 */
   .float-field__control:focus-within > .float-field__label,
   .float-field__control:has(> input:not(:placeholder-shown)) > .float-field__label,
+  .float-field__control:has(> textarea:not(:placeholder-shown)) > .float-field__label,
   .float-field__control:has(.float-field__input:not(:placeholder-shown)) > .float-field__label,
+  .float-field__control:has(.float-field__textarea:not(:placeholder-shown)) > .float-field__label,
   .float-field__input:focus ~ .float-field__label,
-  .float-field__input:not(:placeholder-shown) ~ .float-field__label {
+  .float-field__input:not(:placeholder-shown) ~ .float-field__label,
+  .float-field__textarea:focus ~ .float-field__label,
+  .float-field__textarea:not(:placeholder-shown) ~ .float-field__label {
     top: 0;
     transform: translateY(-50%) scale(0.92);
     font-size: var(--flo-label-float);
@@ -374,8 +416,11 @@ export const checkoutAddressFormStyles = css`
   }
 
   .float-field__control:has(> input:not(:focus):not(:placeholder-shown)) > .float-field__label,
+  .float-field__control:has(> textarea:not(:focus):not(:placeholder-shown)) > .float-field__label,
   .float-field__control:has(.float-field__input:not(:focus):not(:placeholder-shown)) > .float-field__label,
-  .float-field__input:not(:focus):not(:placeholder-shown) ~ .float-field__label {
+  .float-field__control:has(.float-field__textarea:not(:focus):not(:placeholder-shown)) > .float-field__label,
+  .float-field__input:not(:focus):not(:placeholder-shown) ~ .float-field__label,
+  .float-field__textarea:not(:focus):not(:placeholder-shown) ~ .float-field__label {
     color: var(--flo-muted);
   }
 
@@ -454,7 +499,7 @@ export const checkoutAddressFormStyles = css`
     padding-right: 48px;
   }
 
-  .search-field__clear {
+  .search-field__trailing {
     position: absolute;
     right: 4px;
     top: 50%;
@@ -465,13 +510,35 @@ export const checkoutAddressFormStyles = css`
     justify-content: center;
     width: 40px;
     height: 40px;
+    flex-shrink: 0;
+  }
+
+  .search-field__trailing svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+  }
+
+  .search-field__trailing svg path {
+    fill: currentColor;
+  }
+
+  .search-field__hint {
+    color: color-mix(in srgb, var(--flo-muted) 88%, transparent);
+    pointer-events: none;
+  }
+
+  .search-field__clear {
     padding: 0;
     border: 0;
     border-radius: 50%;
     background: transparent;
     color: var(--flo-muted);
     cursor: pointer;
-    transition: background-color 180ms ease;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease;
   }
 
   .search-field__clear:hover {
@@ -482,17 +549,6 @@ export const checkoutAddressFormStyles = css`
   .search-field__clear:focus-visible {
     outline: 2px solid var(--flo-primary);
     outline-offset: 1px;
-  }
-
-  .search-field__clear svg {
-    display: block;
-    width: 20px;
-    height: 20px;
-    pointer-events: none;
-  }
-
-  .search-field__clear svg path {
-    fill: currentColor;
   }
 
   .hint {
@@ -545,7 +601,7 @@ export const checkoutAddressFormStyles = css`
 
   .dropdown button:hover,
   .dropdown button:focus-visible {
-    background: color-mix(in srgb, var(--flo-primary) 8%, transparent);
+    background: var(--flo-primary-soft);
     outline: none;
   }
 

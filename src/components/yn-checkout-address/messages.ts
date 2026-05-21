@@ -15,7 +15,7 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     usageHintDr5hn:
       "Search country, state/province, or city. Choose a list item tagged Country, State, or City to confirm your delivery region—then enter your contact number and address details.",
     usageHintPhoton:
-      "Search your delivery address and choose a suggestion. Country/region and dial code will be filled in—then enter your contact number and address details.",
+      "Search your delivery region (country, state/province, district) and choose a suggestion. Country/region and dial code will be filled in—then enter your contact number and address details.",
     usageHintManual:
       "Address lookup is unavailable. Enter country/region, state/province, and city manually, then complete contact and address details.",
     activeProvider: "Data source:",
@@ -61,6 +61,10 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     phonePrefixEmpty: "—",
     phoneNumber: "Mobile number",
     phonePlaceholder: "Local number without dial code",
+    firstName: "First name",
+    lastName: "Last name",
+    notes: "Order notes",
+    notesPlaceholder: "Delivery instructions, gate code, etc.",
     detailAddress: "Detailed address",
     detailAddress2: "Address line 2 (optional)",
     detailAddress2Placeholder: "Apt, suite, unit, etc.",
@@ -82,6 +86,8 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
       "Enter country/region, state/province, and city.",
     errorRegionCityLevel: "Choose a list item tagged City to confirm delivery region.",
     errorRegionNotAllowed: "Delivery is not available for this country/region.",
+    errorFirstNameRequired: "Enter your first name.",
+    errorLastNameRequired: "Enter your last name.",
     errorPhoneRequired: "Enter a mobile number.",
     errorPhoneInvalid: "Enter a valid mobile number (6–15 digits).",
     errorLine1Required: "Enter your detailed address.",
@@ -99,7 +105,7 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     usageHintDr5hn:
       "请搜索国家/省/州/城市，在列表中选择带「国家」「省/州」或「城市」标记的项以确认收货地区，再填写联系电话与详细地址。",
     usageHintPhoton:
-      "请搜索配送地址并选择建议，系统将自动填充收货地区与电话区号，再填写联系电话与详细地址。",
+      "请搜索配送区域(国家，省，区)并选择建议，系统将自动填充收货地区与电话区号，再填写联系电话与详细地址。",
     usageHintManual:
       "地址联想服务暂不可用，请手动填写国家/地区、省/州、城市，并继续填写联系方式与详细地址。",
     activeProvider: "当前数据源：",
@@ -145,6 +151,10 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     phonePrefixEmpty: "—",
     phoneNumber: "手机号码",
     phonePlaceholder: "仅填写号码，不含区号",
+    firstName: "名字",
+    lastName: "姓氏",
+    notes: "备注",
+    notesPlaceholder: "配送说明、门禁、代收等",
     detailAddress: "详细地址",
     detailAddress2: "地址补充（选填）",
     detailAddress2Placeholder: "楼层、门牌、单元等",
@@ -165,6 +175,8 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     errorManualRegionIncomplete: "请填写国家/地区、省/州与城市。",
     errorRegionCityLevel: "请选择列表中带「城市」标记的项以确认收货地区。",
     errorRegionNotAllowed: "该地区不在可配送范围内。",
+    errorFirstNameRequired: "请填写名字。",
+    errorLastNameRequired: "请填写姓氏。",
     errorPhoneRequired: "请填写手机号码。",
     errorPhoneInvalid: "请输入有效的手机号码（6–15 位数字）。",
     errorLine1Required: "请填写详细地址。",

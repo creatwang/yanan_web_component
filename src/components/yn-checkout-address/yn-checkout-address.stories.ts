@@ -21,11 +21,14 @@ export const SAMPLE_ECHO_VALUE: YnCheckoutAddressValue = {
   cityName: "Dubai",
   cityId: 1,
   phonecode: "971",
+  firstName: "Layla",
+  lastName: "Al Mansoori",
   phoneNumber: "501234567",
   email: "buyer@example.com",
   line1: "Sheikh Zayed Rd 1",
   line2: "Floor 12",
   postalCode: "12345",
+  notes: "Leave at reception",
   currency: "AED",
   regionComplete: true,
   formReady: true,
@@ -153,6 +156,8 @@ const componentDescription = `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
 
 Storybook Controls 与组件属性一一对应；仅修改 \`googleMapsApiKey\` 会**重新探测**数据源；\`excludeRegions\` / \`includeCountries\` 只刷新国家列表并同步视图，不会整表重置。
 
+**提交校验演示**：请打开同组件下的 Story **「结账校验（完整演示）」**（文件 yn-checkout-address-validation.stories.ts），含「提交订单」按钮、validate / reportValidity 与 Interactions 自动化步骤。
+
 ## 导入（Tree Shaking）
 
 \`\`\`ts
@@ -167,7 +172,7 @@ import "yn-web-component/theme.css";
 | --- | --- | --- |
 | \`--yn-checkout-address-bg\` | \`transparent\` | 组件背景色 |
 | \`--yn-checkout-address-bg-muted\` | \`#f2efea\` | 页面底衬（[Floema](https://www.floema.com/)） |
-| \`--yn-checkout-address-primary\` | \`#f76c46\` | 主色（焦点/上浮 label） |
+| \`--yn-checkout-address-primary\` | \`#8a7468\` | 主色（焦点/上浮 label，灰褐、低饱和） |
 | \`--yn-checkout-address-outline\` | \`#d2cdc4\` | 输入框描边 |
 | \`--yn-checkout-address-label\` | \`#7a716d\` | 标签静止色 |
 | \`--yn-checkout-address-padding\` | \`0\` | 内容区内边距 |

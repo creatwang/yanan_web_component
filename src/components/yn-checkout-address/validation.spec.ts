@@ -12,6 +12,8 @@ const base = () => ({
   cityName: "Dubai",
   cityId: 1,
   dr5hnRegionLevel: "city" as const,
+  firstName: "Layla",
+  lastName: "Al Mansoori",
   phoneNumber: "501234567",
   line1: "Sheikh Zayed Rd 1",
   postalCode: "",
@@ -99,6 +101,18 @@ describe("validateCheckoutAddress", () => {
     });
     expect(r.valid).toBe(false);
     expect(r.errors.some((e) => e.code === "REGION_REQUIRED")).toBe(true);
+  });
+
+  it("requires first and last name", () => {
+    const r = validateCheckoutAddress({
+      ...base(),
+      firstName: "",
+      lastName: "  ",
+    });
+    expect(r.valid).toBe(false);
+    expect(r.errors.some((e) => e.code === "FIRST_NAME_REQUIRED")).toBe(true);
+    expect(r.errors.some((e) => e.code === "LAST_NAME_REQUIRED")).toBe(true);
+    expect(r.formReady).toBe(false);
   });
 
   it("rejects invalid email when required", () => {
