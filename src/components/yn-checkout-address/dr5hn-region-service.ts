@@ -23,9 +23,12 @@ const MAX_STATES = 6;
 const MAX_CITIES_PER_STATE = 4;
 const RETRY_ATTEMPTS = 2;
 const RETRY_DELAY_MS = 400;
+/** 并发拉取 states/cities，避免串行 CDN 请求过慢；限制连接数防止打满浏览器同域连接 */
+const FETCH_CONCURRENCY = 4;
 
 let countriesCache: ICountry[] | null = null;
 let cacheFilterKey = "";
+const statesRequestCache = new Map<string, Promise<IState[]>>();
 
 const filterKey = (filter?: YnCheckoutRegionFilter) =>
   JSON.stringify({
@@ -56,6 +59,52 @@ async function withRetry<T>(task: () => Promise<T>, signal?: AbortSignal): Promi
   throw lastError;
 }
 
+/** 有限并发执行；signal 中止后不再启动新任务 */
+async function runPool<T, R>(
+  items: T[],
+  limit: number,
+  worker: (item: T) => Promise<R>,
+  signal?: AbortSignal,
+): Promise<R[]> {
+  if (!items.length || signal?.aborted) {
+    return [];
+  }
+  const size = Math.min(Math.max(1, limit), items.length);
+  const out: R[] = new Array(items.length);
+  let next = 0;
+
+  const runWorker = async () => {
+    while (next < items.length) {
+      if (signal?.aborted) {
+        return;
+      }
+      const index = next;
+      next += 1;
+      out[index] = await worker(items[index]);
+    }
+  };
+
+  await Promise.all(Array.from({ length: size }, () => runWorker()));
+  return out;
+}
+
+function clearStatesRequestCache() {
+  statesRequestCache.clear();
+}
+
+function loadStatesOfCountry(countryCode: string, signal?: AbortSignal): Promise<IState[]> {
+  const key = countryCode.toUpperCase();
+  let pending = statesRequestCache.get(key);
+  if (!pending) {
+    pending = withRetry(() => getStatesOfCountry(key), signal).catch((error) => {
+      statesRequestCache.delete(key);
+      throw error;
+    });
+    statesRequestCache.set(key, pending);
+  }
+  return pending;
+}
+
 export function peekCountriesCache(filter?: YnCheckoutRegionFilter): ICountry[] | null {
   const key = filterKey(filter);
   if (cacheFilterKey === key && countriesCache != null) {
@@ -67,6 +116,7 @@ export function peekCountriesCache(filter?: YnCheckoutRegionFilter): ICountry[] 
 export async function loadCountries(filter?: YnCheckoutRegionFilter, force = false) {
   const key = filterKey(filter);
   if (force || countriesCache === null || cacheFilterKey !== key) {
+    clearStatesRequestCache();
     const all = await withRetry(() => getCountries());
     countriesCache = all.filter((c) => passesCountryFilter(c.iso2, filter));
     cacheFilterKey = key;
@@ -120,12 +170,12 @@ async function citiesInCountry(
   query: string,
   signal: AbortSignal,
   filter?: YnCheckoutRegionFilter,
+  statesPrefetched?: IState[],
 ): Promise<Dr5hnRegionSuggestion[]> {
-  const states = await withRetry(() => getStatesOfCountry(country.iso2), signal);
+  const states = statesPrefetched ?? (await loadStatesOfCountry(country.iso2, signal));
   if (signal.aborted) return [];
 
   const q = norm(query);
-  const out: Dr5hnRegionSuggestion[] = [];
 
   if (states.length === 0) {
     const all = await withRetry(() => getAllCitiesOfCountry(country.iso2), signal);
@@ -141,22 +191,35 @@ async function citiesInCountry(
       s.name.toLowerCase().includes(q) && passesStateFilter(country.iso2, s.iso2, filter),
   );
   const scan = stateHits.length > 0 ? stateHits.slice(0, MAX_STATES) : states.slice(0, 4);
+  const eligible = scan.filter((s) => passesStateFilter(country.iso2, s.iso2, filter));
+  if (!eligible.length || signal.aborted) {
+    return [];
+  }
 
-  for (const state of scan) {
-    if (signal.aborted) break;
-    if (!passesStateFilter(country.iso2, state.iso2, filter)) {
-      continue;
-    }
-    const cities = await withRetry(
-      () => searchCitiesByName(country.iso2, state.iso2, query),
-      signal,
-    );
-    for (const city of cities.slice(0, MAX_CITIES_PER_STATE)) {
-      if (!passesCityFilter(country.iso2, city.id, filter)) {
-        continue;
+  const batches = await runPool(
+    eligible,
+    FETCH_CONCURRENCY,
+    async (state) => {
+      if (signal.aborted) return [] as Dr5hnRegionSuggestion[];
+      const cities = await withRetry(
+        () => searchCitiesByName(country.iso2, state.iso2, query),
+        signal,
+      );
+      return cities
+        .slice(0, MAX_CITIES_PER_STATE)
+        .filter((city) => passesCityFilter(country.iso2, city.id, filter))
+        .map((city) => suggestion("city", country, state, city));
+    },
+    signal,
+  );
+
+  const out: Dr5hnRegionSuggestion[] = [];
+  for (const batch of batches) {
+    for (const item of batch) {
+      out.push(item);
+      if (out.length >= MAX_RESULTS) {
+        return out;
       }
-      out.push(suggestion("city", country, state, city));
-      if (out.length >= MAX_RESULTS) return out;
     }
   }
   return out;
@@ -190,16 +253,43 @@ export async function searchDr5hnRegions(
     }
   }
 
-  for (const country of pickCountries(query, countries)) {
-    if (signal.aborted) break;
-    const states = await withRetry(() => getStatesOfCountry(country.iso2), signal);
-    for (const state of states) {
-      if (state.name.toLowerCase().includes(q)) {
-        push(suggestion("state", country, state, null));
+  const picked = pickCountries(query, countries);
+  if (signal.aborted) {
+    return results.sort(
+      (a, b) =>
+        ({ city: 0, state: 1, country: 2 }[a.level] - { city: 0, state: 1, country: 2 }[b.level]),
+    );
+  }
+
+  const perCountry = await runPool(
+    picked,
+    FETCH_CONCURRENCY,
+    async (country) => {
+      if (signal.aborted) {
+        return { states: [] as Dr5hnRegionSuggestion[], cities: [] as Dr5hnRegionSuggestion[] };
+      }
+      const rawStates = await loadStatesOfCountry(country.iso2, signal);
+      const stateSuggestions: Dr5hnRegionSuggestion[] = [];
+      for (const state of rawStates) {
+        if (state.name.toLowerCase().includes(q)) {
+          stateSuggestions.push(suggestion("state", country, state, null));
+        }
+      }
+      const cities = await citiesInCountry(country, query, signal, filter, rawStates);
+      return { states: stateSuggestions, cities };
+    },
+    signal,
+  );
+
+  for (const batch of perCountry) {
+    for (const item of [...batch.states, ...batch.cities]) {
+      push(item);
+      if (results.length >= MAX_RESULTS) {
+        break;
       }
     }
-    for (const item of await citiesInCountry(country, query, signal, filter)) {
-      push(item);
+    if (results.length >= MAX_RESULTS) {
+      break;
     }
   }
 
