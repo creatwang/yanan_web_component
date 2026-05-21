@@ -166,28 +166,3 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
     errors,
   };
 }
-
-export const fieldToInputId: Record<YnCheckoutAddressField, string> = {
-  region: "yn-ca-region",
-  phoneNumber: "yn-ca-phone",
-  line1: "yn-ca-line1",
-  postalCode: "yn-ca-d-zip",
-  email: "yn-ca-email",
-};
-
-/** dr5hn 模式下字段 id 不同 */
-export const fieldToInputIdDr5hn: Record<YnCheckoutAddressField, string> = {
-  region: "yn-ca-region",
-  phoneNumber: "yn-ca-d-phone",
-  line1: "yn-ca-d-line1",
-  postalCode: "yn-ca-d-zip",
-  email: "yn-ca-email",
-};
-
-export const fieldToInputIdManual: Record<YnCheckoutAddressField, string> = {
-  region: "yn-ca-m-country-code",
-  phoneNumber: "yn-ca-m-phone",
-  line1: "yn-ca-m-line1",
-  postalCode: "yn-ca-m-zip",
-  email: "yn-ca-email",
-};

@@ -25,6 +25,10 @@ export const checkoutAddressFormStyles = css`
     border-radius: inherit;
   }
 
+  .layer[hidden] {
+    display: none !important;
+  }
+
   .form-panel {
     display: flex;
     flex-direction: column;
@@ -594,9 +598,17 @@ export const checkoutAddressFormStyles = css`
   }
 
   .skeleton-stack {
-    display: grid;
-    gap: 14px;
     min-width: 0;
+  }
+
+  .skeleton-hint {
+    margin: 0 0 12px;
+    font-size: 0.8125rem;
+    color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48));
+  }
+
+  .skeleton-panel {
+    pointer-events: none;
   }
 
   .skeleton-line {
@@ -611,30 +623,19 @@ export const checkoutAddressFormStyles = css`
     animation: yn-checkout-address-shimmer 1.15s ease-in-out infinite;
   }
 
-  .skeleton-line--banner {
-    height: 52px;
-  }
-
-  .skeleton-line--field {
-    height: 44px;
-  }
-
-  .skeleton-line--short {
-    width: 42%;
+  .skeleton-line--label {
+    width: 38%;
     height: 12px;
+    margin-bottom: 8px;
     border-radius: 6px;
   }
 
-  .skeleton-grid-2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+  .skeleton-line--field {
+    height: var(--yn-checkout-address-field-height, 44px);
   }
 
-  @media (max-width: 520px) {
-    .skeleton-grid-2 {
-      grid-template-columns: minmax(0, 1fr);
-    }
+  .form-panel--details {
+    animation: yn-checkout-address-panel-in 220ms ease;
   }
 
   @keyframes yn-checkout-address-shimmer {
@@ -646,10 +647,15 @@ export const checkoutAddressFormStyles = css`
     }
   }
 
-  .skeleton-hint {
-    margin: 0;
-    font-size: 0.8125rem;
-    color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.48));
+  @keyframes yn-checkout-address-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .error-box {

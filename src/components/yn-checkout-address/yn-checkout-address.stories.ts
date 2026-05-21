@@ -151,7 +151,7 @@ const componentDescription = `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
 
 ## Controls 说明
 
-Storybook Controls 与组件属性一一对应；修改 \`googleMapsApiKey\`、\`excludeRegions\`、\`includeCountries\` 会**重新探测**数据源。
+Storybook Controls 与组件属性一一对应；仅修改 \`googleMapsApiKey\` 会**重新探测**数据源；\`excludeRegions\` / \`includeCountries\` 只刷新国家列表并同步视图，不会整表重置。
 
 ## 导入（Tree Shaking）
 
@@ -422,7 +422,7 @@ export const Interactions: Story = {
     docs: {
       description: {
         story:
-          "工具栏按钮 + 右侧 Controls 均可改属性；`googleMapsApiKey` / 区域过滤变更会重新探测。",
+          "工具栏按钮 + 右侧 Controls 均可改属性；仅 `googleMapsApiKey` 变更会重新探测，区域过滤只刷新列表。",
       },
     },
   },

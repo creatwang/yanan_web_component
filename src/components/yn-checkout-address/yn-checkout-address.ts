@@ -6,6 +6,7 @@ import { customElement, property, state } from "lit/decorators.js";
 import type { AddressSuggestion } from "./address-providers";
 import {
   loadGoogleMaps,
+  probePhotonReachable,
   resolveGooglePlace,
   searchGooglePlaces,
   searchPhoton,
@@ -15,22 +16,17 @@ import {
   enrichCountry,
   isChinaQuery,
   loadCountries,
+  peekCountriesCache,
   searchDr5hnRegions,
 } from "./dr5hn-region-service";
 import type { Dr5hnRegionSuggestion, RegionSearchLevel } from "./dr5hn-region-types";
 import { resolveCheckoutMessages } from "./messages";
-import {
-  fieldToInputId,
-  fieldToInputIdDr5hn,
-  fieldToInputIdManual,
-  isPostalRequiredForCountry,
-  validateCheckoutAddress,
-} from "./validation";
+import { isPostalRequiredForCountry, validateCheckoutAddress } from "./validation";
 import {
   probeAddressProvider,
   type AddressProviderMode,
 } from "./provider-probe";
-import { filterByRegion } from "./region-filter";
+import { filterByRegion, passesCountryFilter } from "./region-filter";
 import type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressField,
@@ -42,13 +38,30 @@ import type {
   YnCheckoutProvider,
   YnCheckoutRegionFilter,
 } from "./types";
-import { CHECKOUT_FIELD_IDS } from "./field-ids";
+import {
+  CHECKOUT_FIELD_IDS,
+  CHECKOUT_FOCUS_IDS,
+  type CheckoutFieldSet,
+} from "./field-ids";
 import { buildRegionSummary, buildSearchLabel, isSameChangeDetail } from "./value-utils";
 
 const DEBOUNCE_GOOGLE_MS = 280;
 const DEBOUNCE_DR5HN_MS = 320;
+type ViewMode = "booting" | "region" | "manual" | "checkout";
 
-type ProbePhase = "probing" | "ready";
+const PROVIDER_LABEL_KEY: Record<AddressProviderMode, keyof YnCheckoutAddressMessages> = {
+  google: "providerGoogle",
+  dr5hn: "providerDr5hn",
+  manual: "providerManual",
+  photon: "providerPhoton",
+};
+
+const PROVIDER_HINT_KEY: Record<AddressProviderMode, keyof YnCheckoutAddressMessages> = {
+  google: "usageHintGoogle",
+  dr5hn: "usageHintDr5hn",
+  manual: "usageHintManual",
+  photon: "usageHintPhoton",
+};
 
 /**
  * 跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN
@@ -99,7 +112,7 @@ export class YnCheckoutAddress extends LitElement {
   /** 为 true 且 showEmail 时邮箱必填 */
   @property({ type: Boolean, attribute: "email-required" }) emailRequired = false;
 
-  @state() private phase: ProbePhase = "probing";
+  @state() private viewMode: ViewMode = "booting";
   @state() private activeProvider: AddressProviderMode | null = null;
   @state() private probeReason = "";
 
@@ -131,8 +144,11 @@ export class YnCheckoutAddress extends LitElement {
   @state() private dr5hnRegionLevel: RegionSearchLevel | null = null;
   @state() private showFieldErrors = false;
   @state() private regionEditing = false;
+  /** 筛选刷新中：遮盖 manual，避免先闪手填再切回搜索 */
+  @state() private filterRefreshing = false;
 
   private lastEmitted: YnCheckoutAddressChangeDetail | null = null;
+  private probeGeneration = 0;
   private suppressEmit = false;
   private validationCache: YnCheckoutAddressValidation | null = null;
   private emitScheduled = false;
@@ -156,6 +172,29 @@ export class YnCheckoutAddress extends LitElement {
     return this.activeProvider === "manual";
   }
 
+  private get fieldSet(): CheckoutFieldSet {
+    return this.isManualMode ? "manual" : this.isDr5hnMode ? "dr5hn" : "google";
+  }
+
+  private get fields() {
+    return CHECKOUT_FIELD_IDS[this.fieldSet];
+  }
+
+  private get layerVis() {
+    const vm = this.viewMode;
+    const boot = vm === "booting";
+    const manual = this.activeProvider === "manual";
+    const ap = this.activeProvider;
+    return {
+      boot,
+      main: !boot,
+      provider: !boot && !manual && ap != null,
+      manual: !boot && manual && !this.filterRefreshing,
+      details: vm === "checkout",
+      hint: !boot && !manual && ap != null && !this.regionConfirmed,
+    };
+  }
+
   private get regionConfirmed() {
     if (this.isManualMode) {
       return Boolean(this.countryCode.trim() && this.cityName.trim());
@@ -173,30 +212,30 @@ export class YnCheckoutAddress extends LitElement {
     return !this.regionConfirmed || this.regionEditing;
   }
 
-  private regionSummaryText() {
-    return buildRegionSummary({
-      searchLabel: this.query,
-      cityName: this.cityName,
-      stateName: this.stateName,
-      countryName: this.countryName,
-      countryCode: this.countryCode,
-    });
+  private syncViewEmit() {
+    this.applyViewMode();
+    this.emitChange();
+  }
+
+  private cancelProbeAndSearch() {
+    this.probeGeneration += 1;
+    this.probeAbort?.abort();
+    this.abortController?.abort();
+    window.clearTimeout(this.debounceTimer);
+    this.searching = false;
+    this.suggestionsOpen = false;
   }
 
   private startRegionEdit = () => {
     this.regionEditing = true;
     this.suggestionsOpen = false;
-    const searchId = this.isDr5hnMode ? "yn-ca-region" : "yn-ca-address";
     this.updateComplete.then(() => {
-      this.shadowRoot?.querySelector<HTMLInputElement>(`#${searchId}`)?.focus();
+      this.shadowRoot?.querySelector<HTMLInputElement>(`#${this.fields.region}`)?.focus();
     });
   };
 
   override connectedCallback() {
     super.connectedCallback();
-    if (this.value) {
-      this.applyExternalValue(this.value);
-    }
     void this.runProbe();
   }
 
@@ -223,31 +262,135 @@ export class YnCheckoutAddress extends LitElement {
       }
     }
     if (changed.has("excludeRegions") || changed.has("includeCountries")) {
-      void loadCountries(this.regionFilter, true);
-      if (this.phase === "ready") {
-        void this.runProbe();
-      }
+      this.applyRegionFilterChange();
     }
     if (changed.has("googleMapsApiKey")) {
       void this.runProbe();
     }
   }
 
+  private clearDetailFields() {
+    this.phoneNumber = "";
+    this.email = "";
+    this.line1 = "";
+    this.line2 = "";
+    this.postalCode = "";
+  }
+
+  /** 国家/地区筛选变更：不重新探测；中止进行中的搜索，避免降级到 manual 造成闪动 */
+  private applyRegionFilterChange() {
+    this.cancelProbeAndSearch();
+    if (this.countryCode && !passesCountryFilter(this.countryCode, this.regionFilter)) {
+      this.clearRegion();
+      this.clearDetailFields();
+      this.query = "";
+      this.regionEditing = true;
+      this.searchError = "";
+      this.suggestions = [];
+      this.dr5hnSuggestions = [];
+    }
+
+    const wasManual = this.isManualMode;
+    if (this.activeProvider !== "dr5hn" && !wasManual) {
+      this.syncViewEmit();
+      return;
+    }
+
+    const recoverDr5hn = () => {
+      this.activeProvider = "dr5hn";
+      this.searchError = "";
+      this.syncViewEmit();
+    };
+
+    if (wasManual) {
+      const cached = peekCountriesCache(this.regionFilter);
+      if (cached?.length) {
+        recoverDr5hn();
+        void loadCountries(this.regionFilter, true);
+        return;
+      }
+      this.filterRefreshing = true;
+      this.viewMode = "booting";
+    } else {
+      this.syncViewEmit();
+    }
+
+    void loadCountries(this.regionFilter, true)
+      .then(async (countries) => {
+        if (countries.length > 0) {
+          if (wasManual) recoverDr5hn();
+          return;
+        }
+        if (this.activeProvider === "dr5hn") {
+          await this.degradeWhenDr5hnFilteredEmpty();
+          this.syncViewEmit();
+        }
+      })
+      .catch(() => this.syncViewEmit())
+      .finally(() => {
+        this.filterRefreshing = false;
+      });
+  }
+
+  /** dr5hn 在当前筛选下无国家：尝试 Photon，最后才 manual */
+  private async degradeWhenDr5hnFilteredEmpty() {
+    try {
+      if (await probePhotonReachable()) {
+        this.activeProvider = "photon";
+        this.probeReason = this.msg.dr5hnFallbackToPhoton;
+        await this.syncGoogleMode("photon");
+        return;
+      }
+    } catch {
+      /* manual */
+    }
+    this.activeProvider = "manual";
+    this.probeReason = this.msg.servicesUnavailable;
+    this.googleReady = false;
+  }
+
+  /** 探测开始时原子重置：只保留 booting 视图 */
+  private beginBooting() {
+    this.viewMode = "booting";
+    this.activeProvider = null;
+    this.probeReason = "";
+    this.googleReady = false;
+    this.searching = false;
+    this.suggestionsOpen = false;
+    this.searchError = "";
+    this.regionEditing = false;
+    this.showFieldErrors = false;
+    this.validationCache = null;
+    this.clearRegion();
+    this.clearDetailFields();
+    this.query = "";
+  }
+
+  private applyViewMode(skipIfBooting = false) {
+    if (skipIfBooting && this.viewMode === "booting") return;
+    if (!this.activeProvider) {
+      this.viewMode = "booting";
+      return;
+    }
+    if (this.isManualMode) {
+      this.viewMode = this.regionConfirmed ? "checkout" : "manual";
+      return;
+    }
+    this.viewMode = this.regionConfirmed ? "checkout" : "region";
+  }
+
   private resetFormForEmptyValue() {
     this.suppressEmit = true;
     this.query = "";
     this.clearRegion();
-    this.line1 = "";
-    this.line2 = "";
-    this.postalCode = "";
-    this.phoneNumber = "";
-    this.email = "";
+    this.clearDetailFields();
     this.dr5hnRegionLevel = null;
     this.suggestions = [];
     this.dr5hnSuggestions = [];
     this.suggestionsOpen = false;
     this.searchError = "";
     this.lastEmitted = null;
+    this.applyViewMode(true);
   }
 
   /** 受控回显：父组件写入 .value 时调用（与 attribute 变更等效） */
@@ -255,18 +398,11 @@ export class YnCheckoutAddress extends LitElement {
     this.value = v;
   }
 
-  private hasEchoValue() {
-    return Boolean(this.value?.countryCode?.trim());
-  }
-
   private applyExternalValue(v: YnCheckoutAddressValue) {
     this.suppressEmit = true;
     const provider = v.provider as AddressProviderMode | null;
     if (provider) {
       this.activeProvider = provider;
-      if (provider === "manual") {
-        this.phase = "ready";
-      }
     }
     this.probeReason = v.probeReason || this.probeReason;
     this.countryCode = v.countryCode;
@@ -287,11 +423,17 @@ export class YnCheckoutAddress extends LitElement {
     this.lastEmitted = null;
     this.suggestionsOpen = false;
     this.regionEditing = false;
+    this.applyViewMode(true);
   }
 
   private async runProbe() {
-    this.phase = "probing";
-    this.probeAbort?.abort();
+    const generation = ++this.probeGeneration;
+    const hadProvider = this.activeProvider != null;
+    if (!hadProvider) {
+      this.beginBooting();
+    } else {
+      this.probeAbort?.abort();
+    }
     this.probeAbort = new AbortController();
 
     try {
@@ -300,43 +442,56 @@ export class YnCheckoutAddress extends LitElement {
         regionFilter: this.regionFilter,
         signal: this.probeAbort.signal,
       });
+      if (generation !== this.probeGeneration) {
+        return;
+      }
       if (result.mode === "manual") {
-        this.enterManualMode(result.reason);
+        this.activeProvider = "manual";
+        this.probeReason = result.reason;
+        this.googleReady = false;
       } else {
         this.activeProvider = result.mode;
         this.probeReason = result.reason;
-        this.phase = "ready";
         if (result.mode === "dr5hn") {
-          void loadCountries(this.regionFilter);
+          await loadCountries(this.regionFilter);
         }
         if (result.mode === "google" || result.mode === "photon") {
-          void this.syncGoogleMode(result.mode);
+          await this.syncGoogleMode(result.mode);
         }
       }
       if (this.value) {
         this.applyExternalValue(this.value);
-      } else {
-        this.emitChange();
+        if (
+          this.countryCode &&
+          !passesCountryFilter(this.countryCode, this.regionFilter)
+        ) {
+          this.clearRegion();
+          this.query = "";
+        }
       }
+      this.syncViewEmit();
     } catch (error) {
-      if ((error as Error).name === "AbortError") {
+      if ((error as Error).name === "AbortError" || generation !== this.probeGeneration) {
         return;
       }
-      this.enterManualMode(this.msg.probeFailed);
+      this.activeProvider = "manual";
+      this.probeReason = this.msg.probeFailed;
+      this.googleReady = false;
+      this.syncViewEmit();
     }
   }
 
   private enterManualMode(reason: string) {
+    if (this.filterRefreshing) return;
     this.activeProvider = "manual";
     this.probeReason = reason;
-    this.phase = "ready";
     this.searching = false;
     this.suggestionsOpen = false;
     this.googleReady = false;
     this.dr5hnRegionLevel = null;
     this.cityId = null;
     this.stateCode = null;
-    this.emitChange();
+    this.syncViewEmit();
   }
 
   private resolveGoogleKey() {
@@ -369,21 +524,11 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private providerLabel(mode: AddressProviderMode) {
-    if (mode === "google") return this.msg.providerGoogle;
-    if (mode === "dr5hn") return this.msg.providerDr5hn;
-    if (mode === "manual") return this.msg.providerManual;
-    return this.msg.providerPhoton;
+    return this.msg[PROVIDER_LABEL_KEY[mode]];
   }
 
-  /** 表单顶部用户指引（可通过 messages.usageHint* 或 usageHint 覆盖） */
   private usageHintForProvider(mode: AddressProviderMode) {
-    if (this.msg.usageHint?.trim()) {
-      return this.msg.usageHint.trim();
-    }
-    if (mode === "google") return this.msg.usageHintGoogle;
-    if (mode === "dr5hn") return this.msg.usageHintDr5hn;
-    if (mode === "manual") return this.msg.usageHintManual;
-    return this.msg.usageHintPhoton;
+    return this.msg.usageHint?.trim() || this.msg[PROVIDER_HINT_KEY[mode]];
   }
 
   private buildValidateInput() {
@@ -428,18 +573,12 @@ export class YnCheckoutAddress extends LitElement {
     if (validation.valid) {
       return true;
     }
-    const map = this.isManualMode
-      ? fieldToInputIdManual
-      : this.isDr5hnMode
-        ? fieldToInputIdDr5hn
-        : fieldToInputId;
+    const map = CHECKOUT_FOCUS_IDS[this.fieldSet];
     const first = validation.errors[0];
     if (first) {
-      const id = map[first.field];
-      const searchId = this.isDr5hnMode ? "yn-ca-region" : "yn-ca-address";
-      const el = this.shadowRoot?.querySelector<HTMLElement>(
-        first.field === "region" && !this.isManualMode ? `#${searchId}` : `#${id}`,
-      );
+      const id =
+        first.field === "region" && !this.isManualMode ? this.fields.region : map[first.field];
+      const el = this.shadowRoot?.querySelector<HTMLElement>(`#${id}`);
       el?.focus();
       el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
@@ -742,7 +881,7 @@ export class YnCheckoutAddress extends LitElement {
     this.suggestionsOpen = false;
     this.searchError = "";
     this.regionEditing = false;
-    this.emitChange();
+    this.syncViewEmit();
   }
 
   private applyDr5hnRegion(item: Dr5hnRegionSuggestion) {
@@ -764,7 +903,7 @@ export class YnCheckoutAddress extends LitElement {
         : item.level === "state"
           ? this.msg.regionSearchStateOnly
           : "";
-    this.emitChange();
+    this.syncViewEmit();
     void enrichCountry(item.countryCode, item).then((meta) => {
       this.countryName = meta.countryName;
       this.phonecode = meta.phonecode;
@@ -926,39 +1065,30 @@ export class YnCheckoutAddress extends LitElement {
     this.suggestionsOpen = false;
     this.regionEditing = true;
     this.clearRegion();
-    this.emitChange();
-    const searchId = this.isDr5hnMode ? "yn-ca-region" : "yn-ca-address";
-    this.shadowRoot?.querySelector<HTMLInputElement>(`#${searchId}`)?.focus();
+    this.syncViewEmit();
+    this.shadowRoot?.querySelector<HTMLInputElement>(`#${this.fields.region}`)?.focus();
   };
 
-  private handleManualCountryName = (event: Event) => {
-    this.countryName = (event.target as HTMLInputElement).value;
-    this.emitChange();
-  };
-
-  private handleManualCountryCode = (event: Event) => {
-    const code = (event.target as HTMLInputElement).value
-      .toUpperCase()
-      .replace(/[^A-Z]/g, "")
-      .slice(0, 2);
-    (event.target as HTMLInputElement).value = code;
-    this.countryCode = code;
-    void this.applyCountryMeta(code);
-    this.emitChange();
-  };
-
-  private handleManualStateName = (event: Event) => {
-    this.stateName = (event.target as HTMLInputElement).value;
-    this.stateCode = null;
-    this.emitChange();
-  };
-
-  private handleManualCityName = (event: Event) => {
-    this.cityName = (event.target as HTMLInputElement).value;
-    this.cityId = null;
-    this.dr5hnRegionLevel = null;
-    this.emitChange();
-  };
+  private onManualField =
+    (field: "countryName" | "countryCode" | "stateName" | "cityName") => (event: Event) => {
+      const input = event.target as HTMLInputElement;
+      if (field === "countryName") {
+        this.countryName = input.value;
+      } else if (field === "countryCode") {
+        const code = input.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
+        input.value = code;
+        this.countryCode = code;
+        void this.applyCountryMeta(code);
+      } else if (field === "stateName") {
+        this.stateName = input.value;
+        this.stateCode = null;
+      } else {
+        this.cityName = input.value;
+        this.cityId = null;
+        this.dr5hnRegionLevel = null;
+      }
+      this.syncViewEmit();
+    };
 
   private handleFieldInput =
     (field: "line1" | "line2" | "postalCode" | "phone" | "email") => (event: Event) => {
@@ -972,23 +1102,23 @@ export class YnCheckoutAddress extends LitElement {
     };
 
   private dr5hnLevelLabel(level: Dr5hnRegionSuggestion["level"]) {
-    if (level === "city") return this.msg.regionSearchLevelCity;
-    if (level === "state") return this.msg.regionSearchLevelState;
-    return this.msg.regionSearchLevelCountry;
+    const key =
+      level === "city"
+        ? "regionSearchLevelCity"
+        : level === "state"
+          ? "regionSearchLevelState"
+          : "regionSearchLevelCountry";
+    return this.msg[key];
   }
 
   private renderSkeleton() {
     return html`
-      <div class="skeleton-stack" aria-busy="true" aria-live="polite">
+      <div class="stack skeleton-stack" aria-busy="true" aria-live="polite">
         <p class="skeleton-hint">${this.msg.probing}</p>
-        <div class="skeleton-line skeleton-line--banner"></div>
-        <div class="skeleton-line skeleton-line--short"></div>
-        <div class="skeleton-line skeleton-line--field"></div>
-        <div class="skeleton-grid-2">
-          <div class="skeleton-line skeleton-line--field"></div>
+        <div class="form-panel form-panel--region skeleton-panel">
+          <div class="skeleton-line skeleton-line--label"></div>
           <div class="skeleton-line skeleton-line--field"></div>
         </div>
-        <div class="skeleton-line skeleton-line--field"></div>
       </div>
     `;
   }
@@ -998,7 +1128,15 @@ export class YnCheckoutAddress extends LitElement {
       <div class="region-summary">
         <div class="region-summary__main">
           <span class="region-summary__kicker">${this.msg.sectionRegion}</span>
-          <p class="region-summary__value">${this.regionSummaryText()}</p>
+          <p class="region-summary__value">
+            ${buildRegionSummary({
+              searchLabel: this.query,
+              cityName: this.cityName,
+              stateName: this.stateName,
+              countryName: this.countryName,
+              countryCode: this.countryCode,
+            })}
+          </p>
         </div>
         <button
           type="button"
@@ -1013,7 +1151,7 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private renderSearch() {
-    const searchId = this.isDr5hnMode ? "yn-ca-region" : "yn-ca-address";
+    const searchId = this.fields.region;
     const label = this.isDr5hnMode
       ? this.msg.regionSearchLabel
       : this.msg.addressSearchLabel;
@@ -1131,17 +1269,16 @@ export class YnCheckoutAddress extends LitElement {
 
   private renderDetailsPanels(phoneId: string, line1Id: string, line2Id: string, zipId: string) {
     return html`
-      <section class="form-panel form-panel--contact">${this.renderContactSection(phoneId)}</section>
-      ${this.renderAddressPanel(line1Id, line2Id, zipId)}
+      <section class="form-panel form-panel--contact form-panel--details">
+        ${this.renderContactSection(phoneId)}
+      </section>
+      <div class="form-panel--details">${this.renderAddressPanel(line1Id, line2Id, zipId)}</div>
     `;
   }
 
-  private renderProviderDetails() {
-    if (!this.regionConfirmed) {
-      return nothing;
-    }
-    const ids = this.isDr5hnMode ? CHECKOUT_FIELD_IDS.dr5hn : CHECKOUT_FIELD_IDS.google;
-    return this.renderDetailsPanels(ids.phone, ids.line1, ids.line2, ids.zip);
+  private renderCheckoutDetails() {
+    const { phone, line1, line2, zip } = this.fields;
+    return this.renderDetailsPanels(phone, line1, line2, zip);
   }
 
   private renderDevPanel() {
@@ -1166,112 +1303,103 @@ export class YnCheckoutAddress extends LitElement {
     `;
   }
 
-  private renderManualFields() {
+  private renderManualBanner() {
     return html`
-      <div class="stack">
-        <div class="banner banner--warn">
-          <p>${this.usageHintForProvider("manual")}</p>
-          <button type="button" class="retry" @click=${() => void this.runProbe()}>
-            ${this.msg.retryProbe}
-          </button>
-        </div>
-        <section class="form-panel form-panel--region manual-region" aria-labelledby="yn-ca-manual-region-heading">
-          <h3 id="yn-ca-manual-region-heading" class="panel-title">${this.msg.sectionRegion}</h3>
-          <div class="field">
-            <label class="field-label" for="yn-ca-m-country-name">${this.msg.country}</label>
-            <input
-              id="yn-ca-m-country-name"
-              type="text"
-              autocomplete="country-name"
-              ?disabled=${this.disabled}
-              .value=${this.countryName}
-              @input=${this.handleManualCountryName}
-            />
-          </div>
-          <div class="grid-3">
-            <div class="field">
-              <label class="field-label" for="yn-ca-m-country-code">${this.msg.manualCountryCodeLabel}</label>
-              <input
-                id="yn-ca-m-country-code"
-                type="text"
-                inputmode="text"
-                autocomplete="off"
-                maxlength="2"
-                placeholder=${this.msg.manualCountryCodePlaceholder}
-                ?disabled=${this.disabled}
-                class=${this.inputClass("region")}
-                .value=${this.countryCode}
-                @input=${this.handleManualCountryCode}
-              />
-            </div>
-            <div class="field">
-              <label class="field-label" for="yn-ca-m-state">${this.msg.state}</label>
-              <input
-                id="yn-ca-m-state"
-                type="text"
-                autocomplete="address-level1"
-                ?disabled=${this.disabled}
-                .value=${this.stateName ?? ""}
-                @input=${this.handleManualStateName}
-              />
-            </div>
-            <div class="field">
-              <label class="field-label" for="yn-ca-m-city">${this.msg.cityDistrict}</label>
-              <input
-                id="yn-ca-m-city"
-                type="text"
-                autocomplete="address-level2"
-                ?disabled=${this.disabled}
-                .value=${this.cityName}
-                @input=${this.handleManualCityName}
-              />
-            </div>
-          </div>
-          ${this.fieldError("region")}
-        </section>
-        ${this.renderDetailsPanels(
-          CHECKOUT_FIELD_IDS.manual.phone,
-          CHECKOUT_FIELD_IDS.manual.line1,
-          CHECKOUT_FIELD_IDS.manual.line2,
-          CHECKOUT_FIELD_IDS.manual.zip,
-        )}
-        ${this.renderDevPanel()}
+      <div class="banner banner--warn">
+        <p>${this.usageHintForProvider("manual")}</p>
+        <button type="button" class="retry" @click=${() => void this.runProbe()}>
+          ${this.msg.retryProbe}
+        </button>
       </div>
     `;
   }
 
-  private renderForm() {
-    const mode = this.activeProvider;
-    if (!mode) {
-      return nothing;
-    }
-
-    if (this.isManualMode) {
-      return this.renderManualFields();
-    }
-
-    const showHint = !this.regionConfirmed;
-
+  private renderManualRegionSection() {
     return html`
-      <div class="stack">
-        ${showHint
-          ? html`<p class="banner banner--hint">${this.usageHintForProvider(mode)}</p>`
-          : nothing}
-        ${this.renderRegionPanel()}
-        ${this.regionConfirmed ? this.renderProviderDetails() : nothing}
-        ${this.renderDevPanel()}
-      </div>
+      <section class="form-panel form-panel--region manual-region" aria-labelledby="yn-ca-manual-region-heading">
+        <h3 id="yn-ca-manual-region-heading" class="panel-title">${this.msg.sectionRegion}</h3>
+        <div class="field">
+          <label class="field-label" for="yn-ca-m-country-name">${this.msg.country}</label>
+          <input
+            id="yn-ca-m-country-name"
+            type="text"
+            autocomplete="country-name"
+            ?disabled=${this.disabled}
+            .value=${this.countryName}
+            @input=${this.onManualField("countryName")}
+          />
+        </div>
+        <div class="grid-3">
+          <div class="field">
+            <label class="field-label" for="yn-ca-m-country-code">${this.msg.manualCountryCodeLabel}</label>
+            <input
+              id="yn-ca-m-country-code"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              maxlength="2"
+              placeholder=${this.msg.manualCountryCodePlaceholder}
+              ?disabled=${this.disabled}
+              class=${this.inputClass("region")}
+              .value=${this.countryCode}
+              @input=${this.onManualField("countryCode")}
+            />
+          </div>
+          <div class="field">
+            <label class="field-label" for="yn-ca-m-state">${this.msg.state}</label>
+            <input
+              id="yn-ca-m-state"
+              type="text"
+              autocomplete="address-level1"
+              ?disabled=${this.disabled}
+              .value=${this.stateName ?? ""}
+              @input=${this.onManualField("stateName")}
+            />
+          </div>
+          <div class="field">
+            <label class="field-label" for="yn-ca-m-city">${this.msg.cityDistrict}</label>
+            <input
+              id="yn-ca-m-city"
+              type="text"
+              autocomplete="address-level2"
+              ?disabled=${this.disabled}
+              .value=${this.cityName}
+              @input=${this.onManualField("cityName")}
+            />
+          </div>
+        </div>
+        ${this.fieldError("region")}
+      </section>
     `;
   }
 
   static styles = checkoutAddressFormStyles;
 
+  /** 固定 DOM 结构，用 hidden / data-view 控制显隐，避免切换筛选时整块挂载/卸载导致闪动 */
   override render() {
-    if (this.phase === "probing" && !this.hasEchoValue()) {
-      return this.renderSkeleton();
-    }
+    const L = this.layerVis;
+    const ap = this.activeProvider;
 
-    return this.renderForm();
+    return html`
+      <div class="checkout-address" data-view=${this.viewMode}>
+        <div class="layer layer-booting" ?hidden=${!L.boot}>${this.renderSkeleton()}</div>
+        <div class="stack layer layer-main" ?hidden=${!L.main}>
+          <div class="layer layer-provider" ?hidden=${!L.provider}>
+            ${L.hint && ap
+              ? html`<p class="banner banner--hint">${this.usageHintForProvider(ap)}</p>`
+              : nothing}
+            ${this.renderRegionPanel()}
+          </div>
+          <div class="layer layer-manual" ?hidden=${!L.manual}>
+            ${this.renderManualBanner()}${this.renderManualRegionSection()}
+          </div>
+          <div class="layer layer-details" ?hidden=${!L.details} ?inert=${!L.details}>
+            ${this.renderCheckoutDetails()}
+          </div>
+          ${this.renderDevPanel()}
+        </div>
+      </div>
+    `;
   }
 }
 

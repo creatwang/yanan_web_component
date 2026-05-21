@@ -56,6 +56,14 @@ async function withRetry<T>(task: () => Promise<T>, signal?: AbortSignal): Promi
   throw lastError;
 }
 
+export function peekCountriesCache(filter?: YnCheckoutRegionFilter): ICountry[] | null {
+  const key = filterKey(filter);
+  if (cacheFilterKey === key && countriesCache != null) {
+    return countriesCache;
+  }
+  return null;
+}
+
 export async function loadCountries(filter?: YnCheckoutRegionFilter, force = false) {
   const key = filterKey(filter);
   if (force || countriesCache === null || cacheFilterKey !== key) {
