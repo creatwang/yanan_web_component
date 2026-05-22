@@ -74,10 +74,43 @@ export type YnCheckoutAddressValidation = {
   errors: YnCheckoutAddressValidationError[];
 };
 
+/** `YnCheckoutAddressValue` 中参与 diff / `changedFields` 的字段 */
+export type YnCheckoutAddressValueKey = keyof Pick<
+  YnCheckoutAddressValue,
+  | "provider"
+  | "probeReason"
+  | "countryCode"
+  | "countryName"
+  | "stateCode"
+  | "stateName"
+  | "cityName"
+  | "cityId"
+  | "phonecode"
+  | "phoneNumber"
+  | "firstName"
+  | "lastName"
+  | "email"
+  | "line1"
+  | "line2"
+  | "postalCode"
+  | "notes"
+  | "currency"
+  | "regionComplete"
+  | "formReady"
+  | "searchLabel"
+>;
+
+/** `validate()` 返回值：校验结果 + 当前地址快照 */
+export type YnCheckoutAddressValidateResult = YnCheckoutAddressValidation & {
+  value: YnCheckoutAddressValue;
+};
+
 /** `change` 事件 detail */
 export type YnCheckoutAddressChangeDetail = {
   value: YnCheckoutAddressValue;
   validation: YnCheckoutAddressValidation;
+  /** 相对上一次 `change` 的 value 字段名；首次派发为相对空表单的差异 */
+  changedFields: YnCheckoutAddressValueKey[];
 };
 
 /** 排除国家 / 省州 / 城市（ISO2 与 dr5hn cityId） */

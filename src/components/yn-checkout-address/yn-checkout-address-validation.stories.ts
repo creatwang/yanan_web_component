@@ -1,56 +1,75 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
+import { fn } from "@storybook/test";
 import { html, render } from "lit";
 import type { YnCheckoutAddress } from "./yn-checkout-address";
 import "./yn-checkout-address";
-import { CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO } from "./component-doc";
+import {
+  CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO,
+  CHECKOUT_ADDRESS_METHODS_DOC,
+  checkoutAddressMethodActionArgTypes,
+} from "./component-doc";
 import { SAMPLE_ECHO_VALUE } from "./yn-checkout-address.stories";
-import type { YnCheckoutAddressChangeDetail, YnCheckoutAddressValidation } from "./types";
+import type {
+  YnCheckoutAddressChangeDetail,
+  YnCheckoutAddressValidateResult,
+  YnCheckoutAddressValue,
+} from "./types";
 
 type Args = {
   dev: boolean;
   locale: "en" | "zh-CN";
   showEmail: boolean;
   emailRequired: boolean;
-  onChange?: (event: CustomEvent<YnCheckoutAddressChangeDetail>) => void;
+  onChange?: (detail: YnCheckoutAddressChangeDetail) => void;
+  onValidate?: (result: YnCheckoutAddressValidateResult) => void;
+  onReportValidity?: (passed: boolean) => void;
+  onSetValue?: (value: YnCheckoutAddressValue | null) => void;
 };
 
 const wait = (ms: number) => new Promise((resolve) => window.setTimeout(resolve, ms));
 
-const formatValidationResult = (validation: YnCheckoutAddressValidation) => {
-  const status = validation.valid ? "valid" : "invalid";
-  const lines = validation.errors.map((e) => `· ${e.field}: ${e.message}`);
-  return lines.length > 0
-    ? `validation: ${status}（${validation.errors.length} 项）\n${lines.join("\n")}`
-    : `validation: ${status} · formReady: ${validation.formReady}`;
+const formatValidationResult = (result: YnCheckoutAddressValidateResult) => {
+  const status = result.valid ? "valid" : "invalid";
+  const lines = result.errors.map((e) => `· ${e.field}: ${e.message}`);
+  const base =
+    lines.length > 0
+      ? `validation: ${status}（${result.errors.length} 项）\n${lines.join("\n")}`
+      : `validation: ${status} · formReady: ${result.formReady}`;
+  return `${base}\nvalue.countryCode: ${result.value.countryCode || "—"}`;
 };
 
-const renderValidationResult = (root: HTMLElement, validation: YnCheckoutAddressValidation) => {
+const renderValidationResult = (root: HTMLElement, result: YnCheckoutAddressValidateResult) => {
   const slot = root.querySelector<HTMLElement>("[data-validate-result]");
   if (!slot) return;
-  render(html`${formatValidationResult(validation)}`, slot);
+  render(html`${formatValidationResult(result)}`, slot);
 };
 
 const getCheckoutHost = (root: HTMLElement) =>
   root.querySelector<YnCheckoutAddress>("#checkout-validation-demo");
 
-const handleValidateSubmit = (root: HTMLElement) => {
+const handleValidateSubmit = (root: HTMLElement, args: Args) => {
   const host = getCheckoutHost(root);
   if (!host) return;
-  const validation = host.validate();
-  host.reportValidity();
-  renderValidationResult(root, validation);
+  const result = host.validate();
+  const passed = host.reportValidity();
+  args.onValidate?.(result);
+  args.onReportValidity?.(passed);
+  renderValidationResult(root, result);
 };
 
-const handleFillValidSample = (root: HTMLElement) => {
+const handleFillValidSample = (root: HTMLElement, args: Args) => {
   const host = getCheckoutHost(root);
   if (!host) return;
-  host.setValue({
+  const sample: YnCheckoutAddressValue = {
     ...SAMPLE_ECHO_VALUE,
     email: "buyer@example.com",
     regionComplete: true,
     formReady: true,
-  });
+  };
+  host.setValue(sample);
+  args.onSetValue?.(sample);
   const validation = host.validate();
+  args.onValidate?.(validation);
   renderValidationResult(root, validation);
 };
 
@@ -73,15 +92,16 @@ const INTEGRATION_JS = `import '@yanan/yn-web-component/components/yn-checkout-a
 const addressEl = document.getElementById('shipping-address');
 
 addressEl.addEventListener('change', (event) => {
-  const { value, validation } = event.detail;
-  // value：统一地址结构；validation：内置校验结果
+  const { value, validation, changedFields } = event.detail;
   orderBtn.disabled = !validation.formReady;
   checkoutDraft.shipping = value;
+  // changedFields：相对上一次 change 的字段名，如选地区时 ['countryCode','cityName',…]
 });
 
 document.getElementById('place-order').addEventListener('click', () => {
   if (!addressEl.reportValidity()) return;
-  const { value } = addressEl.validate();
+  const { valid, value } = addressEl.validate();
+  if (!valid) return;
   submitOrder({ shippingAddress: value });
 });
 
@@ -114,13 +134,15 @@ const renderCheckoutValidation = (args: Args) => html`
         class="checkout-demo__address"
         ?dev=${args.dev}
         locale=${args.locale}
-        show-email
-        email-required
+        ?show-email=${args.showEmail}
+        ?email-required=${args.emailRequired}
         @change=${(event: Event) => {
           const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
-          args.onChange?.(event as CustomEvent<YnCheckoutAddressChangeDetail>);
+          args.onChange?.(detail);
           const root = (event.target as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-          if (root) renderValidationResult(root, detail.validation);
+          if (root) {
+            renderValidationResult(root, { ...detail.validation, value: detail.value });
+          }
         }}
       ></yn-checkout-address>
 
@@ -131,7 +153,7 @@ const renderCheckoutValidation = (args: Args) => html`
           data-testid="validate-submit"
           @click=${(e: Event) => {
             const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-            if (root) handleValidateSubmit(root);
+            if (root) handleValidateSubmit(root, args);
           }}
         >
           ${args.locale === "zh-CN" ? "提交订单" : "Place order"}
@@ -142,7 +164,7 @@ const renderCheckoutValidation = (args: Args) => html`
           data-testid="echo-valid-value"
           @click=${(e: Event) => {
             const root = (e.currentTarget as HTMLElement).closest<HTMLElement>("[data-validation-demo]");
-            if (root) handleFillValidSample(root);
+            if (root) handleFillValidSample(root, args);
           }}
         >
           ${args.locale === "zh-CN" ? "填入示例" : "Fill sample"}
@@ -186,7 +208,9 @@ const meta = {
       description: {
         component: `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
 
-完整校验与结账页接入见 **结账校验（完整演示）** story（含 \`validate()\` / \`reportValidity()\` 与底部接入代码）。`,
+完整校验与结账页接入见 **结账校验（完整演示）** story（含 \`validate()\` / \`reportValidity()\` 与底部接入代码）。
+
+${CHECKOUT_ADDRESS_METHODS_DOC}`,
       },
     },
   },
@@ -203,6 +227,10 @@ export const CheckoutValidation: Story = {
     locale: "zh-CN",
     showEmail: true,
     emailRequired: true,
+    onChange: fn(),
+    onValidate: fn(),
+    onReportValidity: fn(),
+    onSetValue: fn(),
   },
   render: renderCheckoutValidation,
   argTypes: {
@@ -232,20 +260,22 @@ export const CheckoutValidation: Story = {
       name: "change",
       control: false,
       action: "change",
-      description: "`CustomEvent<{ value, validation }>`",
+      description:
+        "表单值或校验变化时触发。Actions 记录 `detail`：`{ value, validation, changedFields }`。",
       table: {
         category: "Events",
         type: { summary: "CustomEvent<YnCheckoutAddressChangeDetail>" },
       },
     },
+    ...checkoutAddressMethodActionArgTypes,
   },
   parameters: {
     docs: {
       description: {
         story: `### 交互
-1. 先完成**地区搜索** → 出现联系方式、详细地址面板
-2. **提交订单** → \`reportValidity()\`
-3. **填入示例** → 快速查看 valid 状态
+1. 先完成**地区搜索** → 出现联系方式、详细地址面板；输入时 **Actions → change** 会记录 \`detail\`（含 \`changedFields\`）
+2. **提交订单** → Actions 记录 **validate** / **reportValidity** 返回值
+3. **填入示例** → Actions 记录 **setValue** 与 **validate**（\`setValue\` 不会自动触发 \`change\` 事件）
 
 ### 接入
 Story 底部提供 HTML / JS / 按需导入示例，可直接复制到结账页。`,

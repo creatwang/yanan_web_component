@@ -1,3 +1,7 @@
+/**
+ * dr5hn 地区数据：CDN 国家/省/市表、并发搜索与请求去重缓存。
+ * 由 `dr5hn-loader` 动态 import，避免 Google/Photon 路径拉取 @countrystatecity 大包。
+ */
 import {
   getAllCitiesOfCountry,
   getCountries,
@@ -29,6 +33,17 @@ const FETCH_CONCURRENCY = 4;
 let countriesCache: ICountry[] | null = null;
 let cacheFilterKey = "";
 const statesRequestCache = new Map<string, Promise<IState[]>>();
+const countryMetaCache = new Map<string, ICountry>();
+const stateIsoResolveCache = new Map<string, string | null>();
+
+const LEVEL_RANK: Record<RegionSearchLevel, number> = {
+  city: 0,
+  state: 1,
+  country: 2,
+};
+
+const sortByRegionLevel = (a: Dr5hnRegionSuggestion, b: Dr5hnRegionSuggestion) =>
+  LEVEL_RANK[a.level] - LEVEL_RANK[b.level];
 
 const filterKey = (filter?: YnCheckoutRegionFilter) =>
   JSON.stringify({
@@ -255,10 +270,7 @@ export async function searchDr5hnRegions(
 
   const picked = pickCountries(query, countries);
   if (signal.aborted) {
-    return results.sort(
-      (a, b) =>
-        ({ city: 0, state: 1, country: 2 }[a.level] - { city: 0, state: 1, country: 2 }[b.level]),
-    );
+    return results.sort(sortByRegionLevel);
   }
 
   const perCountry = await runPool(
@@ -293,16 +305,61 @@ export async function searchDr5hnRegions(
     }
   }
 
-  return results.sort(
-    (a, b) =>
-      ({ city: 0, state: 1, country: 2 }[a.level] - { city: 0, state: 1, country: 2 }[b.level]),
-  );
+  return results.sort(sortByRegionLevel);
+}
+
+/** 按 ISO2 拉取国家元数据（内存缓存，减少重复 CDN 请求） */
+export async function fetchCountryMeta(
+  code: string,
+  signal?: AbortSignal,
+): Promise<ICountry | null> {
+  const key = code.trim().toUpperCase();
+  if (!key) {
+    return null;
+  }
+  const cached = countryMetaCache.get(key);
+  if (cached) {
+    return cached;
+  }
+  const meta = await withRetry(() => getCountryByCode(key), signal);
+  if (meta) {
+    countryMetaCache.set(key, meta);
+  }
+  return meta ?? null;
+}
+
+/** 将省/州显示名解析为 ISO2（复用 states 请求缓存） */
+export async function resolveStateIso(
+  countryCode: string,
+  stateName: string | null,
+  signal?: AbortSignal,
+): Promise<string | null> {
+  if (!countryCode || !stateName) {
+    return null;
+  }
+  const cacheKey = `${countryCode.toUpperCase()}|${stateName}`;
+  if (stateIsoResolveCache.has(cacheKey)) {
+    return stateIsoResolveCache.get(cacheKey) ?? null;
+  }
+  try {
+    const states = await loadStatesOfCountry(countryCode, signal);
+    const hit =
+      states.find((s) => s.iso2 === stateName || s.name === stateName) ??
+      states.find((s) => stateName.includes(s.name) || s.name.includes(stateName));
+    const iso = hit?.iso2 ?? null;
+    stateIsoResolveCache.set(cacheKey, iso);
+    return iso;
+  } catch {
+    return null;
+  }
 }
 
 export async function enrichCountry(code: string, item: Dr5hnRegionSuggestion) {
   try {
-    const meta = await withRetry(() => getCountryByCode(code));
-    if (!meta) return item;
+    const meta = await fetchCountryMeta(code);
+    if (!meta) {
+      return item;
+    }
     return {
       ...item,
       countryName: meta.name,

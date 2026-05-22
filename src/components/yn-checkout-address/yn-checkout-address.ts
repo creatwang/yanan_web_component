@@ -1,4 +1,3 @@
-import { getCountryByCode, getStatesOfCountry } from "@countrystatecity/countries-browser";
 import { LitElement, html, nothing, type TemplateResult, type PropertyValues } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
@@ -12,26 +11,22 @@ import {
   searchPhoton,
 } from "./address-providers";
 import { checkoutAddressFormStyles } from "./checkout-address-styles";
-import {
-  enrichCountry,
-  isChinaQuery,
-  loadCountries,
-  peekCountriesCache,
-  searchDr5hnRegions,
-} from "./dr5hn-region-service";
+import { loadDr5hnModule, peekDr5hnModule } from "./dr5hn-loader";
 import type { Dr5hnRegionSuggestion, RegionSearchLevel } from "./dr5hn-region-types";
 import { resolveCheckoutMessages } from "./messages";
 import { isPostalRequiredForCountry, validateCheckoutAddress } from "./validation";
 import {
   probeAddressProvider,
+  resolveGoogleMapsApiKey,
   type AddressProviderMode,
 } from "./provider-probe";
-import { filterByRegion, passesCountryFilter } from "./region-filter";
+import { filterByRegion, isChinaQuery, passesCountryFilter } from "./region-filter";
 import type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressField,
   YnCheckoutAddressLocale,
   YnCheckoutAddressMessages,
+  YnCheckoutAddressValidateResult,
   YnCheckoutAddressValidation,
   YnCheckoutAddressValue,
   YnCheckoutExcludeRegions,
@@ -43,7 +38,12 @@ import {
   CHECKOUT_FOCUS_IDS,
   type CheckoutFieldSet,
 } from "./field-ids";
-import { buildRegionSummary, buildSearchLabel, isSameChangeDetail } from "./value-utils";
+import {
+  buildRegionSummary,
+  buildSearchLabel,
+  diffCheckoutValueKeys,
+  isSameChangeDetail,
+} from "./value-utils";
 
 const DEBOUNCE_GOOGLE_MS = 280;
 const DEBOUNCE_DR5HN_MS = 320;
@@ -67,15 +67,16 @@ const PROVIDER_HINT_KEY: Record<AddressProviderMode, keyof YnCheckoutAddressMess
  * 跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN
  * → 再不可用则探测 Photon → 三者均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。
  * 运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。
- * 分步表单（先地区摘要，再联系方式与详细地址）；内置校验；`change` 的 `detail` 为 `{ value, validation }`。
+ * 分步表单（先地区摘要，再联系方式与详细地址）；内置校验；`change` 的 `detail` 为 `{ value, validation, changedFields }`。
  * 统一 `YnCheckoutAddressValue` 保存、回显与受控 `.value`。
  *
  * 样式：`--yn-checkout-address-bg`（背景色）、`--yn-checkout-address-padding` 等。字体继承宿主，不内置 webfont。
  *
- * @fires change - 地址变化，`detail` 为 `{ value, validation }`
+ * @fires change - 地址变化，`detail` 为 `{ value, validation, changedFields }`
  *
- * @method validate - 执行内置校验，返回 `YnCheckoutAddressValidation`
- * @method reportValidity - 展示字段错误并聚焦第一项
+ * @method validate - 执行内置校验（不标红界面）。返回 `{ valid, regionComplete, formReady, errors, value }`
+ * @method reportValidity - 标红无效字段并聚焦第一项。返回 `true` 通过 / `false` 未通过
+ * @method setValue - 编程式写入 `.value`（`null` 清空）；不重新探测、不触发搜索
  */
 @customElement("yn-checkout-address")
 export class YnCheckoutAddress extends LitElement {
@@ -155,9 +156,18 @@ export class YnCheckoutAddress extends LitElement {
   private suppressEmit = false;
   private validationCache: YnCheckoutAddressValidation | null = null;
   private emitScheduled = false;
+  private invalidFieldSet = new Set<YnCheckoutAddressField>();
+  private msgLocale = "";
+  private msgOverride: Partial<YnCheckoutAddressMessages> | undefined;
+  private msgResolved = resolveCheckoutMessages("en");
 
   private get msg() {
-    return resolveCheckoutMessages(this.locale, this.messages);
+    if (this.locale !== this.msgLocale || this.messages !== this.msgOverride) {
+      this.msgLocale = this.locale;
+      this.msgOverride = this.messages;
+      this.msgResolved = resolveCheckoutMessages(this.locale, this.messages);
+    }
+    return this.msgResolved;
   }
 
   private get regionFilter(): YnCheckoutRegionFilter {
@@ -341,10 +351,10 @@ export class YnCheckoutAddress extends LitElement {
     };
 
     if (wasManual) {
-      const cached = peekCountriesCache(this.regionFilter);
+      const cached = peekDr5hnModule()?.peekCountriesCache(this.regionFilter);
       if (cached?.length) {
         recoverDr5hn();
-        void loadCountries(this.regionFilter, true);
+        void loadDr5hnModule().then((m) => m.loadCountries(this.regionFilter, true));
         return;
       }
       this.filterRefreshing = true;
@@ -353,7 +363,8 @@ export class YnCheckoutAddress extends LitElement {
       this.syncViewEmit();
     }
 
-    void loadCountries(this.regionFilter, true)
+    void loadDr5hnModule()
+      .then((m) => m.loadCountries(this.regionFilter, true))
       .then(async (countries) => {
         if (countries.length > 0) {
           if (wasManual) recoverDr5hn();
@@ -399,6 +410,7 @@ export class YnCheckoutAddress extends LitElement {
     this.regionEditing = false;
     this.showFieldErrors = false;
     this.validationCache = null;
+    this.invalidFieldSet.clear();
     this.clearRegion();
     this.clearDetailFields();
     this.query = "";
@@ -434,7 +446,12 @@ export class YnCheckoutAddress extends LitElement {
     this.applyViewMode(true);
   }
 
-  /** 受控回显：父组件写入 .value 时调用（与 attribute 变更等效） */
+  /**
+   * 受控回显：父组件写入 `.value` 时调用（与设置 `value` 属性等效）。
+   * 不会重新探测数据源，不会触发地区/地址搜索。
+   *
+   * @param v 完整 `YnCheckoutAddressValue`；`null` 清空表单
+   */
   setValue(v: YnCheckoutAddressValue | null) {
     this.value = v;
   }
@@ -497,7 +514,8 @@ export class YnCheckoutAddress extends LitElement {
         this.activeProvider = result.mode;
         this.probeReason = result.reason;
         if (result.mode === "dr5hn") {
-          await loadCountries(this.regionFilter);
+          const dr5hn = await loadDr5hnModule();
+          await dr5hn.loadCountries(this.regionFilter);
         }
         if (result.mode === "google" || result.mode === "photon") {
           await this.syncGoogleMode(result.mode);
@@ -538,22 +556,10 @@ export class YnCheckoutAddress extends LitElement {
     this.syncViewEmit();
   }
 
-  private resolveGoogleKey() {
-    const key = this.googleMapsApiKey.trim();
-    if (key) {
-      return key;
-    }
-    try {
-      return import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() ?? "";
-    } catch {
-      return "";
-    }
-  }
-
   private async syncGoogleMode(mode: "google" | "photon") {
     this.googleReady = false;
     if (mode === "google") {
-      const key = this.resolveGoogleKey();
+      const key = resolveGoogleMapsApiKey(this.googleMapsApiKey);
       if (key) {
         try {
           await loadGoogleMaps(key);
@@ -602,19 +608,35 @@ export class YnCheckoutAddress extends LitElement {
   private getValidation(force = false): YnCheckoutAddressValidation {
     if (force || !this.validationCache) {
       this.validationCache = validateCheckoutAddress(this.buildValidateInput());
+      if (this.showFieldErrors) {
+        this.invalidFieldSet = new Set(this.validationCache.errors.map((e) => e.field));
+      }
     }
     return this.validationCache;
   }
 
-  /** 执行内置校验（提交订单前调用） */
-  validate(): YnCheckoutAddressValidation {
-    return this.getValidation(true);
+  /**
+   * 执行内置校验（提交订单前调用）。
+   * 不标红字段；若需展示错误请再调用 `reportValidity()`。
+   *
+   * @returns 校验结果与当前地址 `{ valid, regionComplete, formReady, errors, value }`
+   */
+  validate(): YnCheckoutAddressValidateResult {
+    const validation = this.getValidation(true);
+    return {
+      ...validation,
+      value: this.buildValue(validation),
+    };
   }
 
-  /** 展示校验错误并聚焦第一个无效字段 */
+  /**
+   * 展示校验错误并聚焦第一个无效字段（类似原生 `reportValidity()`）。
+   *
+   * @returns `true` 当前通过校验；`false` 已展示错误，应阻止提交
+   */
   reportValidity(): boolean {
-    const validation = this.getValidation(true);
     this.showFieldErrors = true;
+    const validation = this.getValidation(true);
     this.requestUpdate();
     if (validation.valid) {
       return true;
@@ -662,9 +684,11 @@ export class YnCheckoutAddress extends LitElement {
 
   private buildChangeDetail(): YnCheckoutAddressChangeDetail {
     const validation = this.getValidation();
+    const value = this.buildValue(validation);
     return {
-      value: this.buildValue(validation),
+      value,
       validation,
+      changedFields: diffCheckoutValueKeys(this.lastEmitted?.value, value),
     };
   }
 
@@ -683,6 +707,7 @@ export class YnCheckoutAddress extends LitElement {
         ...detail.validation,
         errors: [...detail.validation.errors],
       },
+      changedFields: [...detail.changedFields],
     };
     this.dispatchEvent(
       new CustomEvent<YnCheckoutAddressChangeDetail>("change", {
@@ -788,11 +813,7 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private inputClass(field: YnCheckoutAddressField) {
-    if (!this.showFieldErrors) {
-      return "";
-    }
-    const invalid = this.getValidation().errors.some((e) => e.field === field);
-    return invalid ? "input--invalid" : "";
+    return this.showFieldErrors && this.invalidFieldSet.has(field) ? "input--invalid" : "";
   }
 
   private renderEmailFields() {
@@ -834,9 +855,7 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private phoneControlClass() {
-    const invalid =
-      this.showFieldErrors &&
-      this.getValidation().errors.some((e) => e.field === "phoneNumber");
+    const invalid = this.showFieldErrors && this.invalidFieldSet.has("phoneNumber");
     return `float-field__control--phone${invalid ? " float-field__control--invalid" : ""}`;
   }
 
@@ -896,18 +915,8 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private async resolveStateCode(country: string, name: string | null) {
-    if (!country || !name) {
-      return null;
-    }
-    try {
-      const states = await getStatesOfCountry(country);
-      const hit =
-        states.find((s) => s.iso2 === name || s.name === name) ??
-        states.find((s) => name.includes(s.name) || s.name.includes(name));
-      return hit?.iso2 ?? null;
-    } catch {
-      return null;
-    }
+    const dr5hn = await loadDr5hnModule();
+    return dr5hn.resolveStateIso(country, name);
   }
 
   private async applyCountryMeta(code: string) {
@@ -915,7 +924,8 @@ export class YnCheckoutAddress extends LitElement {
       return;
     }
     try {
-      const meta = await getCountryByCode(code);
+      const dr5hn = await loadDr5hnModule();
+      const meta = await dr5hn.fetchCountryMeta(code);
       if (meta) {
         this.phonecode = meta.phonecode;
         this.currency = meta.currency;
@@ -982,12 +992,14 @@ export class YnCheckoutAddress extends LitElement {
           ? this.msg.regionSearchStateOnly
           : "";
     this.syncViewEmit();
-    void enrichCountry(item.countryCode, item).then((meta) => {
-      this.countryName = meta.countryName;
-      this.phonecode = meta.phonecode;
-      this.currency = meta.currency;
-      this.emitChange();
-    });
+    void loadDr5hnModule()
+      .then((m) => m.enrichCountry(item.countryCode, item))
+      .then((meta) => {
+        this.countryName = meta.countryName;
+        this.phonecode = meta.phonecode;
+        this.currency = meta.currency;
+        this.emitChange();
+      });
   }
 
   private scheduleSearch(value: string) {
@@ -1078,7 +1090,12 @@ export class YnCheckoutAddress extends LitElement {
     try {
       if (this.isDr5hnMode) {
         try {
-          this.dr5hnSuggestions = await searchDr5hnRegions(value, signal, this.regionFilter);
+          const dr5hn = await loadDr5hnModule();
+          this.dr5hnSuggestions = await dr5hn.searchDr5hnRegions(
+            value,
+            signal,
+            this.regionFilter,
+          );
         } catch {
           if (!signal.aborted) {
             await this.switchToPhotonFromDr5hn(value, signal);
@@ -1128,9 +1145,12 @@ export class YnCheckoutAddress extends LitElement {
     const input = event.target as HTMLInputElement;
     this.query = input.value;
     if (this.isDr5hnMode) {
+      const hadRegion = Boolean(this.countryCode);
       this.clearRegion();
       this.searchError = "";
-      this.emitChange();
+      if (hadRegion) {
+        this.emitChange();
+      }
     }
     this.scheduleSearch(input.value);
   };
@@ -1536,7 +1556,9 @@ export type {
   YnCheckoutAddressErrorCode,
   YnCheckoutAddressLocale,
   YnCheckoutAddressMessages,
+  YnCheckoutAddressValidateResult,
   YnCheckoutAddressValidation,
+  YnCheckoutAddressValueKey,
   YnCheckoutAddressValidationError,
   YnCheckoutAddressValue,
   YnCheckoutExcludeRegions,

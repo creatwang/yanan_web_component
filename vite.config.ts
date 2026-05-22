@@ -34,8 +34,8 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ["lit"]
-    }
+      external: ["lit"],
+    },
   },
   test: {
     include: ["src/**/*.spec.ts"],

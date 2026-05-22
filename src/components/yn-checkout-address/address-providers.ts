@@ -1,3 +1,15 @@
+/**
+ * 第三方地址/地区数据源：Google Places、Photon。
+ * 与 dr5hn（countries-browser）解耦，由组件按探测结果选用。
+ */
+
+type GoogleMapsWindow = typeof window & {
+  __ynGoogleMapsLoading?: Promise<void>;
+  __ynPlacesHost?: HTMLDivElement;
+  __ynPlacesService?: google.maps.places.PlacesService;
+  __ynAutocompleteService?: google.maps.places.AutocompleteService;
+};
+
 export type AddressSuggestion = {
   id: string;
   label: string;
@@ -100,8 +112,21 @@ export async function searchPhoton(query: string, signal?: AbortSignal): Promise
   return items;
 }
 
+function getAutocompleteService(): google.maps.places.AutocompleteService {
+  const w = window as GoogleMapsWindow;
+  w.__ynAutocompleteService ??= new google.maps.places.AutocompleteService();
+  return w.__ynAutocompleteService;
+}
+
+function getPlacesService(): google.maps.places.PlacesService {
+  const w = window as GoogleMapsWindow;
+  w.__ynPlacesHost ??= document.createElement("div");
+  w.__ynPlacesService ??= new google.maps.places.PlacesService(w.__ynPlacesHost);
+  return w.__ynPlacesService;
+}
+
 export function loadGoogleMaps(apiKey: string): Promise<void> {
-  const w = window as typeof window & { __ynGoogleMapsLoading?: Promise<void> };
+  const w = window as GoogleMapsWindow;
   if (w.google?.maps?.places) {
     return Promise.resolve();
   }
@@ -125,7 +150,7 @@ export async function searchGooglePlaces(
   query: string,
   countryCode?: string,
 ): Promise<AddressSuggestion[]> {
-  const service = new google.maps.places.AutocompleteService();
+  const service = getAutocompleteService();
   const request: google.maps.places.AutocompletionRequest = {
     input: query,
     types: ["address"],
@@ -165,8 +190,7 @@ export async function searchGooglePlaces(
 }
 
 export async function resolveGooglePlace(placeId: string): Promise<AddressSuggestion | null> {
-  const container = document.createElement("div");
-  const service = new google.maps.places.PlacesService(container);
+  const service = getPlacesService();
 
   const place = await new Promise<google.maps.places.PlaceResult | null>((resolve, reject) => {
     service.getDetails(

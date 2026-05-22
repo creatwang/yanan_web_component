@@ -33,6 +33,9 @@ importers:
       '@storybook/addon-interactions':
         specifier: 8.6.14
         version: 8.6.14(storybook@8.6.14(prettier@3.8.3))
+      '@storybook/test':
+        specifier: 8.6.14
+        version: 8.6.14(storybook@8.6.14(prettier@3.8.3))
       '@storybook/web-components':
         specifier: 8.6.14
         version: 8.6.14(lit@3.3.2)(storybook@8.6.14(prettier@3.8.3))

@@ -1,239 +1,112 @@
 import { loadGoogleMaps, probePhotonReachable } from "./address-providers";
-
-import { loadCountries } from "./dr5hn-region-service";
-
+import { loadDr5hnModule } from "./dr5hn-loader";
 import type { YnCheckoutRegionFilter } from "./types";
-
-
 
 export type AddressProviderMode = "google" | "dr5hn" | "photon" | "manual";
 
-
-
 export type ProviderProbeResult = {
-
   mode: AddressProviderMode;
-
   reason: string;
-
 };
-
-
 
 const PROBE_TIMEOUT_MS = 6500;
 
-
-
 const withTimeout = <T>(task: Promise<T>, ms: number, signal?: AbortSignal): Promise<T> => {
-
   return new Promise<T>((resolve, reject) => {
-
     const timer = window.setTimeout(() => reject(new Error("probe-timeout")), ms);
-
     const onAbort = () => {
-
       window.clearTimeout(timer);
-
       reject(new DOMException("Aborted", "AbortError"));
-
     };
-
     if (signal?.aborted) {
-
       onAbort();
-
       return;
-
     }
-
     signal?.addEventListener("abort", onAbort, { once: true });
 
-
-
     task
-
       .then((value) => {
-
         window.clearTimeout(timer);
-
         signal?.removeEventListener("abort", onAbort);
-
         resolve(value);
-
       })
-
       .catch((error) => {
-
         window.clearTimeout(timer);
-
         signal?.removeEventListener("abort", onAbort);
-
         reject(error);
-
       });
-
   });
-
 };
 
-
-
-function resolveGoogleKey(explicit?: string) {
-
+/** Google Maps API Key：属性优先，其次构建环境变量 */
+export function resolveGoogleMapsApiKey(explicit?: string): string {
   const fromProp = explicit?.trim();
-
   if (fromProp) {
-
     return fromProp;
-
   }
-
   try {
-
     return import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim() ?? "";
-
   } catch {
-
     return "";
-
   }
-
 }
-
-
 
 /**
-
- * 选源顺序（保持不变）：
-
- * 1) 有 Google Places API Key 且脚本可加载 → google
-
- * 2) 无 Key 或 Google 失败 → 探测 dr5hn（CDN 国家表可拉取且过滤后非空）
-
- * 3) dr5hn 不可用 → 探测 Photon 是否可达 → photon
-
- * 4) 三者均不可用 → manual（见 YnCheckoutAddress 类说明）
-
- *
-
- * 运行时：dr5hn 无匹配/失败 → 降级 photon；photon 仍失败 → manual。
-
+ * 选源顺序：Google（有 Key 且脚本可加载）→ dr5hn（国家表非空）→ Photon → manual。
+ * dr5hn 与 Photon 探测并行，缩短无 Google 时的首屏等待。
  */
-
 export async function probeAddressProvider(options?: {
-
   googleMapsApiKey?: string;
-
   regionFilter?: YnCheckoutRegionFilter;
-
   signal?: AbortSignal;
-
 }): Promise<ProviderProbeResult> {
-
   const signal = options?.signal;
-
-  const key = resolveGoogleKey(options?.googleMapsApiKey);
-
+  const key = resolveGoogleMapsApiKey(options?.googleMapsApiKey);
   let googleAttempted = false;
 
-
-
   if (key) {
-
     googleAttempted = true;
-
     try {
-
       await withTimeout(loadGoogleMaps(key), PROBE_TIMEOUT_MS, signal);
-
       return { mode: "google", reason: "Google Maps API key configured and script loaded" };
-
     } catch {
-
-      /* 有 Key 但加载失败 → 继续探测 dr5hn */
-
+      /* 有 Key 但加载失败 → 继续探测 dr5hn / Photon */
     }
-
   }
 
+  const dr5hnTask = withTimeout(
+    loadDr5hnModule().then((m) => m.loadCountries(options?.regionFilter)),
+    PROBE_TIMEOUT_MS,
+    signal,
+  ).catch(() => [] as Awaited<ReturnType<typeof import("./dr5hn-region-service")["loadCountries"]>>);
 
+  const photonTask = withTimeout(probePhotonReachable(signal), PROBE_TIMEOUT_MS, signal).catch(
+    () => false,
+  );
 
-  try {
+  const [countries, photonOk] = await Promise.all([dr5hnTask, photonTask]);
 
-    const countries = await withTimeout(
-
-      loadCountries(options?.regionFilter),
-
-      PROBE_TIMEOUT_MS,
-
-      signal,
-
-    );
-
-    if (countries.length === 0) {
-
-      throw new Error("dr5hn-empty-after-filter");
-
-    }
-
+  if (countries.length > 0) {
     const reason = googleAttempted
-
       ? "Google Places unavailable; dr5hn region data reachable"
-
       : "No Google API key; dr5hn region data reachable";
-
     return { mode: "dr5hn", reason };
-
-  } catch {
-
-    /* try photon below */
-
   }
 
-
-
-  try {
-
-    const photonOk = await withTimeout(probePhotonReachable(), PROBE_TIMEOUT_MS, signal);
-
-    if (photonOk) {
-
-      const reason = googleAttempted
-
-        ? "Google and dr5hn unavailable; using Photon fallback"
-
-        : key
-
-          ? "dr5hn unavailable; using Photon fallback"
-
-          : "No Google API key and dr5hn unavailable; using Photon fallback";
-
-      return { mode: "photon", reason };
-
-    }
-
-  } catch {
-
-    /* manual */
-
+  if (photonOk) {
+    const reason = googleAttempted
+      ? "Google and dr5hn unavailable; using Photon fallback"
+      : key
+        ? "dr5hn unavailable; using Photon fallback"
+        : "No Google API key and dr5hn unavailable; using Photon fallback";
+    return { mode: "photon", reason };
   }
-
-
 
   const reason = googleAttempted
-
     ? "Google, dr5hn, and Photon unavailable; manual region entry"
-
     : key
-
       ? "dr5hn and Photon unavailable; manual region entry"
-
       : "No Google API key; dr5hn and Photon unavailable; manual region entry";
 
-
-
   return { mode: "manual", reason };
-
 }
-
-

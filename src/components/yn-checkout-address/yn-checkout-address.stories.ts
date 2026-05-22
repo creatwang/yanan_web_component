@@ -2,7 +2,11 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import type { YnCheckoutAddress } from "./yn-checkout-address";
 import "./yn-checkout-address";
-import { CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO } from "./component-doc";
+import {
+  CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO,
+  CHECKOUT_ADDRESS_METHODS_DOC,
+  checkoutAddressMethodArgTypes,
+} from "./component-doc";
 import type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressMessages,
@@ -46,7 +50,7 @@ type Args = {
   messages?: Partial<YnCheckoutAddressMessages>;
   showEmail?: boolean;
   emailRequired?: boolean;
-  onChange?: (event: CustomEvent<YnCheckoutAddressChangeDetail>) => void;
+  onChange?: (detail: YnCheckoutAddressChangeDetail) => void;
 };
 
 /** 所有 Controls 均绑定到此 render（勿漏 props） */
@@ -65,7 +69,10 @@ const renderCheckoutAddress = (args: Args) => html`
       .messages=${args.messages}
       ?show-email=${args.showEmail ?? false}
       ?email-required=${args.emailRequired ?? false}
-      @change=${(event: Event) => args.onChange?.(event as CustomEvent<YnCheckoutAddressChangeDetail>)}
+      @change=${(event: Event) => {
+        const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
+        args.onChange?.(detail);
+      }}
     ></yn-checkout-address>
   </div>
 `;
@@ -179,7 +186,9 @@ import "yn-web-component/theme.css";
 | \`--yn-checkout-address-field-height\` | \`56px\` | 输入框最小高度 |
 | \`--yn-checkout-address-radius\` | \`12px\` | 卡片圆角 |
 
-组件使用 **Shadow DOM**；样式请用 \`--yn-checkout-address-*\` 或 \`--yn-color-*\` 覆盖（未列入 Controls，可在 Canvas 用 style 验证）。`;
+组件使用 **Shadow DOM**；样式请用 \`--yn-checkout-address-*\` 或 \`--yn-color-*\` 覆盖（未列入 Controls，可在 Canvas 用 style 验证）。
+
+${CHECKOUT_ADDRESS_METHODS_DOC}`;
 
 const meta = {
   title: "Components/YnCheckoutAddress",
@@ -253,7 +262,7 @@ const meta = {
       control: false,
       action: "change",
       description:
-        "地址变化。`CustomEvent<YnCheckoutAddressChangeDetail>`，含 value 与 validation。",
+        "地址变化。`CustomEvent<YnCheckoutAddressChangeDetail>`，含 `value`、`validation`、`changedFields`（相对上次 change 的字段名）。",
       table: {
         category: "Events",
         type: { summary: "CustomEvent<YnCheckoutAddressChangeDetail>" },
@@ -271,6 +280,7 @@ const meta = {
       description: "邮箱必填（需同时开启 show-email）。",
       table: { defaultValue: { summary: "false" } },
     },
+    ...checkoutAddressMethodArgTypes,
   },
   render: renderCheckoutAddress,
 } satisfies Meta<Args>;
@@ -321,8 +331,10 @@ export const CustomBackground: Story = {
         .includeCountries=${args.includeCountries}
         .value=${args.value ?? null}
         .messages=${args.messages}
-        @change=${(event: Event) =>
-          args.onChange?.(event as CustomEvent<YnCheckoutAddressChangeDetail>)}
+        @change=${(event: Event) => {
+          const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
+          args.onChange?.(detail);
+        }}
       ></yn-checkout-address>
     </div>
   `,
