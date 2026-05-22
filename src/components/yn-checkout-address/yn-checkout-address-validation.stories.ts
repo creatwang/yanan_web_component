@@ -20,6 +20,8 @@ type Args = {
   locale: "en" | "zh-CN";
   showEmail: boolean;
   emailRequired: boolean;
+  showWhatsapp: boolean;
+  whatsappRequired: boolean;
   onChange?: (detail: YnCheckoutAddressChangeDetail) => void;
   onValidate?: (result: YnCheckoutAddressValidateResult) => void;
   onReportValidity?: (passed: boolean) => void;
@@ -63,6 +65,7 @@ const handleFillValidSample = (root: HTMLElement, args: Args) => {
   const sample: YnCheckoutAddressValue = {
     ...SAMPLE_ECHO_VALUE,
     email: "buyer@example.com",
+    whatsapp: "501234567",
     regionComplete: true,
     formReady: true,
   };
@@ -136,6 +139,8 @@ const renderCheckoutValidation = (args: Args) => html`
         locale=${args.locale}
         ?show-email=${args.showEmail}
         ?email-required=${args.emailRequired}
+        ?show-whatsapp=${args.showWhatsapp}
+        ?whatsapp-required=${args.whatsappRequired}
         @change=${(event: Event) => {
           const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
           args.onChange?.(detail);
@@ -227,6 +232,8 @@ export const CheckoutValidation: Story = {
     locale: "zh-CN",
     showEmail: true,
     emailRequired: true,
+    showWhatsapp: false,
+    whatsappRequired: false,
     onChange: fn(),
     onValidate: fn(),
     onReportValidity: fn(),
@@ -255,6 +262,18 @@ export const CheckoutValidation: Story = {
       control: "boolean",
       description: "邮箱必填（需同时开启 show-email）。",
       table: { defaultValue: { summary: "true" } },
+    },
+    showWhatsapp: {
+      name: "show-whatsapp",
+      control: "boolean",
+      description: "展示 WhatsApp 输入框。",
+      table: { defaultValue: { summary: "false" } },
+    },
+    whatsappRequired: {
+      name: "whatsapp-required",
+      control: "boolean",
+      description: "WhatsApp 必填（需同时开启 show-whatsapp）。",
+      table: { defaultValue: { summary: "false" } },
     },
     onChange: {
       name: "change",

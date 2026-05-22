@@ -475,542 +475,11 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "",
-          "name": "YnDropdownPick",
-          "members": [
-            {
-              "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "PickValue"
-              },
-              "default": "\"\""
-            },
-            {
-              "kind": "field",
-              "name": "valueField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\"",
-              "attribute": "value-field"
-            },
-            {
-              "kind": "field",
-              "name": "buttonDisplayField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"label\"",
-              "attribute": "button-display-field"
-            },
-            {
-              "kind": "field",
-              "name": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Select\"",
-              "attribute": "placeholder"
-            },
-            {
-              "kind": "field",
-              "name": "closeOnOutsideClick",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "attribute": "close-on-outside-click"
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "disabled"
-            },
-            {
-              "kind": "field",
-              "name": "buttonBg",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\"",
-              "attribute": "button-bg"
-            },
-            {
-              "kind": "field",
-              "name": "buttonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\"",
-              "attribute": "button-color"
-            },
-            {
-              "kind": "field",
-              "name": "openButtonBg",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\"",
-              "attribute": "open-button-bg"
-            },
-            {
-              "kind": "field",
-              "name": "openButtonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\"",
-              "attribute": "open-button-color"
-            },
-            {
-              "kind": "field",
-              "name": "panelMinWidth",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"132px\"",
-              "attribute": "panel-min-width"
-            },
-            {
-              "kind": "field",
-              "name": "showSelectedIcon",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true",
-              "attribute": "show-selected-icon"
-            },
-            {
-              "kind": "field",
-              "name": "open",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "selectedNode",
-              "type": {
-                "text": "YnDropdownPickNode | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "postSelectTimer",
-              "type": {
-                "text": "number"
-              },
-              "privacy": "private",
-              "default": "0"
-            },
-            {
-              "kind": "field",
-              "name": "pendingSelectionCleanup",
-              "type": {
-                "text": "(() => void) | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "picks",
-              "type": {
-                "text": "YnPick[]"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { display: inline-block; position: relative; --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea); --yn-dropdown-pick-panel-radius: 12px; --yn-dropdown-pick-panel-padding: 6px; --yn-dropdown-pick-gap: 6px; --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8); --yn-dropdown-pick-item-content-right-space: 34px; --yn-dropdown-pick-button-radius: 10px; --yn-dropdown-pick-trigger-font-size: 12px; --yn-dropdown-pick-trigger-font-weight: 600; --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14)); --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2); --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21); --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff); --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df); --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff); } .root { position: relative; display: inline-block; } .trigger { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: var(--yn-dropdown-pick-button-radius, 10px); padding: 6px 10px; min-height: 28px; cursor: pointer; background: var(--_btn-bg); color: var(--_btn-color); transition: background-color 180ms ease, color 180ms ease; font-size: var(--yn-dropdown-pick-trigger-font-size, 12px); font-weight: var(--yn-dropdown-pick-trigger-font-weight, 600); line-height: 1; white-space: nowrap; } .trigger:disabled { opacity: 0.55; cursor: not-allowed; } .caret { width: 10px; height: 10px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 180ms ease; transform-origin: center; } .caret.open { transform: rotate(180deg); } .panel { position: absolute; top: calc(100% + 8px); right: 0; min-width: var(--_panel-min-width); padding: var(--yn-dropdown-pick-panel-padding, 6px); border-radius: var(--yn-dropdown-pick-panel-radius, 12px); background: var(--yn-dropdown-pick-panel-bg, #f2efea); box-shadow: var(--yn-dropdown-pick-shadow, 0 10px 24px rgba(36, 31, 33, 0.14)); opacity: 0; transform: translate3d(0, -8px, 0); visibility: hidden; pointer-events: none; transition: transform 220ms cubic-bezier(0.22, 0.78, 0.24, 1), opacity 220ms cubic-bezier(0.22, 0.78, 0.24, 1); z-index: 1200; } .panel.open { opacity: 1; transform: translate3d(0, 0, 0); visibility: visible; pointer-events: auto; } .pick-list { display: flex; flex-direction: column; gap: var(--yn-dropdown-pick-gap, 6px); } ::slotted(yn-pick) { display: block; width: 100%; } `"
-            },
-            {
-              "kind": "method",
-              "name": "clearPendingSelectionTask",
-              "privacy": "private",
-              "description": "清理“等待选中视觉完成”相关监听和计时器。"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "PropertyValues<this>"
-                  }
-                }
-              ],
-              "description": "监听关键属性变化并同步选中项。"
-            },
-            {
-              "kind": "field",
-              "name": "handleSlotChange",
-              "privacy": "private",
-              "description": "同步插槽 pick 的默认配置。"
-            },
-            {
-              "kind": "field",
-              "name": "handleItemMouseEnter",
-              "privacy": "private",
-              "description": "非选中项进入 hover 时应用背景。"
-            },
-            {
-              "kind": "field",
-              "name": "handleItemMouseLeave",
-              "privacy": "private",
-              "description": "hover 离开时恢复背景。"
-            },
-            {
-              "kind": "method",
-              "name": "syncPickState",
-              "privacy": "private",
-              "description": "同步 pick 的单选态和默认视觉配置。"
-            },
-            {
-              "kind": "method",
-              "name": "syncSelectedByValue",
-              "privacy": "private",
-              "description": "根据当前 value 同步 selectedNode。"
-            },
-            {
-              "kind": "method",
-              "name": "isSameValue",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "a",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                },
-                {
-                  "name": "b",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "统一值比较，兼容 number/string。"
-            },
-            {
-              "kind": "method",
-              "name": "findPickByValue",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "PickValue"
-                  }
-                }
-              ],
-              "description": "在当前插槽项中查找指定值的 pick。"
-            },
-            {
-              "kind": "method",
-              "name": "extractNodeFromPick",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "YnDropdownPickNode | null"
-                }
-              },
-              "parameters": [
-                {
-                  "name": "pick",
-                  "type": {
-                    "text": "YnPick | null"
-                  }
-                }
-              ],
-              "description": "从 pick 上提取节点数据（优先 data-node JSON）。"
-            },
-            {
-              "kind": "method",
-              "name": "readNodeField",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "node",
-                  "type": {
-                    "text": "YnDropdownPickNode | null"
-                  }
-                },
-                {
-                  "name": "field",
-                  "type": {
-                    "text": "string"
-                  }
-                }
-              ],
-              "description": "从 node 中读取字段文本。"
-            },
-            {
-              "kind": "method",
-              "name": "getButtonText",
-              "privacy": "private",
-              "description": "计算按钮文案。"
-            },
-            {
-              "kind": "method",
-              "name": "toggleOpen",
-              "privacy": "private",
-              "description": "切换弹层开关。"
-            },
-            {
-              "kind": "method",
-              "name": "closePanel",
-              "privacy": "private",
-              "description": "关闭弹层。"
-            },
-            {
-              "kind": "method",
-              "name": "emitOpenChange",
-              "privacy": "private",
-              "description": "对外派发开关变化事件。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentPointerDown",
-              "privacy": "private",
-              "description": "外部点击时自动关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentKeydown",
-              "privacy": "private",
-              "description": "Esc 快捷关闭。"
-            },
-            {
-              "kind": "field",
-              "name": "handlePickToggle",
-              "privacy": "private",
-              "description": "处理子项 toggle 事件，维持单选并回传 node。"
-            },
-            {
-              "kind": "method",
-              "name": "render",
-              "description": "渲染下拉选择器。"
-            }
-          ],
-          "events": [
-            {
-              "name": "open-change",
-              "type": {
-                "text": "CustomEvent"
-              }
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-dropdown-pick",
-          "summary": "下拉单选，基于 yn-pick。",
-          "attributes": [
-            {
-              "name": "value-field",
-              "fieldName": "valueField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"id\""
-            },
-            {
-              "name": "button-display-field",
-              "fieldName": "buttonDisplayField",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"label\""
-            },
-            {
-              "name": "placeholder",
-              "fieldName": "placeholder",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"Select\""
-            },
-            {
-              "name": "close-on-outside-click",
-              "fieldName": "closeOnOutsideClick",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true"
-            },
-            {
-              "name": "disabled",
-              "fieldName": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            },
-            {
-              "name": "button-bg",
-              "fieldName": "buttonBg",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\""
-            },
-            {
-              "name": "button-color",
-              "fieldName": "buttonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\""
-            },
-            {
-              "name": "open-button-bg",
-              "fieldName": "openButtonBg",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\""
-            },
-            {
-              "name": "open-button-color",
-              "fieldName": "openButtonColor",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\""
-            },
-            {
-              "name": "panel-min-width",
-              "fieldName": "panelMinWidth",
-              "type": {
-                "text": "string"
-              },
-              "default": "\"132px\""
-            },
-            {
-              "name": "show-selected-icon",
-              "fieldName": "showSelectedIcon",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "true"
-            }
-          ],
-          "slots": [
-            {
-              "name": "",
-              "description": "默认插槽"
-            }
-          ],
-          "cssProperties": [
-            {
-              "name": "--yn-dropdown-pick-button-bg",
-              "description": "触发按钮背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-button-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-button-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-check-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-check-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-gap",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-content-right-space",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-hover-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-item-selected-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-open-button-bg",
-              "description": "展开时触发按钮背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-open-button-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-bg",
-              "description": "面板背景"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-padding",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-panel-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-shadow",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-trigger-font-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-pick-trigger-font-weight",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnDropdownPick",
-          "declaration": {
-            "name": "YnDropdownPick",
-            "module": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
       "path": "src/components/yn-checkout-address/yn-checkout-address.ts",
       "declarations": [
         {
           "kind": "class",
-          "description": "跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN\n→ 再不可用则探测 Photon → 三者均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。\n运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。\n分步表单（先地区摘要，再联系方式与详细地址）；内置校验；`change` 的 `detail` 为 `{ value, validation }`。\n统一 `YnCheckoutAddressValue` 保存、回显与受控 `.value`。\n\n样式：`--yn-checkout-address-bg`（背景色）、`--yn-checkout-address-padding` 等。字体继承宿主，不内置 webfont。",
+          "description": "跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN\n→ 再不可用则探测 Photon → 三者均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。\n运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。\n分步表单（先地区摘要，再联系方式与详细地址）；内置校验；`change` 的 `detail` 为 `{ value, validation, changedFields }`。\n统一 `YnCheckoutAddressValue` 保存、回显与受控 `.value`。\n\n样式：`--yn-checkout-address-bg`（背景色）、`--yn-checkout-address-padding` 等。字体继承宿主，不内置 webfont。",
           "name": "YnCheckoutAddress",
           "members": [
             {
@@ -1108,6 +577,26 @@
               "default": "false",
               "description": "为 true 且 showEmail 时邮箱必填",
               "attribute": "email-required"
+            },
+            {
+              "kind": "field",
+              "name": "showWhatsapp",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "为 true 时展示 WhatsApp 输入框",
+              "attribute": "show-whatsapp"
+            },
+            {
+              "kind": "field",
+              "name": "whatsappRequired",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "为 true 且 showWhatsapp 时 WhatsApp 必填",
+              "attribute": "whatsapp-required"
             },
             {
               "kind": "field",
@@ -1300,6 +789,15 @@
             },
             {
               "kind": "field",
+              "name": "whatsapp",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
               "name": "notes",
               "type": {
                 "text": "string"
@@ -1448,6 +946,34 @@
               },
               "privacy": "private",
               "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "invalidFieldSet",
+              "privacy": "private",
+              "default": "new Set<YnCheckoutAddressField>()"
+            },
+            {
+              "kind": "field",
+              "name": "msgLocale",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"\""
+            },
+            {
+              "kind": "field",
+              "name": "msgOverride",
+              "type": {
+                "text": "Partial<YnCheckoutAddressMessages> | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "msgResolved",
+              "privacy": "private"
             },
             {
               "kind": "field",
@@ -1650,11 +1176,6 @@
             },
             {
               "kind": "method",
-              "name": "resolveGoogleKey",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
               "name": "syncGoogleMode",
               "privacy": "private",
               "parameters": [
@@ -1828,6 +1349,11 @@
             {
               "kind": "method",
               "name": "renderEmailFields",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderWhatsappFields",
               "privacy": "private"
             },
             {
@@ -2142,7 +1668,7 @@
               "type": {
                 "text": "CustomEvent"
               },
-              "description": "地址变化，`detail` 为 `{ value: YnCheckoutAddressValue, validation: YnCheckoutAddressValidation }`"
+              "description": "地址变化，`detail` 为 `{ value, validation, changedFields }`"
             }
           ],
           "superclass": {
@@ -2239,6 +1765,24 @@
               },
               "description": "邮箱必填并校验格式（需同时 show-email，默认 false）。",
               "default": "false"
+            },
+            {
+              "name": "show-whatsapp",
+              "fieldName": "showWhatsapp",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "展示 WhatsApp 输入框（默认 false）。",
+              "default": "false"
+            },
+            {
+              "name": "whatsapp-required",
+              "fieldName": "whatsappRequired",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "WhatsApp 必填并校验号码（6–15 位数字，需同时 show-whatsapp，默认 false）。",
+              "default": "false"
             }
           ],
           "cssProperties": [
@@ -2316,9 +1860,25 @@
         },
         {
           "kind": "js",
+          "name": "YnCheckoutAddressValidateResult",
+          "declaration": {
+            "name": "YnCheckoutAddressValidateResult",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
           "name": "YnCheckoutAddressValidation",
           "declaration": {
             "name": "YnCheckoutAddressValidation",
+            "module": "./types"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnCheckoutAddressValueKey",
+          "declaration": {
+            "name": "YnCheckoutAddressValueKey",
             "module": "./types"
           }
         },
@@ -2392,6 +1952,581 @@
           "declaration": {
             "name": "emptyCheckoutAddressValue",
             "module": "./types"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/yn-dropdown/yn-dropdown.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "YnDropdown",
+          "members": [
+            {
+              "kind": "field",
+              "name": "placement",
+              "type": {
+                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+              },
+              "default": "\"bottom-start\"",
+              "attribute": "placement"
+            },
+            {
+              "kind": "field",
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "open"
+            },
+            {
+              "kind": "field",
+              "name": "offset",
+              "type": {
+                "text": "number"
+              },
+              "default": "12",
+              "attribute": "offset"
+            },
+            {
+              "kind": "field",
+              "name": "motionDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "14",
+              "attribute": "motion-distance"
+            },
+            {
+              "kind": "field",
+              "name": "panelOpenDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "16",
+              "attribute": "panel-open-distance"
+            },
+            {
+              "kind": "field",
+              "name": "panelCloseDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "20",
+              "attribute": "panel-close-distance"
+            },
+            {
+              "kind": "field",
+              "name": "viewportPadding",
+              "type": {
+                "text": "number"
+              },
+              "default": "12",
+              "attribute": "viewport-padding"
+            },
+            {
+              "kind": "field",
+              "name": "autoFlip",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "auto-flip"
+            },
+            {
+              "kind": "field",
+              "name": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "attribute": "close-on-outside-click"
+            },
+            {
+              "kind": "field",
+              "name": "actualPlacement",
+              "type": {
+                "text": "YnDropdownPlacement"
+              },
+              "privacy": "private",
+              "default": "\"bottom-start\""
+            },
+            {
+              "kind": "field",
+              "name": "panelMotionSide",
+              "type": {
+                "text": "PlacementSide"
+              },
+              "privacy": "private",
+              "default": "\"bottom\""
+            },
+            {
+              "kind": "field",
+              "name": "panelStyle",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "\"left:0px;top:0px;\""
+            },
+            {
+              "kind": "field",
+              "name": "closing",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "useButtonLabelMotion",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "positionRaf",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "default": "0"
+            },
+            {
+              "kind": "field",
+              "name": "resizeObserver",
+              "type": {
+                "text": "ResizeObserver | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "buttonLabelEl",
+              "type": {
+                "text": "HTMLElement | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "viewportListenersActive",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { --yn-dropdown-close-icon-color: var(--yn-color-text, #241f21); --yn-dropdown-panel-bg: var(--yn-color-bg-elevated, #ffffff); --yn-dropdown-panel-shadow: var(--yn-color-shadow-md, 0 12px 36px rgba(36, 31, 33, 0.18)); --yn-dropdown-panel-motion-shadow: var(--yn-color-shadow-sm, 0 8px 20px rgba(36, 31, 33, 0.12)); display: inline-block; position: relative; overflow: visible; } .root { display: inline-flex; flex-direction: column; } .trigger { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; } .trigger-content { display: inline-flex; align-items: center; transform: translate3d(0, 0, 0); opacity: 1; will-change: auto; transition: transform var(--yn-dropdown-trigger-duration, 220ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-trigger-opacity-duration, 160ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)); } :host([open]) .trigger-content { transform: translate3d(var(--yn-dropdown-motion-x, 0px), var(--yn-dropdown-motion-y, 0px), 0); opacity: 0; will-change: transform, opacity; } .trigger.button-trigger .trigger-content, :host([open]) .trigger.button-trigger .trigger-content { transform: translate3d(0, 0, 0); opacity: 1; transition: none; } .close-icon { position: absolute; left: 50%; right: auto; top: 50%; margin: 0; padding: 0; width: var(--yn-dropdown-close-icon-size, 24px); height: var(--yn-dropdown-close-icon-size, 24px); border: none; background: transparent; color: var(--yn-dropdown-close-icon-color); display: inline-flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transform: translate3d( calc(-50% - var(--yn-dropdown-motion-x, 0px)), calc(-50% - var(--yn-dropdown-motion-y, 0px)), 0 ); transition: transform var(--yn-dropdown-close-duration, 220ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-close-opacity-duration, 180ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)); transition-delay: 0ms, 0ms; will-change: auto; } .close-icon ::slotted(*) { width: 100%; height: 100%; display: block; } :host([open]) .close-icon { pointer-events: auto; opacity: 1; transform: translate3d(-50%, -50%, 0); transition-delay: var(--yn-dropdown-close-enter-delay, 67ms), var(--yn-dropdown-close-enter-delay, 67ms); will-change: transform, opacity; } :host(:not([open])) .close-icon { transition-delay: 0ms, 0ms; } .panel { position: absolute; box-sizing: border-box; min-width: var(--yn-dropdown-panel-min-width, 280px); border-radius: var(--yn-dropdown-panel-radius, 12px); border: var(--yn-dropdown-panel-border, none); background: var(--yn-dropdown-panel-bg); box-shadow: var(--yn-dropdown-panel-shadow); padding: var(--yn-dropdown-panel-padding, 12px); overflow: auto; z-index: var(--yn-dropdown-z-index, 1200); opacity: 0; visibility: visible; pointer-events: none; transform: translate3d( var(--yn-dropdown-panel-open-shift-x, 0px), var(--yn-dropdown-panel-open-shift-y, 0px), 0 ); transform-origin: center center; backface-visibility: hidden; contain: layout paint; transition: transform var(--yn-dropdown-panel-motion-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)), opacity var(--yn-dropdown-panel-opacity-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); will-change: auto; } .panel:not(.open):not(.closing) { visibility: hidden; } .panel[data-side=\"top\"] { transform-origin: center bottom; } .panel[data-side=\"bottom\"] { transform-origin: center top; } .panel[data-side=\"left\"] { transform-origin: right center; } .panel[data-side=\"right\"] { transform-origin: left center; } .panel.open { opacity: 1; visibility: visible; pointer-events: auto; box-shadow: var(--yn-dropdown-panel-motion-shadow); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-open-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); transform: translate3d(0, 0, 0); will-change: transform, opacity; } .panel.closing { opacity: 0; visibility: visible; pointer-events: none; box-shadow: var(--yn-dropdown-panel-motion-shadow); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-close-easing, cubic-bezier(0.4, 0, 0.2, 1)); transform: translate3d( var(--yn-dropdown-panel-close-shift-x, 0px), var(--yn-dropdown-panel-close-shift-y, 0px), 0 ); will-change: transform, opacity; } `"
+            },
+            {
+              "kind": "method",
+              "name": "firstUpdated",
+              "privacy": "protected",
+              "description": "首次渲染后预热方向与位置，保证首开动画可用。"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<string, unknown>"
+                  }
+                }
+              ],
+              "description": "属性变化后同步定位、开关状态和联动动画。"
+            },
+            {
+              "kind": "method",
+              "name": "emitOpenChange",
+              "privacy": "private",
+              "description": "派发开关状态变化事件，供外部监听。"
+            },
+            {
+              "kind": "method",
+              "name": "setupResizeObserver",
+              "privacy": "private",
+              "description": "建立并刷新尺寸观察，触发器或面板尺寸变化时重算位置。"
+            },
+            {
+              "kind": "method",
+              "name": "toggleViewportListeners",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "active",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ],
+              "description": "仅在展开阶段启用视口监听，降低空闲期开销。"
+            },
+            {
+              "kind": "field",
+              "name": "handleViewportChange",
+              "privacy": "private",
+              "description": "视口尺寸或滚动变化时重算展开态位置。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentKeydown",
+              "privacy": "private",
+              "description": "监听 ESC 快捷关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handleDocumentPointerDown",
+              "privacy": "private",
+              "description": "处理外部点击关闭逻辑。"
+            },
+            {
+              "kind": "field",
+              "name": "handleTriggerClick",
+              "privacy": "private",
+              "description": "处理触发器点击：展开或关闭。"
+            },
+            {
+              "kind": "field",
+              "name": "handleTriggerSlotChange",
+              "privacy": "private",
+              "description": "触发器插槽变化后刷新模式与定位。"
+            },
+            {
+              "kind": "field",
+              "name": "handleCloseIconClick",
+              "privacy": "private",
+              "description": "处理关闭图标点击并阻止冒泡到触发器。"
+            },
+            {
+              "kind": "method",
+              "name": "openDropdown",
+              "privacy": "private",
+              "description": "以固定流程打开下拉：锁定方向、预计算、再切换 open。"
+            },
+            {
+              "kind": "method",
+              "name": "closeDropdown",
+              "privacy": "private",
+              "description": "触发关闭态动画并切换 open。"
+            },
+            {
+              "kind": "method",
+              "name": "close",
+              "description": "供外部 JS 调用的关闭方法。"
+            },
+            {
+              "kind": "field",
+              "name": "handlePanelTransitionEnd",
+              "privacy": "private",
+              "description": "关闭过渡结束后复位 closing 状态。"
+            },
+            {
+              "kind": "method",
+              "name": "updateTriggerMode",
+              "privacy": "private",
+              "description": "判断触发器类型并同步按钮文本动画模式。"
+            },
+            {
+              "kind": "method",
+              "name": "resetButtonLabelStyle",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "label",
+                  "type": {
+                    "text": "HTMLElement | null"
+                  }
+                }
+              ],
+              "description": "清理按钮文本上注入的内联动画样式。"
+            },
+            {
+              "kind": "method",
+              "name": "syncButtonLabelMotion",
+              "privacy": "private",
+              "description": "同步按钮文本在开关过程中的位移与透明度。"
+            },
+            {
+              "kind": "method",
+              "name": "schedulePosition",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "force",
+                  "default": "false"
+                }
+              ],
+              "description": "通过 RAF 合并定位计算，降低重复回流。"
+            },
+            {
+              "kind": "method",
+              "name": "positionPanel",
+              "privacy": "private",
+              "description": "按 placement 计算面板坐标并写入样式变量。"
+            },
+            {
+              "kind": "method",
+              "name": "render",
+              "description": "渲染触发器、关闭图标与内容面板。"
+            }
+          ],
+          "events": [
+            {
+              "name": "open-change",
+              "type": {
+                "text": "CustomEvent"
+              }
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-dropdown",
+          "summary": "下拉浮层：默认插槽为触发器，`content` 插槽为面板内容。",
+          "attributes": [
+            {
+              "name": "placement",
+              "fieldName": "placement",
+              "type": {
+                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+              },
+              "description": "面板相对触发器的位置。",
+              "default": "\"bottom-start\""
+            },
+            {
+              "name": "open",
+              "fieldName": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "面板是否展开（受控）。",
+              "default": "false"
+            },
+            {
+              "name": "offset",
+              "fieldName": "offset",
+              "type": {
+                "text": "number"
+              },
+              "description": "触发器与面板间距（px）。",
+              "default": "12"
+            },
+            {
+              "name": "motion-distance",
+              "fieldName": "motionDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "14"
+            },
+            {
+              "name": "panel-open-distance",
+              "fieldName": "panelOpenDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "16"
+            },
+            {
+              "name": "panel-close-distance",
+              "fieldName": "panelCloseDistance",
+              "type": {
+                "text": "number"
+              },
+              "default": "20"
+            },
+            {
+              "name": "viewport-padding",
+              "fieldName": "viewportPadding",
+              "type": {
+                "text": "number"
+              },
+              "default": "12"
+            },
+            {
+              "name": "auto-flip",
+              "fieldName": "autoFlip",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "空间不足时是否自动翻转方位。",
+              "default": "false"
+            },
+            {
+              "name": "close-on-outside-click",
+              "fieldName": "closeOnOutsideClick",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "点击外部是否关闭。",
+              "default": "true"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "触发器（如按钮）"
+            },
+            {
+              "name": "content",
+              "description": "下拉面板内容"
+            },
+            {
+              "name": "close-icon",
+              "description": "关闭图标（可选，默认内置 SVG）"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-dropdown-close-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-enter-delay",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-icon-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-icon-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-close-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-motion-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-motion-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-border",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-shift-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-close-shift-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-min-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-motion-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-shift-x",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-open-shift-y",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-panel-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-easing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-trigger-opacity-duration",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-dropdown-z-index",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnDropdown",
+          "declaration": {
+            "name": "YnDropdown",
+            "module": "src/components/yn-dropdown/yn-dropdown.ts"
           }
         }
       ]
@@ -3033,84 +3168,47 @@
     },
     {
       "kind": "javascript-module",
-      "path": "src/components/yn-dropdown/yn-dropdown.ts",
+      "path": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "",
-          "name": "YnDropdown",
+          "name": "YnDropdownPick",
           "members": [
             {
               "kind": "field",
-              "name": "placement",
+              "name": "value",
               "type": {
-                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+                "text": "PickValue"
               },
-              "default": "\"bottom-start\"",
-              "attribute": "placement"
+              "default": "\"\""
             },
             {
               "kind": "field",
-              "name": "open",
+              "name": "valueField",
               "type": {
-                "text": "boolean"
+                "text": "string"
               },
-              "default": "false",
-              "attribute": "open"
+              "default": "\"id\"",
+              "attribute": "value-field"
             },
             {
               "kind": "field",
-              "name": "offset",
+              "name": "buttonDisplayField",
               "type": {
-                "text": "number"
+                "text": "string"
               },
-              "default": "12",
-              "attribute": "offset"
+              "default": "\"label\"",
+              "attribute": "button-display-field"
             },
             {
               "kind": "field",
-              "name": "motionDistance",
+              "name": "placeholder",
               "type": {
-                "text": "number"
+                "text": "string"
               },
-              "default": "14",
-              "attribute": "motion-distance"
-            },
-            {
-              "kind": "field",
-              "name": "panelOpenDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "16",
-              "attribute": "panel-open-distance"
-            },
-            {
-              "kind": "field",
-              "name": "panelCloseDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "20",
-              "attribute": "panel-close-distance"
-            },
-            {
-              "kind": "field",
-              "name": "viewportPadding",
-              "type": {
-                "text": "number"
-              },
-              "default": "12",
-              "attribute": "viewport-padding"
-            },
-            {
-              "kind": "field",
-              "name": "autoFlip",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "auto-flip"
+              "default": "\"Select\"",
+              "attribute": "placeholder"
             },
             {
               "kind": "field",
@@ -3123,34 +3221,70 @@
             },
             {
               "kind": "field",
-              "name": "actualPlacement",
+              "name": "disabled",
               "type": {
-                "text": "YnDropdownPlacement"
+                "text": "boolean"
               },
-              "privacy": "private",
-              "default": "\"bottom-start\""
+              "default": "false",
+              "attribute": "disabled"
             },
             {
               "kind": "field",
-              "name": "panelMotionSide",
-              "type": {
-                "text": "PlacementSide"
-              },
-              "privacy": "private",
-              "default": "\"bottom\""
-            },
-            {
-              "kind": "field",
-              "name": "panelStyle",
+              "name": "buttonBg",
               "type": {
                 "text": "string"
               },
-              "privacy": "private",
-              "default": "\"left:0px;top:0px;\""
+              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\"",
+              "attribute": "button-bg"
             },
             {
               "kind": "field",
-              "name": "closing",
+              "name": "buttonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\"",
+              "attribute": "button-color"
+            },
+            {
+              "kind": "field",
+              "name": "openButtonBg",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\"",
+              "attribute": "open-button-bg"
+            },
+            {
+              "kind": "field",
+              "name": "openButtonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\"",
+              "attribute": "open-button-color"
+            },
+            {
+              "kind": "field",
+              "name": "panelMinWidth",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"132px\"",
+              "attribute": "panel-min-width"
+            },
+            {
+              "kind": "field",
+              "name": "showSelectedIcon",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "true",
+              "attribute": "show-selected-icon"
+            },
+            {
+              "kind": "field",
+              "name": "open",
               "type": {
                 "text": "boolean"
               },
@@ -3159,16 +3293,16 @@
             },
             {
               "kind": "field",
-              "name": "useButtonLabelMotion",
+              "name": "selectedNode",
               "type": {
-                "text": "boolean"
+                "text": "YnDropdownPickNode | null"
               },
               "privacy": "private",
-              "default": "false"
+              "default": "null"
             },
             {
               "kind": "field",
-              "name": "positionRaf",
+              "name": "postSelectTimer",
               "type": {
                 "text": "number"
               },
@@ -3177,42 +3311,32 @@
             },
             {
               "kind": "field",
-              "name": "resizeObserver",
+              "name": "pendingSelectionCleanup",
               "type": {
-                "text": "ResizeObserver | null"
+                "text": "(() => void) | null"
               },
               "privacy": "private",
               "default": "null"
             },
             {
               "kind": "field",
-              "name": "buttonLabelEl",
+              "name": "picks",
               "type": {
-                "text": "HTMLElement | null"
+                "text": "YnPick[]"
               },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "viewportListenersActive",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
+              "privacy": "private"
             },
             {
               "kind": "field",
               "name": "styles",
               "static": true,
-              "default": "css` :host { --yn-dropdown-close-icon-color: var(--yn-color-text, #241f21); --yn-dropdown-panel-bg: var(--yn-color-bg-elevated, #ffffff); --yn-dropdown-panel-shadow: var(--yn-color-shadow-md, 0 12px 36px rgba(36, 31, 33, 0.18)); --yn-dropdown-panel-motion-shadow: var(--yn-color-shadow-sm, 0 8px 20px rgba(36, 31, 33, 0.12)); display: inline-block; position: relative; overflow: visible; } .root { display: inline-flex; flex-direction: column; } .trigger { position: relative; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; } .trigger-content { display: inline-flex; align-items: center; transform: translate3d(0, 0, 0); opacity: 1; will-change: auto; transition: transform var(--yn-dropdown-trigger-duration, 220ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-trigger-opacity-duration, 160ms) var(--yn-dropdown-trigger-easing, cubic-bezier(0.22, 1, 0.36, 1)); } :host([open]) .trigger-content { transform: translate3d(var(--yn-dropdown-motion-x, 0px), var(--yn-dropdown-motion-y, 0px), 0); opacity: 0; will-change: transform, opacity; } .trigger.button-trigger .trigger-content, :host([open]) .trigger.button-trigger .trigger-content { transform: translate3d(0, 0, 0); opacity: 1; transition: none; } .close-icon { position: absolute; left: 50%; right: auto; top: 50%; margin: 0; padding: 0; width: var(--yn-dropdown-close-icon-size, 24px); height: var(--yn-dropdown-close-icon-size, 24px); border: none; background: transparent; color: var(--yn-dropdown-close-icon-color); display: inline-flex; align-items: center; justify-content: center; pointer-events: none; opacity: 0; transform: translate3d( calc(-50% - var(--yn-dropdown-motion-x, 0px)), calc(-50% - var(--yn-dropdown-motion-y, 0px)), 0 ); transition: transform var(--yn-dropdown-close-duration, 220ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)), opacity var(--yn-dropdown-close-opacity-duration, 180ms) var(--yn-dropdown-close-easing, cubic-bezier(0.22, 1, 0.36, 1)); transition-delay: 0ms, 0ms; will-change: auto; } .close-icon ::slotted(*) { width: 100%; height: 100%; display: block; } :host([open]) .close-icon { pointer-events: auto; opacity: 1; transform: translate3d(-50%, -50%, 0); transition-delay: var(--yn-dropdown-close-enter-delay, 67ms), var(--yn-dropdown-close-enter-delay, 67ms); will-change: transform, opacity; } :host(:not([open])) .close-icon { transition-delay: 0ms, 0ms; } .panel { position: absolute; box-sizing: border-box; min-width: var(--yn-dropdown-panel-min-width, 280px); border-radius: var(--yn-dropdown-panel-radius, 12px); border: var(--yn-dropdown-panel-border, none); background: var(--yn-dropdown-panel-bg); box-shadow: var(--yn-dropdown-panel-shadow); padding: var(--yn-dropdown-panel-padding, 12px); overflow: auto; z-index: var(--yn-dropdown-z-index, 1200); opacity: 0; visibility: visible; pointer-events: none; transform: translate3d( var(--yn-dropdown-panel-open-shift-x, 0px), var(--yn-dropdown-panel-open-shift-y, 0px), 0 ); transform-origin: center center; backface-visibility: hidden; contain: layout paint; transition: transform var(--yn-dropdown-panel-motion-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)), opacity var(--yn-dropdown-panel-opacity-duration, 270ms) var(--yn-dropdown-panel-motion-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); will-change: auto; } .panel:not(.open):not(.closing) { visibility: hidden; } .panel[data-side=\"top\"] { transform-origin: center bottom; } .panel[data-side=\"bottom\"] { transform-origin: center top; } .panel[data-side=\"left\"] { transform-origin: right center; } .panel[data-side=\"right\"] { transform-origin: left center; } .panel.open { opacity: 1; visibility: visible; pointer-events: auto; box-shadow: var(--yn-dropdown-panel-motion-shadow); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-open-duration, 270ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-open-easing, cubic-bezier(0.22, 0.78, 0.24, 1)); transform: translate3d(0, 0, 0); will-change: transform, opacity; } .panel.closing { opacity: 0; visibility: visible; pointer-events: none; box-shadow: var(--yn-dropdown-panel-motion-shadow); --yn-dropdown-panel-motion-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-opacity-duration: var(--yn-dropdown-panel-close-duration, 330ms); --yn-dropdown-panel-motion-easing: var(--yn-dropdown-panel-close-easing, cubic-bezier(0.4, 0, 0.2, 1)); transform: translate3d( var(--yn-dropdown-panel-close-shift-x, 0px), var(--yn-dropdown-panel-close-shift-y, 0px), 0 ); will-change: transform, opacity; } `"
+              "default": "css` :host { display: inline-block; position: relative; --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea); --yn-dropdown-pick-panel-radius: 12px; --yn-dropdown-pick-panel-padding: 6px; --yn-dropdown-pick-gap: 6px; --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8); --yn-dropdown-pick-item-content-right-space: 34px; --yn-dropdown-pick-button-radius: 10px; --yn-dropdown-pick-trigger-font-size: 12px; --yn-dropdown-pick-trigger-font-weight: 600; --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14)); --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2); --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21); --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff); --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df); --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21); --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff); } .root { position: relative; display: inline-block; } .trigger { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: var(--yn-dropdown-pick-button-radius, 10px); padding: 6px 10px; min-height: 28px; cursor: pointer; background: var(--_btn-bg); color: var(--_btn-color); transition: background-color 180ms ease, color 180ms ease; font-size: var(--yn-dropdown-pick-trigger-font-size, 12px); font-weight: var(--yn-dropdown-pick-trigger-font-weight, 600); line-height: 1; white-space: nowrap; } .trigger:disabled { opacity: 0.55; cursor: not-allowed; } .caret { width: 10px; height: 10px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); transition: transform 180ms ease; transform-origin: center; } .caret.open { transform: rotate(180deg); } .panel { position: absolute; top: calc(100% + 8px); right: 0; min-width: var(--_panel-min-width); padding: var(--yn-dropdown-pick-panel-padding, 6px); border-radius: var(--yn-dropdown-pick-panel-radius, 12px); background: var(--yn-dropdown-pick-panel-bg, #f2efea); box-shadow: var(--yn-dropdown-pick-shadow, 0 10px 24px rgba(36, 31, 33, 0.14)); opacity: 0; transform: translate3d(0, -8px, 0); visibility: hidden; pointer-events: none; transition: transform 220ms cubic-bezier(0.22, 0.78, 0.24, 1), opacity 220ms cubic-bezier(0.22, 0.78, 0.24, 1); z-index: 1200; } .panel.open { opacity: 1; transform: translate3d(0, 0, 0); visibility: visible; pointer-events: auto; } .pick-list { display: flex; flex-direction: column; gap: var(--yn-dropdown-pick-gap, 6px); } ::slotted(yn-pick) { display: block; width: 100%; } `"
             },
             {
               "kind": "method",
-              "name": "firstUpdated",
-              "privacy": "protected",
-              "description": "首次渲染后预热方向与位置，保证首开动画可用。"
+              "name": "clearPendingSelectionTask",
+              "privacy": "private",
+              "description": "清理“等待选中视觉完成”相关监听和计时器。"
             },
             {
               "kind": "method",
@@ -3222,145 +3346,161 @@
                 {
                   "name": "changed",
                   "type": {
-                    "text": "Map<string, unknown>"
+                    "text": "PropertyValues<this>"
                   }
                 }
               ],
-              "description": "属性变化后同步定位、开关状态和联动动画。"
+              "description": "监听关键属性变化并同步选中项。"
+            },
+            {
+              "kind": "field",
+              "name": "handleSlotChange",
+              "privacy": "private",
+              "description": "同步插槽 pick 的默认配置。"
+            },
+            {
+              "kind": "field",
+              "name": "handleItemMouseEnter",
+              "privacy": "private",
+              "description": "非选中项进入 hover 时应用背景。"
+            },
+            {
+              "kind": "field",
+              "name": "handleItemMouseLeave",
+              "privacy": "private",
+              "description": "hover 离开时恢复背景。"
+            },
+            {
+              "kind": "method",
+              "name": "syncPickState",
+              "privacy": "private",
+              "description": "同步 pick 的单选态和默认视觉配置。"
+            },
+            {
+              "kind": "method",
+              "name": "syncSelectedByValue",
+              "privacy": "private",
+              "description": "根据当前 value 同步 selectedNode。"
+            },
+            {
+              "kind": "method",
+              "name": "isSameValue",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "a",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                },
+                {
+                  "name": "b",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "统一值比较，兼容 number/string。"
+            },
+            {
+              "kind": "method",
+              "name": "findPickByValue",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "PickValue"
+                  }
+                }
+              ],
+              "description": "在当前插槽项中查找指定值的 pick。"
+            },
+            {
+              "kind": "method",
+              "name": "extractNodeFromPick",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "YnDropdownPickNode | null"
+                }
+              },
+              "parameters": [
+                {
+                  "name": "pick",
+                  "type": {
+                    "text": "YnPick | null"
+                  }
+                }
+              ],
+              "description": "从 pick 上提取节点数据（优先 data-node JSON）。"
+            },
+            {
+              "kind": "method",
+              "name": "readNodeField",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "node",
+                  "type": {
+                    "text": "YnDropdownPickNode | null"
+                  }
+                },
+                {
+                  "name": "field",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "从 node 中读取字段文本。"
+            },
+            {
+              "kind": "method",
+              "name": "getButtonText",
+              "privacy": "private",
+              "description": "计算按钮文案。"
+            },
+            {
+              "kind": "method",
+              "name": "toggleOpen",
+              "privacy": "private",
+              "description": "切换弹层开关。"
+            },
+            {
+              "kind": "method",
+              "name": "closePanel",
+              "privacy": "private",
+              "description": "关闭弹层。"
             },
             {
               "kind": "method",
               "name": "emitOpenChange",
               "privacy": "private",
-              "description": "派发开关状态变化事件，供外部监听。"
-            },
-            {
-              "kind": "method",
-              "name": "setupResizeObserver",
-              "privacy": "private",
-              "description": "建立并刷新尺寸观察，触发器或面板尺寸变化时重算位置。"
-            },
-            {
-              "kind": "method",
-              "name": "toggleViewportListeners",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "active",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ],
-              "description": "仅在展开阶段启用视口监听，降低空闲期开销。"
-            },
-            {
-              "kind": "field",
-              "name": "handleViewportChange",
-              "privacy": "private",
-              "description": "视口尺寸或滚动变化时重算展开态位置。"
-            },
-            {
-              "kind": "field",
-              "name": "handleDocumentKeydown",
-              "privacy": "private",
-              "description": "监听 ESC 快捷关闭。"
+              "description": "对外派发开关变化事件。"
             },
             {
               "kind": "field",
               "name": "handleDocumentPointerDown",
               "privacy": "private",
-              "description": "处理外部点击关闭逻辑。"
+              "description": "外部点击时自动关闭。"
             },
             {
               "kind": "field",
-              "name": "handleTriggerClick",
+              "name": "handleDocumentKeydown",
               "privacy": "private",
-              "description": "处理触发器点击：展开或关闭。"
+              "description": "Esc 快捷关闭。"
             },
             {
               "kind": "field",
-              "name": "handleTriggerSlotChange",
+              "name": "handlePickToggle",
               "privacy": "private",
-              "description": "触发器插槽变化后刷新模式与定位。"
-            },
-            {
-              "kind": "field",
-              "name": "handleCloseIconClick",
-              "privacy": "private",
-              "description": "处理关闭图标点击并阻止冒泡到触发器。"
-            },
-            {
-              "kind": "method",
-              "name": "openDropdown",
-              "privacy": "private",
-              "description": "以固定流程打开下拉：锁定方向、预计算、再切换 open。"
-            },
-            {
-              "kind": "method",
-              "name": "closeDropdown",
-              "privacy": "private",
-              "description": "触发关闭态动画并切换 open。"
-            },
-            {
-              "kind": "method",
-              "name": "close",
-              "description": "供外部 JS 调用的关闭方法。"
-            },
-            {
-              "kind": "field",
-              "name": "handlePanelTransitionEnd",
-              "privacy": "private",
-              "description": "关闭过渡结束后复位 closing 状态。"
-            },
-            {
-              "kind": "method",
-              "name": "updateTriggerMode",
-              "privacy": "private",
-              "description": "判断触发器类型并同步按钮文本动画模式。"
-            },
-            {
-              "kind": "method",
-              "name": "resetButtonLabelStyle",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "label",
-                  "type": {
-                    "text": "HTMLElement | null"
-                  }
-                }
-              ],
-              "description": "清理按钮文本上注入的内联动画样式。"
-            },
-            {
-              "kind": "method",
-              "name": "syncButtonLabelMotion",
-              "privacy": "private",
-              "description": "同步按钮文本在开关过程中的位移与透明度。"
-            },
-            {
-              "kind": "method",
-              "name": "schedulePosition",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "force",
-                  "default": "false"
-                }
-              ],
-              "description": "通过 RAF 合并定位计算，降低重复回流。"
-            },
-            {
-              "kind": "method",
-              "name": "positionPanel",
-              "privacy": "private",
-              "description": "按 placement 计算面板坐标并写入样式变量。"
+              "description": "处理子项 toggle 事件，维持单选并回传 node。"
             },
             {
               "kind": "method",
               "name": "render",
-              "description": "渲染触发器、关闭图标与内容面板。"
+              "description": "渲染下拉选择器。"
             }
           ],
           "events": [
@@ -3376,76 +3516,32 @@
             "package": "lit"
           },
           "customElement": true,
-          "tagName": "yn-dropdown",
-          "summary": "下拉浮层：默认插槽为触发器，`content` 插槽为面板内容。",
+          "tagName": "yn-dropdown-pick",
+          "summary": "下拉单选，基于 yn-pick。",
           "attributes": [
             {
-              "name": "placement",
-              "fieldName": "placement",
+              "name": "value-field",
+              "fieldName": "valueField",
               "type": {
-                "text": "\"top-start\" | \"top\" | \"top-end\" | \"bottom-start\" | \"bottom\" | \"bottom-end\" | \"left-start\" | \"left\" | \"left-end\" | \"right-start\" | \"right\" | \"right-end\""
+                "text": "string"
               },
-              "description": "面板相对触发器的位置。",
-              "default": "\"bottom-start\""
+              "default": "\"id\""
             },
             {
-              "name": "open",
-              "fieldName": "open",
+              "name": "button-display-field",
+              "fieldName": "buttonDisplayField",
               "type": {
-                "text": "boolean"
+                "text": "string"
               },
-              "description": "面板是否展开（受控）。",
-              "default": "false"
+              "default": "\"label\""
             },
             {
-              "name": "offset",
-              "fieldName": "offset",
+              "name": "placeholder",
+              "fieldName": "placeholder",
               "type": {
-                "text": "number"
+                "text": "string"
               },
-              "description": "触发器与面板间距（px）。",
-              "default": "12"
-            },
-            {
-              "name": "motion-distance",
-              "fieldName": "motionDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "14"
-            },
-            {
-              "name": "panel-open-distance",
-              "fieldName": "panelOpenDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "16"
-            },
-            {
-              "name": "panel-close-distance",
-              "fieldName": "panelCloseDistance",
-              "type": {
-                "text": "number"
-              },
-              "default": "20"
-            },
-            {
-              "name": "viewport-padding",
-              "fieldName": "viewportPadding",
-              "type": {
-                "text": "number"
-              },
-              "default": "12"
-            },
-            {
-              "name": "auto-flip",
-              "fieldName": "autoFlip",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "空间不足时是否自动翻转方位。",
-              "default": "false"
+              "default": "\"Select\""
             },
             {
               "name": "close-on-outside-click",
@@ -3453,143 +3549,138 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "点击外部是否关闭。",
+              "default": "true"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            },
+            {
+              "name": "button-bg",
+              "fieldName": "buttonBg",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))\""
+            },
+            {
+              "name": "button-color",
+              "fieldName": "buttonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))\""
+            },
+            {
+              "name": "open-button-bg",
+              "fieldName": "openButtonBg",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-bg, var(--yn-color-inverse-bg, #241f21))\""
+            },
+            {
+              "name": "open-button-color",
+              "fieldName": "openButtonColor",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"var(--yn-dropdown-pick-open-button-color, var(--yn-color-on-inverse, #ffffff))\""
+            },
+            {
+              "name": "panel-min-width",
+              "fieldName": "panelMinWidth",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"132px\""
+            },
+            {
+              "name": "show-selected-icon",
+              "fieldName": "showSelectedIcon",
+              "type": {
+                "text": "boolean"
+              },
               "default": "true"
             }
           ],
           "slots": [
             {
               "name": "",
-              "description": "触发器（如按钮）"
-            },
-            {
-              "name": "content",
-              "description": "下拉面板内容"
-            },
-            {
-              "name": "close-icon",
-              "description": "关闭图标（可选，默认内置 SVG）"
+              "description": "默认插槽"
             }
           ],
           "cssProperties": [
             {
-              "name": "--yn-dropdown-close-duration",
+              "name": "--yn-dropdown-pick-button-bg",
+              "description": "触发按钮背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-button-color",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-close-easing",
+              "name": "--yn-dropdown-pick-button-radius",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-close-enter-delay",
+              "name": "--yn-dropdown-pick-check-bg",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-close-icon-color",
+              "name": "--yn-dropdown-pick-check-color",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-close-icon-size",
+              "name": "--yn-dropdown-pick-gap",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-close-opacity-duration",
+              "name": "--yn-dropdown-pick-item-content-right-space",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-motion-x",
+              "name": "--yn-dropdown-pick-item-hover-bg",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-motion-y",
+              "name": "--yn-dropdown-pick-item-selected-bg",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-bg",
+              "name": "--yn-dropdown-pick-open-button-bg",
+              "description": "展开时触发按钮背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-open-button-color",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-border",
+              "name": "--yn-dropdown-pick-panel-bg",
+              "description": "面板背景"
+            },
+            {
+              "name": "--yn-dropdown-pick-panel-padding",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-close-duration",
+              "name": "--yn-dropdown-pick-panel-radius",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-close-easing",
+              "name": "--yn-dropdown-pick-shadow",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-close-shift-x",
+              "name": "--yn-dropdown-pick-trigger-font-size",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             },
             {
-              "name": "--yn-dropdown-panel-close-shift-y",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-min-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-motion-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-motion-easing",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-motion-shadow",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-opacity-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-open-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-open-easing",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-open-shift-x",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-open-shift-y",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-padding",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-panel-shadow",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-trigger-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-trigger-easing",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-trigger-opacity-duration",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-dropdown-z-index",
+              "name": "--yn-dropdown-pick-trigger-font-weight",
               "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
             }
           ]
@@ -3598,10 +3689,10 @@
       "exports": [
         {
           "kind": "js",
-          "name": "YnDropdown",
+          "name": "YnDropdownPick",
           "declaration": {
-            "name": "YnDropdown",
-            "module": "src/components/yn-dropdown/yn-dropdown.ts"
+            "name": "YnDropdownPick",
+            "module": "src/components/yn-dropdown-pick/yn-dropdown-pick.ts"
           }
         }
       ]
@@ -5357,6 +5448,814 @@
     },
     {
       "kind": "javascript-module",
+      "path": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "向下拖拽绳端切换开/关。",
+          "name": "YnPullCordSwitch",
+          "slots": [
+            {
+              "name": "",
+              "description": "关闭态绳端内容（推荐 `yn-button`）"
+            },
+            {
+              "name": "activated",
+              "description": "开启态绳端内容（`slot=\"activated\"`）"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "checked"
+            },
+            {
+              "kind": "field",
+              "name": "glowUp",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下半圆）",
+              "attribute": "glow-up"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "fixed",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "fixed"
+            },
+            {
+              "kind": "field",
+              "name": "reverse",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "reverse"
+            },
+            {
+              "kind": "field",
+              "name": "variant",
+              "type": {
+                "text": "\"default\" | \"floema\""
+              },
+              "default": "\"default\"",
+              "attribute": "variant"
+            },
+            {
+              "kind": "field",
+              "name": "size",
+              "type": {
+                "text": "\"mini\" | \"small\" | \"medium\""
+              },
+              "default": "\"mini\"",
+              "attribute": "size"
+            },
+            {
+              "kind": "field",
+              "name": "ropeLength",
+              "default": "DEFAULT_ROPE_LENGTH",
+              "description": "绳子长度（px），默认与原先 mini 一致；与 `size` 解耦，仅控制绳身高度与物理参数",
+              "attribute": "rope-length"
+            },
+            {
+              "kind": "field",
+              "name": "fixedX",
+              "type": {
+                "text": "number | undefined"
+              },
+              "attribute": "fixed-x"
+            },
+            {
+              "kind": "field",
+              "name": "top",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "仅 `fixed=true` 时：距视口顶部的偏移（px，可为负）；负值 hover 滑出完全露出",
+              "attribute": "top"
+            },
+            {
+              "kind": "field",
+              "name": "toggleThreshold",
+              "type": {
+                "text": "number | undefined"
+              },
+              "attribute": "toggle-threshold"
+            },
+            {
+              "kind": "field",
+              "name": "cardOffset",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "绳端卡片距绳头的间距（px，可为负）；未设置时随 `rope-length` 缩放。负值时 fixed 负偏移的 hover 滑出不可用",
+              "attribute": "card-offset"
+            },
+            {
+              "kind": "field",
+              "name": "zIndex",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "description": "组件层级（映射 `--yn-pull-cord-switch-z-index`）；fixed 模式下控制相对页面的叠放顺序",
+              "attribute": "z-index"
+            },
+            {
+              "kind": "field",
+              "name": "ropeCanvas",
+              "type": {
+                "text": "HTMLCanvasElement | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "cardEl",
+              "type": {
+                "text": "HTMLElement | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "fixedGripEl",
+              "type": {
+                "text": "HTMLElement | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "stageEl",
+              "type": {
+                "text": "HTMLElement | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "engine",
+              "type": {
+                "text": "PullCordRopeEngine | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "fixedDrag",
+              "type": {
+                "text": "PullCordFixedDrag | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "hasDefaultSlot",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "hasActivatedSlot",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "cardMode",
+              "type": {
+                "text": "CardMode"
+              },
+              "privacy": "private",
+              "default": "\"fallback\""
+            },
+            {
+              "kind": "field",
+              "name": "peeking",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "stageOffset",
+              "type": {
+                "text": "object"
+              },
+              "privacy": "private",
+              "default": "{ x: 0, y: 0 }"
+            },
+            {
+              "kind": "field",
+              "name": "stageOffsetValid",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "slotsBound",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "cardMetricsCache",
+              "type": {
+                "text": "{ width: number; height: number } | null"
+              },
+              "privacy": "private",
+              "default": "null"
+            },
+            {
+              "kind": "field",
+              "name": "onHostPointerEnter",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onHostPointerLeave",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "onSlotChange",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { display: block; position: relative; z-index: var(--yn-pull-cord-switch-z-index, 1); width: 100%; height: var(--yn-pull-cord-switch-height); background: transparent; touch-action: none; user-select: none; -webkit-user-select: none; --yn-pull-cord-switch-height: 260px; --yn-pull-cord-switch-segment-count: 8; --yn-pull-cord-switch-segment-len: 10px; --yn-pull-cord-switch-card-offset: 20px; --yn-pull-cord-switch-max-pull: 84px; --yn-pull-cord-switch-toggle-threshold: 52px; --yn-pull-cord-switch-canvas-width: 100%; --yn-pull-cord-switch-glow-up-bleed: 72px; --yn-pull-cord-switch-slot-transition-duration: 0.28s; --yn-pull-cord-switch-fixed-peek-transition-duration: 0.34s; --yn-pull-cord-switch-slot-button-scale: 0.88; } :host([disabled]) { opacity: var(--yn-pull-cord-switch-disabled-opacity, 0.55); cursor: not-allowed; } :host([size=\"mini\"]) { --yn-pull-cord-switch-ceiling-width: 44; --yn-pull-cord-switch-rope-width: 2.5; --yn-pull-cord-switch-rope-shadow-width: 4; --yn-pull-cord-switch-card-width: 52px; --yn-pull-cord-switch-card-height: 30px; --yn-pull-cord-switch-card-radius: 7px; --yn-pull-cord-switch-card-padding: 4px 6px; --yn-pull-cord-switch-card-gap: 2px; --yn-pull-cord-switch-card-dot-size: 7px; --yn-pull-cord-switch-card-label-size: 8px; } :host([size=\"small\"]) { --yn-pull-cord-switch-ceiling-width: 50; --yn-pull-cord-switch-rope-width: 2.75; --yn-pull-cord-switch-rope-shadow-width: 4.5; --yn-pull-cord-switch-card-width: 62px; --yn-pull-cord-switch-card-height: 34px; --yn-pull-cord-switch-card-radius: 8px; --yn-pull-cord-switch-card-padding: 5px 7px; --yn-pull-cord-switch-card-gap: 3px; --yn-pull-cord-switch-card-dot-size: 8px; --yn-pull-cord-switch-card-label-size: 9px; } :host([size=\"medium\"]) { --yn-pull-cord-switch-ceiling-width: 56; --yn-pull-cord-switch-rope-width: 3; --yn-pull-cord-switch-rope-shadow-width: 5; --yn-pull-cord-switch-card-width: 72px; --yn-pull-cord-switch-card-height: 40px; --yn-pull-cord-switch-card-radius: 9px; --yn-pull-cord-switch-card-padding: 6px 8px; --yn-pull-cord-switch-card-gap: 3px; --yn-pull-cord-switch-card-dot-size: 9px; --yn-pull-cord-switch-card-label-size: 10px; } :host([variant=\"floema\"][size=\"mini\"]) { --yn-pull-cord-switch-card-width: 56px; --yn-pull-cord-switch-card-height: 32px; --yn-pull-cord-switch-card-radius: 8px; } :host([variant=\"floema\"][size=\"small\"]) { --yn-pull-cord-switch-card-width: 66px; --yn-pull-cord-switch-card-height: 38px; --yn-pull-cord-switch-card-radius: 10px; } :host([variant=\"floema\"][size=\"medium\"]) { --yn-pull-cord-switch-card-width: 76px; --yn-pull-cord-switch-card-height: 44px; --yn-pull-cord-switch-card-radius: 11px; } :host([variant=\"default\"]) { --yn-pull-cord-switch-bg-top: var(--yn-color-cord-night-bg-top, #1a1d24); --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-night-bg-bottom, #12141a); --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-night-bg-on-top, #2a2830); --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-night-bg-on-bottom, #15141a); --yn-pull-cord-switch-accent: var(--yn-color-cord-night-accent, rgba(255, 214, 102, 0.35)); --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-night-ceiling-bg, rgba(255, 255, 255, 0.08)); --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-night-anchor, #4a4f5c); --yn-pull-cord-switch-rope-start: var(--yn-color-cord-night-rope-start, #6b5d4f); --yn-pull-cord-switch-rope-end: var(--yn-color-cord-night-rope-end, #9a8468); --yn-pull-cord-switch-card-bg: var(--yn-color-cord-night-card-bg, linear-gradient(180deg, #343a46 0%, #22262e 100%)); --yn-pull-cord-switch-card-border: var(--yn-color-cord-night-card-border, rgba(255, 255, 255, 0.1)); --yn-pull-cord-switch-card-color: var(--yn-color-cord-night-card-color, rgba(255, 255, 255, 0.88)); --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-night-card-shadow, 0 8px 16px rgba(0, 0, 0, 0.45)); --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-night-card-bg-on, linear-gradient(180deg, #3d4454 0%, #252a34 100%)); --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-night-card-border-on, rgba(255, 214, 102, 0.45)); --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-night-card-color-on, #ffd666); } :host([variant=\"floema\"]) { --yn-pull-cord-switch-bg-top: var(--yn-color-cord-day-bg-top, #ebe4d4); --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-day-bg-bottom, #ddd6c4); --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-day-bg-on-top, #f2e8cf); --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-day-bg-on-bottom, #e5d6b4); --yn-pull-cord-switch-accent: var(--yn-color-cord-day-accent, rgba(212, 165, 116, 0.5)); --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-day-ceiling-bg, rgba(32, 35, 29, 0.07)); --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-day-anchor, #586247); --yn-pull-cord-switch-rope-start: var(--yn-color-cord-day-rope-start, #6f5f4d); --yn-pull-cord-switch-rope-end: var(--yn-color-cord-day-rope-end, #a0896c); --yn-pull-cord-switch-card-bg: var(--yn-color-cord-day-card-bg, linear-gradient(180deg, #f8f3ea 0%, #ebe4d4 100%)); --yn-pull-cord-switch-card-border: var(--yn-color-cord-day-card-border, rgba(32, 35, 29, 0.12)); --yn-pull-cord-switch-card-color: var(--yn-color-cord-day-card-color, #20231d); --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-day-card-shadow, 0 14px 28px rgba(48, 42, 34, 0.16)); --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-day-card-bg-on, linear-gradient(180deg, #6d7a58 0%, #586247 100%)); --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-day-card-border-on, rgba(243, 237, 223, 0.28)); --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-day-card-color-on, #f8f3ea); } :host([fixed]) { position: fixed; top: var(--yn-pull-cord-switch-fixed-top, 0); width: var(--yn-pull-cord-switch-fixed-width, 112px); height: var(--yn-pull-cord-switch-fixed-height, 220px); z-index: var(--yn-pull-cord-switch-z-index, var(--yn-pull-cord-switch-fixed-z, 1)); pointer-events: none; overflow: visible; --yn-pull-cord-switch-fixed-height: 220px; /* host 仅 ~112px 宽，但光晕至少 280px；canvas 需宽于 host，居中绘制 */ --yn-pull-cord-switch-canvas-width: max(100%, 280px); } :host([fixed][data-fixed-peekable]) { pointer-events: auto; transition: left var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1), top var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1); will-change: left, top; } :host([fixed][data-fixed-dragging]), :host([fixed][data-fixed-layout-lock]) { transition: none; } :host([fixed][size=\"mini\"]) { --yn-pull-cord-switch-fixed-width: 112px; } :host([fixed][size=\"small\"]) { --yn-pull-cord-switch-fixed-width: 128px; } :host([fixed][size=\"medium\"]) { --yn-pull-cord-switch-fixed-width: 144px; } .stage { position: relative; width: 100%; height: 100%; overflow: visible; background: transparent; border-radius: var(--yn-pull-cord-switch-radius, 12px); } .fixed-grip { position: absolute; top: 0; left: 0; right: 0; height: 28px; z-index: 2; cursor: ew-resize; touch-action: none; pointer-events: auto; } .fixed-grip[hidden] { display: none; } canvas.rope { z-index: 0; position: absolute; top: 0; left: 50%; width: var(--yn-pull-cord-switch-canvas-width, 100%); height: 100%; transform: translateX(-50%); display: block; background: transparent; cursor: grab; } :host([glow-up]) canvas.rope { top: calc(-1 * var(--yn-pull-cord-switch-glow-up-bleed)); height: calc(100% + var(--yn-pull-cord-switch-glow-up-bleed)); } :host([disabled]) canvas.rope { pointer-events: none; cursor: not-allowed; } .card { position: absolute; left: 0; top: 0; width: var(--yn-pull-cord-switch-card-width); min-height: var(--yn-pull-cord-switch-card-height); transform: translate(-50%, -50%); border-radius: var(--yn-pull-cord-switch-card-radius); background: var(--yn-pull-cord-switch-card-bg); border: 1.5px solid var(--yn-pull-cord-switch-card-border); box-shadow: var(--yn-pull-cord-switch-card-shadow); color: var(--yn-pull-cord-switch-card-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--yn-pull-cord-switch-card-gap); padding: var(--yn-pull-cord-switch-card-padding); box-sizing: border-box; pointer-events: none; z-index: 1; will-change: transform; } :host([checked][data-card-mode=\"fallback\"]) .card { background: var(--yn-pull-cord-switch-card-bg-on); border-color: var(--yn-pull-cord-switch-card-border-on); color: var(--yn-pull-cord-switch-card-color-on); } :host([data-card-mode=\"fallback\"]) .card { height: var(--yn-pull-cord-switch-card-height); } :host([data-card-mode=\"fallback\"]) .card__layers { height: 100%; min-height: 100%; } .card__fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--yn-pull-cord-switch-card-gap); width: 100%; height: 100%; box-sizing: border-box; } :host([data-card-mode=\"default-slot\"]) .card, :host([data-card-mode=\"dual-slot\"]) .card { background: transparent; border-color: transparent; box-shadow: none; padding: 0; min-height: 0; width: auto; pointer-events: auto; cursor: grab; } :host([data-card-mode=\"default-slot\"]) ::slotted(yn-button), :host([data-card-mode=\"dual-slot\"]) ::slotted(yn-button) { transform: scale(var(--yn-pull-cord-switch-slot-button-scale)); transform-origin: top center; pointer-events: auto; cursor: grab; } :host([disabled][data-card-mode=\"default-slot\"]) .card, :host([disabled][data-card-mode=\"dual-slot\"]) .card, :host([disabled]) ::slotted(yn-button) { pointer-events: none; cursor: not-allowed; } :host([fixed]) .card { pointer-events: auto; z-index: 10000; } .card__layers { display: grid; place-items: center; width: 100%; min-height: inherit; } .card__layer { grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: translateY(6px); transition: opacity var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1), transform var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none; } .card__layer--active { opacity: 1; transform: translateY(0); pointer-events: auto; } .card__layer[aria-hidden=\"true\"] { visibility: hidden; } .card__fallback[aria-hidden=\"true\"] { display: none; } .card__dot { width: var(--yn-pull-cord-switch-card-dot-size); height: var(--yn-pull-cord-switch-card-dot-size); border-radius: 50%; background: currentColor; opacity: 0.85; } .card__label { font-size: var(--yn-pull-cord-switch-card-label-size); font-weight: 600; letter-spacing: 0.04em; line-height: 1; display: block; } `"
+            },
+            {
+              "kind": "method",
+              "name": "updated",
+              "privacy": "protected",
+              "parameters": [
+                {
+                  "name": "changed",
+                  "type": {
+                    "text": "Map<PropertyKey, unknown>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "refreshSlotFlags",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "bindSlotListeners",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "unbindSlotListeners",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "invalidateCardMetrics",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "invalidateStageOffset",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncRopeLengthVars",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "usesSlotCard",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncZIndex",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "cardTransformAnchor",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncCardModeAttr",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "showFallback",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "getResolvedCardOffset",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "number"
+                }
+              }
+            },
+            {
+              "kind": "field",
+              "name": "isPeekable",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "syncFixedTop",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "setupFixedMode",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "teardownFixedMode",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "applyInitialFixedPosition",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncPeekableAttr",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "handlePeekEnter",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "handlePeekLeave",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "dispatchFixedMove",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "getCanvasStageOffset",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "getActiveCardVisualEl",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "Element | null"
+                }
+              },
+              "description": "绳端可见元素（插槽按钮含 scale 后的视觉包围盒）"
+            },
+            {
+              "kind": "method",
+              "name": "measureCardMetrics",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "syncEngineInteractionTargets",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "mountEngine",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "setChecked",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "text": "boolean"
+                  }
+                },
+                {
+                  "name": "fromUser",
+                  "type": {
+                    "text": "boolean"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "renderFallback",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "renderCardBody",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "render"
+            }
+          ],
+          "events": [
+            {
+              "name": "fixed-move",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "`fixed` 模式下水平拖拽结束，`detail: { x, reverse }`"
+            },
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "开关变化，`detail.checked` 为当前状态"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-pull-cord-switch",
+          "summary": "抽绳开关：下拉绳端切换开/关。`fixed` 吸顶；`glow-up` 顶灯上扩。Shadow DOM，请用下方 CSS 变量覆写。",
+          "attributes": [
+            {
+              "name": "checked",
+              "fieldName": "checked",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "是否开启（绳端处于拉开/ON 状态）。",
+              "default": "false"
+            },
+            {
+              "name": "glow-up",
+              "fieldName": "glowUp",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下）。",
+              "default": "false"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "禁用拖拽与切换。",
+              "default": "false"
+            },
+            {
+              "name": "fixed",
+              "fieldName": "fixed",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "吸附视口；配合 `fixed-x`、`top` 定位。",
+              "default": "false"
+            },
+            {
+              "name": "reverse",
+              "fieldName": "reverse",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "`fixed-x` 是否自视口右侧起算。",
+              "default": "false"
+            },
+            {
+              "name": "variant",
+              "fieldName": "variant",
+              "type": {
+                "text": "\"default\" | \"floema\""
+              },
+              "description": "绳/卡片视觉主题。",
+              "default": "\"default\""
+            },
+            {
+              "name": "size",
+              "fieldName": "size",
+              "type": {
+                "text": "\"mini\" | \"small\" | \"medium\""
+              },
+              "description": "绳端卡片与绳粗细（不控制绳长）。",
+              "default": "\"mini\""
+            },
+            {
+              "name": "rope-length",
+              "fieldName": "ropeLength",
+              "description": "绳身长度（px），与 `size` 解耦，默认 260。",
+              "default": "DEFAULT_ROPE_LENGTH"
+            },
+            {
+              "name": "fixed-x",
+              "fieldName": "fixedX",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "水平偏移（px，可负）；未设则居中。"
+            },
+            {
+              "name": "top",
+              "fieldName": "top",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "距视口顶部（px，可负）；仅 fixed 时有效。"
+            },
+            {
+              "name": "toggle-threshold",
+              "fieldName": "toggleThreshold",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "下拉切换阈值（px）；未设则随绳长缩放。"
+            },
+            {
+              "name": "card-offset",
+              "fieldName": "cardOffset",
+              "type": {
+                "text": "number | undefined"
+              },
+              "description": "绳端卡片距绳头间距（px，可为负）。"
+            },
+            {
+              "name": "z-index",
+              "fieldName": "zIndex",
+              "type": {
+                "text": "number"
+              },
+              "description": "叠放层级（同步写入 CSS 变量）。",
+              "default": "1"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-pull-cord-switch-accent",
+              "description": "开启态顶灯光晕颜色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-anchor-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-bottom",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-on-bottom",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-on-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-bg-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-canvas-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-bg",
+              "description": "绳端卡片背景"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-bg-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-border",
+              "description": "绳端卡片边框"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-border-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-color",
+              "description": "绳端卡片文字色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-color-on",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-dot-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-label-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-offset",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-shadow",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-card-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-ceiling-bg",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-ceiling-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-disabled-opacity",
+              "description": "禁用透明度"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-peek-transition-duration",
+              "description": "fixed 负偏移 hover 动画时长"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-top",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-fixed-z",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-glow-up-bleed",
+              "description": "glow-up 时画布向上延展（px）"
+            },
+            {
+              "name": "--yn-pull-cord-switch-height",
+              "description": "组件区域高度"
+            },
+            {
+              "name": "--yn-pull-cord-switch-max-pull",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-end",
+              "description": "绳渐变终点色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-shadow-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-start",
+              "description": "绳渐变起点色"
+            },
+            {
+              "name": "--yn-pull-cord-switch-rope-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-segment-count",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-segment-len",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-slot-button-scale",
+              "description": "插槽内 yn-button 缩放"
+            },
+            {
+              "name": "--yn-pull-cord-switch-slot-transition-duration",
+              "description": "双插槽切换动画时长"
+            },
+            {
+              "name": "--yn-pull-cord-switch-toggle-threshold",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-pull-cord-switch-z-index",
+              "description": "叠放层级"
+            },
+            {
+              "name": "--yn-pull-cord-switch-anchor-y",
+              "description": "锚点额外下移（相对画布高度比例，0=贴顶）"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "DEFAULT_ROPE_LENGTH",
+          "declaration": {
+            "name": "DEFAULT_ROPE_LENGTH",
+            "module": "./pull-cord-layout"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "YnPullCordSwitch",
+          "declaration": {
+            "name": "YnPullCordSwitch",
+            "module": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "src/components/yn-search/yn-search.ts",
       "declarations": [
         {
@@ -6078,6 +6977,304 @@
           "declaration": {
             "name": "YnSearch",
             "module": "src/components/yn-search/yn-search.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/components/yn-quantity/yn-quantity.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Floema 风格产品数量选择器：胶囊容器、细线描边与 Zimula 衬线数字。",
+          "name": "YnQuantity",
+          "members": [
+            {
+              "kind": "field",
+              "name": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "attribute": "value"
+            },
+            {
+              "kind": "field",
+              "name": "min",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "attribute": "min"
+            },
+            {
+              "kind": "field",
+              "name": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "99",
+              "attribute": "max"
+            },
+            {
+              "kind": "field",
+              "name": "step",
+              "type": {
+                "text": "number"
+              },
+              "default": "1",
+              "attribute": "step"
+            },
+            {
+              "kind": "field",
+              "name": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false",
+              "attribute": "disabled"
+            },
+            {
+              "kind": "field",
+              "name": "styles",
+              "static": true,
+              "default": "css` :host { --yn-quantity-width: auto; --yn-quantity-height: 44px; --yn-quantity-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-quantity-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-quantity-bg-focus: var(--yn-color-surface-focus, #fffaf2); --yn-quantity-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-quantity-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-quantity-border-color-focus: var(--yn-color-border-focus, #241f21); --yn-quantity-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12)); --yn-quantity-color: var(--yn-color-text, #241f21); --yn-quantity-muted-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-quantity-divider-color: var(--yn-color-divider, rgba(36, 31, 33, 0.14)); --yn-quantity-button-size: 32px; --yn-quantity-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-quantity-button-bg-active: var(--yn-color-overlay-active, rgba(36, 31, 33, 0.14)); --yn-quantity-button-hover-radius: 999px; --yn-quantity-inner-gap: 6px; --yn-quantity-padding: 4px 6px; --yn-quantity-radius: 999px; --yn-quantity-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-quantity-font-size: 16px; --yn-quantity-letter-spacing: -0.01em; --yn-quantity-value-min-width: 2.5ch; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .stepper { display: inline-flex; align-items: center; gap: var(--yn-quantity-inner-gap); width: var(--yn-quantity-width); min-width: 0; height: var(--yn-quantity-height); padding: var(--yn-quantity-padding); border: 1px solid var(--yn-quantity-border-color); border-radius: var(--yn-quantity-radius); background: var(--yn-quantity-bg); overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), box-shadow 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1); } .stepper:hover:not(.is-disabled) { border-color: var(--yn-quantity-border-color-hover); background: var(--yn-quantity-bg-hover); } .stepper:focus-within:not(.is-disabled) { border-color: var(--yn-quantity-border-color-focus); background: var(--yn-quantity-bg-focus); box-shadow: 0 0 0 3px var(--yn-quantity-focus-ring); } .stepper.is-disabled { opacity: 0.72; pointer-events: none; } .btn { position: relative; width: var(--yn-quantity-button-size); height: var(--yn-quantity-button-size); flex: 0 0 var(--yn-quantity-button-size); display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--yn-quantity-color); padding: 0; cursor: pointer; } .btn::before { content: \"\"; position: absolute; inset: 0; border-radius: var(--yn-quantity-button-hover-radius); background: transparent; transition: background-color 180ms ease, transform 160ms ease; } .btn:hover:not(:disabled)::before { background: var(--yn-quantity-button-bg-hover); } .btn:active:not(:disabled)::before { background: var(--yn-quantity-button-bg-active); transform: scale(0.94); } .btn:focus-visible::before { outline: 2px solid var(--yn-quantity-color); outline-offset: 0; } .btn svg { position: relative; z-index: 1; } .btn:disabled { color: var(--yn-quantity-muted-color); cursor: not-allowed; } .value-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: var(--yn-quantity-value-min-width); flex: 1 1 auto; padding: 0 4px; } .value-wrap::before, .value-wrap::after { content: \"\"; position: absolute; top: 22%; bottom: 22%; width: 1px; background: var(--yn-quantity-divider-color); } .value-wrap::before { left: 0; } .value-wrap::after { right: 0; } .value { width: 100%; min-width: var(--yn-quantity-value-min-width); border: 0; background: transparent; color: var(--yn-quantity-color); font-family: var(--yn-quantity-font-family); font-size: var(--yn-quantity-font-size); letter-spacing: var(--yn-quantity-letter-spacing); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; padding: 0; outline: none; -moz-appearance: textfield; appearance: textfield; } .value::-webkit-outer-spin-button, .value::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .value:disabled { color: var(--yn-quantity-muted-color); } `"
+            },
+            {
+              "kind": "field",
+              "name": "boundedValue",
+              "privacy": "private",
+              "readonly": true
+            },
+            {
+              "kind": "method",
+              "name": "emitChange",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "setValue",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "next",
+                  "type": {
+                    "text": "number"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "handleDecrease",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "handleIncrease",
+              "privacy": "private"
+            },
+            {
+              "kind": "method",
+              "name": "handleInput",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "handleBlur",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "event",
+                  "type": {
+                    "text": "Event"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "render"
+            }
+          ],
+          "events": [
+            {
+              "name": "change",
+              "type": {
+                "text": "CustomEvent"
+              },
+              "description": "数量变化时触发，`detail.value` 为当前数量。"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "customElement": true,
+          "tagName": "yn-quantity",
+          "summary": "Floema 风格产品数量选择器。",
+          "attributes": [
+            {
+              "name": "value",
+              "fieldName": "value",
+              "type": {
+                "text": "number"
+              },
+              "default": "1"
+            },
+            {
+              "name": "min",
+              "fieldName": "min",
+              "type": {
+                "text": "number"
+              },
+              "default": "1"
+            },
+            {
+              "name": "max",
+              "fieldName": "max",
+              "type": {
+                "text": "number"
+              },
+              "default": "99"
+            },
+            {
+              "name": "step",
+              "fieldName": "step",
+              "type": {
+                "text": "number"
+              },
+              "default": "1"
+            },
+            {
+              "name": "disabled",
+              "fieldName": "disabled",
+              "type": {
+                "text": "boolean"
+              },
+              "default": "false"
+            }
+          ],
+          "cssProperties": [
+            {
+              "name": "--yn-quantity-bg",
+              "description": "容器背景"
+            },
+            {
+              "name": "--yn-quantity-bg-focus",
+              "description": "聚焦背景"
+            },
+            {
+              "name": "--yn-quantity-bg-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-border-color",
+              "description": "边框颜色"
+            },
+            {
+              "name": "--yn-quantity-border-color-focus",
+              "description": "聚焦边框颜色"
+            },
+            {
+              "name": "--yn-quantity-border-color-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-button-bg-active",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-button-bg-hover",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-button-hover-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-button-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-color",
+              "description": "数字与图标颜色"
+            },
+            {
+              "name": "--yn-quantity-divider-color",
+              "description": "中间分隔线"
+            },
+            {
+              "name": "--yn-quantity-focus-ring",
+              "description": "聚焦外圈阴影"
+            },
+            {
+              "name": "--yn-quantity-font-family",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-font-size",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-height",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-inner-gap",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-letter-spacing",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-muted-color",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-padding",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-radius",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-value-min-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            },
+            {
+              "name": "--yn-quantity-width",
+              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "YnQuantity",
+          "declaration": {
+            "name": "YnQuantity",
+            "module": "src/components/yn-quantity/yn-quantity.ts"
           }
         }
       ]
@@ -7354,1112 +8551,6 @@
           "declaration": {
             "name": "YnToast",
             "module": "src/components/yn-toast/yn-toast.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "向下拖拽绳端切换开/关。",
-          "name": "YnPullCordSwitch",
-          "slots": [
-            {
-              "name": "",
-              "description": "关闭态绳端内容（推荐 `yn-button`）"
-            },
-            {
-              "name": "activated",
-              "description": "开启态绳端内容（`slot=\"activated\"`）"
-            }
-          ],
-          "members": [
-            {
-              "kind": "field",
-              "name": "checked",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "checked"
-            },
-            {
-              "kind": "field",
-              "name": "glowUp",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下半圆）",
-              "attribute": "glow-up"
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "disabled"
-            },
-            {
-              "kind": "field",
-              "name": "fixed",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "fixed"
-            },
-            {
-              "kind": "field",
-              "name": "reverse",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "reverse"
-            },
-            {
-              "kind": "field",
-              "name": "variant",
-              "type": {
-                "text": "\"default\" | \"floema\""
-              },
-              "default": "\"default\"",
-              "attribute": "variant"
-            },
-            {
-              "kind": "field",
-              "name": "size",
-              "type": {
-                "text": "\"mini\" | \"small\" | \"medium\""
-              },
-              "default": "\"mini\"",
-              "attribute": "size"
-            },
-            {
-              "kind": "field",
-              "name": "ropeLength",
-              "default": "DEFAULT_ROPE_LENGTH",
-              "description": "绳子长度（px），默认与原先 mini 一致；与 `size` 解耦，仅控制绳身高度与物理参数",
-              "attribute": "rope-length"
-            },
-            {
-              "kind": "field",
-              "name": "fixedX",
-              "type": {
-                "text": "number | undefined"
-              },
-              "attribute": "fixed-x"
-            },
-            {
-              "kind": "field",
-              "name": "top",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "仅 `fixed=true` 时：距视口顶部的偏移（px，可为负）；负值 hover 滑出完全露出",
-              "attribute": "top"
-            },
-            {
-              "kind": "field",
-              "name": "toggleThreshold",
-              "type": {
-                "text": "number | undefined"
-              },
-              "attribute": "toggle-threshold"
-            },
-            {
-              "kind": "field",
-              "name": "cardOffset",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "绳端卡片距绳头的间距（px，可为负）；未设置时随 `rope-length` 缩放。负值时 fixed 负偏移的 hover 滑出不可用",
-              "attribute": "card-offset"
-            },
-            {
-              "kind": "field",
-              "name": "zIndex",
-              "type": {
-                "text": "number"
-              },
-              "default": "1",
-              "description": "组件层级（映射 `--yn-pull-cord-switch-z-index`）；fixed 模式下控制相对页面的叠放顺序",
-              "attribute": "z-index"
-            },
-            {
-              "kind": "field",
-              "name": "ropeCanvas",
-              "type": {
-                "text": "HTMLCanvasElement | undefined"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "cardEl",
-              "type": {
-                "text": "HTMLElement | undefined"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "fixedGripEl",
-              "type": {
-                "text": "HTMLElement | undefined"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "stageEl",
-              "type": {
-                "text": "HTMLElement | undefined"
-              },
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "engine",
-              "type": {
-                "text": "PullCordRopeEngine | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "fixedDrag",
-              "type": {
-                "text": "PullCordFixedDrag | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "hasDefaultSlot",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "hasActivatedSlot",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "cardMode",
-              "type": {
-                "text": "CardMode"
-              },
-              "privacy": "private",
-              "default": "\"fallback\""
-            },
-            {
-              "kind": "field",
-              "name": "peeking",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "stageOffset",
-              "type": {
-                "text": "object"
-              },
-              "privacy": "private",
-              "default": "{ x: 0, y: 0 }"
-            },
-            {
-              "kind": "field",
-              "name": "stageOffsetValid",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "slotsBound",
-              "type": {
-                "text": "boolean"
-              },
-              "privacy": "private",
-              "default": "false"
-            },
-            {
-              "kind": "field",
-              "name": "cardMetricsCache",
-              "type": {
-                "text": "{ width: number; height: number } | null"
-              },
-              "privacy": "private",
-              "default": "null"
-            },
-            {
-              "kind": "field",
-              "name": "onHostPointerEnter",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "onHostPointerLeave",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "onSlotChange",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { display: block; position: relative; z-index: var(--yn-pull-cord-switch-z-index, 1); width: 100%; height: var(--yn-pull-cord-switch-height); background: transparent; touch-action: none; user-select: none; -webkit-user-select: none; --yn-pull-cord-switch-height: 260px; --yn-pull-cord-switch-segment-count: 8; --yn-pull-cord-switch-segment-len: 10px; --yn-pull-cord-switch-card-offset: 20px; --yn-pull-cord-switch-max-pull: 84px; --yn-pull-cord-switch-toggle-threshold: 52px; --yn-pull-cord-switch-canvas-width: 100%; --yn-pull-cord-switch-glow-up-bleed: 72px; --yn-pull-cord-switch-slot-transition-duration: 0.28s; --yn-pull-cord-switch-fixed-peek-transition-duration: 0.34s; --yn-pull-cord-switch-slot-button-scale: 0.88; } :host([disabled]) { opacity: var(--yn-pull-cord-switch-disabled-opacity, 0.55); cursor: not-allowed; } :host([size=\"mini\"]) { --yn-pull-cord-switch-ceiling-width: 44; --yn-pull-cord-switch-rope-width: 2.5; --yn-pull-cord-switch-rope-shadow-width: 4; --yn-pull-cord-switch-card-width: 52px; --yn-pull-cord-switch-card-height: 30px; --yn-pull-cord-switch-card-radius: 7px; --yn-pull-cord-switch-card-padding: 4px 6px; --yn-pull-cord-switch-card-gap: 2px; --yn-pull-cord-switch-card-dot-size: 7px; --yn-pull-cord-switch-card-label-size: 8px; } :host([size=\"small\"]) { --yn-pull-cord-switch-ceiling-width: 50; --yn-pull-cord-switch-rope-width: 2.75; --yn-pull-cord-switch-rope-shadow-width: 4.5; --yn-pull-cord-switch-card-width: 62px; --yn-pull-cord-switch-card-height: 34px; --yn-pull-cord-switch-card-radius: 8px; --yn-pull-cord-switch-card-padding: 5px 7px; --yn-pull-cord-switch-card-gap: 3px; --yn-pull-cord-switch-card-dot-size: 8px; --yn-pull-cord-switch-card-label-size: 9px; } :host([size=\"medium\"]) { --yn-pull-cord-switch-ceiling-width: 56; --yn-pull-cord-switch-rope-width: 3; --yn-pull-cord-switch-rope-shadow-width: 5; --yn-pull-cord-switch-card-width: 72px; --yn-pull-cord-switch-card-height: 40px; --yn-pull-cord-switch-card-radius: 9px; --yn-pull-cord-switch-card-padding: 6px 8px; --yn-pull-cord-switch-card-gap: 3px; --yn-pull-cord-switch-card-dot-size: 9px; --yn-pull-cord-switch-card-label-size: 10px; } :host([variant=\"floema\"][size=\"mini\"]) { --yn-pull-cord-switch-card-width: 56px; --yn-pull-cord-switch-card-height: 32px; --yn-pull-cord-switch-card-radius: 8px; } :host([variant=\"floema\"][size=\"small\"]) { --yn-pull-cord-switch-card-width: 66px; --yn-pull-cord-switch-card-height: 38px; --yn-pull-cord-switch-card-radius: 10px; } :host([variant=\"floema\"][size=\"medium\"]) { --yn-pull-cord-switch-card-width: 76px; --yn-pull-cord-switch-card-height: 44px; --yn-pull-cord-switch-card-radius: 11px; } :host([variant=\"default\"]) { --yn-pull-cord-switch-bg-top: var(--yn-color-cord-night-bg-top, #1a1d24); --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-night-bg-bottom, #12141a); --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-night-bg-on-top, #2a2830); --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-night-bg-on-bottom, #15141a); --yn-pull-cord-switch-accent: var(--yn-color-cord-night-accent, rgba(255, 214, 102, 0.35)); --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-night-ceiling-bg, rgba(255, 255, 255, 0.08)); --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-night-anchor, #4a4f5c); --yn-pull-cord-switch-rope-start: var(--yn-color-cord-night-rope-start, #6b5d4f); --yn-pull-cord-switch-rope-end: var(--yn-color-cord-night-rope-end, #9a8468); --yn-pull-cord-switch-card-bg: var(--yn-color-cord-night-card-bg, linear-gradient(180deg, #343a46 0%, #22262e 100%)); --yn-pull-cord-switch-card-border: var(--yn-color-cord-night-card-border, rgba(255, 255, 255, 0.1)); --yn-pull-cord-switch-card-color: var(--yn-color-cord-night-card-color, rgba(255, 255, 255, 0.88)); --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-night-card-shadow, 0 8px 16px rgba(0, 0, 0, 0.45)); --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-night-card-bg-on, linear-gradient(180deg, #3d4454 0%, #252a34 100%)); --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-night-card-border-on, rgba(255, 214, 102, 0.45)); --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-night-card-color-on, #ffd666); } :host([variant=\"floema\"]) { --yn-pull-cord-switch-bg-top: var(--yn-color-cord-day-bg-top, #ebe4d4); --yn-pull-cord-switch-bg-bottom: var(--yn-color-cord-day-bg-bottom, #ddd6c4); --yn-pull-cord-switch-bg-on-top: var(--yn-color-cord-day-bg-on-top, #f2e8cf); --yn-pull-cord-switch-bg-on-bottom: var(--yn-color-cord-day-bg-on-bottom, #e5d6b4); --yn-pull-cord-switch-accent: var(--yn-color-cord-day-accent, rgba(212, 165, 116, 0.5)); --yn-pull-cord-switch-ceiling-bg: var(--yn-color-cord-day-ceiling-bg, rgba(32, 35, 29, 0.07)); --yn-pull-cord-switch-anchor-color: var(--yn-color-cord-day-anchor, #586247); --yn-pull-cord-switch-rope-start: var(--yn-color-cord-day-rope-start, #6f5f4d); --yn-pull-cord-switch-rope-end: var(--yn-color-cord-day-rope-end, #a0896c); --yn-pull-cord-switch-card-bg: var(--yn-color-cord-day-card-bg, linear-gradient(180deg, #f8f3ea 0%, #ebe4d4 100%)); --yn-pull-cord-switch-card-border: var(--yn-color-cord-day-card-border, rgba(32, 35, 29, 0.12)); --yn-pull-cord-switch-card-color: var(--yn-color-cord-day-card-color, #20231d); --yn-pull-cord-switch-card-shadow: var(--yn-color-cord-day-card-shadow, 0 14px 28px rgba(48, 42, 34, 0.16)); --yn-pull-cord-switch-card-bg-on: var(--yn-color-cord-day-card-bg-on, linear-gradient(180deg, #6d7a58 0%, #586247 100%)); --yn-pull-cord-switch-card-border-on: var(--yn-color-cord-day-card-border-on, rgba(243, 237, 223, 0.28)); --yn-pull-cord-switch-card-color-on: var(--yn-color-cord-day-card-color-on, #f8f3ea); } :host([fixed]) { position: fixed; top: var(--yn-pull-cord-switch-fixed-top, 0); width: var(--yn-pull-cord-switch-fixed-width, 112px); height: var(--yn-pull-cord-switch-fixed-height, 220px); z-index: var(--yn-pull-cord-switch-z-index, var(--yn-pull-cord-switch-fixed-z, 1)); pointer-events: none; overflow: visible; --yn-pull-cord-switch-fixed-height: 220px; /* host 仅 ~112px 宽，但光晕至少 280px；canvas 需宽于 host，居中绘制 */ --yn-pull-cord-switch-canvas-width: max(100%, 280px); } :host([fixed][data-fixed-peekable]) { pointer-events: auto; transition: left var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1), top var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1); will-change: left, top; } :host([fixed][data-fixed-dragging]), :host([fixed][data-fixed-layout-lock]) { transition: none; } :host([fixed][size=\"mini\"]) { --yn-pull-cord-switch-fixed-width: 112px; } :host([fixed][size=\"small\"]) { --yn-pull-cord-switch-fixed-width: 128px; } :host([fixed][size=\"medium\"]) { --yn-pull-cord-switch-fixed-width: 144px; } .stage { position: relative; width: 100%; height: 100%; overflow: visible; background: transparent; border-radius: var(--yn-pull-cord-switch-radius, 12px); } .fixed-grip { position: absolute; top: 0; left: 0; right: 0; height: 28px; z-index: 2; cursor: ew-resize; touch-action: none; pointer-events: auto; } .fixed-grip[hidden] { display: none; } canvas.rope { z-index: 0; position: absolute; top: 0; left: 50%; width: var(--yn-pull-cord-switch-canvas-width, 100%); height: 100%; transform: translateX(-50%); display: block; background: transparent; cursor: grab; } :host([glow-up]) canvas.rope { top: calc(-1 * var(--yn-pull-cord-switch-glow-up-bleed)); height: calc(100% + var(--yn-pull-cord-switch-glow-up-bleed)); } :host([disabled]) canvas.rope { pointer-events: none; cursor: not-allowed; } .card { position: absolute; left: 0; top: 0; width: var(--yn-pull-cord-switch-card-width); min-height: var(--yn-pull-cord-switch-card-height); transform: translate(-50%, -50%); border-radius: var(--yn-pull-cord-switch-card-radius); background: var(--yn-pull-cord-switch-card-bg); border: 1.5px solid var(--yn-pull-cord-switch-card-border); box-shadow: var(--yn-pull-cord-switch-card-shadow); color: var(--yn-pull-cord-switch-card-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--yn-pull-cord-switch-card-gap); padding: var(--yn-pull-cord-switch-card-padding); box-sizing: border-box; pointer-events: none; z-index: 1; will-change: transform; } :host([checked][data-card-mode=\"fallback\"]) .card { background: var(--yn-pull-cord-switch-card-bg-on); border-color: var(--yn-pull-cord-switch-card-border-on); color: var(--yn-pull-cord-switch-card-color-on); } :host([data-card-mode=\"fallback\"]) .card { height: var(--yn-pull-cord-switch-card-height); } :host([data-card-mode=\"fallback\"]) .card__layers { height: 100%; min-height: 100%; } .card__fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--yn-pull-cord-switch-card-gap); width: 100%; height: 100%; box-sizing: border-box; } :host([data-card-mode=\"default-slot\"]) .card, :host([data-card-mode=\"dual-slot\"]) .card { background: transparent; border-color: transparent; box-shadow: none; padding: 0; min-height: 0; width: auto; pointer-events: auto; cursor: grab; } :host([data-card-mode=\"default-slot\"]) ::slotted(yn-button), :host([data-card-mode=\"dual-slot\"]) ::slotted(yn-button) { transform: scale(var(--yn-pull-cord-switch-slot-button-scale)); transform-origin: top center; pointer-events: auto; cursor: grab; } :host([disabled][data-card-mode=\"default-slot\"]) .card, :host([disabled][data-card-mode=\"dual-slot\"]) .card, :host([disabled]) ::slotted(yn-button) { pointer-events: none; cursor: not-allowed; } :host([fixed]) .card { pointer-events: auto; z-index: 10000; } .card__layers { display: grid; place-items: center; width: 100%; min-height: inherit; } .card__layer { grid-area: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transform: translateY(6px); transition: opacity var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1), transform var(--yn-pull-cord-switch-slot-transition-duration) cubic-bezier(0.22, 1, 0.36, 1); pointer-events: none; } .card__layer--active { opacity: 1; transform: translateY(0); pointer-events: auto; } .card__layer[aria-hidden=\"true\"] { visibility: hidden; } .card__fallback[aria-hidden=\"true\"] { display: none; } .card__dot { width: var(--yn-pull-cord-switch-card-dot-size); height: var(--yn-pull-cord-switch-card-dot-size); border-radius: 50%; background: currentColor; opacity: 0.85; } .card__label { font-size: var(--yn-pull-cord-switch-card-label-size); font-weight: 600; letter-spacing: 0.04em; line-height: 1; display: block; } `"
-            },
-            {
-              "kind": "method",
-              "name": "updated",
-              "privacy": "protected",
-              "parameters": [
-                {
-                  "name": "changed",
-                  "type": {
-                    "text": "Map<PropertyKey, unknown>"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "refreshSlotFlags",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "bindSlotListeners",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "unbindSlotListeners",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "invalidateCardMetrics",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "invalidateStageOffset",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "syncRopeLengthVars",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "usesSlotCard",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "syncZIndex",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "cardTransformAnchor",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "syncCardModeAttr",
-              "privacy": "private"
-            },
-            {
-              "kind": "field",
-              "name": "showFallback",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "getResolvedCardOffset",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "number"
-                }
-              }
-            },
-            {
-              "kind": "field",
-              "name": "isPeekable",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "syncFixedTop",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "setupFixedMode",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "teardownFixedMode",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "applyInitialFixedPosition",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "syncPeekableAttr",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "handlePeekEnter",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "handlePeekLeave",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "dispatchFixedMove",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "getCanvasStageOffset",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "getActiveCardVisualEl",
-              "privacy": "private",
-              "return": {
-                "type": {
-                  "text": "Element | null"
-                }
-              },
-              "description": "绳端可见元素（插槽按钮含 scale 后的视觉包围盒）"
-            },
-            {
-              "kind": "method",
-              "name": "measureCardMetrics",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "syncEngineInteractionTargets",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "mountEngine",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "setChecked",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "next",
-                  "type": {
-                    "text": "boolean"
-                  }
-                },
-                {
-                  "name": "fromUser",
-                  "type": {
-                    "text": "boolean"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "renderFallback",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "renderCardBody",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "render"
-            }
-          ],
-          "events": [
-            {
-              "name": "fixed-move",
-              "type": {
-                "text": "CustomEvent"
-              },
-              "description": "`fixed` 模式下水平拖拽结束，`detail: { x, reverse }`"
-            },
-            {
-              "name": "change",
-              "type": {
-                "text": "CustomEvent"
-              },
-              "description": "开关变化，`detail.checked` 为当前状态"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-pull-cord-switch",
-          "summary": "抽绳开关：下拉绳端切换开/关。`fixed` 吸顶；`glow-up` 顶灯上扩。Shadow DOM，请用下方 CSS 变量覆写。",
-          "attributes": [
-            {
-              "name": "checked",
-              "fieldName": "checked",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "是否开启（绳端处于拉开/ON 状态）。",
-              "default": "false"
-            },
-            {
-              "name": "glow-up",
-              "fieldName": "glowUp",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "开启且 checked 时，顶灯光向锚点上方对称扩散（默认仅向下）。",
-              "default": "false"
-            },
-            {
-              "name": "disabled",
-              "fieldName": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "禁用拖拽与切换。",
-              "default": "false"
-            },
-            {
-              "name": "fixed",
-              "fieldName": "fixed",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "吸附视口；配合 `fixed-x`、`top` 定位。",
-              "default": "false"
-            },
-            {
-              "name": "reverse",
-              "fieldName": "reverse",
-              "type": {
-                "text": "boolean"
-              },
-              "description": "`fixed-x` 是否自视口右侧起算。",
-              "default": "false"
-            },
-            {
-              "name": "variant",
-              "fieldName": "variant",
-              "type": {
-                "text": "\"default\" | \"floema\""
-              },
-              "description": "绳/卡片视觉主题。",
-              "default": "\"default\""
-            },
-            {
-              "name": "size",
-              "fieldName": "size",
-              "type": {
-                "text": "\"mini\" | \"small\" | \"medium\""
-              },
-              "description": "绳端卡片与绳粗细（不控制绳长）。",
-              "default": "\"mini\""
-            },
-            {
-              "name": "rope-length",
-              "fieldName": "ropeLength",
-              "description": "绳身长度（px），与 `size` 解耦，默认 260。",
-              "default": "DEFAULT_ROPE_LENGTH"
-            },
-            {
-              "name": "fixed-x",
-              "fieldName": "fixedX",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "水平偏移（px，可负）；未设则居中。"
-            },
-            {
-              "name": "top",
-              "fieldName": "top",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "距视口顶部（px，可负）；仅 fixed 时有效。"
-            },
-            {
-              "name": "toggle-threshold",
-              "fieldName": "toggleThreshold",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "下拉切换阈值（px）；未设则随绳长缩放。"
-            },
-            {
-              "name": "card-offset",
-              "fieldName": "cardOffset",
-              "type": {
-                "text": "number | undefined"
-              },
-              "description": "绳端卡片距绳头间距（px，可为负）。"
-            },
-            {
-              "name": "z-index",
-              "fieldName": "zIndex",
-              "type": {
-                "text": "number"
-              },
-              "description": "叠放层级（同步写入 CSS 变量）。",
-              "default": "1"
-            }
-          ],
-          "cssProperties": [
-            {
-              "name": "--yn-pull-cord-switch-accent",
-              "description": "开启态顶灯光晕颜色"
-            },
-            {
-              "name": "--yn-pull-cord-switch-anchor-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-bg-bottom",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-bg-on-bottom",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-bg-on-top",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-bg-top",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-canvas-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-bg",
-              "description": "绳端卡片背景"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-bg-on",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-border",
-              "description": "绳端卡片边框"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-border-on",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-color",
-              "description": "绳端卡片文字色"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-color-on",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-dot-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-gap",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-height",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-label-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-offset",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-padding",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-shadow",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-card-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-ceiling-bg",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-ceiling-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-disabled-opacity",
-              "description": "禁用透明度"
-            },
-            {
-              "name": "--yn-pull-cord-switch-fixed-height",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-fixed-peek-transition-duration",
-              "description": "fixed 负偏移 hover 动画时长"
-            },
-            {
-              "name": "--yn-pull-cord-switch-fixed-top",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-fixed-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-fixed-z",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-glow-up-bleed",
-              "description": "glow-up 时画布向上延展（px）"
-            },
-            {
-              "name": "--yn-pull-cord-switch-height",
-              "description": "组件区域高度"
-            },
-            {
-              "name": "--yn-pull-cord-switch-max-pull",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-rope-end",
-              "description": "绳渐变终点色"
-            },
-            {
-              "name": "--yn-pull-cord-switch-rope-shadow-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-rope-start",
-              "description": "绳渐变起点色"
-            },
-            {
-              "name": "--yn-pull-cord-switch-rope-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-segment-count",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-segment-len",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-slot-button-scale",
-              "description": "插槽内 yn-button 缩放"
-            },
-            {
-              "name": "--yn-pull-cord-switch-slot-transition-duration",
-              "description": "双插槽切换动画时长"
-            },
-            {
-              "name": "--yn-pull-cord-switch-toggle-threshold",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-pull-cord-switch-z-index",
-              "description": "叠放层级"
-            },
-            {
-              "name": "--yn-pull-cord-switch-anchor-y",
-              "description": "锚点额外下移（相对画布高度比例，0=贴顶）"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "DEFAULT_ROPE_LENGTH",
-          "declaration": {
-            "name": "DEFAULT_ROPE_LENGTH",
-            "module": "./pull-cord-layout"
-          }
-        },
-        {
-          "kind": "js",
-          "name": "YnPullCordSwitch",
-          "declaration": {
-            "name": "YnPullCordSwitch",
-            "module": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts"
-          }
-        }
-      ]
-    },
-    {
-      "kind": "javascript-module",
-      "path": "src/components/yn-quantity/yn-quantity.ts",
-      "declarations": [
-        {
-          "kind": "class",
-          "description": "Floema 风格产品数量选择器：胶囊容器、细线描边与 Zimula 衬线数字。",
-          "name": "YnQuantity",
-          "members": [
-            {
-              "kind": "field",
-              "name": "value",
-              "type": {
-                "text": "number"
-              },
-              "default": "1",
-              "attribute": "value"
-            },
-            {
-              "kind": "field",
-              "name": "min",
-              "type": {
-                "text": "number"
-              },
-              "default": "1",
-              "attribute": "min"
-            },
-            {
-              "kind": "field",
-              "name": "max",
-              "type": {
-                "text": "number"
-              },
-              "default": "99",
-              "attribute": "max"
-            },
-            {
-              "kind": "field",
-              "name": "step",
-              "type": {
-                "text": "number"
-              },
-              "default": "1",
-              "attribute": "step"
-            },
-            {
-              "kind": "field",
-              "name": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false",
-              "attribute": "disabled"
-            },
-            {
-              "kind": "field",
-              "name": "styles",
-              "static": true,
-              "default": "css` :host { --yn-quantity-width: auto; --yn-quantity-height: 44px; --yn-quantity-bg: var(--yn-color-surface, rgba(255, 255, 255, 0.62)); --yn-quantity-bg-hover: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.86)); --yn-quantity-bg-focus: var(--yn-color-surface-focus, #fffaf2); --yn-quantity-border-color: var(--yn-color-border, rgba(36, 31, 33, 0.22)); --yn-quantity-border-color-hover: var(--yn-color-border-strong, rgba(36, 31, 33, 0.52)); --yn-quantity-border-color-focus: var(--yn-color-border-focus, #241f21); --yn-quantity-focus-ring: var(--yn-color-focus-ring, rgba(36, 31, 33, 0.12)); --yn-quantity-color: var(--yn-color-text, #241f21); --yn-quantity-muted-color: var(--yn-color-text-disabled, rgba(36, 31, 33, 0.42)); --yn-quantity-divider-color: var(--yn-color-divider, rgba(36, 31, 33, 0.14)); --yn-quantity-button-size: 32px; --yn-quantity-button-bg-hover: var(--yn-color-overlay-hover, rgba(36, 31, 33, 0.08)); --yn-quantity-button-bg-active: var(--yn-color-overlay-active, rgba(36, 31, 33, 0.14)); --yn-quantity-button-hover-radius: 999px; --yn-quantity-inner-gap: 6px; --yn-quantity-padding: 4px 6px; --yn-quantity-radius: 999px; --yn-quantity-font-family: \"Zimula\", ui-serif, Georgia, Cambria, \"Times New Roman\", Times, serif; --yn-quantity-font-size: 16px; --yn-quantity-letter-spacing: -0.01em; --yn-quantity-value-min-width: 2.5ch; display: inline-block; } @font-face { font-family: \"Zimula\"; src: url(\"https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf\") format(\"truetype\"); font-display: swap; } * { box-sizing: border-box; } .stepper { display: inline-flex; align-items: center; gap: var(--yn-quantity-inner-gap); width: var(--yn-quantity-width); min-width: 0; height: var(--yn-quantity-height); padding: var(--yn-quantity-padding); border: 1px solid var(--yn-quantity-border-color); border-radius: var(--yn-quantity-radius); background: var(--yn-quantity-bg); overflow: hidden; transition: border-color 220ms cubic-bezier(0.4, 0, 1, 1), box-shadow 220ms cubic-bezier(0.4, 0, 1, 1), background-color 220ms cubic-bezier(0.4, 0, 1, 1); } .stepper:hover:not(.is-disabled) { border-color: var(--yn-quantity-border-color-hover); background: var(--yn-quantity-bg-hover); } .stepper:focus-within:not(.is-disabled) { border-color: var(--yn-quantity-border-color-focus); background: var(--yn-quantity-bg-focus); box-shadow: 0 0 0 3px var(--yn-quantity-focus-ring); } .stepper.is-disabled { opacity: 0.72; pointer-events: none; } .btn { position: relative; width: var(--yn-quantity-button-size); height: var(--yn-quantity-button-size); flex: 0 0 var(--yn-quantity-button-size); display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: var(--yn-quantity-color); padding: 0; cursor: pointer; } .btn::before { content: \"\"; position: absolute; inset: 0; border-radius: var(--yn-quantity-button-hover-radius); background: transparent; transition: background-color 180ms ease, transform 160ms ease; } .btn:hover:not(:disabled)::before { background: var(--yn-quantity-button-bg-hover); } .btn:active:not(:disabled)::before { background: var(--yn-quantity-button-bg-active); transform: scale(0.94); } .btn:focus-visible::before { outline: 2px solid var(--yn-quantity-color); outline-offset: 0; } .btn svg { position: relative; z-index: 1; } .btn:disabled { color: var(--yn-quantity-muted-color); cursor: not-allowed; } .value-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; min-width: var(--yn-quantity-value-min-width); flex: 1 1 auto; padding: 0 4px; } .value-wrap::before, .value-wrap::after { content: \"\"; position: absolute; top: 22%; bottom: 22%; width: 1px; background: var(--yn-quantity-divider-color); } .value-wrap::before { left: 0; } .value-wrap::after { right: 0; } .value { width: 100%; min-width: var(--yn-quantity-value-min-width); border: 0; background: transparent; color: var(--yn-quantity-color); font-family: var(--yn-quantity-font-family); font-size: var(--yn-quantity-font-size); letter-spacing: var(--yn-quantity-letter-spacing); line-height: 1; text-align: center; font-variant-numeric: tabular-nums; padding: 0; outline: none; -moz-appearance: textfield; appearance: textfield; } .value::-webkit-outer-spin-button, .value::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; } .value:disabled { color: var(--yn-quantity-muted-color); } `"
-            },
-            {
-              "kind": "field",
-              "name": "boundedValue",
-              "privacy": "private",
-              "readonly": true
-            },
-            {
-              "kind": "method",
-              "name": "emitChange",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "value",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "setValue",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "next",
-                  "type": {
-                    "text": "number"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "handleDecrease",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "handleIncrease",
-              "privacy": "private"
-            },
-            {
-              "kind": "method",
-              "name": "handleInput",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "handleBlur",
-              "privacy": "private",
-              "parameters": [
-                {
-                  "name": "event",
-                  "type": {
-                    "text": "Event"
-                  }
-                }
-              ]
-            },
-            {
-              "kind": "method",
-              "name": "render"
-            }
-          ],
-          "events": [
-            {
-              "name": "change",
-              "type": {
-                "text": "CustomEvent"
-              },
-              "description": "数量变化时触发，`detail.value` 为当前数量。"
-            }
-          ],
-          "superclass": {
-            "name": "LitElement",
-            "package": "lit"
-          },
-          "customElement": true,
-          "tagName": "yn-quantity",
-          "summary": "Floema 风格产品数量选择器。",
-          "attributes": [
-            {
-              "name": "value",
-              "fieldName": "value",
-              "type": {
-                "text": "number"
-              },
-              "default": "1"
-            },
-            {
-              "name": "min",
-              "fieldName": "min",
-              "type": {
-                "text": "number"
-              },
-              "default": "1"
-            },
-            {
-              "name": "max",
-              "fieldName": "max",
-              "type": {
-                "text": "number"
-              },
-              "default": "99"
-            },
-            {
-              "name": "step",
-              "fieldName": "step",
-              "type": {
-                "text": "number"
-              },
-              "default": "1"
-            },
-            {
-              "name": "disabled",
-              "fieldName": "disabled",
-              "type": {
-                "text": "boolean"
-              },
-              "default": "false"
-            }
-          ],
-          "cssProperties": [
-            {
-              "name": "--yn-quantity-bg",
-              "description": "容器背景"
-            },
-            {
-              "name": "--yn-quantity-bg-focus",
-              "description": "聚焦背景"
-            },
-            {
-              "name": "--yn-quantity-bg-hover",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-border-color",
-              "description": "边框颜色"
-            },
-            {
-              "name": "--yn-quantity-border-color-focus",
-              "description": "聚焦边框颜色"
-            },
-            {
-              "name": "--yn-quantity-border-color-hover",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-button-bg-active",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-button-bg-hover",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-button-hover-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-button-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-color",
-              "description": "数字与图标颜色"
-            },
-            {
-              "name": "--yn-quantity-divider-color",
-              "description": "中间分隔线"
-            },
-            {
-              "name": "--yn-quantity-focus-ring",
-              "description": "聚焦外圈阴影"
-            },
-            {
-              "name": "--yn-quantity-font-family",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-font-size",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-height",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-inner-gap",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-letter-spacing",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-muted-color",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-padding",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-radius",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-value-min-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            },
-            {
-              "name": "--yn-quantity-width",
-              "description": "可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "kind": "js",
-          "name": "YnQuantity",
-          "declaration": {
-            "name": "YnQuantity",
-            "module": "src/components/yn-quantity/yn-quantity.ts"
           }
         }
       ]

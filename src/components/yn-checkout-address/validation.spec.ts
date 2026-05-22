@@ -20,6 +20,9 @@ const base = () => ({
   email: "buyer@shop.com",
   showEmail: true,
   emailRequired: true,
+  whatsapp: "",
+  showWhatsapp: false,
+  whatsappRequired: false,
   regionFilter: undefined,
   messages: CHECKOUT_ADDRESS_MESSAGES.en,
 });
@@ -121,5 +124,25 @@ describe("validateCheckoutAddress", () => {
       email: "not-an-email",
     });
     expect(r.errors.some((e) => e.code === "EMAIL_INVALID")).toBe(true);
+  });
+
+  it("rejects invalid whatsapp when required", () => {
+    const r = validateCheckoutAddress({
+      ...base(),
+      showWhatsapp: true,
+      whatsappRequired: true,
+      whatsapp: "12",
+    });
+    expect(r.errors.some((e) => e.code === "WHATSAPP_INVALID")).toBe(true);
+  });
+
+  it("requires whatsapp when show-whatsapp and whatsapp-required", () => {
+    const r = validateCheckoutAddress({
+      ...base(),
+      showWhatsapp: true,
+      whatsappRequired: true,
+      whatsapp: "",
+    });
+    expect(r.errors.some((e) => e.code === "WHATSAPP_REQUIRED")).toBe(true);
   });
 });

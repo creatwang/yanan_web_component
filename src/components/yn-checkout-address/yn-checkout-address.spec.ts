@@ -13,5 +13,6 @@ describe("yn-checkout-address", () => {
     expect(v.formReady).toBe(false);
     expect(v.countryCode).toBe("");
     expect(v.email).toBe("");
+    expect(v.whatsapp).toBe("");
   });
 });

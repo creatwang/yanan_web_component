@@ -60,6 +60,9 @@ export type ValidateCheckoutInput = {
   email: string;
   showEmail: boolean;
   emailRequired: boolean;
+  whatsapp: string;
+  showWhatsapp: boolean;
+  whatsappRequired: boolean;
   regionFilter?: YnCheckoutRegionFilter;
   messages: YnCheckoutAddressMessages;
 };
@@ -153,6 +156,15 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
     }
   }
 
+  if (input.showWhatsapp) {
+    const whatsapp = input.whatsapp.replace(/\D/g, "");
+    if (input.whatsappRequired && !whatsapp) {
+      pushError(errors, "whatsapp", "WHATSAPP_REQUIRED", input.messages.errorWhatsappRequired);
+    } else if (whatsapp && (whatsapp.length < PHONE_MIN_LEN || whatsapp.length > PHONE_MAX_LEN)) {
+      pushError(errors, "whatsapp", "WHATSAPP_INVALID", input.messages.errorWhatsappInvalid);
+    }
+  }
+
   const regionComplete = isRegionComplete(input);
   const coreOk =
     regionComplete &&
@@ -167,8 +179,14 @@ export function validateCheckoutAddress(input: ValidateCheckoutInput): YnCheckou
     !input.emailRequired ||
     Boolean(input.email.trim() && EMAIL_PATTERN.test(input.email.trim()));
 
+  const whatsappDigits = input.whatsapp.replace(/\D/g, "");
+  const whatsappOk =
+    !input.showWhatsapp ||
+    !input.whatsappRequired ||
+    (whatsappDigits.length >= PHONE_MIN_LEN && whatsappDigits.length <= PHONE_MAX_LEN);
+
   const postalOk = !postalRequired || Boolean(input.postalCode.trim());
-  const formReady = coreOk && emailOk && postalOk;
+  const formReady = coreOk && emailOk && whatsappOk && postalOk;
 
   return {
     valid: errors.length === 0,

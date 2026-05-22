@@ -3,6 +3,7 @@ import type { YnCheckoutAddressField } from "./types";
 export type CheckoutFieldSet = "google" | "dr5hn" | "manual";
 
 const EMAIL_ID = "yn-ca-email";
+const WHATSAPP_ID = "yn-ca-whatsapp";
 
 /** 各数据源下的表单 input id（渲染与 reportValidity 共用） */
 export const CHECKOUT_FIELD_IDS = {
@@ -50,6 +51,7 @@ export const CHECKOUT_FOCUS_IDS: Record<
     line1: CHECKOUT_FIELD_IDS.google.line1,
     postalCode: CHECKOUT_FIELD_IDS.google.zip,
     email: EMAIL_ID,
+    whatsapp: WHATSAPP_ID,
   },
   dr5hn: {
     region: CHECKOUT_FIELD_IDS.dr5hn.region,
@@ -59,6 +61,7 @@ export const CHECKOUT_FOCUS_IDS: Record<
     line1: CHECKOUT_FIELD_IDS.dr5hn.line1,
     postalCode: CHECKOUT_FIELD_IDS.dr5hn.zip,
     email: EMAIL_ID,
+    whatsapp: WHATSAPP_ID,
   },
   manual: {
     region: CHECKOUT_FIELD_IDS.manual.region,
@@ -68,5 +71,6 @@ export const CHECKOUT_FOCUS_IDS: Record<
     line1: CHECKOUT_FIELD_IDS.manual.line1,
     postalCode: CHECKOUT_FIELD_IDS.manual.zip,
     email: EMAIL_ID,
+    whatsapp: WHATSAPP_ID,
   },
 };

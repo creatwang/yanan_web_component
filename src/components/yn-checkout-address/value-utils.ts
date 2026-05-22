@@ -50,6 +50,7 @@ export const CHECKOUT_VALUE_KEYS: YnCheckoutAddressValueKey[] = [
   "firstName",
   "lastName",
   "email",
+  "whatsapp",
   "line1",
   "line2",
   "postalCode",

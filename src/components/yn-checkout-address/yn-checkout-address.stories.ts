@@ -50,6 +50,8 @@ type Args = {
   messages?: Partial<YnCheckoutAddressMessages>;
   showEmail?: boolean;
   emailRequired?: boolean;
+  showWhatsapp?: boolean;
+  whatsappRequired?: boolean;
   onChange?: (detail: YnCheckoutAddressChangeDetail) => void;
 };
 
@@ -69,6 +71,8 @@ const renderCheckoutAddress = (args: Args) => html`
       .messages=${args.messages}
       ?show-email=${args.showEmail ?? false}
       ?email-required=${args.emailRequired ?? false}
+      ?show-whatsapp=${args.showWhatsapp ?? false}
+      ?whatsapp-required=${args.whatsappRequired ?? false}
       @change=${(event: Event) => {
         const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
         args.onChange?.(detail);
@@ -278,6 +282,18 @@ const meta = {
       name: "email-required",
       control: "boolean",
       description: "邮箱必填（需同时开启 show-email）。",
+      table: { defaultValue: { summary: "false" } },
+    },
+    showWhatsapp: {
+      name: "show-whatsapp",
+      control: "boolean",
+      description: "展示 WhatsApp 输入框。",
+      table: { defaultValue: { summary: "false" } },
+    },
+    whatsappRequired: {
+      name: "whatsapp-required",
+      control: "boolean",
+      description: "WhatsApp 必填（需同时开启 show-whatsapp，6–15 位数字）。",
       table: { defaultValue: { summary: "false" } },
     },
     ...checkoutAddressMethodArgTypes,

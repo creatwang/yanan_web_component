@@ -113,6 +113,12 @@ export class YnCheckoutAddress extends LitElement {
   /** 为 true 且 showEmail 时邮箱必填 */
   @property({ type: Boolean, attribute: "email-required" }) emailRequired = false;
 
+  /** 为 true 时展示 WhatsApp 输入框 */
+  @property({ type: Boolean, attribute: "show-whatsapp" }) showWhatsapp = false;
+
+  /** 为 true 且 showWhatsapp 时 WhatsApp 必填 */
+  @property({ type: Boolean, attribute: "whatsapp-required" }) whatsappRequired = false;
+
   @state() private viewMode: ViewMode = "booting";
   @state() private activeProvider: AddressProviderMode | null = null;
   @state() private probeReason = "";
@@ -136,6 +142,7 @@ export class YnCheckoutAddress extends LitElement {
   @state() private lastName = "";
   @state() private phoneNumber = "";
   @state() private email = "";
+  @state() private whatsapp = "";
   @state() private notes = "";
   @state() private line1 = "";
   @state() private line2 = "";
@@ -319,6 +326,7 @@ export class YnCheckoutAddress extends LitElement {
     this.lastName = "";
     this.phoneNumber = "";
     this.email = "";
+    this.whatsapp = "";
     this.line1 = "";
     this.line2 = "";
     this.postalCode = "";
@@ -476,6 +484,7 @@ export class YnCheckoutAddress extends LitElement {
     this.lastName = v.lastName ?? "";
     this.phoneNumber = v.phoneNumber;
     this.email = v.email ?? "";
+    this.whatsapp = v.whatsapp ?? "";
     this.line1 = v.line1;
     this.line2 = v.line2;
     this.postalCode = v.postalCode;
@@ -600,6 +609,9 @@ export class YnCheckoutAddress extends LitElement {
       email: this.email,
       showEmail: this.showEmail,
       emailRequired: this.emailRequired,
+      whatsapp: this.whatsapp,
+      showWhatsapp: this.showWhatsapp,
+      whatsappRequired: this.whatsappRequired,
       regionFilter: this.regionFilter,
       messages: this.msg,
     };
@@ -671,6 +683,7 @@ export class YnCheckoutAddress extends LitElement {
       lastName: this.lastName.trim(),
       phoneNumber: this.phoneNumber.trim(),
       email: this.email.trim(),
+      whatsapp: this.whatsapp.trim(),
       line1: this.line1.trim(),
       line2: this.line2.trim(),
       postalCode: this.postalCode.trim(),
@@ -830,6 +843,27 @@ export class YnCheckoutAddress extends LitElement {
       invalidField: "email",
       disabled: this.disabled,
       onInput: this.handleFieldInput("email"),
+    });
+  }
+
+  private renderWhatsappFields() {
+    if (!this.showWhatsapp) {
+      return nothing;
+    }
+    const label = this.whatsappRequired
+      ? `${this.msg.whatsapp} *`
+      : `${this.msg.whatsapp} (${this.msg.fieldMarkOptional})`;
+    return this.renderFloatField({
+      id: "yn-ca-whatsapp",
+      label,
+      value: this.whatsapp,
+      type: "tel",
+      inputmode: "numeric",
+      autocomplete: "tel",
+      errorField: "whatsapp",
+      invalidField: "whatsapp",
+      disabled: this.disabled,
+      onInput: this.handleFieldInput("whatsapp"),
     });
   }
 
@@ -1190,7 +1224,16 @@ export class YnCheckoutAddress extends LitElement {
 
   private handleFieldInput =
     (
-      field: "firstName" | "lastName" | "line1" | "line2" | "postalCode" | "phone" | "email" | "notes",
+      field:
+        | "firstName"
+        | "lastName"
+        | "line1"
+        | "line2"
+        | "postalCode"
+        | "phone"
+        | "email"
+        | "whatsapp"
+        | "notes",
     ) =>
     (event: Event) => {
       const input = event.target as HTMLInputElement | HTMLTextAreaElement;
@@ -1201,6 +1244,7 @@ export class YnCheckoutAddress extends LitElement {
       if (field === "postalCode") this.postalCode = input.value;
       if (field === "phone") this.phoneNumber = input.value.replace(/\D/g, "");
       if (field === "email") this.email = input.value;
+      if (field === "whatsapp") this.whatsapp = input.value;
       if (field === "notes") this.notes = input.value;
       this.emitChange();
     };
@@ -1404,6 +1448,7 @@ export class YnCheckoutAddress extends LitElement {
             })}
           </div>
           ${this.renderEmailFields()}
+          ${this.renderWhatsappFields()}
           ${this.renderPhoneField(phoneId)}
           ${this.renderFloatField({
             id: line1Id,

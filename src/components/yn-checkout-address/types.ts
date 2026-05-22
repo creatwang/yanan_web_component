@@ -21,6 +21,8 @@ export type YnCheckoutAddressValue = {
   lastName: string;
   /** 联系邮箱；需 `show-email` 才展示输入框 */
   email: string;
+  /** WhatsApp 号码；需 `show-whatsapp` 才展示输入框 */
+  whatsapp: string;
   line1: string;
   line2: string;
   postalCode: string;
@@ -45,7 +47,8 @@ export type YnCheckoutAddressField =
   | "phoneNumber"
   | "line1"
   | "postalCode"
-  | "email";
+  | "email"
+  | "whatsapp";
 
 export type YnCheckoutAddressErrorCode =
   | "REGION_REQUIRED"
@@ -59,7 +62,9 @@ export type YnCheckoutAddressErrorCode =
   | "LINE1_TOO_SHORT"
   | "POSTAL_REQUIRED"
   | "EMAIL_REQUIRED"
-  | "EMAIL_INVALID";
+  | "EMAIL_INVALID"
+  | "WHATSAPP_REQUIRED"
+  | "WHATSAPP_INVALID";
 
 export type YnCheckoutAddressValidationError = {
   field: YnCheckoutAddressField;
@@ -90,6 +95,7 @@ export type YnCheckoutAddressValueKey = keyof Pick<
   | "firstName"
   | "lastName"
   | "email"
+  | "whatsapp"
   | "line1"
   | "line2"
   | "postalCode"
@@ -206,6 +212,8 @@ export type YnCheckoutAddressMessages = {
   devPanelTitle: string;
   email: string;
   emailPlaceholder: string;
+  whatsapp: string;
+  whatsappPlaceholder: string;
   errorRegionRequired: string;
   errorManualRegionIncomplete: string;
   errorRegionCityLevel: string;
@@ -219,6 +227,8 @@ export type YnCheckoutAddressMessages = {
   errorPostalRequired: string;
   errorEmailRequired: string;
   errorEmailInvalid: string;
+  errorWhatsappRequired: string;
+  errorWhatsappInvalid: string;
   validateSubmitLabel: string;
   validateSummaryTitle: string;
 };
@@ -240,6 +250,7 @@ export const emptyCheckoutAddressValue = (
   firstName: "",
   lastName: "",
   email: "",
+  whatsapp: "",
   line1: "",
   line2: "",
   postalCode: "",

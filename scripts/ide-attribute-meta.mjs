@@ -345,6 +345,10 @@ export default {
       "show-email": { description: "展示联系邮箱输入框（默认 false）。" },
       "email-required": {
         description: "邮箱必填并校验格式（需同时 show-email，默认 false）。"
+      },
+      "show-whatsapp": { description: "展示 WhatsApp 输入框（默认 false）。" },
+      "whatsapp-required": {
+        description: "WhatsApp 必填并校验号码（6–15 位数字，需同时 show-whatsapp，默认 false）。"
       }
     }
   }
