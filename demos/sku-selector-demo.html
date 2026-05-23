@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SKU 选择器 Demo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: #f8f8f8;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px 0;
+    }
+
+    .product-container {
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      background: #ffffff;
+    }
+
+    @media (min-width: 640px) {
+      .product-container {
+        padding: 40px;
+      }
+    }
+
+    .product-title {
+      font-size: 32px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      line-height: 1;
+      margin-bottom: 32px;
+      word-break: break-word;
+    }
+
+    @media (min-width: 640px) {
+      .product-title {
+        font-size: 48px;
+        letter-spacing: -2px;
+        margin-bottom: 40px;
+      }
+    }
+
+    .spec-section {
+      margin-bottom: 28px;
+    }
+
+    @media (min-width: 640px) {
+      .spec-section {
+        margin-bottom: 32px;
+      }
+    }
+
+    .spec-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      color: #000000;
+    }
+
+    @media (min-width: 640px) {
+      .spec-label {
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+    }
+
+    .spec-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    .spec-btn {
+      flex: 1;
+      min-width: 56px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      padding: 0 12px;
+      border: 2px solid #000000;
+      background: #ffffff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-transform: uppercase;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 640px) {
+      .spec-btn {
+        min-width: 60px;
+        height: 48px;
+        padding: 0 16px;
+        font-size: 16px;
+      }
+    }
+
+    .spec-btn:not(:last-child) {
+      border-right: none;
+    }
+
+    .spec-btn:active:not(.disabled) {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    @media (hover: hover) {
+      .spec-btn:hover:not(.disabled) {
+        background: #000000;
+        color: #ffffff;
+      }
+    }
+
+    .spec-btn.active {
+      background: #000000;
+      color: #ffffff;
+    }
+
+    .spec-btn.disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .add-to-cart {
+      width: 100%;
+      height: 52px;
+      border: 2px solid #000000;
+      background: #000000;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.15s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 640px) {
+      .add-to-cart {
+        height: 56px;
+        font-size: 16px;
+        gap: 12px;
+      }
+    }
+
+    .add-to-cart:active {
+      background: #ffffff;
+      color: #000000;
+    }
+
+    @media (hover: hover) {
+      .add-to-cart:hover {
+        background: #ffffff;
+        color: #000000;
+      }
+    }
+
+    .price {
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    @media (min-width: 640px) {
+      .price {
+        font-size: 20px;
+      }
+    }
+
+    .selected-info {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border: 2px solid #000000;
+      font-size: 13px;
+      font-weight: 500;
+      text-transform: uppercase;
+      word-break: break-word;
+    }
+
+    @media (min-width: 640px) {
+      .selected-info {
+        margin-top: 24px;
+        padding: 16px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="product-container" id="app"></div>
+
+  <script>
+    const json = [
+      { "weight": "1kg", "color": "红色", "size": "37" },
+      { "weight": "1kg", "color": "红色", "size": "38" },
+      { "weight": "1kg", "color": "黑色", "size": "38" },
+      { "weight": "1kg", "color": "黑色", "size": "40" },
+      { "weight": "2kg", "color": "黑色", "size": "38" },
+      { "weight": "2kg", "color": "黑色", "size": "39" },
+      { "weight": "2kg", "color": "黑色", "size": "42" },
+      { "weight": "2kg", "color": "白色", "size": "38" },
+      { "weight": "2kg", "color": "白色", "size": "41" },
+      { "weight": "3kg", "color": "白色", "size": "39" },
+      { "weight": "3kg", "color": "蓝色", "size": "40" },
+      { "weight": "3kg", "color": "蓝色", "size": "42" }
+    ];
+
+    class AppChooseSpec {
+      keys = [];
+      curs = ['', '', ''];
+      listSpec = [];
+      el;
+
+      constructor({el, data}) {
+        this.listSpec = data;
+        this.keys = Object.keys(this.listSpec[0] || {});
+        this.el = el;
+        this.el.onclick = this.delegateClick.bind(this);
+        this.render();
+      }
+
+      get groupSpec() {
+        return this.keys.reduce((result, key, depth) => {
+          result[depth] = { specKey: key, list: [...new Set(this.listSpec.map((v) => v[key]))] };
+          return result;
+        }, []);
+      }
+
+      get groupHas() {
+        return this.groupSpec.map(({ list }, depth) => {
+          return list.filter((target) => {
+            return this.listSpec.some((row) => {
+              return this.curs.every((cur, depth_) => {
+                const key_ = this.keys[depth_];
+                const key = this.keys[depth];
+                return (depth === depth_ || !cur) || (row[key_] === cur && row[key] === target);
+              });
+            });
+          });
+        });
+      }
+
+      delegateClick(e) {
+        const target = e.target;
+        if (!(target instanceof Element)) return;
+        const el = target.closest('[data-v]');
+        if (!el) return;
+        const { v, depth } = el.dataset;
+        if (!v || depth === undefined) return;
+        const depthIdx = Number(depth);
+        if (Number.isNaN(depthIdx)) return;
+        this.curs[depthIdx] = this.curs[depthIdx] === v ? '' : v;
+        this.render();
+      }
+
+      render() {
+        const groupSpec = this.groupSpec;
+        const groupHas = this.groupHas;
+        const curs = this.curs;
+
+        const isComplete = curs.every(v => v);
+        let price = isComplete ? '65.00 €' : '—';
+
+        this.el.innerHTML = `
+          <h1 class="product-title">Jersey - Select</h1>
+          
+          ${groupSpec.map((outer, depth) => {
+            return `
+              <div class="spec-section">
+                <div class="spec-label">${outer.specKey}</div>
+                <div class="spec-options">
+                  ${outer.list.map((v) => {
+                    const isActive = v === curs[depth];
+                    const isAvailable = groupHas[depth].includes(v);
+                    let classes = 'spec-btn';
+                    if (isActive) classes += ' active';
+                    if (!isAvailable) classes += ' disabled';
+                    return `
+                      <button type="button"
+                        class="${classes}"
+                        data-v="${v}" data-depth="${depth}"
+                      >${v}</button>
+                    `.trim();
+                  }).join('')}
+                </div>
+              </div>
+            `.trim();
+          }).join('')}
+          
+          <button class="add-to-cart" type="button">
+            <span>Add to cart</span>
+            <span class="price">${price}</span>
+          </button>
+          
+          <div class="selected-info">
+            Selected: ${curs.filter(v => v).join(' / ') || '—'}
+          </div>
+        `;
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      const appRoot = document.getElementById('app');
+      if (appRoot) {
+        window.appChooseSpec = new AppChooseSpec({
+          el: appRoot,
+          data: json
+        });
+      }
+    }
+  </script>
+</body>
+</html>

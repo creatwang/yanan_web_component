@@ -97,6 +97,11 @@
       "import": "./dist/components/yn-checkout-address.js",
       "require": "./dist/components/yn-checkout-address.cjs"
     },
+    "./components/yn-sku-selector": {
+      "types": "./dist/types/components/yn-sku-selector/yn-sku-selector.d.ts",
+      "import": "./dist/components/yn-sku-selector.js",
+      "require": "./dist/components/yn-sku-selector.cjs"
+    },
     "./umd": {
       "default": "./dist/index.umd.js"
     },

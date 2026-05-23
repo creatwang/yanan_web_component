@@ -12,6 +12,17 @@ export { YnToast } from "./components/yn-toast/yn-toast";
 export { YnPullCordSwitch } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 export { YnQuantity } from "./components/yn-quantity/yn-quantity";
 export { YnCheckoutAddress } from "./components/yn-checkout-address/yn-checkout-address";
+export { YnSkuSelector } from "./components/yn-sku-selector/yn-sku-selector";
+export type {
+  YnSkuChangeDetail,
+  YnSkuItem,
+  YnSkuSelection,
+  YnSkuSpecValue,
+  YnSkuSubmitDetail,
+  YnSkuSubmitEvent,
+  YnSkuSubmitHandler,
+  YnSkuSubmitInstance
+} from "./components/yn-sku-selector/types";
 export type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressField,
