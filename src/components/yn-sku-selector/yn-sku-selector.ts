@@ -1,9 +1,13 @@
 import { LitElement, css, html, nothing } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { ynSkuCartSvg, ynSkuLoadingSvg } from "../../asset/svg";
+import type { YnSvgSource } from "../../asset/svg";
+import "./yn-sku-cart-button";
 import {
   buildGroupHas,
   buildGroupSpec,
+  buildFirstAvailableCurs,
   buildSelection,
   findMatchedSku,
   getMissingKeys,
@@ -12,6 +16,7 @@ import {
 } from "./sku-engine";
 import type {
   YnSkuChangeDetail,
+  YnSkuInitDetail,
   YnSkuItem,
   YnSkuSelection,
   YnSkuSpecValue,
@@ -20,12 +25,6 @@ import type {
   YnSkuSubmitHandler,
   YnSkuSubmitInstance
 } from "./types";
-
-const loadingSvg = `<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true">
-<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="42 20">
-<animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/>
-</circle>
-</svg>`;
 
 const parseSkusFromAttribute = (raw: string | null): YnSkuItem[] => {
   if (!raw) return [];
@@ -53,8 +52,10 @@ const formatPrice = (price: number) => price.toFixed(2);
  * SKU 规格选择器：支持多维规格联动、加购校验与 simple 快速加购模式。
  *
  * @slot title - 标题区域，simple 模式下不渲染
+ * @slot submit-icon - 加购按钮左侧图标，转发至 yn-sku-cart-button 的 icon 插槽；未填充时回退 cart-icon 属性
  *
  * @fires change - 每次规格变更时触发
+ * @fires init - pick-one 模式下初始化默认选中完成后触发，detail 与 change 一致
  * @fires submit - 满足加购条件时触发；`event.detail` 为 `{ sku, selections }`，`event.instance.done()` 结束 loading
  */
 @customElement("yn-sku-selector")
@@ -77,8 +78,21 @@ export class YnSkuSelector extends LitElement {
   @property({ type: Boolean, reflect: true })
   simple = false;
 
+  /** 非 simple 模式下默认选中第一组可用 SKU，并在初始化完成后触发 init 事件 */
+  @property({ type: Boolean, attribute: "pick-one", reflect: true })
+  pickOne = false;
+
   @property({ type: String, attribute: "submit-label" })
   submitLabel = "ADD TO CART";
+
+  @property({ type: String, attribute: "loading-text" })
+  loadingText = "";
+
+  @property({ type: String, attribute: "cart-icon" })
+  cartIcon: YnSvgSource = ynSkuCartSvg;
+
+  @property({ type: Boolean, attribute: "show-cart-icon" })
+  showCartIcon = true;
 
   @property({ type: String, attribute: "incomplete-hint" })
   incompleteHint = "请选择 {label}";
@@ -104,13 +118,19 @@ export class YnSkuSelector extends LitElement {
   @state() private submitting = false;
   @state() private loadingDepth = -1;
   @state() private loadingValue = "";
+  @state() private indicatorStyles: Record<number, string> = {};
+
+  private indicatorObserver?: ResizeObserver;
+  private hasAppliedPickOne = false;
+  private hasEmittedInit = false;
+  private pendingPickOneInit = false;
 
   static styles = css`
     :host {
       display: block;
       width: 100%;
       min-width: 0;
-      color: var(--yn-sku-selector-color, inherit);
+      color: var(--yn-sku-selector-color, #000);
       font-family: var(--yn-sku-selector-font-family, inherit);
       -webkit-tap-highlight-color: transparent;
     }
@@ -120,11 +140,11 @@ export class YnSkuSelector extends LitElement {
     }
 
     .title {
-      margin-bottom: var(--yn-sku-selector-title-gap, 24px);
+      margin-bottom: var(--yn-sku-selector-title-gap, 28px);
     }
 
     .section {
-      margin-bottom: var(--yn-sku-selector-section-gap, 20px);
+      margin-bottom: var(--yn-sku-selector-row-gap, var(--yn-sku-selector-section-gap, 24px));
     }
 
     .section:last-of-type {
@@ -132,7 +152,7 @@ export class YnSkuSelector extends LitElement {
     }
 
     .label {
-      margin: 0 0 var(--yn-sku-selector-label-gap, 10px);
+      margin: 0 0 var(--yn-sku-selector-label-row-gap, var(--yn-sku-selector-label-gap, 12px));
       font-size: var(--yn-sku-selector-label-font-size, 11px);
       font-weight: var(--yn-sku-selector-label-font-weight, 600);
       letter-spacing: var(--yn-sku-selector-label-letter-spacing, 0.14em);
@@ -143,56 +163,71 @@ export class YnSkuSelector extends LitElement {
     }
 
     .options {
+      position: relative;
       display: flex;
       flex-wrap: wrap;
-      gap: var(--yn-sku-selector-options-gap, 0);
+      align-items: stretch;
+      gap: 0;
       width: 100%;
       min-width: 0;
+      margin-left: 1px;
+      margin-top: 1px;
+    }
+
+    .option-indicator {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      background: var(--yn-sku-selector-option-active-bg, #000);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        transform var(--yn-sku-selector-option-transition-duration, 0.28s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+        width var(--yn-sku-selector-option-transition-duration, 0.28s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+        height var(--yn-sku-selector-option-transition-duration, 0.28s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
+        opacity 0.18s ease;
     }
 
     .option {
-      flex: var(--yn-sku-selector-option-flex, 1 1 0);
-      min-width: var(--yn-sku-selector-option-min-width, 44px);
+      position: relative;
+      z-index: 1;
+      flex: 0 1 auto;
+      min-width: var(--yn-sku-selector-option-min-width, 52px);
       max-width: 100%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-height: var(--yn-sku-selector-option-height, 44px);
-      padding: var(--yn-sku-selector-option-padding, 0 10px);
-      border: var(--yn-sku-selector-option-border-width, 2px) solid var(--yn-sku-selector-option-border-color, currentColor);
-      background: var(--yn-sku-selector-option-bg, transparent);
+      min-height: var(--yn-sku-selector-row-height, var(--yn-sku-selector-option-height, 48px));
+      height: var(--yn-sku-selector-row-height, var(--yn-sku-selector-option-height, 48px));
+      padding: var(--yn-sku-selector-option-padding, 0 18px);
+      margin: -1px 0 0 -1px;
+      border: var(--yn-sku-selector-option-border-width, 1px) solid
+        var(--yn-sku-selector-option-border-color, currentColor);
+      background: var(--yn-sku-selector-option-bg, #fff);
       color: var(--yn-sku-selector-option-color, currentColor);
       font-family: inherit;
-      font-size: var(--yn-sku-selector-option-font-size, clamp(12px, 3.2vw, 14px));
-      font-weight: var(--yn-sku-selector-option-font-weight, 600);
-      line-height: 1.1;
+      font-size: var(--yn-sku-selector-option-font-size, 14px);
+      font-weight: var(--yn-sku-selector-option-font-weight, 700);
+      line-height: 1;
       text-transform: uppercase;
       cursor: pointer;
-      transition:
-        background-color 0.15s ease,
-        color 0.15s ease,
-        opacity 0.15s ease;
+      transition: color var(--yn-sku-selector-option-transition-duration, 0.28s)
+        var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1));
       user-select: none;
       -webkit-user-select: none;
-      position: relative;
-    }
-
-    .options:not(.options--gap) .option:not(:last-child) {
-      margin-right: calc(var(--yn-sku-selector-option-border-width, 2px) * -1);
-    }
-
-    .options:not(.options--gap) .option:not(:first-child) {
-      border-left-width: 0;
     }
 
     .option.active {
-      background: var(--yn-sku-selector-option-active-bg, currentColor);
-      color: var(--yn-sku-selector-option-active-color, var(--yn-sku-selector-option-bg, #fff));
-      z-index: 1;
+      color: var(--yn-sku-selector-option-active-color, #fff);
+      background: transparent;
     }
 
     .option.unavailable {
-      opacity: var(--yn-sku-selector-option-disabled-opacity, 0.32);
+      opacity: var(--yn-sku-selector-option-disabled-opacity, 0.28);
       cursor: not-allowed;
       text-decoration: line-through;
     }
@@ -214,23 +249,9 @@ export class YnSkuSelector extends LitElement {
       justify-content: center;
     }
 
-    @media (hover: hover) {
-      .option:not(.unavailable):not(:disabled):not(.active):hover {
-        background: var(--yn-sku-selector-option-hover-bg, currentColor);
-        color: var(--yn-sku-selector-option-hover-color, var(--yn-sku-selector-option-bg, #fff));
-        z-index: 1;
-      }
-    }
-
-    .option:active:not(.unavailable):not(:disabled) {
-      background: var(--yn-sku-selector-option-active-bg, currentColor);
-      color: var(--yn-sku-selector-option-active-color, var(--yn-sku-selector-option-bg, #fff));
-      z-index: 1;
-    }
-
     .hint {
       min-height: var(--yn-sku-selector-hint-min-height, 1.2em);
-      margin: var(--yn-sku-selector-hint-margin, 0 0 10px);
+      margin: var(--yn-sku-selector-hint-margin, 0 0 12px);
       font-size: var(--yn-sku-selector-hint-font-size, 12px);
       line-height: 1.4;
       color: var(--yn-sku-selector-hint-color, #c0392b);
@@ -238,100 +259,91 @@ export class YnSkuSelector extends LitElement {
     }
 
     .submit-wrap {
-      position: relative;
       display: block;
-      margin-top: var(--yn-sku-selector-submit-margin-top, 20px);
-    }
-
-    .submit {
-      position: relative;
-      width: 100%;
-      min-height: var(--yn-sku-selector-submit-height, 52px);
-      padding: var(--yn-sku-selector-submit-padding, 0 16px);
-      border: var(--yn-sku-selector-submit-border-width, 2px) solid var(--yn-sku-selector-submit-border-color, currentColor);
-      background: var(--yn-sku-selector-submit-bg, currentColor);
-      color: var(--yn-sku-selector-submit-color, var(--yn-sku-selector-option-bg, #fff));
-      font-family: inherit;
-      font-size: var(--yn-sku-selector-submit-font-size, clamp(13px, 3.4vw, 15px));
-      font-weight: var(--yn-sku-selector-submit-font-weight, 700);
-      letter-spacing: var(--yn-sku-selector-submit-letter-spacing, 0.06em);
-      text-transform: uppercase;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--yn-sku-selector-submit-gap, 10px);
-      transition:
-        background-color 0.15s ease,
-        color 0.15s ease,
-        opacity 0.15s ease;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    .submit:disabled {
-      opacity: var(--yn-sku-selector-submit-disabled-opacity, 0.55);
-      cursor: not-allowed;
-    }
-
-    @media (hover: hover) {
-      .submit:not(:disabled):hover {
-        background: var(--yn-sku-selector-submit-hover-bg, transparent);
-        color: var(--yn-sku-selector-submit-hover-color, currentColor);
-      }
-    }
-
-    .submit:active:not(:disabled) {
-      background: var(--yn-sku-selector-submit-hover-bg, transparent);
-      color: var(--yn-sku-selector-submit-hover-color, currentColor);
-    }
-
-    .submit.is-loading .submit-label,
-    .submit.is-loading .submit-price {
-      opacity: 0.35;
-    }
-
-    .submit-spinner {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .submit-spinner svg {
-      width: 1.25em;
-      height: 1.25em;
-      display: block;
-    }
-
-    .submit-price {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: var(--yn-sku-selector-price-font-size, 1.05em);
-      font-weight: var(--yn-sku-selector-price-font-weight, 500);
-      letter-spacing: 0;
-      text-transform: none;
-    }
-
-    .currency-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 1em;
-      height: 1em;
-      flex-shrink: 0;
-    }
-
-    .currency-icon :is(svg) {
-      width: 100%;
-      height: 100%;
-      display: block;
+      width: fit-content;
+      max-width: 100%;
+      margin-top: var(--yn-sku-selector-submit-margin-top, 24px);
     }
   `;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.indicatorObserver = new ResizeObserver(() => this.syncIndicators());
+    this.indicatorObserver.observe(this);
+  }
+
+  disconnectedCallback() {
+    this.indicatorObserver?.disconnect();
+    super.disconnectedCallback();
+  }
+
+  protected firstUpdated() {
+    this.syncIndicators();
+  }
+
+  protected willUpdate(changed: Map<string, unknown>) {
+    if (!this.simple && this.pickOne && this.skus.length && this.specKeys.length) {
+      const shouldApply =
+        !this.hasAppliedPickOne || changed.has("skus") || (changed.has("pickOne") && this.pickOne);
+      if (shouldApply) {
+        this.curs = buildFirstAvailableCurs(this.skus, this.specKeys);
+        this.hasAppliedPickOne = true;
+        if (!this.hasEmittedInit) {
+          this.pendingPickOneInit = true;
+        }
+      }
+    } else if (changed.has("pickOne") && !this.pickOne) {
+      this.hasAppliedPickOne = false;
+      this.pendingPickOneInit = false;
+    }
+
+    if (changed.has("skus") && (this.simple || !this.pickOne)) {
+      this.ensureCursLength();
+      this.curs = this.curs.map((cur, index) => {
+        if (!cur) return "";
+        const group = buildGroupSpec(this.skus, this.specKeys);
+        const values = group[index]?.list.map(toComparable) ?? [];
+        return values.includes(cur) ? cur : "";
+      });
+    }
+  }
+
+  protected updated(changed: Map<string, unknown>) {
+    if (this.pendingPickOneInit) {
+      this.pendingPickOneInit = false;
+      this.hasEmittedInit = true;
+      this.emitInit();
+    }
+
+    if (changed.has("curs") || changed.has("skus") || changed.has("simple")) {
+      this.syncIndicators();
+    }
+  }
+
+  private syncIndicators() {
+    requestAnimationFrame(() => {
+      const styles: Record<number, string> = {};
+      this.shadowRoot?.querySelectorAll<HTMLElement>(".section[data-depth]").forEach((section) => {
+        const depth = Number(section.dataset.depth);
+        if (Number.isNaN(depth)) return;
+        const options = section.querySelector(".options");
+        const active = section.querySelector<HTMLElement>(".option.active:not(.unavailable)");
+        if (!options || !active) {
+          styles[depth] = "opacity:0;";
+          return;
+        }
+        const oRect = options.getBoundingClientRect();
+        const aRect = active.getBoundingClientRect();
+        styles[depth] = [
+          `transform:translate3d(${aRect.left - oRect.left}px,${aRect.top - oRect.top}px,0)`,
+          `width:${aRect.width}px`,
+          `height:${aRect.height}px`,
+          "opacity:1"
+        ].join(";");
+      });
+      this.indicatorStyles = styles;
+    });
+  }
 
   private get specKeys() {
     return getSpecKeys(this.skus);
@@ -341,18 +353,6 @@ export class YnSkuSelector extends LitElement {
     const len = this.specKeys.length;
     if (this.curs.length === len) return;
     this.curs = Array.from({ length: len }, (_, index) => this.curs[index] ?? "");
-  }
-
-  protected willUpdate(changed: Map<string, unknown>) {
-    if (changed.has("skus")) {
-      this.ensureCursLength();
-      this.curs = this.curs.map((cur, index) => {
-        if (!cur) return "";
-        const group = buildGroupSpec(this.skus, this.specKeys);
-        const values = group[index]?.list.map(toComparable) ?? [];
-        return values.includes(cur) ? cur : "";
-      });
-    }
   }
 
   private getSnapshot(): YnSkuChangeDetail {
@@ -392,6 +392,16 @@ export class YnSkuSelector extends LitElement {
   private emitChange() {
     this.dispatchEvent(
       new CustomEvent<YnSkuChangeDetail>("change", {
+        detail: this.getSnapshot(),
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+
+  private emitInit() {
+    this.dispatchEvent(
+      new CustomEvent<YnSkuInitDetail>("init", {
         detail: this.getSnapshot(),
         bubbles: true,
         composed: true
@@ -463,25 +473,13 @@ export class YnSkuSelector extends LitElement {
     }
   }
 
+  private formatPriceText(price: number | undefined) {
+    if (price == null || Number.isNaN(price)) return "—";
+    return this.formatDisplayPrice(price);
+  }
+
   private handleSubmitClick() {
     this.trySubmit();
-  }
-
-  private renderCurrencyIcon() {
-    if (!this.currencyIcon) return nothing;
-    return html`<span class="currency-icon" aria-hidden="true">${unsafeSVG(this.currencyIcon)}</span>`;
-  }
-
-  private renderPrice(price: number | undefined) {
-    if (price == null || Number.isNaN(price)) {
-      return html`<span class="submit-price">—</span>`;
-    }
-    return html`
-      <span class="submit-price">
-        ${this.formatDisplayPrice(price)}
-        ${this.currencyIcon ? this.renderCurrencyIcon() : nothing}
-      </span>
-    `;
   }
 
   private renderSpecOptions() {
@@ -490,11 +488,12 @@ export class YnSkuSelector extends LitElement {
     const groupSpec = buildGroupSpec(this.skus, keys);
     const groupHas = buildGroupHas(this.skus, keys, this.curs);
     return groupSpec.map(({ specKey, depth, list }) => html`
-      <section class="section" aria-label=${this.resolveLabel(specKey)}>
+      <section class="section" data-depth=${depth} aria-label=${this.resolveLabel(specKey)}>
         ${!this.simple && this.shouldShowSpecLabel(specKey)
           ? html`<p class="label">${this.labels[specKey]}</p>`
           : nothing}
         <div class="options" role="listbox" aria-label=${this.resolveLabel(specKey)}>
+          <div class="option-indicator" style=${this.indicatorStyles[depth] ?? "opacity:0;"}></div>
           ${list.map((value) => {
             const comparable = toComparable(value);
             const isActive = this.curs[depth] === comparable;
@@ -521,7 +520,7 @@ export class YnSkuSelector extends LitElement {
                 @click=${() => this.handleOptionClick(depth, value)}
               >
                 <span class="option-label">${value}</span>
-                ${isLoading ? html`<span class="option-spinner">${unsafeSVG(loadingSvg)}</span>` : nothing}
+                ${isLoading ? html`<span class="option-spinner">${unsafeSVG(ynSkuLoadingSvg)}</span>` : nothing}
               </button>
             `;
           })}
@@ -547,16 +546,19 @@ export class YnSkuSelector extends LitElement {
         ? html`
             <div class="submit-wrap">
               ${this.hint ? html`<p class="hint" role="alert">${this.hint}</p>` : html`<p class="hint" aria-hidden="true"></p>`}
-              <button
-                type="button"
-                class="submit ${this.submitting ? "is-loading" : ""}"
-                ?disabled=${this.disabled || this.submitting}
+              <yn-sku-cart-button
+                .label=${this.submitLabel}
+                loading-text=${this.loadingText}
+                .price=${this.formatPriceText(displayPrice)}
+                .cartIcon=${this.cartIcon}
+                currency-icon=${this.currencyIcon}
+                ?show-cart-icon=${this.showCartIcon}
+                ?loading=${this.submitting}
+                ?disabled=${this.disabled}
                 @click=${this.handleSubmitClick}
               >
-                <span class="submit-label">${this.submitLabel}</span>
-                ${this.renderPrice(displayPrice)}
-                ${this.submitting ? html`<span class="submit-spinner">${unsafeSVG(loadingSvg)}</span>` : nothing}
-              </button>
+                <slot name="submit-icon" slot="icon"></slot>
+              </yn-sku-cart-button>
             </div>
           `
         : nothing}

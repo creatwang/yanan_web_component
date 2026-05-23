@@ -13,8 +13,10 @@ export { YnPullCordSwitch } from "./components/yn-pull-cord-switch/yn-pull-cord-
 export { YnQuantity } from "./components/yn-quantity/yn-quantity";
 export { YnCheckoutAddress } from "./components/yn-checkout-address/yn-checkout-address";
 export { YnSkuSelector } from "./components/yn-sku-selector/yn-sku-selector";
+export { YnSkuCartButton } from "./components/yn-sku-selector/yn-sku-cart-button";
 export type {
   YnSkuChangeDetail,
+  YnSkuInitDetail,
   YnSkuItem,
   YnSkuSelection,
   YnSkuSpecValue,

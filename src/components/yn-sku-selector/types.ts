@@ -20,6 +20,9 @@ export type YnSkuChangeDetail = {
   missingKeys: string[];
 };
 
+/** pick-one 初始化完成时 `init` 事件的 detail，结构与 change 一致 */
+export type YnSkuInitDetail = YnSkuChangeDetail;
+
 export type YnSkuSubmitDetail = {
   selections: YnSkuSelection;
   sku: YnSkuItem;
