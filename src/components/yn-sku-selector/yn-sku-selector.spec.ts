@@ -171,4 +171,31 @@ describe("yn-sku-selector", () => {
     expect(el.shadowRoot?.querySelector(".option.active")).to.equal(null);
     expect(initCount).to.equal(0);
   });
+
+  it("supports whitelist and exclude semantics for spec keys", async () => {
+    const skus = [
+      { weight: "1kg", color: "红色", size: "37", channel: "online", price: 65, id: "1" },
+      { weight: "1kg", color: "黑色", size: "38", channel: "store", price: 68, id: "2" }
+    ];
+    const el = await fixture<YnSkuSelector>(html`
+      <yn-sku-selector
+        .skus=${skus}
+        .specKeyWhitelist=${["weight", "size", "channel"]}
+        .specKeyExclude=${["channel"]}
+      ></yn-sku-selector>
+    `);
+
+    const labels = [...(el.shadowRoot?.querySelectorAll<HTMLElement>(".section .label") ?? [])].map(
+      (node) => node.textContent?.trim()
+    );
+    const optionsCount = el.shadowRoot?.querySelectorAll(".section").length ?? 0;
+
+    expect(optionsCount).to.equal(2);
+    expect(labels).to.deep.equal([]);
+
+    const firstSectionOptions =
+      el.shadowRoot?.querySelectorAll<HTMLButtonElement>(".section")[0]?.querySelectorAll(".option")
+        .length ?? 0;
+    expect(firstSectionOptions).to.equal(1);
+  });
 });

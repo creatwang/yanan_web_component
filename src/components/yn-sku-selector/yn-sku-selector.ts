@@ -46,6 +46,20 @@ const parseLabelsFromAttribute = (raw: string | null): Record<string, string> =>
   }
 };
 
+const parseStringArrayFromAttribute = (raw: string | null): string[] => {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((item): item is string => typeof item === "string")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+};
+
 const formatPrice = (price: number) => price.toFixed(2);
 
 /**
@@ -115,6 +129,24 @@ export class YnSkuSelector extends LitElement {
     }
   })
   labels: Record<string, string> = {};
+
+  @property({
+    attribute: "spec-key-whitelist",
+    converter: {
+      fromAttribute: parseStringArrayFromAttribute,
+      toAttribute: (value: string[]) => JSON.stringify(value ?? [])
+    }
+  })
+  specKeyWhitelist: string[] = [];
+
+  @property({
+    attribute: "spec-key-exclude",
+    converter: {
+      fromAttribute: parseStringArrayFromAttribute,
+      toAttribute: (value: string[]) => JSON.stringify(value ?? [])
+    }
+  })
+  specKeyExclude: string[] = [];
 
   @property({ type: Boolean, reflect: true })
   disabled = false;
@@ -309,10 +341,11 @@ export class YnSkuSelector extends LitElement {
     }
 
     if (changed.has("skus") && (this.simple || !this.pickOne)) {
-      this.ensureCursLength();
-      this.curs = this.curs.map((cur, index) => {
+      const keys = this.specKeys;
+      const normalized = this.normalizeCurs(keys);
+      const group = buildGroupSpec(this.skus, keys);
+      this.curs = normalized.map((cur, index) => {
         if (!cur) return "";
-        const group = buildGroupSpec(this.skus, this.specKeys);
         const values = group[index]?.list.map(toComparable) ?? [];
         return values.includes(cur) ? cur : "";
       });
@@ -357,21 +390,26 @@ export class YnSkuSelector extends LitElement {
   }
 
   private get specKeys() {
-    return getSpecKeys(this.skus);
+    return getSpecKeys(this.skus, {
+      whitelistKeys: this.specKeyWhitelist,
+      excludeKeys: this.specKeyExclude
+    });
   }
 
-  private ensureCursLength() {
-    const len = this.specKeys.length;
-    if (this.curs.length === len) return;
-    this.curs = Array.from({ length: len }, (_, index) => this.curs[index] ?? "");
+  private normalizeCurs(keys: string[]) {
+    return Array.from({ length: keys.length }, (_, index) => this.curs[index] ?? "");
+  }
+
+  private toComparableSet(values: YnSkuSpecValue[] | undefined) {
+    return new Set((values ?? []).map(toComparable));
   }
 
   private getSnapshot(): YnSkuChangeDetail {
     const keys = this.specKeys;
-    this.ensureCursLength();
-    const selections = buildSelection(keys, this.curs);
-    const sku = findMatchedSku(this.skus, keys, this.curs);
-    const missingKeys = getMissingKeys(keys, this.curs);
+    const curs = this.normalizeCurs(keys);
+    const selections = buildSelection(keys, curs);
+    const sku = findMatchedSku(this.skus, keys, curs);
+    const missingKeys = getMissingKeys(keys, curs);
     return {
       selections,
       sku,
@@ -463,12 +501,13 @@ export class YnSkuSelector extends LitElement {
     if (this.disabled || this.submitting) return;
 
     const keys = this.specKeys;
-    const groupHas = buildGroupHas(this.skus, keys, this.curs);
+    const curs = this.normalizeCurs(keys);
+    const groupHas = buildGroupHas(this.skus, keys, curs);
+    const availableSet = this.toComparableSet(groupHas[depth]);
     const comparable = toComparable(value);
-    if (!groupHas[depth]?.some((item) => toComparable(item) === comparable)) return;
+    if (!availableSet.has(comparable)) return;
 
-    this.ensureCursLength();
-    const next = [...this.curs];
+    const next = [...curs];
     next[depth] = next[depth] === comparable ? "" : comparable;
     this.curs = next;
     this.hint = "";
@@ -495,9 +534,10 @@ export class YnSkuSelector extends LitElement {
 
   private renderSpecOptions() {
     const keys = this.specKeys;
-    this.ensureCursLength();
+    const curs = this.normalizeCurs(keys);
     const groupSpec = buildGroupSpec(this.skus, keys);
-    const groupHas = buildGroupHas(this.skus, keys, this.curs);
+    const groupHas = buildGroupHas(this.skus, keys, curs);
+    const availableSets = groupHas.map((values) => this.toComparableSet(values));
     return groupSpec.map(({ specKey, depth, list }) => html`
       <section class="section" data-depth=${depth} aria-label=${this.resolveLabel(specKey)}>
         ${!this.simple && this.shouldShowSpecLabel(specKey)
@@ -507,8 +547,8 @@ export class YnSkuSelector extends LitElement {
           <div class="option-indicator" style=${this.indicatorStyles[depth] ?? "opacity:0;"}></div>
           ${list.map((value) => {
             const comparable = toComparable(value);
-            const isActive = this.curs[depth] === comparable;
-            const isAvailable = groupHas[depth]?.some((item) => toComparable(item) === comparable) ?? false;
+            const isActive = curs[depth] === comparable;
+            const isAvailable = availableSets[depth]?.has(comparable) ?? false;
             const isLoading =
               this.submitting && this.loadingDepth === depth && this.loadingValue === comparable;
             const classes = [
@@ -577,6 +617,31 @@ export class YnSkuSelector extends LitElement {
     `;
   }
 }
+
+export type {
+  YnSkuCartButtonLoadingMode,
+  YnSkuChangeDetail,
+  YnSkuInitDetail,
+  YnSkuItem,
+  YnSkuSelection,
+  YnSkuSpecValue,
+  YnSkuSubmitDetail,
+  YnSkuSubmitEvent,
+  YnSkuSubmitHandler,
+  YnSkuSubmitInstance
+} from "./types";
+
+export type { YnSkuGroupSpec } from "./sku-engine";
+export {
+  toComparable,
+  getSpecKeys,
+  buildGroupSpec,
+  buildGroupHas,
+  buildSelection,
+  findMatchedSku,
+  getMissingKeys,
+  buildFirstAvailableCurs
+} from "./sku-engine";
 
 declare global {
   interface HTMLElementTagNameMap {

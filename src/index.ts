@@ -20,12 +20,24 @@ export type {
   YnSkuInitDetail,
   YnSkuItem,
   YnSkuSelection,
+  YnSkuSpecKeyResolverOptions,
   YnSkuSpecValue,
   YnSkuSubmitDetail,
   YnSkuSubmitEvent,
   YnSkuSubmitHandler,
   YnSkuSubmitInstance
 } from "./components/yn-sku-selector/types";
+export {
+  toComparable,
+  getSpecKeys,
+  buildGroupSpec,
+  buildGroupHas,
+  buildSelection,
+  findMatchedSku,
+  getMissingKeys,
+  buildFirstAvailableCurs
+} from "./components/yn-sku-selector/sku-engine";
+export type { YnSkuGroupSpec } from "./components/yn-sku-selector/sku-engine";
 export type {
   YnCheckoutAddressChangeDetail,
   YnCheckoutAddressField,

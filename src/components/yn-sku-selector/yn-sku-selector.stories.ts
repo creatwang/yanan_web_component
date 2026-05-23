@@ -38,6 +38,13 @@ const jerseySkus = [
   { size: "2XL", price: 65, id: "2xl" }
 ];
 
+const skuWithChannelSkus = [
+  { weight: "1kg", color: "红色", size: "37", channel: "online", price: 65, id: "1" },
+  { weight: "1kg", color: "红色", size: "38", channel: "store", price: 65, id: "2" },
+  { weight: "2kg", color: "黑色", size: "38", channel: "online", price: 72, id: "3" },
+  { weight: "2kg", color: "白色", size: "41", channel: "store", price: 75, id: "4" }
+];
+
 const euroIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 10h11M5 14h11M16 7a7 7 0 1 0 0 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
 
 const defaultSubmitIcon = html`${unsafeSVG(
@@ -67,6 +74,8 @@ type Args = {
   showCartIcon: boolean;
   incompleteHint: string;
   labels: Record<string, string>;
+  specKeyWhitelist: string[];
+  specKeyExclude: string[];
   disabled: boolean;
   rowHeight: string;
   rowGap: string;
@@ -142,6 +151,43 @@ const syncDemoSubmitLoading = (el: Element | undefined, args: Args) => {
   })();
 };
 
+type SelectorEventHandlers = {
+  onChange: (event: Event) => void;
+  onInit: (event: Event) => void;
+  onSubmit: (event: Event) => void;
+};
+
+const renderSelectorHost = (
+  args: Args,
+  handlers: SelectorEventHandlers,
+  title?: unknown
+) => html`
+  <yn-sku-selector
+    ${ref((el) => syncDemoSubmitLoading(el ?? undefined, args))}
+    .skus=${args.skus}
+    currency=${args.currency}
+    currency-icon=${args.currencyIcon}
+    ?simple=${args.simple}
+    ?pick-one=${args.pickOne}
+    submit-label=${args.submitLabel}
+    loading-text=${args.loadingText}
+    loading-mode=${args.loadingMode}
+    incomplete-hint=${args.incompleteHint}
+    .labels=${args.labels}
+    .specKeyWhitelist=${args.specKeyWhitelist}
+    .specKeyExclude=${args.specKeyExclude}
+    .cartIcon=${args.cartIcon || ynSkuCartSvg}
+    ?show-cart-icon=${args.showCartIcon}
+    ?disabled=${args.disabled}
+    style=${skuStyle(args)}
+    @change=${handlers.onChange}
+    @init=${handlers.onInit}
+    @submit=${handlers.onSubmit}
+  >
+    ${title ?? nothing} ${resolveSubmitIcon(args.submitIcon)}
+  </yn-sku-selector>
+`;
+
 const bindSkuEvents = (args: Args, options?: { autoDone?: boolean }) => ({
   onChange: (event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>),
   onInit: (event: Event) => args.onInit?.(event as CustomEvent<YnSkuInitDetail>),
@@ -156,30 +202,7 @@ const bindSkuEvents = (args: Args, options?: { autoDone?: boolean }) => ({
 
 const renderSkuSelector = (args: Args, title?: unknown, options?: { autoDone?: boolean }) => {
   const events = bindSkuEvents(args, options);
-  return html`
-    <yn-sku-selector
-      ${ref((el) => syncDemoSubmitLoading(el ?? undefined, args))}
-      .skus=${args.skus}
-      currency=${args.currency}
-      currency-icon=${args.currencyIcon}
-      ?simple=${args.simple}
-      ?pick-one=${args.pickOne}
-      submit-label=${args.submitLabel}
-      loading-text=${args.loadingText}
-      loading-mode=${args.loadingMode}
-      incomplete-hint=${args.incompleteHint}
-      .labels=${args.labels}
-      .cartIcon=${args.cartIcon || ynSkuCartSvg}
-      ?show-cart-icon=${args.showCartIcon}
-      ?disabled=${args.disabled}
-      style=${skuStyle(args)}
-      @change=${events.onChange}
-      @init=${events.onInit}
-      @submit=${events.onSubmit}
-    >
-      ${title ?? nothing} ${resolveSubmitIcon(args.submitIcon)}
-    </yn-sku-selector>
-  `;
+  return renderSelectorHost(args, events, title);
 };
 
 const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
@@ -190,42 +213,29 @@ const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
     >
       选齐规格后点击加购，将模拟约 1.2s 异步请求；请求完成前按钮保持 loading 且整组规格禁用。
     </p>
-    <yn-sku-selector
-      ${ref((el) => syncDemoSubmitLoading(el ?? undefined, args))}
-      .skus=${args.skus}
-      currency=${args.currency}
-      currency-icon=${args.currencyIcon}
-      ?simple=${args.simple}
-      ?pick-one=${args.pickOne}
-      submit-label=${args.submitLabel}
-      loading-text=${args.loadingText}
-      loading-mode=${args.loadingMode}
-      incomplete-hint=${args.incompleteHint}
-      .labels=${args.labels}
-      .cartIcon=${args.cartIcon || ynSkuCartSvg}
-      ?show-cart-icon=${args.showCartIcon}
-      ?disabled=${args.disabled}
-      style=${skuStyle(args)}
-      @change=${(event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>)}
-      @init=${(event: Event) => args.onInit?.(event as CustomEvent<YnSkuInitDetail>)}
-      @submit=${async (event: Event) => {
-        const submitEvent = event as YnSkuSubmitEvent;
-        args.onSubmit?.(submitEvent.detail, submitEvent.instance);
-        const root = (event.currentTarget as HTMLElement).closest("[data-async-demo]");
-        const status = root?.querySelector<HTMLElement>("[data-async-status]");
-        if (status) status.textContent = "加购请求中…";
-        try {
-          const result = await mockAddToCart(submitEvent.detail.sku.id);
-          if (status) status.textContent = `加购成功 · SKU ${result.skuId}`;
-        } catch (error) {
-          if (status) status.textContent = `加购失败 · ${(error as Error).message}`;
-        } finally {
-          submitEvent.instance.done();
+    ${renderSelectorHost(
+      args,
+      {
+        onChange: (event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>),
+        onInit: (event: Event) => args.onInit?.(event as CustomEvent<YnSkuInitDetail>),
+        onSubmit: async (event: Event) => {
+          const submitEvent = event as YnSkuSubmitEvent;
+          args.onSubmit?.(submitEvent.detail, submitEvent.instance);
+          const root = (event.currentTarget as HTMLElement).closest("[data-async-demo]");
+          const status = root?.querySelector<HTMLElement>("[data-async-status]");
+          if (status) status.textContent = "加购请求中…";
+          try {
+            const result = await mockAddToCart(submitEvent.detail.sku.id);
+            if (status) status.textContent = `加购成功 · SKU ${result.skuId}`;
+          } catch (error) {
+            if (status) status.textContent = `加购失败 · ${(error as Error).message}`;
+          } finally {
+            submitEvent.instance.done();
+          }
         }
-      }}
-    >
-      ${title ?? nothing} ${resolveSubmitIcon(args.submitIcon)}
-    </yn-sku-selector>
+      },
+      title
+    )}
     <pre
       data-async-code
       style="margin:20px 0 0;padding:14px;border:1px solid #ddd;border-radius:8px;font-size:11px;line-height:1.6;overflow:auto;background:#fafafa;"
@@ -243,6 +253,17 @@ const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
 });</code></pre>
   </div>
 `;
+
+const renderSelectorCard = (args: Args) => html`
+  <div style="padding:24px;max-width:420px;color:#000;">${renderSkuSelector(args)}</div>
+`;
+
+const jerseyNoDrugAsyncTitle = html`<h1
+  slot="title"
+  style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
+>
+  Jersey - No Drug
+</h1>`;
 
 const componentDescription = `SKU 规格选择器：多维规格联动、加购校验、submit 异步回调与 simple 快速加购模式。
 
@@ -280,7 +301,135 @@ import "yn-web-component/define";
 
 ## pick-one
 
-非 simple 模式下设置 \`pick-one\` 后，组件会按规格维度顺序贪心选中第一组可用 SKU，并在初始化完成后触发 \`init\` 事件（detail 与 \`change\` 一致）。`;
+非 simple 模式下设置 \`pick-one\` 后，组件会按规格维度顺序贪心选中第一组可用 SKU，并在初始化完成后触发 \`init\` 事件（detail 与 \`change\` 一致）。
+
+## 规格维度白名单 / 排除
+
+- \`spec-key-whitelist\`：仅白名单字段参与规格组合（并按白名单顺序计算）
+- \`spec-key-exclude\`：在默认排除字段（\`price/id/stock/skuId\`）基础上追加排除
+
+当白名单与排除同时设置时，最终结果会先应用白名单，再过滤排除项。
+
+## 获取第一组有效 SKU 组合（推荐用法）
+
+组件内已内置算法。业务侧通常不需要手写 SKU 组合计算，直接开启 \`pick-one\` 并监听 \`init\` 即可拿到第一组可用组合与命中 SKU。
+
+\`\`\`ts
+const el = document.querySelector("yn-sku-selector");
+el?.setAttribute("pick-one", "");
+el?.addEventListener("init", (event) => {
+  const detail = (event as CustomEvent<{
+    selections: Record<string, string | number>;
+    sku: { id?: string | number; price?: number } | null;
+    ready: boolean;
+    missingKeys: string[];
+  }>).detail;
+
+  // 第一组有效组合（如 { weight: "1kg", color: "红色", size: "37" }）
+  console.log("selections", detail.selections);
+  // 命中的完整 SKU（如 id=1）
+  console.log("sku", detail.sku);
+});
+\`\`\`
+
+若你的示例数据是文档中的演示数据，第一组有效组合会命中 \`weight=1kg, color=红色, size=37\`（SKU id 为 \`1\`）。
+
+## SKU 算法 API 用法（源码侧）
+
+常用算法能力已对外暴露（既可从总入口，也可从组件子路径导入）：
+
+\`\`\`ts
+// 总入口
+import {
+  getSpecKeys,
+  buildGroupSpec,
+  buildGroupHas,
+  buildSelection,
+  findMatchedSku,
+  getMissingKeys,
+  buildFirstAvailableCurs,
+  toComparable
+} from "yn-web-component";
+
+// 或组件子路径（推荐 Tree Shaking）
+import {
+  getSpecKeys,
+  buildGroupSpec,
+  buildGroupHas,
+  buildSelection,
+  findMatchedSku,
+  getMissingKeys,
+  buildFirstAvailableCurs,
+  toComparable
+} from "yn-web-component/components/yn-sku-selector";
+\`\`\`
+
+### API 说明
+
+- \`getSpecKeys(items, options?)\`
+  - 作用：提取规格维度 key（支持白名单/排除语义）
+  - \`options.whitelistKeys?: string[]\`：仅这些字段参与，且按数组顺序返回
+  - \`options.excludeKeys?: string[]\`：在默认元数据字段外追加排除
+  - 返回：如 \`["weight", "color", "size"]\`（顺序取决于对象字段顺序）
+
+- \`buildGroupSpec(items, keys)\`
+  - 作用：按维度构建规格分组与候选值列表
+  - 返回：\`{ specKey, depth, list }[]\`，常用于渲染规格 UI
+
+- \`buildGroupHas(items, keys, curs)\`
+  - 作用：基于当前已选 \`curs\` 计算每个维度当前可选值
+  - 返回：二维数组，\`[depth] => 可选值列表\`
+
+- \`buildSelection(keys, curs)\`
+  - 作用：把 \`keys + curs\` 转成对象结构
+  - 返回：如 \`{ weight: "1kg", color: "红色" }\`
+
+- \`findMatchedSku(items, keys, curs)\`
+  - 作用：在所有维度都已选齐时匹配完整 SKU
+  - 返回：命中的 SKU；若未选齐或无匹配则为 \`null\`
+
+- \`getMissingKeys(keys, curs)\`
+  - 作用：返回尚未选择的维度 key
+  - 返回：如 \`["size"]\`
+
+- \`buildFirstAvailableCurs(items, keys)\`
+  - 作用：按维度顺序贪心选取第一组可用组合
+  - 返回：如 \`["1kg", "红色", "37"]\`
+
+- \`toComparable(value)\`
+  - 作用：统一比较值（当前实现为 \`String(value)\`），用于规避 string/number 比较差异
+
+### 常见调用流程
+
+最常见场景：拿第一组可用组合 + 命中 SKU。
+
+\`\`\`ts
+const keys = getSpecKeys(skus, {
+  // 可选：白名单（只参与这些字段）
+  // whitelistKeys: ["weight", "color", "size"],
+  // 可选：额外排除字段
+  // excludeKeys: ["region", "channel"]
+});
+// 通常为 ["weight", "color", "size"]（取决于对象字段顺序）
+
+const curs = buildFirstAvailableCurs(skus, keys);
+// 例如 ["1kg", "红色", "37"]
+
+const firstSku = findMatchedSku(skus, keys, curs);
+// 命中的完整 SKU（示例数据下 id=1）
+\`\`\`
+
+返回关系说明：
+
+- \`keys\`：规格维度顺序（用于后续算法统一索引）
+- \`curs\`：按 \`keys\` 顺序的首组可用值数组
+- \`firstSku\`：当 \`curs\` 选齐时命中的完整 SKU；否则为 \`null\`
+
+### 注意事项
+
+- \`keys\` 顺序会直接影响“第一组可用组合”的结果；如需稳定，请保证 SKU 数据字段顺序一致。
+- \`buildFirstAvailableCurs\` 是“贪心首组”策略，不代表价格最低/库存最高。
+- 若你只是使用组件，仍推荐优先 \`pick-one + init\`；若要自定义流程、服务端预计算或独立算法复用，再直接调用这些 API。`;
 
 const meta = {
   title: "Components/YnSkuSelector",
@@ -305,6 +454,8 @@ const meta = {
     showCartIcon: true,
     incompleteHint: "请选择 {label}",
     labels: { weight: "Weight", color: "Color", size: "Size" },
+    specKeyWhitelist: [],
+    specKeyExclude: [],
     disabled: false,
     rowHeight: "48px",
     rowGap: "24px",
@@ -404,6 +555,20 @@ const meta = {
       control: "object",
       description: "规格维度展示名映射；不传或某 key 未配置时，对应维度标签不展示。",
       table: { defaultValue: { summary: "{}" } }
+    },
+    specKeyWhitelist: {
+      control: "object",
+      name: "spec-key-whitelist",
+      description:
+        "规格维度白名单（按数组顺序生效）；设置后仅这些字段参与 SKU 组合计算。",
+      table: { defaultValue: { summary: "[]" } }
+    },
+    specKeyExclude: {
+      control: "object",
+      name: "spec-key-exclude",
+      description:
+        "规格维度排除名单；在默认排除字段（price/id/stock/skuId）基础上追加排除。",
+      table: { defaultValue: { summary: "[]" } }
     },
     disabled: {
       control: "boolean",
@@ -749,9 +914,7 @@ export const WithoutSpecLabels: Story = {
     labels: {},
     incompleteHint: "请选择 {label}"
   },
-  render: (args) => html`
-    <div style="padding:24px;max-width:420px;color:#000;">${renderSkuSelector(args)}</div>
-  `,
+  render: renderSelectorCard,
   play: playDefaultInteractions
 };
 
@@ -786,9 +949,7 @@ export const CurrencyIcon: Story = {
     currency: "",
     currencyIcon: euroIcon
   },
-  render: (args) => html`
-    <div style="padding:24px;max-width:420px;color:#000;">${renderSkuSelector(args)}</div>
-  `,
+  render: renderSelectorCard,
   play: async ({ canvasElement, step, args }) => {
     const host = getHost(canvasElement);
     if (!host?.shadowRoot) return;
@@ -863,6 +1024,47 @@ export const ListItemCompact: Story = {
   }
 };
 
+export const SpecKeyWhitelistExclude: Story = {
+  name: "规格白名单与排除",
+  args: {
+    skus: skuWithChannelSkus,
+    labels: { weight: "Weight", size: "Size", channel: "Channel" },
+    specKeyWhitelist: ["weight", "size", "channel"],
+    specKeyExclude: ["channel"],
+    submitLabel: "Add to cart"
+  },
+  render: (args) => html`
+    <div style="padding:24px;max-width:520px;color:#000;">
+      <p style="margin:0 0 12px;font-size:13px;line-height:1.6;color:#555;">
+        白名单先限定参与维度（weight/size/channel），再通过排除名单去掉 channel，最终只保留
+        Weight 与 Size 两组规格。
+      </p>
+      ${renderSkuSelector(args)}
+    </div>
+  `,
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "演示 `spec-key-whitelist` 与 `spec-key-exclude` 叠加规则：先按白名单筛选，再按排除名单过滤。"
+      }
+    }
+  },
+  play: async ({ canvasElement, step }) => {
+    const host = getHost(canvasElement);
+    if (!host?.shadowRoot) return;
+
+    await step("仅渲染 Weight 与 Size 两组规格", async () => {
+      await host.updateComplete;
+      const labels = [...host.shadowRoot.querySelectorAll<HTMLElement>(".label")].map((node) =>
+        node.textContent?.trim()
+      );
+      expect(labels).toEqual(["Weight", "Size"]);
+      expect(host.shadowRoot.querySelectorAll(".section").length).toBe(2);
+    });
+  }
+};
+
 const playAsyncSubmit: NonNullable<Story["play"]> = async ({ canvasElement, step, args }) => {
   const host = getHost(canvasElement);
   if (!host?.shadowRoot) return;
@@ -900,16 +1102,7 @@ export const AsyncSubmit: Story = {
     submitMarginTop: "0px",
     loadingIconSize: "10px"
   },
-  render: (args) =>
-    renderAsyncSubmitDemo(
-      args,
-      html`<h1
-        slot="title"
-        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
-      >
-        Jersey - No Drug
-      </h1>`
-    ),
+  render: (args) => renderAsyncSubmitDemo(args, jerseyNoDrugAsyncTitle),
   parameters: {
     docs: {
       description: {
@@ -978,16 +1171,7 @@ export const AsyncSubmitLoadingOverlay: Story = {
     demoSubmitLoading: true,
     pickOne: true
   },
-  render: (args) =>
-    renderAsyncSubmitDemo(
-      args,
-      html`<h1
-        slot="title"
-        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
-      >
-        Jersey - No Drug
-      </h1>`
-    ),
+  render: (args) => renderAsyncSubmitDemo(args, jerseyNoDrugAsyncTitle),
   parameters: {
     docs: {
       description: {
@@ -1007,16 +1191,7 @@ export const AsyncSubmitLoadingText: Story = {
     submitLabel: "Add to cart",
     loadingText: "ADDING..."
   },
-  render: (args) =>
-    renderAsyncSubmitDemo(
-      args,
-      html`<h1
-        slot="title"
-        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
-      >
-        Jersey - No Drug
-      </h1>`
-    ),
+  render: (args) => renderAsyncSubmitDemo(args, jerseyNoDrugAsyncTitle),
   parameters: {
     docs: {
       description: {

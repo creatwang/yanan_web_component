@@ -11,6 +11,13 @@ export type YnSkuItem = {
 
 export type YnSkuSelection = Record<string, YnSkuSpecValue>;
 
+export type YnSkuSpecKeyResolverOptions = {
+  /** 白名单：仅这些字段会作为规格维度；为空时按默认规则自动推断 */
+  whitelistKeys?: string[];
+  /** 额外排除字段：在默认元数据字段之外，再排除这些 key */
+  excludeKeys?: string[];
+};
+
 export type YnSkuChangeDetail = {
   /** 当前各维度已选值（未选中的维度不在对象中） */
   selections: YnSkuSelection;

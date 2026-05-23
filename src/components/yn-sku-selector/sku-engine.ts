@@ -1,4 +1,10 @@
-import { YN_SKU_META_KEYS, type YnSkuItem, type YnSkuSelection, type YnSkuSpecValue } from "./types";
+import {
+  YN_SKU_META_KEYS,
+  type YnSkuItem,
+  type YnSkuSelection,
+  type YnSkuSpecKeyResolverOptions,
+  type YnSkuSpecValue
+} from "./types";
 
 export type YnSkuGroupSpec = {
   specKey: string;
@@ -8,9 +14,21 @@ export type YnSkuGroupSpec = {
 
 export const toComparable = (value: YnSkuSpecValue) => String(value);
 
-export const getSpecKeys = (items: YnSkuItem[]): string[] => {
+export const getSpecKeys = (
+  items: YnSkuItem[],
+  options?: YnSkuSpecKeyResolverOptions
+): string[] => {
   if (!items.length) return [];
-  return Object.keys(items[0]).filter((key) => !YN_SKU_META_KEYS.has(key));
+  const row = items[0];
+  const exclude = new Set([
+    ...YN_SKU_META_KEYS,
+    ...((options?.excludeKeys ?? []).filter((key) => key.trim().length > 0) ?? [])
+  ]);
+  const whitelist = (options?.whitelistKeys ?? []).filter((key) => key.trim().length > 0);
+  if (whitelist.length) {
+    return whitelist.filter((key) => Object.prototype.hasOwnProperty.call(row, key) && !exclude.has(key));
+  }
+  return Object.keys(row).filter((key) => !exclude.has(key));
 };
 
 export const buildGroupSpec = (items: YnSkuItem[], keys: string[]): YnSkuGroupSpec[] =>
