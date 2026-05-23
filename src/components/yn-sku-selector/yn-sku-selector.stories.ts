@@ -88,7 +88,6 @@ type Args = {
   hintColor: string;
   loadingSize: string;
   loadingIconSize: string;
-  loadingOverlaySize: string;
   demoSubmitLoading: boolean;
   onChange?: ReturnType<typeof fn>;
   onInit?: ReturnType<typeof fn>;
@@ -124,8 +123,7 @@ const skuStyle = (args: Args) =>
     `--yn-sku-selector-submit-color:${args.submitColor}`,
     `--yn-sku-selector-hint-color:${args.hintColor}`,
     cssVarIfPresent("--yn-sku-selector-submit-loading-size", args.loadingSize),
-    cssVarIfPresent("--yn-sku-selector-submit-loading-icon-size", args.loadingIconSize),
-    cssVarIfPresent("--yn-sku-selector-submit-loading-overlay-size", args.loadingOverlaySize)
+    cssVarIfPresent("--yn-sku-selector-submit-loading-icon-size", args.loadingIconSize)
   ]
     .filter((item): item is string => item != null)
     .join(";");
@@ -268,7 +266,6 @@ import "yn-web-component/define";
 | \`--yn-sku-selector-submit-margin-top\` | \`24px\` | 规格区与加购按钮区间距 |
 | \`--yn-sku-selector-submit-loading-size\` | \`-\` | loading spinner 通用尺寸（icon/overlay 都可生效） |
 | \`--yn-sku-selector-submit-loading-icon-size\` | \`24px\` | icon loading 模式下 spinner 尺寸 |
-| \`--yn-sku-selector-submit-loading-overlay-size\` | \`18px\` | overlay loading 模式下 spinner 尺寸 |
 
 兼容旧名：\`--yn-sku-selector-option-height\`、\`--yn-sku-selector-label-gap\`、\`--yn-sku-selector-section-gap\`。
 
@@ -329,7 +326,6 @@ const meta = {
     hintColor: "#c0392b",
     loadingSize: "",
     loadingIconSize: "24px",
-    loadingOverlaySize: "18px",
     demoSubmitLoading: false,
     onChange: fn(),
     onInit: fn(),
@@ -535,13 +531,6 @@ const meta = {
       description:
         "icon loading 模式下 spinner 尺寸。优先级高于 `--yn-sku-selector-submit-loading-size`；可开启 `demoSubmitLoading` 预览。",
       table: { category: "CSS Variables", defaultValue: { summary: "24px" } }
-    },
-    loadingOverlaySize: {
-      control: "text",
-      name: "--yn-sku-selector-submit-loading-overlay-size",
-      description:
-        "overlay loading 模式下 spinner 尺寸。优先级高于 `--yn-sku-selector-submit-loading-size`；可开启 `demoSubmitLoading` 预览。",
-      table: { category: "CSS Variables", defaultValue: { summary: "18px" } }
     },
     demoSubmitLoading: {
       control: "boolean",
@@ -907,7 +896,7 @@ export const AsyncSubmit: Story = {
     skus: jerseySkus,
     labels: { size: "Size" },
     submitLabel: "Add to cart",
-    loadingOverlaySize: "24px",
+    loadingSize: "24px",
     submitMarginTop: "0px",
     loadingIconSize: "10px"
   },

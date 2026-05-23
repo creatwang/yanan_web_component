@@ -201,8 +201,8 @@ export class YnSkuCartButton extends LitElement {
     }
 
     .submit-spinner-overlay svg {
-      width: var(--yn-sku-selector-submit-loading-overlay-size, 18px);
-      height: var(--yn-sku-selector-submit-loading-overlay-size, 18px);
+      width: var(--yn-sku-selector-submit-loading-size, 18px);
+      height: var(--yn-sku-selector-submit-loading-size, 18px);
       display: block;
     }
 

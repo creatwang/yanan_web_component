@@ -42,7 +42,7 @@ describe("yn-sku-cart-button", () => {
 
   it("applies overlay spinner size from css variable", async () => {
     const wrapper = await fixture<HTMLElement>(html`
-      <div style="--yn-sku-selector-submit-loading-overlay-size: 36px">
+      <div style="--yn-sku-selector-submit-loading-size: 36px">
         <yn-sku-cart-button loading loading-mode="overlay" price="65.00 €"></yn-sku-cart-button>
       </div>
     `);
