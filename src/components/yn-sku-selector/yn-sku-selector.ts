@@ -275,28 +275,6 @@ export class YnSkuSelector extends LitElement {
       margin-top: var(--yn-sku-selector-submit-margin-top, 24px);
     }
 
-    /* 将 host 上的加购按钮 CSS 变量显式转发至嵌套 yn-sku-cart-button，确保 Shadow DOM 内可继承 */
-    .submit-wrap yn-sku-cart-button {
-      --yn-sku-selector-submit-height: var(--yn-sku-selector-submit-height, 64px);
-      --yn-sku-selector-submit-outer-gap: var(--yn-sku-selector-submit-outer-gap, 10px);
-      --yn-sku-selector-submit-bg: var(--yn-sku-selector-submit-bg, #000);
-      --yn-sku-selector-submit-color: var(--yn-sku-selector-submit-color, #fff);
-      --yn-sku-selector-submit-inner-height: var(--yn-sku-selector-submit-inner-height, 44px);
-      --yn-sku-selector-submit-inset-color: var(--yn-sku-selector-submit-inset-color, #fff);
-      --yn-sku-selector-submit-divider-color: var(--yn-sku-selector-submit-divider-color, #fff);
-      --yn-sku-selector-submit-price-width: var(--yn-sku-selector-submit-price-width, auto);
-      --yn-sku-selector-price-font-weight: var(--yn-sku-selector-price-font-weight, 400);
-      --yn-sku-selector-cart-icon-size: var(--yn-sku-selector-cart-icon-size, 24px);
-      --yn-sku-selector-submit-loading-size: var(--yn-sku-selector-submit-loading-size);
-      --yn-sku-selector-submit-loading-icon-size: var(
-        --yn-sku-selector-submit-loading-icon-size,
-        var(--yn-sku-selector-submit-loading-size, 24px)
-      );
-      --yn-sku-selector-submit-loading-overlay-size: var(
-        --yn-sku-selector-submit-loading-overlay-size,
-        var(--yn-sku-selector-submit-loading-size, 18px)
-      );
-    }
   `;
 
   connectedCallback() {

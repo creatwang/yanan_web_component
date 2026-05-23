@@ -97,6 +97,11 @@ type Args = {
   submitIcon?: unknown;
 };
 
+const cssVarIfPresent = (name: string, value: string | undefined) => {
+  const normalized = value?.trim();
+  return normalized ? `${name}:${normalized}` : null;
+};
+
 const skuStyle = (args: Args) =>
   [
     `--yn-sku-selector-row-height:${args.rowHeight}`,
@@ -118,13 +123,15 @@ const skuStyle = (args: Args) =>
     `--yn-sku-selector-submit-bg:${args.submitBg}`,
     `--yn-sku-selector-submit-color:${args.submitColor}`,
     `--yn-sku-selector-hint-color:${args.hintColor}`,
-    `--yn-sku-selector-submit-loading-size:${args.loadingSize}`,
-    `--yn-sku-selector-submit-loading-icon-size:${args.loadingIconSize}`,
-    `--yn-sku-selector-submit-loading-overlay-size:${args.loadingOverlaySize}`
-  ].join(";");
+    cssVarIfPresent("--yn-sku-selector-submit-loading-size", args.loadingSize),
+    cssVarIfPresent("--yn-sku-selector-submit-loading-icon-size", args.loadingIconSize),
+    cssVarIfPresent("--yn-sku-selector-submit-loading-overlay-size", args.loadingOverlaySize)
+  ]
+    .filter((item): item is string => item != null)
+    .join(";");
 
 const syncDemoSubmitLoading = (el: Element | undefined, args: Args) => {
-  if (!el || !args.demoSubmitLoading) return;
+  if (!el) return;
   void (async () => {
     const host =
       el instanceof HTMLElement && el.tagName === "YN-SKU-SELECTOR"
@@ -133,7 +140,7 @@ const syncDemoSubmitLoading = (el: Element | undefined, args: Args) => {
     if (!host) return;
     await host.updateComplete;
     const cart = host.shadowRoot?.querySelector("yn-sku-cart-button") as YnSkuCartButton | null;
-    if (cart) cart.loading = true;
+    if (cart) cart.loading = args.demoSubmitLoading;
   })();
 };
 
@@ -900,7 +907,7 @@ export const AsyncSubmit: Story = {
     skus: jerseySkus,
     labels: { size: "Size" },
     submitLabel: "Add to cart",
-    loadingOverlaySize: "12px",
+    loadingOverlaySize: "24px",
     submitMarginTop: "0px",
     loadingIconSize: "10px"
   },
