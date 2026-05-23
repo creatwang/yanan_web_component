@@ -1,3 +1,5 @@
+export type YnSkuCartButtonLoadingMode = "icon" | "overlay";
+
 export type YnSkuSpecValue = string | number;
 
 export type YnSkuItem = {

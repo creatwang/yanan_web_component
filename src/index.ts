@@ -15,6 +15,7 @@ export { YnCheckoutAddress } from "./components/yn-checkout-address/yn-checkout-
 export { YnSkuSelector } from "./components/yn-sku-selector/yn-sku-selector";
 export { YnSkuCartButton } from "./components/yn-sku-selector/yn-sku-cart-button";
 export type {
+  YnSkuCartButtonLoadingMode,
   YnSkuChangeDetail,
   YnSkuInitDetail,
   YnSkuItem,

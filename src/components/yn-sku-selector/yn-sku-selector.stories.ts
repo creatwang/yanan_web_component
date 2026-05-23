@@ -1,11 +1,19 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
-import { expect } from "@storybook/test";
+import { expect, fn } from "@storybook/test";
 import { html, nothing } from "lit";
+import { ref } from "lit/directives/ref.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSkuCartSvg } from "../../asset/svg";
 import type { YnSkuSelector } from "./yn-sku-selector";
 import type { YnSkuCartButton } from "./yn-sku-cart-button";
-import type { YnSkuChangeDetail, YnSkuInitDetail, YnSkuItem, YnSkuSubmitDetail, YnSkuSubmitEvent, YnSkuSubmitInstance } from "./types";
+import type {
+  YnSkuCartButtonLoadingMode,
+  YnSkuChangeDetail,
+  YnSkuInitDetail,
+  YnSkuItem,
+  YnSkuSubmitDetail,
+  YnSkuSubmitEvent
+} from "./types";
 import "./yn-sku-selector";
 
 const demoSkus = [
@@ -32,7 +40,9 @@ const jerseySkus = [
 
 const euroIcon = `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 10h11M5 14h11M16 7a7 7 0 1 0 0 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>`;
 
-const defaultSubmitIcon = html`${unsafeSVG(ynSkuCartSvg.replace(/^<svg /, '<svg slot="submit-icon" '))}`;
+const defaultSubmitIcon = html`${unsafeSVG(
+  ynSkuCartSvg.replace(/^<svg /, '<svg slot="submit-icon" ')
+)}`;
 
 const resolveSubmitIcon = (submitIcon?: unknown) => submitIcon ?? defaultSubmitIcon;
 
@@ -52,6 +62,9 @@ type Args = {
   pickOne: boolean;
   submitLabel: string;
   loadingText: string;
+  loadingMode: YnSkuCartButtonLoadingMode;
+  cartIcon: string;
+  showCartIcon: boolean;
   incompleteHint: string;
   labels: Record<string, string>;
   disabled: boolean;
@@ -63,6 +76,7 @@ type Args = {
   optionActiveBg: string;
   optionActiveColor: string;
   submitHeight: string;
+  submitMarginTop: string;
   submitOuterGap: string;
   submitInnerHeight: string;
   submitInsetColor: string;
@@ -72,9 +86,13 @@ type Args = {
   submitBg: string;
   submitColor: string;
   hintColor: string;
-  onChange?: (event: CustomEvent<YnSkuChangeDetail>) => void;
-  onInit?: (event: CustomEvent<YnSkuInitDetail>) => void;
-  onSubmit?: (detail: YnSkuSubmitDetail, instance: YnSkuSubmitInstance) => void;
+  loadingSize: string;
+  loadingIconSize: string;
+  loadingOverlaySize: string;
+  demoSubmitLoading: boolean;
+  onChange?: ReturnType<typeof fn>;
+  onInit?: ReturnType<typeof fn>;
+  onSubmit?: ReturnType<typeof fn>;
   title?: unknown;
   submitIcon?: unknown;
 };
@@ -90,6 +108,7 @@ const skuStyle = (args: Args) =>
     `--yn-sku-selector-option-active-bg:${args.optionActiveBg}`,
     `--yn-sku-selector-option-active-color:${args.optionActiveColor}`,
     `--yn-sku-selector-submit-height:${args.submitHeight}`,
+    `--yn-sku-selector-submit-margin-top:${args.submitMarginTop}`,
     `--yn-sku-selector-submit-outer-gap:${args.submitOuterGap}`,
     `--yn-sku-selector-submit-inner-height:${args.submitInnerHeight}`,
     `--yn-sku-selector-submit-inset-color:${args.submitInsetColor}`,
@@ -98,36 +117,65 @@ const skuStyle = (args: Args) =>
     `--yn-sku-selector-price-font-weight:${args.priceFontWeight}`,
     `--yn-sku-selector-submit-bg:${args.submitBg}`,
     `--yn-sku-selector-submit-color:${args.submitColor}`,
-    `--yn-sku-selector-hint-color:${args.hintColor}`
+    `--yn-sku-selector-hint-color:${args.hintColor}`,
+    `--yn-sku-selector-submit-loading-size:${args.loadingSize}`,
+    `--yn-sku-selector-submit-loading-icon-size:${args.loadingIconSize}`,
+    `--yn-sku-selector-submit-loading-overlay-size:${args.loadingOverlaySize}`
   ].join(";");
 
-const renderSkuSelector = (args: Args, title?: unknown, options?: { autoDone?: boolean }) => html`
-  <yn-sku-selector
-    .skus=${args.skus}
-    currency=${args.currency}
-    currency-icon=${args.currencyIcon}
-    ?simple=${args.simple}
-    ?pick-one=${args.pickOne}
-    submit-label=${args.submitLabel}
-    loading-text=${args.loadingText}
-    incomplete-hint=${args.incompleteHint}
-    .labels=${args.labels}
-    ?disabled=${args.disabled}
-    style=${skuStyle(args)}
-    @change=${(event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>)}
-    @init=${(event: Event) => args.onInit?.(event as CustomEvent<YnSkuInitDetail>)}
-    @submit=${(event: Event) => {
-      const submitEvent = event as YnSkuSubmitEvent;
-      args.onSubmit?.(submitEvent.detail, submitEvent.instance);
-      if (options?.autoDone !== false) {
-        submitEvent.instance.done();
-      }
-    }}
-  >
-    ${title ?? nothing}
-    ${resolveSubmitIcon(args.submitIcon)}
-  </yn-sku-selector>
-`;
+const syncDemoSubmitLoading = (el: Element | undefined, args: Args) => {
+  if (!el || !args.demoSubmitLoading) return;
+  void (async () => {
+    const host =
+      el instanceof HTMLElement && el.tagName === "YN-SKU-SELECTOR"
+        ? (el as YnSkuSelector)
+        : (el.querySelector("yn-sku-selector") as YnSkuSelector | null);
+    if (!host) return;
+    await host.updateComplete;
+    const cart = host.shadowRoot?.querySelector("yn-sku-cart-button") as YnSkuCartButton | null;
+    if (cart) cart.loading = true;
+  })();
+};
+
+const bindSkuEvents = (args: Args, options?: { autoDone?: boolean }) => ({
+  onChange: (event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>),
+  onInit: (event: Event) => args.onInit?.(event as CustomEvent<YnSkuInitDetail>),
+  onSubmit: (event: Event) => {
+    const submitEvent = event as YnSkuSubmitEvent;
+    args.onSubmit?.(submitEvent.detail, submitEvent.instance);
+    if (options?.autoDone !== false) {
+      submitEvent.instance.done();
+    }
+  }
+});
+
+const renderSkuSelector = (args: Args, title?: unknown, options?: { autoDone?: boolean }) => {
+  const events = bindSkuEvents(args, options);
+  return html`
+    <yn-sku-selector
+      ${ref((el) => syncDemoSubmitLoading(el ?? undefined, args))}
+      .skus=${args.skus}
+      currency=${args.currency}
+      currency-icon=${args.currencyIcon}
+      ?simple=${args.simple}
+      ?pick-one=${args.pickOne}
+      submit-label=${args.submitLabel}
+      loading-text=${args.loadingText}
+      loading-mode=${args.loadingMode}
+      incomplete-hint=${args.incompleteHint}
+      .labels=${args.labels}
+      .cartIcon=${args.cartIcon || ynSkuCartSvg}
+      ?show-cart-icon=${args.showCartIcon}
+      ?disabled=${args.disabled}
+      style=${skuStyle(args)}
+      @change=${events.onChange}
+      @init=${events.onInit}
+      @submit=${events.onSubmit}
+    >
+      ${title ?? nothing} ${resolveSubmitIcon(args.submitIcon)}
+    </yn-sku-selector>
+  `;
+};
 
 const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
   <div data-async-demo style="padding:24px;max-width:420px;color:#000;">
@@ -138,6 +186,7 @@ const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
       选齐规格后点击加购，将模拟约 1.2s 异步请求；请求完成前按钮保持 loading 且整组规格禁用。
     </p>
     <yn-sku-selector
+      ${ref((el) => syncDemoSubmitLoading(el ?? undefined, args))}
       .skus=${args.skus}
       currency=${args.currency}
       currency-icon=${args.currencyIcon}
@@ -145,8 +194,11 @@ const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
       ?pick-one=${args.pickOne}
       submit-label=${args.submitLabel}
       loading-text=${args.loadingText}
+      loading-mode=${args.loadingMode}
       incomplete-hint=${args.incompleteHint}
       .labels=${args.labels}
+      .cartIcon=${args.cartIcon || ynSkuCartSvg}
+      ?show-cart-icon=${args.showCartIcon}
       ?disabled=${args.disabled}
       style=${skuStyle(args)}
       @change=${(event: Event) => args.onChange?.(event as CustomEvent<YnSkuChangeDetail>)}
@@ -167,8 +219,7 @@ const renderAsyncSubmitDemo = (args: Args, title?: unknown) => html`
         }
       }}
     >
-      ${title ?? nothing}
-      ${resolveSubmitIcon(args.submitIcon)}
+      ${title ?? nothing} ${resolveSubmitIcon(args.submitIcon)}
     </yn-sku-selector>
     <pre
       data-async-code
@@ -207,6 +258,10 @@ import "yn-web-component/define";
 | \`--yn-sku-selector-row-height\` | \`48px\` | 每一行规格按钮高度 |
 | \`--yn-sku-selector-label-row-gap\` | \`12px\` | label 与下方 SKU 按钮行间距 |
 | \`--yn-sku-selector-row-gap\` | \`24px\` | 相邻规格维度行间距 |
+| \`--yn-sku-selector-submit-margin-top\` | \`24px\` | 规格区与加购按钮区间距 |
+| \`--yn-sku-selector-submit-loading-size\` | \`-\` | loading spinner 通用尺寸（icon/overlay 都可生效） |
+| \`--yn-sku-selector-submit-loading-icon-size\` | \`24px\` | icon loading 模式下 spinner 尺寸 |
+| \`--yn-sku-selector-submit-loading-overlay-size\` | \`18px\` | overlay loading 模式下 spinner 尺寸 |
 
 兼容旧名：\`--yn-sku-selector-option-height\`、\`--yn-sku-selector-label-gap\`、\`--yn-sku-selector-section-gap\`。
 
@@ -239,8 +294,11 @@ const meta = {
     currencyIcon: "",
     simple: false,
     pickOne: false,
-    submitLabel: "Add to cart",
+    submitLabel: "ADD TO CART",
     loadingText: "",
+    loadingMode: "icon",
+    cartIcon: "",
+    showCartIcon: true,
     incompleteHint: "请选择 {label}",
     labels: { weight: "Weight", color: "Color", size: "Size" },
     disabled: false,
@@ -252,6 +310,7 @@ const meta = {
     optionActiveBg: "#000",
     optionActiveColor: "#fff",
     submitHeight: "64px",
+    submitMarginTop: "24px",
     submitOuterGap: "10px",
     submitInnerHeight: "44px",
     submitInsetColor: "#ffffff",
@@ -260,12 +319,20 @@ const meta = {
     priceFontWeight: "400",
     submitBg: "#000",
     submitColor: "#fff",
-    hintColor: "#c0392b"
+    hintColor: "#c0392b",
+    loadingSize: "",
+    loadingIconSize: "24px",
+    loadingOverlaySize: "18px",
+    demoSubmitLoading: false,
+    onChange: fn(),
+    onInit: fn(),
+    onSubmit: fn()
   },
   argTypes: {
     skus: {
       control: "object",
-      description: "SKU 列表。规格字段为动态 key；`price` / `id` / `stock` / `skuId` 为元数据字段。",
+      description:
+        "SKU 列表。规格字段为动态 key；`price` / `id` / `stock` / `skuId` 为元数据字段。",
       table: { defaultValue: { summary: "[]" } }
     },
     currency: {
@@ -281,7 +348,8 @@ const meta = {
     },
     simple: {
       control: "boolean",
-      description: "简单模式：仅展示规格按钮，无 title / 提示 / 加购按钮；选齐规格后自动触发 submit。",
+      description:
+        "简单模式：仅展示规格按钮，无 title / 提示 / 加购按钮；选齐规格后自动触发 submit。",
       table: { defaultValue: { summary: "false" } }
     },
     pickOne: {
@@ -299,13 +367,34 @@ const meta = {
     loadingText: {
       control: "text",
       name: "loading-text",
-      description: "加购 loading 文案；设置后 loading 时左侧按钮文本替换为该值（文本模式）。未设置则使用默认 spinner 模式。",
+      description: "加购 loading 文案；设置后进入文本替换模式（优先级高于 loading-mode）。",
       table: { defaultValue: { summary: '""' } }
+    },
+    loadingMode: {
+      control: "select",
+      name: "loading-mode",
+      options: ["icon", "overlay"],
+      description:
+        "默认 spinner 展示方式：`icon` 替换图标位；`overlay` 左侧区域半透明 + 居中 spinner。",
+      table: { defaultValue: { summary: "icon" } }
+    },
+    cartIcon: {
+      control: "text",
+      name: "cart-icon",
+      description: "加购按钮默认购物车 SVG；留空时使用内置 `ynSkuCartSvg`。",
+      table: { defaultValue: { summary: "ynSkuCartSvg" } }
+    },
+    showCartIcon: {
+      control: "boolean",
+      name: "show-cart-icon",
+      description: "是否展示加购按钮左侧图标。",
+      table: { defaultValue: { summary: "true" } }
     },
     incompleteHint: {
       control: "text",
       name: "incomplete-hint",
-      description: "未选齐规格时点击加购的提示模板，`{label}` 会被替换为首个未选维度的 label（无 labels 映射时使用规格 key）。",
+      description:
+        "未选齐规格时点击加购的提示模板，`{label}` 会被替换为首个未选维度的 label（无 labels 映射时使用规格 key）。",
       table: { defaultValue: { summary: "请选择 {label}" } }
     },
     labels: {
@@ -366,6 +455,12 @@ const meta = {
       description: "加购按钮整体高度（含内描边留白）。",
       table: { category: "CSS Variables", defaultValue: { summary: "64px" } }
     },
+    submitMarginTop: {
+      control: "text",
+      name: "--yn-sku-selector-submit-margin-top",
+      description: "规格区与加购按钮（含校验提示）之间的上间距。",
+      table: { category: "CSS Variables", defaultValue: { summary: "24px" } }
+    },
     submitOuterGap: {
       control: "text",
       name: "--yn-sku-selector-submit-outer-gap",
@@ -420,6 +515,33 @@ const meta = {
       description: "校验提示文字颜色。",
       table: { category: "CSS Variables", defaultValue: { summary: "#c0392b" } }
     },
+    loadingSize: {
+      control: "text",
+      name: "--yn-sku-selector-submit-loading-size",
+      description:
+        "loading spinner 通用尺寸别名。icon/overlay 均可生效；会被对应模式专用变量覆盖。",
+      table: { category: "CSS Variables", defaultValue: { summary: "未设置（按模式回退）" } }
+    },
+    loadingIconSize: {
+      control: "text",
+      name: "--yn-sku-selector-submit-loading-icon-size",
+      description:
+        "icon loading 模式下 spinner 尺寸。优先级高于 `--yn-sku-selector-submit-loading-size`；可开启 `demoSubmitLoading` 预览。",
+      table: { category: "CSS Variables", defaultValue: { summary: "24px" } }
+    },
+    loadingOverlaySize: {
+      control: "text",
+      name: "--yn-sku-selector-submit-loading-overlay-size",
+      description:
+        "overlay loading 模式下 spinner 尺寸。优先级高于 `--yn-sku-selector-submit-loading-size`；可开启 `demoSubmitLoading` 预览。",
+      table: { category: "CSS Variables", defaultValue: { summary: "18px" } }
+    },
+    demoSubmitLoading: {
+      control: "boolean",
+      description:
+        "Storybook 预览：强制加购按钮进入 loading，便于调节 loading spinner 相关 CSS 变量。",
+      table: { category: "CSS Variables", defaultValue: { summary: "false" } }
+    },
     onChange: {
       name: "change",
       control: false,
@@ -428,7 +550,8 @@ const meta = {
       table: {
         category: "Events",
         type: {
-          summary: "CustomEvent<{ selections: Record<string, string | number>; sku: object | null; ready: boolean; missingKeys: string[] }>"
+          summary:
+            "CustomEvent<{ selections: Record<string, string | number>; sku: object | null; ready: boolean; missingKeys: string[] }>"
         }
       }
     },
@@ -440,7 +563,8 @@ const meta = {
       table: {
         category: "Events",
         type: {
-          summary: "CustomEvent<{ selections: Record<string, string | number>; sku: object | null; ready: boolean; missingKeys: string[] }>"
+          summary:
+            "CustomEvent<{ selections: Record<string, string | number>; sku: object | null; ready: boolean; missingKeys: string[] }>"
         }
       }
     },
@@ -448,11 +572,13 @@ const meta = {
       name: "submit",
       control: false,
       action: "submit",
-      description: "满足加购条件时触发；`instance` 为事件第二参数（`event.instance`），异步结束后调用 `instance.done()`。",
+      description:
+        "满足加购条件时触发；`instance` 为事件第二参数（`event.instance`），异步结束后调用 `instance.done()`。",
       table: {
         category: "Events",
         type: {
-          summary: "YnSkuSubmitEvent — detail: { selections, sku }; event.instance: { done(): void }"
+          summary:
+            "YnSkuSubmitEvent — detail: { selections, sku }; event.instance: { done(): void }"
         }
       }
     },
@@ -462,26 +588,32 @@ const meta = {
     },
     submitIcon: {
       name: "submit-icon",
-      description: "加购按钮左侧图标；Story 示例默认使用内置购物袋 SVG（与 `cart-icon` 默认一致），未填充时回退 `cart-icon` 属性。",
+      description:
+        "加购按钮左侧图标；Story 示例默认使用内置购物袋 SVG（与 `cart-icon` 默认一致），未填充时回退 `cart-icon` 属性。",
       table: { category: "Slots" }
     }
   },
-  render: (args) =>
-    html`
-      <div style="padding:24px;max-width:480px;color:#000;">
-        ${renderSkuSelector(
-          args,
-          html`<h1 slot="title" style="margin:0 0 8px;font-size:clamp(28px,8vw,48px);font-weight:900;text-transform:uppercase;line-height:1;letter-spacing:-0.04em;">Jersey - Select</h1>`
-        )}
-      </div>
-    `
+  render: (args) => html`
+    <div style="padding:24px;max-width:480px;color:#000;">
+      ${renderSkuSelector(
+        args,
+        html`<h1
+          slot="title"
+          style="margin:0 0 8px;font-size:clamp(28px,8vw,48px);font-weight:900;text-transform:uppercase;line-height:1;letter-spacing:-0.04em;"
+        >
+          Jersey - Select
+        </h1>`
+      )}
+    </div>
+  `
 } satisfies Meta<Args>;
 
 export default meta;
 
 type Story = StoryObj<Args>;
 
-const getHost = (root: HTMLElement) => root.querySelector("yn-sku-selector") as YnSkuSelector | null;
+const getHost = (root: HTMLElement) =>
+  root.querySelector("yn-sku-selector") as YnSkuSelector | null;
 
 const getCartButton = (host: YnSkuSelector) => {
   const cart = host.shadowRoot?.querySelector("yn-sku-cart-button") as YnSkuCartButton | null;
@@ -499,7 +631,43 @@ const clickOption = (host: YnSkuSelector, label: string) => {
   btn.click();
 };
 
-const playDefaultInteractions: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+const playJerseyInteractions: NonNullable<Story["play"]> = async ({
+  canvasElement,
+  step,
+  args
+}) => {
+  const host = getHost(canvasElement);
+  if (!host?.shadowRoot) return;
+
+  await step("未选齐时点击加购应展示提示", async () => {
+    getCartButton(host)?.click();
+    await host.updateComplete;
+    expect((host.shadowRoot?.querySelector(".hint")?.textContent ?? "").length).toBeGreaterThan(0);
+  });
+
+  await step("选择尺码后 change.ready 为 true", async () => {
+    clickOption(host, "M");
+    await host.updateComplete;
+    await expect(args.onChange).toHaveBeenCalled();
+    const changeEvent = args.onChange!.mock.calls.at(-1)?.[0] as CustomEvent<YnSkuChangeDetail>;
+    expect(changeEvent.detail.ready).toBe(true);
+    expect(changeEvent.detail.sku?.id).toBe("m");
+  });
+
+  await step("选齐后 submit 触发", async () => {
+    getCartButton(host)?.click();
+    await host.updateComplete;
+    await expect(args.onSubmit).toHaveBeenCalled();
+    const submitCall = args.onSubmit!.mock.calls.at(-1);
+    expect((submitCall?.[0] as YnSkuSubmitDetail).sku.id).toBe("m");
+  });
+};
+
+const playDefaultInteractions: NonNullable<Story["play"]> = async ({
+  canvasElement,
+  step,
+  args
+}) => {
   const host = getHost(canvasElement);
   if (!host?.shadowRoot) return;
 
@@ -511,36 +679,21 @@ const playDefaultInteractions: NonNullable<Story["play"]> = async ({ canvasEleme
   });
 
   await step("选齐规格后 change.ready 为 true", async () => {
-    let ready = false;
-    host.addEventListener(
-      "change",
-      (event) => {
-        ready = (event as CustomEvent<YnSkuChangeDetail>).detail.ready;
-      },
-      { once: true }
-    );
     clickOption(host, "1kg");
     clickOption(host, "红色");
     clickOption(host, "37");
     await host.updateComplete;
-    expect(ready).toBe(true);
+    await expect(args.onChange).toHaveBeenCalled();
+    const changeEvent = args.onChange!.mock.calls.at(-1)?.[0] as CustomEvent<YnSkuChangeDetail>;
+    expect(changeEvent.detail.ready).toBe(true);
   });
 
-  await step("选齐后 submit 触发且 done 后取消 loading", async () => {
-    let loading = false;
-    host.addEventListener(
-      "submit",
-      (event) => {
-        loading = getCartHost(host)?.loading ?? false;
-        (event as unknown as YnSkuSubmitEvent).instance.done();
-      },
-      { once: true }
-    );
+  await step("选齐后 submit 触发", async () => {
     getCartButton(host)?.click();
     await host.updateComplete;
-    expect(loading).toBe(true);
-    await host.updateComplete;
-    expect(getCartHost(host)?.loading).toBe(false);
+    await expect(args.onSubmit).toHaveBeenCalled();
+    const submitCall = args.onSubmit!.mock.calls.at(-1);
+    expect((submitCall?.[0] as YnSkuSubmitDetail).sku.id).toBe("1");
   });
 };
 
@@ -556,26 +709,40 @@ export const PickOne: Story = {
   },
   render: (args) => html`
     <p style="margin:0 0 12px;padding:0 24px;font-size:13px;color:#555;max-width:480px;">
-      开启 <code>pick-one</code> 后，组件挂载时会默认选中第一组可用 SKU，并在初始化完成后触发 <code>init</code> 事件。
+      开启 <code>pick-one</code> 后，组件挂载时会默认选中第一组可用 SKU，并在初始化完成后触发
+      <code>init</code> 事件。
     </p>
     <div style="padding:0 24px 24px;max-width:480px;color:#000;">
       ${renderSkuSelector(
         args,
-        html`<h1 slot="title" style="margin:0 0 8px;font-size:clamp(28px,8vw,48px);font-weight:900;text-transform:uppercase;line-height:1;">Jersey - Select</h1>`
+        html`<h1
+          slot="title"
+          style="margin:0 0 8px;font-size:clamp(28px,8vw,48px);font-weight:900;text-transform:uppercase;line-height:1;"
+        >
+          Jersey - Select
+        </h1>`
       )}
     </div>
   `,
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, step, args }) => {
     const host = getHost(canvasElement);
     if (!host) return;
 
     await step("init 事件回传第一组可用 SKU", async () => {
       await host.updateComplete;
-      const activeLabels = [...(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".option.active") ?? [])].map(
-        (node) => node.querySelector(".option-label")?.textContent?.trim()
-      );
+      await expect(args.onInit).toHaveBeenCalled();
+      const initEvent = args.onInit!.mock.calls.at(-1)?.[0] as CustomEvent<YnSkuInitDetail>;
+      expect(initEvent.detail.ready).toBe(true);
+      expect(initEvent.detail.sku?.id).toBe("1");
+      expect(initEvent.detail.selections).toEqual({ weight: "1kg", color: "红色", size: "37" });
+
+      const activeLabels = [
+        ...(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".option.active") ?? [])
+      ].map((node) => node.querySelector(".option-label")?.textContent?.trim());
       expect(activeLabels).toEqual(["1kg", "红色", "37"]);
-      expect(host.shadowRoot?.querySelector(".submit-price")?.textContent?.trim()).toContain("65.00");
+      expect(
+        getCartHost(host)?.shadowRoot?.querySelector(".submit-price")?.textContent?.trim()
+      ).toContain("65.00");
     });
   }
 };
@@ -587,10 +754,9 @@ export const WithoutSpecLabels: Story = {
     incompleteHint: "请选择 {label}"
   },
   render: (args) => html`
-    <div style="padding:24px;max-width:420px;color:#000;">
-      ${renderSkuSelector(args)}
-    </div>
-  `
+    <div style="padding:24px;max-width:420px;color:#000;">${renderSkuSelector(args)}</div>
+  `,
+  play: playDefaultInteractions
 };
 
 export const JerseyStyle: Story = {
@@ -604,11 +770,16 @@ export const JerseyStyle: Story = {
     <div style="padding:32px 24px;max-width:480px;color:#000;">
       ${renderSkuSelector(
         args,
-        html`<h1 slot="title" style="margin:0 0 28px;font-size:clamp(32px,9vw,48px);font-weight:900;text-transform:uppercase;line-height:0.95;letter-spacing:-0.03em;">Jersey - No Drug</h1>`
+        html`<h1
+          slot="title"
+          style="margin:0 0 28px;font-size:clamp(32px,9vw,48px);font-weight:900;text-transform:uppercase;line-height:0.95;letter-spacing:-0.03em;"
+        >
+          Jersey - No Drug
+        </h1>`
       )}
     </div>
   `,
-  play: playDefaultInteractions
+  play: playJerseyInteractions
 };
 
 export const CurrencyIcon: Story = {
@@ -620,10 +791,19 @@ export const CurrencyIcon: Story = {
     currencyIcon: euroIcon
   },
   render: (args) => html`
-    <div style="padding:24px;max-width:420px;color:#000;">
-      ${renderSkuSelector(args)}
-    </div>
-  `
+    <div style="padding:24px;max-width:420px;color:#000;">${renderSkuSelector(args)}</div>
+  `,
+  play: async ({ canvasElement, step, args }) => {
+    const host = getHost(canvasElement);
+    if (!host?.shadowRoot) return;
+
+    await step("价格区展示货币 SVG", async () => {
+      clickOption(host, "M");
+      await host.updateComplete;
+      await expect(args.onChange).toHaveBeenCalled();
+      expect(getCartHost(host)?.shadowRoot?.querySelector(".currency-icon svg")).toBeTruthy();
+    });
+  }
 };
 
 export const SimpleMode: Story = {
@@ -638,23 +818,14 @@ export const SimpleMode: Story = {
       ${renderSkuSelector(args)}
     </div>
   `,
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, step, args }) => {
     const host = getHost(canvasElement);
     if (!host?.shadowRoot) return;
 
     await step("simple 模式选齐后自动 submit", async () => {
-      let submitted = false;
-      host.addEventListener(
-        "submit",
-        (event) => {
-          submitted = true;
-          (event as unknown as YnSkuSubmitEvent).instance.done();
-        },
-        { once: true }
-      );
       clickOption(host, "M");
       await host.updateComplete;
-      expect(submitted).toBe(true);
+      await expect(args.onSubmit).toHaveBeenCalled();
     });
   }
 };
@@ -671,22 +842,32 @@ export const ListItemCompact: Story = {
     <div style="padding:16px;display:grid;gap:12px;max-width:360px;color:#000;">
       ${[1, 2].map(
         (index) => html`
-          <article style="display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #000;padding:12px;">
+          <article
+            style="display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #000;padding:12px;"
+          >
             <div style="min-width:0;">
               <p style="margin:0;font-size:13px;font-weight:700;">Product ${index}</p>
               <p style="margin:4px 0 0;font-size:12px;opacity:0.7;">65.00 €</p>
             </div>
-            <div style="flex:1;min-width:0;max-width:220px;">
-              ${renderSkuSelector(args)}
-            </div>
+            <div style="flex:1;min-width:0;max-width:220px;">${renderSkuSelector(args)}</div>
           </article>
         `
       )}
     </div>
-  `
+  `,
+  play: async ({ canvasElement, step, args }) => {
+    const host = canvasElement.querySelector("yn-sku-selector") as YnSkuSelector | null;
+    if (!host?.shadowRoot) return;
+
+    await step("列表项内 simple 选择器可触发 submit", async () => {
+      clickOption(host, "S");
+      await host.updateComplete;
+      await expect(args.onSubmit).toHaveBeenCalled();
+    });
+  }
 };
 
-const playAsyncSubmit: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+const playAsyncSubmit: NonNullable<Story["play"]> = async ({ canvasElement, step, args }) => {
   const host = getHost(canvasElement);
   if (!host?.shadowRoot) return;
 
@@ -697,6 +878,7 @@ const playAsyncSubmit: NonNullable<Story["play"]> = async ({ canvasElement, step
     getCartButton(host)?.click();
     await host.updateComplete;
 
+    await expect(args.onSubmit).toHaveBeenCalled();
     expect(getCartHost(host)?.loading).toBe(true);
     expect(getCartButton(host)?.disabled).toBe(true);
     expect(host.shadowRoot?.querySelector<HTMLButtonElement>(".option")?.disabled).toBe(true);
@@ -717,12 +899,20 @@ export const AsyncSubmit: Story = {
   args: {
     skus: jerseySkus,
     labels: { size: "Size" },
-    submitLabel: "Add to cart"
+    submitLabel: "Add to cart",
+    loadingOverlaySize: "12px",
+    submitMarginTop: "0px",
+    loadingIconSize: "10px"
   },
   render: (args) =>
     renderAsyncSubmitDemo(
       args,
-      html`<h1 slot="title" style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;">Jersey - No Drug</h1>`
+      html`<h1
+        slot="title"
+        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
+      >
+        Jersey - No Drug
+      </h1>`
     ),
   parameters: {
     docs: {
@@ -735,7 +925,7 @@ export const AsyncSubmit: Story = {
   play: playAsyncSubmit
 };
 
-const playAsyncSubmitSimple: NonNullable<Story["play"]> = async ({ canvasElement, step }) => {
+const playAsyncSubmitSimple: NonNullable<Story["play"]> = async ({ canvasElement, step, args }) => {
   const host = getHost(canvasElement);
   if (!host?.shadowRoot) return;
 
@@ -743,11 +933,14 @@ const playAsyncSubmitSimple: NonNullable<Story["play"]> = async ({ canvasElement
     clickOption(host, "L");
     await host.updateComplete;
 
-    const loadingOption = [...(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".option") ?? [])].find((node) =>
-      node.classList.contains("is-loading")
-    );
+    await expect(args.onSubmit).toHaveBeenCalled();
+    const loadingOption = [
+      ...(host.shadowRoot?.querySelectorAll<HTMLButtonElement>(".option") ?? [])
+    ].find((node) => node.classList.contains("is-loading"));
     expect(loadingOption).toBeTruthy();
-    expect(host.shadowRoot?.querySelector<HTMLButtonElement>(".option:not(.is-loading)")?.disabled).toBe(true);
+    expect(
+      host.shadowRoot?.querySelector<HTMLButtonElement>(".option:not(.is-loading)")?.disabled
+    ).toBe(true);
 
     await sleep(1300);
     await host.updateComplete;
@@ -779,6 +972,37 @@ export const AsyncSubmitSimple: Story = {
   play: playAsyncSubmitSimple
 };
 
+export const AsyncSubmitLoadingOverlay: Story = {
+  name: "异步加购（覆盖层 loading）",
+  args: {
+    skus: jerseySkus,
+    labels: { size: "Size" },
+    submitLabel: "Add to cart",
+    loadingMode: "overlay",
+    demoSubmitLoading: true,
+    pickOne: true
+  },
+  render: (args) =>
+    renderAsyncSubmitDemo(
+      args,
+      html`<h1
+        slot="title"
+        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
+      >
+        Jersey - No Drug
+      </h1>`
+    ),
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '设置 `loading-mode="overlay"` 后，异步请求期间保留购物车图标与文案，左侧区域半透明并由居中 spinner 覆盖。'
+      }
+    }
+  },
+  play: playAsyncSubmit
+};
+
 export const AsyncSubmitLoadingText: Story = {
   name: "异步加购（文本 loading）",
   args: {
@@ -790,7 +1014,12 @@ export const AsyncSubmitLoadingText: Story = {
   render: (args) =>
     renderAsyncSubmitDemo(
       args,
-      html`<h1 slot="title" style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;">Jersey - No Drug</h1>`
+      html`<h1
+        slot="title"
+        style="margin:0 0 20px;font-size:clamp(24px,7vw,36px);font-weight:900;text-transform:uppercase;line-height:1;"
+      >
+        Jersey - No Drug
+      </h1>`
     ),
   parameters: {
     docs: {
@@ -800,7 +1029,7 @@ export const AsyncSubmitLoadingText: Story = {
       }
     }
   },
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, step, args }) => {
     const host = getHost(canvasElement);
     if (!host?.shadowRoot) return;
 
@@ -811,17 +1040,22 @@ export const AsyncSubmitLoadingText: Story = {
       getCartButton(host)?.click();
       await host.updateComplete;
 
+      await expect(args.onSubmit).toHaveBeenCalled();
       const cartHost = getCartHost(host);
       expect(cartHost?.loading).toBe(true);
       expect(cartHost?.shadowRoot?.querySelector(".submit-label")?.textContent).toBe("ADDING...");
       expect(cartHost?.shadowRoot?.querySelector(".submit-spinner-overlay")).toBe(null);
-      expect(cartHost?.shadowRoot?.querySelector(".submit-price")?.textContent?.trim()).toContain("65.00");
+      expect(cartHost?.shadowRoot?.querySelector(".submit-price")?.textContent?.trim()).toContain(
+        "65.00"
+      );
 
       await sleep(1300);
       await host.updateComplete;
 
       expect(getCartHost(host)?.loading).toBe(false);
-      expect(getCartHost(host)?.shadowRoot?.querySelector(".submit-label")?.textContent).toBe("Add to cart");
+      expect(getCartHost(host)?.shadowRoot?.querySelector(".submit-label")?.textContent).toBe(
+        "Add to cart"
+      );
     });
   }
 };

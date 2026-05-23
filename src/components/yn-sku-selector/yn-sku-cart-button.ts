@@ -3,15 +3,20 @@ import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import type { YnSvgSource } from "../../asset/svg";
 import { ynSkuCartSvg, ynSkuLoadingSvg } from "../../asset/svg";
+import type { YnSkuCartButtonLoadingMode } from "./types";
+
+const normalizeLoadingMode = (value: string | null): YnSkuCartButtonLoadingMode =>
+  value === "overlay" ? "overlay" : "icon";
 
 /**
  * SKU 加购按钮：外黑边 + 白框 + 左文案区 | 竖线 | 右价格区。
  *
  * @slot icon - 左侧图标；未填充时回退 `cart-icon` 属性
  *
- * loading 两种模式：
- * - 默认（未设置 loading-text）：左侧区域半透明 + spinner，价格区不受影响
- * - 文本模式（设置 loading-text）：左侧文案替换为 loading-text，不显示 spinner
+ * loading 三种模式（优先级：loading-text > loading-mode）：
+ * - `loading-text`：文案替换模式，保留原图标
+ * - `loading-mode="icon"`（默认）：图标位替换为 loading SVG
+ * - `loading-mode="overlay"`：左侧区域半透明 + 居中 spinner 覆盖层
  *
  * @fires click - 点击加购时触发
  */
@@ -35,9 +40,20 @@ export class YnSkuCartButton extends LitElement {
   @property({ type: Boolean, reflect: true })
   loading = false;
 
-  /** 设置后 loading 时左侧文案替换为该文本；未设置则使用默认 spinner 模式 */
+  /** 设置后 loading 时左侧文案替换为该文本；优先级高于 loading-mode */
   @property({ type: String, attribute: "loading-text" })
   loadingText = "";
+
+  /** 默认 spinner 展示方式：`icon` 替换图标位，`overlay` 左侧区域覆盖层 */
+  @property({
+    type: String,
+    attribute: "loading-mode",
+    converter: {
+      fromAttribute: (value: string | null) => normalizeLoadingMode(value),
+      toAttribute: (value: YnSkuCartButtonLoadingMode) => value
+    }
+  })
+  loadingMode: YnSkuCartButtonLoadingMode = "icon";
 
   @property({ type: Boolean, reflect: true })
   disabled = false;
@@ -48,6 +64,14 @@ export class YnSkuCartButton extends LitElement {
 
   private get loadingSpinnerMode() {
     return this.loading && !this.loadingTextMode;
+  }
+
+  private get loadingIconMode() {
+    return this.loadingSpinnerMode && this.loadingMode !== "overlay";
+  }
+
+  private get loadingOverlayMode() {
+    return this.loadingSpinnerMode && this.loadingMode === "overlay";
   }
 
   static styles = css`
@@ -114,8 +138,6 @@ export class YnSkuCartButton extends LitElement {
     }
 
     .submit-main-content {
-      position: relative;
-      z-index: 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -124,7 +146,7 @@ export class YnSkuCartButton extends LitElement {
       max-width: 100%;
     }
 
-    .submit.is-loading-spinner .submit-main-content {
+    .submit.is-loading-overlay .submit-main-content {
       opacity: 0.35;
     }
 
@@ -135,6 +157,11 @@ export class YnSkuCartButton extends LitElement {
       width: var(--yn-sku-selector-cart-icon-size, 24px);
       height: var(--yn-sku-selector-cart-icon-size, 24px);
       flex-shrink: 0;
+    }
+
+    .submit-icon.is-loading {
+      width: var(--yn-sku-selector-submit-loading-icon-size, 24px);
+      height: var(--yn-sku-selector-submit-loading-icon-size, 24px);
     }
 
     .submit-icon :is(svg),
@@ -170,13 +197,12 @@ export class YnSkuCartButton extends LitElement {
       align-items: center;
       justify-content: center;
       pointer-events: none;
-      z-index: 2;
-      transform: translateZ(1px);
+      z-index: 1;
     }
 
     .submit-spinner-overlay svg {
-      width: 1.25em;
-      height: 1.25em;
+      width: var(--yn-sku-selector-submit-loading-overlay-size, 18px);
+      height: var(--yn-sku-selector-submit-loading-overlay-size, 18px);
       display: block;
     }
 
@@ -217,23 +243,31 @@ export class YnSkuCartButton extends LitElement {
     return html`<slot name="icon">${fallback}</slot>`;
   }
 
+  private renderLeadingIcon() {
+    if (this.loadingIconMode) {
+      return html`<span class="submit-icon is-loading">${unsafeSVG(ynSkuLoadingSvg)}</span>`;
+    }
+    if (!this.showCartIcon) return nothing;
+    return html`<span class="submit-icon">${this.renderCartIcon()}</span>`;
+  }
+
   render() {
     const displayLabel = this.loadingTextMode ? this.loadingText : this.label;
-    const showIcon = this.showCartIcon;
 
     return html`
       <button
         type="button"
-        class="submit ${this.loading ? "is-loading" : ""} ${this.loadingSpinnerMode ? "is-loading-spinner" : ""} ${this.loadingTextMode ? "is-loading-text" : ""}"
+        class="submit ${this.loading ? "is-loading" : ""} ${this.loadingIconMode ? "is-loading-icon" : ""} ${this.loadingOverlayMode ? "is-loading-overlay" : ""} ${this.loadingTextMode ? "is-loading-text" : ""}"
         ?disabled=${this.disabled || this.loading}
+        aria-busy=${this.loading ? "true" : "false"}
       >
         <div class="submit-inner">
           <span class="submit-main">
             <span class="submit-main-content">
-              ${showIcon ? html`<span class="submit-icon">${this.renderCartIcon()}</span>` : nothing}
+              ${this.renderLeadingIcon()}
               <span class="submit-label">${displayLabel}</span>
             </span>
-            ${this.loadingSpinnerMode
+            ${this.loadingOverlayMode
               ? html`<span class="submit-spinner-overlay">${unsafeSVG(ynSkuLoadingSvg)}</span>`
               : nothing}
           </span>

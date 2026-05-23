@@ -16,18 +16,57 @@ describe("yn-sku-cart-button", () => {
     expect(root?.querySelector(".submit-icon svg")).to.not.equal(null);
   });
 
-  it("uses spinner mode in left section by default when loading", async () => {
+  it("replaces icon with loading svg in icon loading mode", async () => {
     const el = await fixture<YnSkuCartButton>(html`
       <yn-sku-cart-button loading price="65.00 €"></yn-sku-cart-button>
     `);
 
     expect(el.loading).to.equal(true);
-    const submit = el.shadowRoot?.querySelector(".submit");
-    expect(submit?.classList.contains("is-loading")).to.equal(true);
-    expect(submit?.classList.contains("is-loading-spinner")).to.equal(true);
+    expect(el.shadowRoot?.querySelector(".submit.is-loading-icon")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector(".submit-icon.is-loading svg")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector(".submit-spinner-overlay")).to.equal(null);
+    expect(el.shadowRoot?.querySelector('slot[name="icon"]')).to.equal(null);
+    expect(el.shadowRoot?.querySelector(".submit-label")?.textContent).to.equal("ADD TO CART");
+  });
+
+  it("uses overlay spinner in overlay loading mode", async () => {
+    const el = await fixture<YnSkuCartButton>(html`
+      <yn-sku-cart-button loading loading-mode="overlay" price="65.00 €"></yn-sku-cart-button>
+    `);
+
+    expect(el.shadowRoot?.querySelector(".submit.is-loading-overlay")).to.not.equal(null);
     expect(el.shadowRoot?.querySelector(".submit-main .submit-spinner-overlay svg")).to.not.equal(null);
-    expect(el.shadowRoot?.querySelector(".submit > .submit-spinner-overlay")).to.equal(null);
-    expect(el.shadowRoot?.querySelector(".submit-icon svg")).to.not.equal(null);
+    expect(el.shadowRoot?.querySelector(".submit-icon.is-loading")).to.equal(null);
+    expect(el.shadowRoot?.querySelector('slot[name="icon"]')).to.not.equal(null);
+  });
+
+  it("applies overlay spinner size from css variable", async () => {
+    const wrapper = await fixture<HTMLElement>(html`
+      <div style="--yn-sku-selector-submit-loading-overlay-size: 36px">
+        <yn-sku-cart-button loading loading-mode="overlay" price="65.00 €"></yn-sku-cart-button>
+      </div>
+    `);
+    const el = wrapper.querySelector("yn-sku-cart-button") as YnSkuCartButton;
+
+    const svg = el.shadowRoot?.querySelector(".submit-spinner-overlay svg") as SVGSVGElement | null;
+    expect(svg).to.not.equal(null);
+    expect(getComputedStyle(svg!).width).to.equal("36px");
+    expect(getComputedStyle(svg!).height).to.equal("36px");
+  });
+
+  it("applies icon loading spinner size from css variable", async () => {
+    const el = await fixture<YnSkuCartButton>(html`
+      <yn-sku-cart-button
+        style="--yn-sku-selector-submit-loading-icon-size: 30px"
+        loading
+        price="65.00 €"
+      ></yn-sku-cart-button>
+    `);
+
+    const icon = el.shadowRoot?.querySelector(".submit-icon.is-loading") as HTMLElement | null;
+    expect(icon).to.not.equal(null);
+    expect(getComputedStyle(icon!).width).to.equal("30px");
+    expect(getComputedStyle(icon!).height).to.equal("30px");
   });
 
   it("replaces label with loading-text in text mode", async () => {
@@ -42,7 +81,8 @@ describe("yn-sku-cart-button", () => {
 
     const submit = el.shadowRoot?.querySelector(".submit");
     expect(submit?.classList.contains("is-loading-text")).to.equal(true);
-    expect(submit?.classList.contains("is-loading-spinner")).to.equal(false);
+    expect(submit?.classList.contains("is-loading-icon")).to.equal(false);
+    expect(submit?.classList.contains("is-loading-overlay")).to.equal(false);
     expect(el.shadowRoot?.querySelector(".submit-label")?.textContent).to.equal("ADDING...");
     expect(el.shadowRoot?.querySelector(".submit-spinner-overlay")).to.equal(null);
     expect(el.shadowRoot?.querySelector(".submit-icon svg")).to.not.equal(null);
