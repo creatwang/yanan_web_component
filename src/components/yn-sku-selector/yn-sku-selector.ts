@@ -224,14 +224,15 @@ export class YnSkuSelector extends LitElement {
       background: var(--yn-sku-selector-option-active-bg, #000);
       opacity: 0;
       pointer-events: none;
+      will-change: transform, width, height, opacity;
       transition:
-        transform var(--yn-sku-selector-option-transition-duration, 0.28s)
-          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
-        width var(--yn-sku-selector-option-transition-duration, 0.28s)
-          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
-        height var(--yn-sku-selector-option-transition-duration, 0.28s)
-          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.4, 0, 0.2, 1)),
-        opacity 0.18s ease;
+        transform var(--yn-sku-selector-option-transition-duration, 0.22s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+        width var(--yn-sku-selector-option-transition-duration, 0.22s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+        height var(--yn-sku-selector-option-transition-duration, 0.22s)
+          var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+        opacity 0.16s ease-out;
     }
 
     .option {
@@ -373,13 +374,13 @@ export class YnSkuSelector extends LitElement {
         const options = section.querySelector(".options");
         const active = section.querySelector<HTMLElement>(".option.active:not(.unavailable)");
         if (!options || !active) {
-          styles[depth] = "opacity:0;";
+          styles[depth] = "opacity:0;transform:scale(0.98);";
           return;
         }
         const oRect = options.getBoundingClientRect();
         const aRect = active.getBoundingClientRect();
         styles[depth] = [
-          `transform:translate3d(${aRect.left - oRect.left}px,${aRect.top - oRect.top}px,0)`,
+          `transform:translate3d(${aRect.left - oRect.left}px,${aRect.top - oRect.top}px,0) scale(1)`,
           `width:${aRect.width}px`,
           `height:${aRect.height}px`,
           "opacity:1"
