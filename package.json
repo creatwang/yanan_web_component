@@ -1,6 +1,6 @@
 {
   "name": "yn-web-component",
-  "version": "0.0.0",
+  "version": "1.0.1",
   "description": "A Web Components library built with Lit.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -131,7 +131,8 @@
     "build-storybook": "storybook build",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "release": "pnpm build && changeset publish",
+    "publish:npm": "pnpm build && pnpm publish --access public --no-git-checks"
   },
   "keywords": [
     "web-components",
