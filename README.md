@@ -96,6 +96,8 @@
 
 ### 在线文档站
 
+线上地址：[web-components.yanan.store](https://web-components.yanan.store/introduction)
+
 ```bash
 pnpm dev   # http://localhost:5173/introduction — Floema 风格文档，含中英文、Live Preview、Storybook 链接
 pnpm run generate:sitemap   # 生成 public/sitemap.xml（部署前）

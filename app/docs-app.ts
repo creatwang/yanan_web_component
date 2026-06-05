@@ -21,14 +21,41 @@ const INTRO_FEATURES = [
   { title: { "zh-CN": "Shadow DOM", en: "Shadow DOM" }, desc: { "zh-CN": "CSS 变量定制", en: "`--yn-*` theming" } }
 ] as const;
 
+type DocsThemeMode = "light" | "dark";
+
+const getStoredTheme = (): DocsThemeMode => {
+  const stored = window.localStorage.getItem("yn-docs-theme");
+  return stored === "dark" ? "dark" : "light";
+};
+
 @customElement("yn-docs-app")
 export class YnDocsApp extends LitElement {
   @state() private route = getRouteFromLocation();
   @state() private locale: Locale = getLocale();
   @state() private activeTocId = "";
+  @state() private theme: DocsThemeMode = getStoredTheme();
+  @state() private themeCordDocked = false;
 
   private unsubRoute?: () => void;
   private tocObserver?: IntersectionObserver;
+  private onExternalThemeChange = (event: Event) => {
+    const theme = (event as CustomEvent<{ theme?: DocsThemeMode }>).detail?.theme;
+    if (theme === "light" || theme === "dark") {
+      this.theme = theme;
+    }
+  };
+  private onScroll = () => {
+    const scrollTop =
+      window.scrollY ||
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+    const docked = scrollTop > 72;
+    if (docked !== this.themeCordDocked) {
+      this.themeCordDocked = docked;
+    }
+  };
 
   createRenderRoot() {
     return this;
@@ -37,9 +64,16 @@ export class YnDocsApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     document.body.classList.add("docs-body");
+    this.applyDocsTheme(this.theme, false);
+    window.addEventListener("yn-docs-theme-change", this.onExternalThemeChange);
+    window.addEventListener("scroll", this.onScroll, { passive: true });
+    document.addEventListener("scroll", this.onScroll, { passive: true, capture: true });
+    document.body.addEventListener("scroll", this.onScroll, { passive: true });
+    this.onScroll();
     this.unsubRoute = subscribeRoute((route) => {
       if (route !== this.route) {
         window.scrollTo({ top: 0, behavior: "auto" });
+        this.themeCordDocked = false;
       }
       this.route = route;
       applyDocumentSeo(route, this.locale);
@@ -51,14 +85,28 @@ export class YnDocsApp extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback();
     document.body.classList.remove("docs-body");
+    window.removeEventListener("yn-docs-theme-change", this.onExternalThemeChange);
+    window.removeEventListener("scroll", this.onScroll);
+    document.removeEventListener("scroll", this.onScroll, { capture: true });
+    document.body.removeEventListener("scroll", this.onScroll);
     this.unsubRoute?.();
     this.tocObserver?.disconnect();
+  }
+
+  private applyDocsTheme(theme: DocsThemeMode, notify = true) {
+    this.theme = theme;
+    document.documentElement.setAttribute("data-yn-theme", theme);
+    window.localStorage.setItem("yn-docs-theme", theme);
+    if (notify) {
+      window.dispatchEvent(new CustomEvent("yn-docs-theme-change", { detail: { theme } }));
+    }
   }
 
   private switchLocale(locale: Locale) {
     setLocale(locale);
     this.locale = locale;
     applyDocumentSeo(this.route, locale);
+    window.dispatchEvent(new CustomEvent("yn-docs-locale-change", { detail: { locale } }));
     requestAnimationFrame(() => this.setupTocObserver());
   }
 
@@ -92,18 +140,76 @@ export class YnDocsApp extends LitElement {
 
   private renderLangSwitch() {
     return html`
-      <div class="docs-lang" role="group" aria-label="Language">
-        <button
-          type="button"
-          class="docs-lang__btn ${this.locale === "zh-CN" ? "is-active" : ""}"
-          @click=${() => this.switchLocale("zh-CN")}
-        >${this.t("langZh")}</button>
-        <button
-          type="button"
-          class="docs-lang__btn ${this.locale === "en" ? "is-active" : ""}"
-          @click=${() => this.switchLocale("en")}
-        >${this.t("langEn")}</button>
-      </div>
+      <yn-dropdown-pick
+        class="docs-lang-pick"
+        .value=${this.locale}
+        value-field="id"
+        button-display-field="code"
+        placeholder="Language"
+        button-bg="rgba(255,255,255,0.56)"
+        button-color="var(--yn-color-text)"
+        open-button-bg="var(--yn-color-text)"
+        open-button-color="var(--yn-color-bg)"
+        panel-min-width="132px"
+        ?show-selected-icon=${true}
+        style="--yn-dropdown-pick-panel-bg:var(--yn-color-bg);--yn-dropdown-pick-panel-radius:12px;--yn-dropdown-pick-panel-padding:6px;--yn-dropdown-pick-gap:6px;"
+        @change=${(event: CustomEvent<{ id: Locale | "" }>) => {
+          if (event.detail.id === "zh-CN" || event.detail.id === "en") {
+            this.switchLocale(event.detail.id);
+          }
+        }}
+      >
+        <yn-pick value="zh-CN" data-node=${JSON.stringify({ id: "zh-CN", label: "简体中文", code: "中文" })}>
+          <div class="docs-lang-pick__item">简体中文</div>
+        </yn-pick>
+        <yn-pick value="en" data-node=${JSON.stringify({ id: "en", label: "English", code: "EN" })}>
+          <div class="docs-lang-pick__item">English</div>
+        </yn-pick>
+      </yn-dropdown-pick>
+    `;
+  }
+
+  private renderHeaderThemeSwitch() {
+    const checked = this.theme === "light";
+
+    return html`
+      <yn-button
+        class="docs-header-theme-trigger"
+        variant="default"
+        size="mini"
+        aria-label=${this.t("themeToggle")}
+        @click=${() => this.applyDocsTheme(checked ? "dark" : "light")}
+      >
+        ${checked ? this.t("themeLight") : this.t("themeDark")}
+      </yn-button>
+    `;
+  }
+
+  private renderFixedThemeCord() {
+    const checked = this.theme === "dark";
+    const top = this.themeCordDocked ? -32 : 52;
+
+    return html`
+      <yn-pull-cord-switch
+        class="docs-fixed-theme-cord"
+        .checked=${checked}
+        fixed
+        reverse
+        .fixedX=${-24}
+        .top=${top}
+        .zIndex=${10}
+        glow-up
+        variant="default"
+        size="mini"
+        rope-length="220"
+        ?hit-slop=${false}
+        @change=${(event: CustomEvent<{ checked: boolean }>) => {
+          this.applyDocsTheme(event.detail.checked ? "dark" : "light");
+        }}
+      >
+        <yn-button size="mini" variant="default" ?hit-slop=${false}>${this.t("themeLight")}</yn-button>
+        <yn-button slot="activated" size="mini" variant="success" ?hit-slop=${false}>${this.t("themeDark")}</yn-button>
+      </yn-pull-cord-switch>
     `;
   }
 
@@ -520,8 +626,9 @@ export class YnDocsApp extends LitElement {
               ${this.t("docs")} / <strong>${page?.title ?? this.t("notFound")}</strong>
             </span>
             <div class="docs-header__links">
+              ${this.renderHeaderThemeSwitch()}
               ${this.renderLangSwitch()}
-              <a href="http://localhost:6006" target="_blank" rel="noopener noreferrer">Storybook</a>
+              <a href="http://localhost:6006" target="_blank" rel="noopener noreferrer">${this.t("storybook")}</a>
             </div>
           </header>
           <div class="docs-body-grid">
@@ -541,6 +648,7 @@ export class YnDocsApp extends LitElement {
           </div>
         </div>
       </div>
+      ${this.renderFixedThemeCord()}
     `;
   }
 }

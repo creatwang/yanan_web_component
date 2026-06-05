@@ -12,7 +12,7 @@ export function getSiteOrigin(): string {
   if (typeof window !== "undefined" && window.location.origin) {
     return window.location.origin;
   }
-  return "https://creatwang.github.io";
+  return "https://web-components.yanan.store";
 }
 
 export function absoluteDocUrl(route: string): string {
@@ -73,7 +73,7 @@ function routeSeo(route: string, locale: Locale): SeoPayload {
   return {
     title,
     description,
-    keywords: `${base.keywords},${route},${page.tag ?? route}`,
+    keywords: `${base.keywords},${route},${page.kind === "component" ? page.tag : route}`,
     robots: "index,follow",
     locale: locale === "zh-CN" ? "zh-CN" : "en",
     alternateLocale: locale === "zh-CN" ? "en" : "zh-CN"

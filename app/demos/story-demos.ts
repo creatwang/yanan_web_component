@@ -19,6 +19,7 @@ import type {
   YnPullCordSwitchSize,
   YnPullCordSwitchVariant
 } from "../../src/components/yn-pull-cord-switch/yn-pull-cord-switch";
+import type { Locale } from "../i18n/locale";
 
 export const FLOEMA_IMG =
   "https://www.floema.com/_ipx/f_webp&s_200x114/https:/cdn.sanity.io/images/535lnz3g/production/6adaaad4b7aff57360124f76b64839aafe0bf6bd-317x180.png";
@@ -96,7 +97,7 @@ const DRAWER_STYLE =
   "--yn-drawer-z-index:1500;--yn-drawer-bg:#ffffff;--yn-drawer-shadow:-12px 0 36px rgba(36, 31, 33, 0.18);--yn-drawer-backdrop:rgba(12, 10, 11, 0.36);--yn-drawer-header-border:transparent;--yn-drawer-footer-border:rgba(36, 31, 33, 0.08);--yn-drawer-title-color:#241f21;--yn-drawer-close-color:#241f21;--yn-drawer-close-hover-bg:rgba(36, 31, 33, 0.08);--yn-drawer-content-color:#241f21;--yn-drawer-footer-bg:#ffffff;--yn-drawer-body-padding:0 16px 20px;--yn-drawer-open-duration:380ms;--yn-drawer-close-duration:320ms;--yn-drawer-open-ease:cubic-bezier(0.22, 0.01, 0.35, 1);--yn-drawer-close-ease:cubic-bezier(0.55, 0.055, 0.675, 0.19);";
 
 const TOAST_STYLE =
-  "--yn-toast-top:26px;--yn-toast-z-index:1600;--yn-toast-height:36px;--yn-toast-bg:rgba(246, 241, 230, 0.92);--yn-toast-text-color:#20231d;--yn-toast-success-color:#667a48;--yn-toast-info-color:#5f6f86;--yn-toast-warning-color:#b87d55;--yn-toast-error-color:#9a4f43;--yn-toast-paper-color:#f3eddf;--yn-toast-max-width:90vw;--yn-toast-message-padding:0 14px 0 6px;--yn-toast-message-font-size:0.8rem;--yn-toast-message-letter-spacing:0.18em;--yn-toast-mask-bg:rgba(32, 35, 29, 0.18);--yn-toast-shadow:inset 0 0 0 1px rgba(255, 255, 255, 0.48), inset 0 -1px 0 rgba(32, 35, 29, 0.06), 0 18px 45px rgba(62, 55, 42, 0.14), 0 5px 16px rgba(62, 55, 42, 0.08);";
+  "--yn-toast-top:calc(var(--docs-header-h, 56px) + 26px);--yn-toast-z-index:1600;--yn-toast-height:36px;--yn-toast-bg:rgba(246, 241, 230, 0.92);--yn-toast-text-color:#20231d;--yn-toast-success-color:#667a48;--yn-toast-info-color:#5f6f86;--yn-toast-warning-color:#b87d55;--yn-toast-error-color:#9a4f43;--yn-toast-paper-color:#f3eddf;--yn-toast-max-width:90vw;--yn-toast-message-padding:0 14px 0 6px;--yn-toast-message-font-size:0.8rem;--yn-toast-message-letter-spacing:0.18em;--yn-toast-mask-bg:rgba(32, 35, 29, 0.18);--yn-toast-shadow:inset 0 0 0 1px rgba(255, 255, 255, 0.48), inset 0 -1px 0 rgba(32, 35, 29, 0.06), 0 18px 45px rgba(62, 55, 42, 0.14), 0 5px 16px rgba(62, 55, 42, 0.08);";
 
 const SKU_STYLE =
   "--yn-sku-selector-row-height:48px;--yn-sku-selector-option-height:48px;--yn-sku-selector-row-gap:24px;--yn-sku-selector-label-row-gap:12px;--yn-sku-selector-option-min-width:52px;--yn-sku-selector-option-border-color:#000;--yn-sku-selector-option-active-bg:#000;--yn-sku-selector-option-active-color:#fff;--yn-sku-selector-submit-height:64px;--yn-sku-selector-submit-margin-top:24px;--yn-sku-selector-submit-outer-gap:10px;--yn-sku-selector-submit-inner-height:44px;--yn-sku-selector-submit-inset-color:#ffffff;--yn-sku-selector-submit-divider-color:#ffffff;--yn-sku-selector-submit-price-width:auto;--yn-sku-selector-price-font-weight:400;--yn-sku-selector-submit-bg:#000;--yn-sku-selector-submit-color:#fff;--yn-sku-selector-hint-color:#c0392b;--yn-sku-selector-submit-loading-icon-size:24px;";
@@ -310,7 +311,7 @@ const renderLanguagePicks = () =>
 
 /** yn-dropdown-pick Default */
 export const storyDropdownPickDefault = () => html`
-  <div class="yn-min-h-[220px] yn-bg-[#efede8] yn-p-8 yn-flex yn-justify-end">
+  <div class="yn-min-h-[220px] yn-bg-[#efede8] yn-p-8 yn-flex yn-justify-end" style="width:100%;">
     <yn-dropdown-pick
       value="en"
       value-field="id"
@@ -619,6 +620,72 @@ export const storyPullCordSlots = () => html`
     </yn-pull-cord-switch>
   </div>
 `;
+
+export type DocsThemeMode = "light" | "dark";
+
+/** yn-pull-cord-switch docs theme switch: Storybook shell + real docs theme application */
+export const storyPullCordThemeSwitch = (
+  theme: DocsThemeMode,
+  onThemeChange: (theme: DocsThemeMode, event: Event) => void,
+  locale: Locale = "zh-CN"
+) => {
+  const isLight = theme === "light";
+  const isNight = theme === "dark";
+  const variant: YnPullCordSwitchVariant = isLight ? "floema" : "default";
+  const zh = locale === "zh-CN";
+
+  return html`
+    <section class="docs-theme-switcher" data-theme-mode=${theme}>
+      <div class="docs-theme-switcher__copy">
+        <p class="docs-theme-switcher__eyebrow">${zh ? "Yanan 独立站主题" : "Yanan storefront theme"}</p>
+        <h3>
+          ${isLight
+            ? zh
+              ? "白天模式 · Floema 暖纸色"
+              : "Day mode · Floema paper tone"
+            : zh
+              ? "黑夜模式 · 沉浸式商品浏览"
+              : "Night mode · Immersive browsing"}
+        </h3>
+        <p>
+          ${isLight
+            ? zh
+              ? "适合品牌首页、商品详情和结账流程，保持轻盈、温暖、可读。"
+              : "Best for brand homepages, PDPs, and checkout flows with a warm readable surface."
+            : zh
+              ? "适合活动页、灵感页和沉浸式陈列，突出图像、动效与焦点内容。"
+              : "Best for campaign pages and immersive merchandising where imagery and motion lead."}
+        </p>
+      </div>
+
+      <div
+        class="pull-cord-shell docs-theme-switcher__cord"
+        style=${shellStyle(variant, isNight)}
+        ${ref((el) => syncShell(el, isNight))}
+      >
+        <yn-pull-cord-switch
+          .checked=${isNight}
+          variant=${variant}
+          size="medium"
+          rope-length="260"
+          ?hit-slop=${false}
+          @change=${(event: Event) => {
+            const checked = (event as CustomEvent<{ checked: boolean }>).detail.checked;
+            const lamp = event.target as HTMLElement;
+            const shell = lamp.parentElement;
+            if (shell?.classList.contains("pull-cord-shell")) {
+              applyPullCordShellBackground(shell, lamp, checked);
+            }
+            onThemeChange(checked ? "dark" : "light", event);
+          }}
+        >
+          <yn-button size="small" variant="default" ?hit-slop=${false}>${zh ? "白天" : "Day"}</yn-button>
+          <yn-button slot="activated" size="small" variant="success" ?hit-slop=${false}>${zh ? "黑夜" : "Night"}</yn-button>
+        </yn-pull-cord-switch>
+      </div>
+    </section>
+  `;
+};
 
 const pullCordEmbedded = (size: YnPullCordSwitchSize) => html`
   <div

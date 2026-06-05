@@ -9,6 +9,10 @@ import "./docs-app";
 
 migrateHashRoute();
 setLocale(getDefaultLocale());
+const savedTheme = window.localStorage.getItem("yn-docs-theme");
+if (savedTheme === "dark" || savedTheme === "light") {
+  document.documentElement.setAttribute("data-yn-theme", savedTheme);
+}
 applyDocumentSeo(getRouteFromLocation(), getDefaultLocale());
 
 const mount = () => {

@@ -24,12 +24,15 @@ import {
   storyToastApi,
   storyPullCordSlots,
   storyPullCordSizes,
+  storyPullCordThemeSwitch,
+  type DocsThemeMode,
   storyGroupPickDefault,
   storyGroupPickMultiple,
   storyPickDefault,
   renderGroupPickCard,
   GROUP_PICK_CATEGORIES
 } from "./story-demos";
+import { getLocale } from "../i18n/locale";
 
 @customElement("yn-docs-navigation-demo")
 export class YnDocsNavigationDemo extends LitElement {
@@ -179,14 +182,48 @@ export class YnDocsToastDemo extends LitElement {
 
 @customElement("yn-docs-pull-cord-demo")
 export class YnDocsPullCordDemo extends LitElement {
-  @property({ type: String }) variant: "slots" | "sizes" = "slots";
+  @property({ type: String }) variant: "theme" | "slots" | "sizes" = "theme";
+  @state() private theme: DocsThemeMode = "light";
+  private onExternalThemeChange = (event: Event) => {
+    const theme = (event as CustomEvent<{ theme?: DocsThemeMode }>).detail?.theme;
+    if (theme === "light" || theme === "dark") {
+      this.theme = theme;
+    }
+  };
+  private onLocaleChange = () => {
+    this.requestUpdate();
+  };
 
   createRenderRoot() {
     return this;
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    const stored = window.localStorage.getItem("yn-docs-theme");
+    this.theme = stored === "dark" ? "dark" : "light";
+    this.applyTheme(this.theme);
+    window.addEventListener("yn-docs-theme-change", this.onExternalThemeChange);
+    window.addEventListener("yn-docs-locale-change", this.onLocaleChange);
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener("yn-docs-theme-change", this.onExternalThemeChange);
+    window.removeEventListener("yn-docs-locale-change", this.onLocaleChange);
+    super.disconnectedCallback();
+  }
+
+  private applyTheme(theme: DocsThemeMode) {
+    this.theme = theme;
+    document.documentElement.setAttribute("data-yn-theme", theme);
+    window.localStorage.setItem("yn-docs-theme", theme);
+    window.dispatchEvent(new CustomEvent("yn-docs-theme-change", { detail: { theme } }));
+  }
+
   render() {
-    return this.variant === "sizes" ? storyPullCordSizes() : storyPullCordSlots();
+    if (this.variant === "sizes") return storyPullCordSizes();
+    if (this.variant === "slots") return storyPullCordSlots();
+    return storyPullCordThemeSwitch(this.theme, (theme) => this.applyTheme(theme), getLocale());
   }
 }
 

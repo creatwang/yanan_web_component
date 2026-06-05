@@ -798,7 +798,7 @@ export class YnPullCordSwitch extends LitElement {
   private syncEngineInteractionTargets() {
     if (!this.engine) return;
     const targets: HTMLElement[] = [];
-    if (this.ropeCanvas) targets.push(this.ropeCanvas);
+    if (this.ropeCanvas && !this.fixed) targets.push(this.ropeCanvas);
     if (this.cardEl && (this.fixed || this.usesSlotCard())) {
       targets.push(this.cardEl);
     }

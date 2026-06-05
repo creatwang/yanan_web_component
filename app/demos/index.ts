@@ -17,7 +17,7 @@ export const DOC_DEMOS: Record<string, DemoRenderer> = {
   "yn-checkout-address": DOC_VARIANT_DEMOS["yn-checkout-address-default"],
   "yn-drawer": DOC_VARIANT_DEMOS["yn-drawer-cart"],
   "yn-toast": DOC_VARIANT_DEMOS["yn-toast-api"],
-  "yn-pull-cord-switch": DOC_VARIANT_DEMOS["yn-pull-cord-slots"],
+  "yn-pull-cord-switch": () => html`<yn-docs-pull-cord-demo variant="theme"></yn-docs-pull-cord-demo>`,
   ...DOC_VARIANT_DEMOS
 };
 

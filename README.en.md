@@ -4,7 +4,7 @@
 
 A **Lit + Web Components** library built for **independent / DTC e-commerce** — from product browsing and SKU selection to cross-border checkout — with on-demand imports, Storybook docs, and a full test pipeline.
 
-**Docs site** (SEO-friendly paths): [creatwang.github.io/yanan_web_component](https://creatwang.github.io/yanan_web_component/introduction) · **npm**: [yn-web-component](https://www.npmjs.com/package/yn-web-component)
+**Docs site** (SEO-friendly paths): [web-components.yanan.store](https://web-components.yanan.store/introduction) · **npm**: [yn-web-component](https://www.npmjs.com/package/yn-web-component)
 
 ## Inspiration
 
