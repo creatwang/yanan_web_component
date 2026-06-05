@@ -15,5 +15,5 @@
     "resolveJsonModule": true,
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["src", "demos", ".storybook", "vite.config.ts", "vitest.config.ts"]
+  "include": ["src", "app", "demos", ".storybook", "vite.config.ts", "vitest.config.ts"]
 }

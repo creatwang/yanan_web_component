@@ -113,7 +113,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open /",
+    "dev:docs": "vite --open /",
     "dev:pull-cord": "vite --open /demos/pull-cord-switch-demo.html",
     "dev:menu-mobile-bg": "vite --open /demos/menu-mobile-bg-demo.html",
     "dev:unified-address": "vite --open /demos/address/unified-address-demo.html",

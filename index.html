@@ -1,38 +1,22 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-yn-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Yanan Web Components</title>
+    <meta
+      name="description"
+      content="yn-web-component — 面向独立站电商平台的 Floema 风格 Web Components 组件文档"
+    />
+    <title>yn-web-component · 组件文档</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
   </head>
-  <body class="p-8">
-    <script type="module" src="/src/dev.ts"></script>
-    <section>
-      <yn-button>你好，Web Component</yn-button>
-    </section>
-    <section>
-      <yn-button>你好，Web Component</yn-button>
-    </section>
-    <section>
-      <yn-button>你好，Web Component</yn-button>
-    </section>
-
-    <section style="background: #f2efea; color: #241f21; padding: 32px; margin-bottom: 24px; border-radius: 16px; max-width: 420px;">
-      <p style="margin: 0 0 8px; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.62;">Demo · Quantidade</p>
-      <h2 style="margin: 0 0 16px; font-weight: 400; font-size: 22px;">Espreguiçadeira Sun Lounger Plaza</h2>
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
-        <span style="font-size: 14px; opacity: 0.7;">Quantidade</span>
-        <yn-quantity value="1" min="1" max="10" style="--yn-quantity-font-family: inherit;"></yn-quantity>
-      </div>
-      <yn-button variant="dark" style="width: 100%;">Adicionar à lista</yn-button>
-    </section>
-
-    <yn-pull-cord-switch>
-      <yn-button slot="activated">
-        <svg xmlns="http://www.w3.org/2000/svg" width="54.562" height="54.562" viewBox="0 0 54.562 54.562" xml:space="preserve"><path d="M26.81 21.826c9.023 0 16.363 7.341 16.363 16.366 0 9.026-7.34 16.37-16.363 16.37s-16.363-7.344-16.363-16.37c-.001-9.025 7.339-16.366 16.363-16.366M2.789 10.928a.82.82 0 0 1 .093-.865L10.577.308c.158-.197.392-.308.645-.308s.486.111.641.304l7.697 9.757c.189.237.229.58.1.859a.82.82 0 0 1-.741.467h-3.554a.59.59 0 0 1-.463-.225l-3.68-4.664-3.681 4.664a.59.59 0 0 1-.462.225H3.527a.82.82 0 0 1-.738-.459m32.119 0a.82.82 0 0 1 .093-.865L42.696.308c.158-.197.392-.308.645-.308s.486.111.642.304l7.697 9.757a.84.84 0 0 1 .1.859.82.82 0 0 1-.741.467h-3.554a.59.59 0 0 1-.463-.225l-3.681-4.664-3.681 4.664a.59.59 0 0 1-.462.225h-3.552a.82.82 0 0 1-.738-.459"/></svg>
-      </yn-button>
-      <yn-button variant="neutral">黑天</yn-button>
-    </yn-pull-cord-switch>
-  <yn-input></yn-input>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/app/main.ts"></script>
   </body>
 </html>
