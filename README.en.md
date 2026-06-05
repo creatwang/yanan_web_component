@@ -43,13 +43,39 @@ A **Lit + Web Components** UI library with on-demand imports, full registration 
 - **Style isolation**: Shadow DOM reduces style collisions in large apps
 - **Mainstream pattern**: many modern design systems adopt “standard components + framework wrappers”
 
+## Component API reference
+
+**Full per-component documentation** (props, events, slots, CSS variables, methods, examples) is maintained in the [Chinese README](./README.md#组件文档).
+
+Run `pnpm storybook` for interactive docs and Controls.
+
 ## Available components
 
-- `yn-button`
-- `yn-input`
-- `yn-icon-connect-button`
-- `yn-navigation`
-- `yn-search`
+| Component | Tag | Summary |
+| --- | --- | --- |
+| Button | `yn-button` | Semantic variants, loading, icon slots |
+| Input | `yn-input` | Floema-style input with prefix/suffix buttons |
+| Navigation | `yn-navigation` | Pill nav with SEO link mode |
+| Search | `yn-search` | Expandable search with datalist |
+| Group pick | `yn-group-pick` | Single/multi select container for `yn-pick` |
+| Pick | `yn-pick` | Individual selectable option |
+| Dropdown | `yn-dropdown` | Positioned dropdown overlay |
+| Dropdown pick | `yn-dropdown-pick` | Dropdown single-select |
+| Drawer | `yn-drawer` | Responsive side/bottom drawer |
+| Toast | `yn-toast` | Dynamic Island-style top feedback |
+| Icon connect button | `yn-icon-connect-button` | Animated icon button/link |
+| Pull cord switch | `yn-pull-cord-switch` | Physics rope toggle |
+| Quantity | `yn-quantity` | Stepper quantity input |
+| Checkout address | `yn-checkout-address` | Cross-border address form |
+| SKU selector | `yn-sku-selector` | Multi-dimension SKU picker + add to cart |
+
+### Subpath imports
+
+| Component | Import path |
+| --- | --- |
+| All above | `yn-web-component/components/<name>` |
+| Full register | `yn-web-component/define` |
+| Theme | `yn-web-component/theme.css` |
 
 ## Installation
 
