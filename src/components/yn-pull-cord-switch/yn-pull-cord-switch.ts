@@ -82,7 +82,7 @@ export class YnPullCordSwitch extends LitElement {
   private slotsBound = false;
   private cardMetricsCache: { width: number; height: number } | null = null;
 
-  private readonly onHostPointerEnter = () => this.handlePeekEnter();
+  private readonly onHostPointerMove = (event: PointerEvent) => this.handleFixedPointerMove(event);
   private readonly onHostPointerLeave = () => this.handlePeekLeave();
   private readonly onSlotChange = () => this.refreshSlotFlags();
 
@@ -659,7 +659,7 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   private setupFixedMode() {
-    this.addEventListener("pointerenter", this.onHostPointerEnter);
+    this.addEventListener("pointermove", this.onHostPointerMove);
     this.addEventListener("pointerleave", this.onHostPointerLeave);
     const grip = this.fixedGripEl;
     if (!grip || this.fixedDrag) return;
@@ -685,7 +685,7 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   private teardownFixedMode() {
-    this.removeEventListener("pointerenter", this.onHostPointerEnter);
+    this.removeEventListener("pointermove", this.onHostPointerMove);
     this.removeEventListener("pointerleave", this.onHostPointerLeave);
     this.fixedDrag?.unbind();
     this.fixedDrag = null;
@@ -715,6 +715,42 @@ export class YnPullCordSwitch extends LitElement {
       this.setAttribute("data-fixed-peekable", "");
     } else {
       this.removeAttribute("data-fixed-peekable");
+    }
+  }
+
+  private isPointerInFixedPeekHotspot(event: PointerEvent) {
+    if (!this.fixed) return false;
+    const hostRect = this.getBoundingClientRect();
+    const cardTarget = this.getActiveCardVisualEl();
+    const cardRect = cardTarget?.getBoundingClientRect();
+
+    if (
+      cardRect &&
+      event.clientX >= cardRect.left &&
+      event.clientX <= cardRect.right &&
+      event.clientY >= cardRect.top &&
+      event.clientY <= cardRect.bottom
+    ) {
+      return true;
+    }
+
+    // fixed 模式下光晕画布很宽，但 hover 只认中心绳线附近，避免空白灯光区触发 peek。
+    const ropeCenterX = hostRect.left + hostRect.width / 2;
+    const ropeHitWidth = 18;
+    const ropeTop = hostRect.top;
+    const ropeBottom = cardRect ? cardRect.bottom : hostRect.bottom;
+    return (
+      Math.abs(event.clientX - ropeCenterX) <= ropeHitWidth &&
+      event.clientY >= ropeTop &&
+      event.clientY <= ropeBottom
+    );
+  }
+
+  private handleFixedPointerMove(event: PointerEvent) {
+    if (this.isPointerInFixedPeekHotspot(event)) {
+      this.handlePeekEnter();
+    } else {
+      this.handlePeekLeave();
     }
   }
 

@@ -195,7 +195,7 @@ export class YnDocsApp extends LitElement {
         .checked=${checked}
         fixed
         reverse
-        .fixedX=${-24}
+        .fixedX=${-12}
         .top=${top}
         .zIndex=${10}
         glow-up
