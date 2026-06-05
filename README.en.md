@@ -2,20 +2,17 @@
 
 [简体中文](./README.md)
 
-A **Lit + Web Components** UI library with on-demand imports, full registration entry, Storybook docs, and test tooling.
+A **Lit + Web Components** library built for **independent / DTC e-commerce** — from product browsing and SKU selection to cross-border checkout — with on-demand imports, Storybook docs, and a full test pipeline.
 
 ## Inspiration
 
-- Interaction and visual inspiration reference: [Floema](https://www.floema.com/)
+Interaction and visual quality reference: [Floema](https://www.floema.com/) — restrained, tactile storefront experiences that inform this library’s motion and aesthetics.
 
 ## Overview
 
-`yn-web-component` provides reusable `yn-*` custom elements with a focus on:
+`yn-web-component` is a framework-agnostic `yn-*` custom element set for cross-border storefronts. It packages recurring e-commerce UI — multi-source address forms, SKU matrices, cart drawers, SEO-friendly navigation — so product and order logic stay in your app layer.
 
-- Reusability: consistent UI behavior across projects
-- Extensibility: props, events, slots, and CSS variables
-- Publishability: npm-ready package with ESM/CJS outputs
-- Maintainability: Storybook docs + tests + lint/format pipeline
+**Built for storefront flows**: browse → pick specs → add to cart → checkout. **Cross-border ready**: address provider fallback (Google → dr5hn → Photon → manual). **Brand-friendly**: Shadow DOM + `--yn-*` CSS variables for theming without style leaks.
 
 ## Why this project
 

@@ -1,6 +1,6 @@
 {
   "name": "yn-web-component",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Web Components library built with Lit.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -137,7 +137,9 @@
   "keywords": [
     "web-components",
     "lit",
-    "component-library"
+    "component-library",
+    "floema",
+    "floema components"
   ],
   "author": "",
   "license": "MIT",

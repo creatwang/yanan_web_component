@@ -2,7 +2,7 @@
 
 [English](./README.en.md)
 
-基于 **Lit + Web Components** 的组件库，支持按需导入、全量注册、Storybook 文档与测试流水线，适合在多框架项目中复用。
+面向**独立站电商平台**打造的 **Lit + Web Components** 组件库——从商品浏览、规格选择到跨境结账，提供统一、精致、可定制的界面能力，并支持按需导入与跨框架复用。
 
 ## 目录
 
@@ -33,24 +33,41 @@
 
 ## 灵感来源
 
-交互动效与视觉细节灵感参考：[Floema](https://www.floema.com/)
+交互动效与视觉质感参考独立站品牌站 [Floema](https://www.floema.com/)——克制、细腻、有呼吸感的电商体验，是本组件库在视觉与动效上的重要参照。
 
 ## 项目介绍
 
-`yn-web-component` 提供一组 `yn-*` 前缀的自定义元素组件，核心目标是：
+`yn-web-component` 是一套为**跨境独立站 / DTC 电商**场景设计的 Web Components 组件库。它不绑定 React、Vue 或任何特定前端框架，而是以浏览器标准能力封装可复用的 `yn-*` 自定义元素，帮助团队在商品站、结账流、运营后台之间共享同一套交互与视觉语言。
 
-- **可复用**：统一交互与视觉实现，避免业务层重复造轮子
-- **可扩展**：通过属性、事件、插槽、CSS 变量扩展能力
-- **可发布**：支持 npm 发布，支持 ESM/CJS 双格式
-- **可维护**：包含 Storybook 文档、测试与 lint/format 工具链
+独立站往往要面对多语言、多币种、多地区配送、SKU 规格联动、移动端结账等复杂需求。本库将其中高频、难啃、易不一致的部分沉淀为组件——例如跨境地址的多数据源降级、多维 SKU 联动加购、响应式购物车抽屉、SEO 友好导航等——让业务层专注在商品与订单逻辑，而不是反复实现同一套 UI 细节。
 
-### 项目优势
+### 适用场景
 
-- **跨框架使用**：基于原生 Web Components，可用于 React/Vue/Angular/原生项目
-- **样式隔离**：组件默认使用 Shadow DOM，减少全局样式污染
-- **文档完善**：Storybook 中提供属性/事件/插槽/CSS 变量说明；本文档为完整 API 参考
-- **按需加载友好**：支持组件级子路径导入，便于 Tree Shaking
-- **工程化完整**：Vite + Vitest + Web Test Runner + Storybook + Changesets
+| 场景 | 相关组件 |
+| --- | --- |
+| 站点导航与品牌入口 | `yn-navigation`、`yn-icon-connect-button`、`yn-search` |
+| 商品详情与规格选择 | `yn-sku-selector`、`yn-quantity`、`yn-group-pick`、`yn-pick` |
+| 筛选、语言与运营配置 | `yn-dropdown`、`yn-dropdown-pick` |
+| 购物车与侧边流程 | `yn-drawer`、`yn-toast` |
+| 跨境结账与地址采集 | `yn-checkout-address` |
+| 通用表单与操作反馈 | `yn-button`、`yn-input` |
+| 主题氛围与特色交互 | `yn-pull-cord-switch` |
+
+### 为什么选择这套方案
+
+- **为电商而生**：覆盖浏览、选购、加购、结账等独立站核心链路，而非通用 UI 拼凑
+- **跨境开箱即用**：地址组件内置 Google → dr5hn → Photon → manual 降级策略，适配多地区配送
+- **跨框架复用**：基于 Web Components，同一套组件可用于 React / Vue / Angular / 原生页面
+- **品牌可定制**：Shadow DOM 隔离样式，通过 `--yn-*` CSS 变量与 `variant` 语义层灵活换肤
+- **按需加载**：组件级子路径导入，配合 Tree Shaking 控制首屏体积
+- **文档与工程完备**：Storybook 交互文档 + 完整 API 参考 + 测试与 lint 流水线
+
+### 技术特性
+
+- **标准化交付**：ESM / CJS 双格式，支持 npm 发布与 `<script>` 直引
+- **样式隔离**：默认 Shadow DOM，减少主题样式与组件内部互相污染
+- **扩展友好**：属性、事件、插槽、CSS 变量四层公开 API，满足业务二次封装
+- **可维护**：Vite + Vitest + Web Test Runner + Storybook + Changesets
 
 ### 当前组件一览
 
