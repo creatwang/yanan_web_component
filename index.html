@@ -5,9 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="yn-web-component — 面向独立站电商平台的 Floema 风格 Web Components 组件文档"
+      content="yn-web-component — Floema 风格 Lit Web Components，面向 DTC / 跨境独立站电商：导航、SKU、结账地址、抽屉、Toast。支持按需导入。"
     />
-    <title>yn-web-component · 组件文档</title>
+    <meta
+      name="keywords"
+      content="web components,lit,ecommerce,dtc,cross-border,floema,独立站,组件库,yn-web-component"
+    />
+    <meta name="robots" content="index,follow" />
+    <meta name="author" content="creatwang" />
+    <meta name="application-name" content="yn-web-component" />
+    <title>yn-web-component · DTC 电商 Web Components 文档</title>
+
+    <link rel="canonical" href="https://creatwang.github.io/yanan_web_component/introduction" />
+    <link rel="alternate" hreflang="zh-CN" href="https://creatwang.github.io/yanan_web_component/introduction" />
+    <link rel="alternate" hreflang="en" href="https://creatwang.github.io/yanan_web_component/introduction" />
+    <link rel="alternate" hreflang="x-default" href="https://creatwang.github.io/yanan_web_component/introduction" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="yn-web-component" />
+    <meta property="og:title" content="yn-web-component · DTC E-commerce Web Components" />
+    <meta
+      property="og:description"
+      content="Lit Web Components for DTC storefronts — navigation, SKU, checkout address, drawer, toast. Tree-shaking friendly."
+    />
+    <meta property="og:url" content="https://creatwang.github.io/yanan_web_component/introduction" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:image" content="https://creatwang.github.io/yanan_web_component/og-cover.svg" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="yn-web-component · DTC E-commerce Web Components" />
+    <meta
+      name="twitter:description"
+      content="Lit Web Components for DTC storefronts — navigation, SKU, checkout address, drawer, toast."
+    />
+    <meta name="twitter:image" content="https://creatwang.github.io/yanan_web_component/og-cover.svg" />
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23f2efea'/%3E%3Ctext x='16' y='21' text-anchor='middle' font-family='system-ui' font-size='14' font-weight='700' fill='%23241f21'%3Eyn%3C/text%3E%3C/svg%3E" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "yn-web-component",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "description": "Floema-style Lit Web Components for DTC and cross-border e-commerce storefronts.",
+        "url": "https://creatwang.github.io/yanan_web_component/",
+        "downloadUrl": "https://www.npmjs.com/package/yn-web-component",
+        "codeRepository": "https://github.com/creatwang/yanan_web_component",
+        "license": "https://opensource.org/licenses/MIT",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -16,6 +66,36 @@
     />
   </head>
   <body>
+    <noscript>
+      <main style="max-width:720px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif;line-height:1.6;color:#241f21;">
+        <h1>yn-web-component</h1>
+        <p>
+          Floema 风格 Lit Web Components，面向 DTC / 跨境独立站电商。npm：
+          <a href="https://www.npmjs.com/package/yn-web-component">yn-web-component</a>
+        </p>
+        <h2>文档目录</h2>
+        <ul>
+          <li><a href="/introduction">介绍</a></li>
+          <li><a href="/installation">安装与导入</a></li>
+          <li><a href="/bundle-size">打包体积</a></li>
+          <li><a href="/yn-button">Button 按钮</a></li>
+          <li><a href="/yn-input">Input 输入框</a></li>
+          <li><a href="/yn-icon-connect-button">Icon Connect</a></li>
+          <li><a href="/yn-navigation">Navigation 导航</a></li>
+          <li><a href="/yn-search">Search 搜索</a></li>
+          <li><a href="/yn-pick">Pick 选项</a></li>
+          <li><a href="/yn-group-pick">Group Pick</a></li>
+          <li><a href="/yn-dropdown">Dropdown 下拉</a></li>
+          <li><a href="/yn-dropdown-pick">Dropdown Pick</a></li>
+          <li><a href="/yn-quantity">Quantity 数量</a></li>
+          <li><a href="/yn-sku-selector">SKU Selector</a></li>
+          <li><a href="/yn-checkout-address">Checkout Address</a></li>
+          <li><a href="/yn-drawer">Drawer 抽屉</a></li>
+          <li><a href="/yn-toast">Toast 提示</a></li>
+          <li><a href="/yn-pull-cord-switch">Pull Cord 抽绳</a></li>
+        </ul>
+      </main>
+    </noscript>
     <div id="app"></div>
     <script type="module" src="/app/main.ts"></script>
   </body>

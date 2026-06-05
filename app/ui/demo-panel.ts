@@ -7,6 +7,7 @@ export class YnDocsDemo extends LitElement {
   @property({ attribute: false }) renderDemo?: () => TemplateResult;
   @property({ type: String }) align: "center" | "left" | "column" = "center";
   @property({ type: String }) label = "Preview";
+  @property({ type: Boolean }) tall = false;
 
   createRenderRoot() {
     return this;
@@ -19,10 +20,11 @@ export class YnDocsDemo extends LitElement {
         : this.align === "column"
           ? "docs-demo__preview--column"
           : "";
+    const tallClass = this.tall ? "docs-demo__preview--tall" : "";
 
     return html`
-      <div class="docs-demo">
-        <div class="docs-demo__preview ${alignClass}">
+      <div class="docs-demo ${this.tall ? "docs-demo--tall" : ""}">
+        <div class="docs-demo__preview ${alignClass} ${tallClass}">
           ${this.renderDemo?.() ?? ""}
         </div>
         <div class="docs-demo__label">${this.label}</div>

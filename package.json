@@ -1,7 +1,15 @@
 {
   "name": "yn-web-component",
   "version": "1.0.2",
-  "description": "A Web Components library built with Lit.",
+  "description": "Floema-style Lit Web Components for DTC and cross-border e-commerce storefronts — navigation, SKU selector, checkout address, drawer, toast. Tree-shaking subpath exports.",
+  "homepage": "https://web-components.yanan.store/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/creatwang/yanan_web_component.git"
+  },
+  "bugs": {
+    "url": "https://github.com/creatwang/yanan_web_component/issues"
+  },
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -110,7 +118,9 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "README.en.md"
   ],
   "scripts": {
     "dev": "vite --open /",
@@ -130,6 +140,7 @@
     "format": "prettier --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
@@ -137,12 +148,24 @@
   },
   "keywords": [
     "web-components",
+    "web components",
+    "custom-elements",
     "lit",
+    "lit-element",
     "component-library",
+    "ui-components",
+    "ecommerce",
+    "e-commerce",
+    "dtc",
+    "storefront",
+    "cross-border",
+    "checkout",
+    "sku",
     "floema",
-    "floema components"
+    "shadow-dom",
+    "tree-shaking"
   ],
-  "author": "",
+  "author": "creatwang",
   "license": "MIT",
   "packageManager": "pnpm@10.17.1",
   "dependencies": {

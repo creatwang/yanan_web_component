@@ -1,6 +1,6 @@
 # yn-web-component
 
-[English](./README.en.md)
+[English](https://github.com/creatwang/yanan_web_component/blob/main/README.en.md)（npm 包页仅展示本文件，英文完整文档见 GitHub）
 
 面向**独立站电商平台**打造的 **Lit + Web Components** 组件库——从商品浏览、规格选择到跨境结账，提供统一、精致、可定制的界面能力，并支持按需导入与跨框架复用。
 
@@ -26,6 +26,8 @@
   - [yn-quantity](#yn-quantity)
   - [yn-checkout-address](#yn-checkout-address)
   - [yn-sku-selector](#yn-sku-selector)
+- [打包体积](#打包体积)
+- [在线文档站](#在线文档站)
 - [导入路径速查](#导入路径速查)
 - [主题与样式](#主题与样式)
 - [开发命令](#开发命令)
@@ -68,6 +70,38 @@
 - **样式隔离**：默认 Shadow DOM，减少主题样式与组件内部互相污染
 - **扩展友好**：属性、事件、插槽、CSS 变量四层公开 API，满足业务二次封装
 - **可维护**：Vite + Vitest + Web Test Runner + Storybook + Changesets
+
+### 打包体积
+
+> 以下数据来自本地 `pnpm build` ESM 产物（v1.0.2，构建日期 2026-06-05）。按需导入路径：`yn-web-component/components/<name>`。完整表格见文档站 `#/bundle-size`。
+
+| 组件 | ESM | gzip | 备注 |
+| --- | --- | --- | --- |
+| `yn-pick` | 3.96 kB | 1.65 kB | |
+| `yn-group-pick` | 4.71 kB | 1.97 kB | |
+| `yn-input` | 8.41 kB | 2.39 kB | |
+| `yn-quantity` | 8.66 kB | 2.48 kB | |
+| `yn-icon-connect-button` | 11.61 kB | 3.92 kB | |
+| `yn-button` | 13.79 kB | 3.46 kB | |
+| `yn-dropdown-pick` | 14.88 kB | 4.54 kB | |
+| `yn-dropdown` | 17.06 kB | 4.78 kB | |
+| `yn-drawer` | 18.92 kB | 4.60 kB | |
+| `yn-search` | 20.46 kB | 5.98 kB | |
+| `yn-toast` | 21.53 kB | 5.42 kB | |
+| `yn-navigation` | 21.74 kB | 6.91 kB | |
+| `yn-sku-selector` | ~25.4 kB | ~6.33 kB | 入口 + 分包合计 |
+| `yn-pull-cord-switch` | 49.70 kB | 11.85 kB | 含绳物理引擎 |
+| `yn-checkout-address` | ~84.1 kB | ~20.6 kB | 入口 + 分包，含 dr5hn 逻辑 |
+| **全量 IIFE** | **314.86 kB** | **76.52 kB** | `dist/index.iife.js` |
+
+### 在线文档站
+
+```bash
+pnpm dev   # http://localhost:5173/introduction — Floema 风格文档，含中英文、Live Preview、Storybook 链接
+pnpm run generate:sitemap   # 生成 public/sitemap.xml（部署前）
+```
+
+源码位于 `app/`，与 `src/components` 组件库分离。文档站使用 **pathname 路由**（如 `/yn-button`），便于 Google 收录；旧 `#/yn-button` 链接会自动跳转。
 
 ### 当前组件一览
 

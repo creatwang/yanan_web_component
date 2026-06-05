@@ -1,8 +1,10 @@
 # yn-web-component
 
-[简体中文](./README.md)
+[简体中文](https://github.com/creatwang/yanan_web_component/blob/main/README.md)（full Chinese docs on GitHub; npm package page shows README.md only）
 
 A **Lit + Web Components** library built for **independent / DTC e-commerce** — from product browsing and SKU selection to cross-border checkout — with on-demand imports, Storybook docs, and a full test pipeline.
+
+**Docs site** (SEO-friendly paths): [creatwang.github.io/yanan_web_component](https://creatwang.github.io/yanan_web_component/introduction) · **npm**: [yn-web-component](https://www.npmjs.com/package/yn-web-component)
 
 ## Inspiration
 
@@ -42,7 +44,7 @@ Interaction and visual quality reference: [Floema](https://www.floema.com/) — 
 
 ## Component API reference
 
-**Full per-component documentation** (props, events, slots, CSS variables, methods, examples) is maintained in the [Chinese README](./README.md#组件文档).
+**Full per-component documentation** (props, events, slots, CSS variables, methods, examples) is maintained in the [Chinese README](https://github.com/creatwang/yanan_web_component/blob/main/README.md#组件文档).
 
 Run `pnpm storybook` for interactive docs and Controls.
 
@@ -65,6 +67,18 @@ Run `pnpm storybook` for interactive docs and Controls.
 | Quantity | `yn-quantity` | Stepper quantity input |
 | Checkout address | `yn-checkout-address` | Cross-border address form |
 | SKU selector | `yn-sku-selector` | Multi-dimension SKU picker + add to cart |
+
+### Bundle size (ESM, v1.0.2 build)
+
+| Component | ESM | gzip |
+| --- | --- | --- |
+| yn-pick | 3.96 kB | 1.65 kB |
+| yn-button | 13.79 kB | 3.46 kB |
+| yn-sku-selector | ~25.4 kB | ~6.33 kB |
+| yn-checkout-address | ~84.1 kB | ~20.6 kB |
+| Full IIFE | 314.86 kB | 76.52 kB |
+
+Run `pnpm dev` for the interactive docs site (`app/`) with live previews and `#/bundle-size`.
 
 ### Subpath imports
 

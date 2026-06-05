@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://web-components.yanan.store/sitemap.xml
+
+# 本地开发：搜索引擎不索引 localhost
+# 生产部署后请确认 sitemap 与 VITE_DOCS_SITE_URL 一致

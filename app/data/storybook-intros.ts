@@ -10,62 +10,61 @@ const IMG = {
 export const STORYBOOK_INTROS: Record<string, L10nText> = {
   "yn-input": {
     "zh-CN":
-      "Floema 风格输入框：暖色半透明背景、细线边框、胶囊圆角。默认无前后置按钮，仅传入 `prefix-button` / `suffix-button` 插槽时渲染。事件 `yn-input`、`yn-prefix-click`、`yn-suffix-click` 的 detail 均为 `{ value }`。",
-    en: "Floema-style input with warm translucent surface and pill radius. Prefix/suffix buttons render only when slotted. Events: `yn-input`, `yn-prefix-click`, `yn-suffix-click`."
+      "Floema 风格输入框：暖色半透明背景、细线边框、胶囊圆角。默认无前后置按钮，仅传入 `prefix-button` / `suffix-button` 插槽时渲染。",
+    en: "Floema-style input with warm translucent surface and pill radius. Prefix/suffix buttons render only when slotted."
   },
   "yn-icon-connect-button": {
     "zh-CN":
-      "带图标连接动画的按钮/链接。`icon`/`label` 属性或 `slot=\"icon\"`/`slot=\"label\"`（插槽优先）。`link` 有值渲染 `<a>`，无值渲染 `<button>`。",
-    en: "Animated icon connect button/link. Props or slots for icon/label (slots win). Renders `<a>` when `link` is set."
+      "带图标连接动画的按钮/链接。悬停时图标与文案有连接动效。`icon`/`label` 属性或插槽（插槽优先）。",
+    en: "Animated icon connect button/link with hover motion. Props or slots for icon/label (slots win)."
   },
   "yn-navigation": {
     "zh-CN":
-      "胶囊导航。`seo-mode=false` 受控切换（button + change）；`seo-mode=true` 渲染 `<a href>` 并按 URL 匹配激活项，不派发 change。",
-    en: "Pill navigation. Controlled mode with `change`, or SEO link mode with `<a href>` and URL-based active state."
+      "胶囊导航，激活项带**指示器滑动**与**发光（glow）**动画。受控模式点击切换 `active`；`seo-mode` 渲染 `<a href>`。",
+    en: "Pill nav with **sliding indicator** and **glow** animation. Controlled `active` or SEO `<a href>` mode."
   },
   "yn-search": {
     "zh-CN":
-      "可展开搜索。默认插槽传入 `<datalist>` 提供原生候选项。支持 `input` / `enter` 事件与多项 `--yn-search-*` 动效变量。",
-    en: "Expandable search with optional `<datalist>` in default slot. `input` and `enter` events; motion via `--yn-search-*` variables."
+      "可展开搜索，点击后背景与图标有位移/透明度过渡。默认插槽可传 `<datalist>` 候选项。",
+    en: "Expandable search with background/icon motion. Optional `<datalist>` in default slot."
   },
   "yn-dropdown": {
     "zh-CN":
-      "通用下拉弹层：默认插槽为触发器，`content` 为面板。12 方向 `placement`（当前不自动翻转）。弹层/触发器/关闭图标联动位移动画。",
-    en: "Dropdown overlay: default slot = trigger, `content` = panel. 12 `placement` values with coordinated motion."
+      "下拉弹层：触发器文本滑出、面板定向位移、关闭图标反方向进入。点击触发器查看完整动画。",
+    en: "Dropdown with trigger slide, panel motion, and close icon animation. Click trigger to preview."
   },
   "yn-dropdown-pick": {
-    "zh-CN":
-      "独立下拉单选器，插槽传入 `yn-pick`；每项建议 `data-node` JSON。选中即收起，按钮文案由 `button-display-field` 映射。",
-    en: "Standalone dropdown select using `yn-pick` children with `data-node` JSON. Closes on select; label from `button-display-field`."
+    "zh-CN": "下拉单选器，按钮展开/收起有颜色联动，选中项右侧勾选图标。",
+    en: "Dropdown select with button color transition and check icon on selection."
   },
   "yn-quantity": {
-    "zh-CN": "Floema 风格数量步进器：减号 / 数字输入 / 加号，受控 `value`，`min`/`max`/`step` 约束。",
-    en: "Floema-style stepper with minus/input/plus, controlled `value`, `min`/`max`/`step`."
+    "zh-CN": "Floema 风格数量步进器，悬停/聚焦有背景与边框过渡。",
+    en: "Floema stepper with hover/focus surface transitions."
   },
   "yn-sku-selector": {
     "zh-CN":
-      "多维 SKU 联动：库存/价格/缺货态、`pick-one` 默认选中、`simple` 选齐自动 submit、`submit` 异步 + `instance.done()` 结束 loading。",
-    en: "Multi-dimension SKU matrix with stock/price states, `pick-one`, `simple` auto-submit, async `submit` with `instance.done()`."
+      "多维 SKU 联动：规格按钮选中反色、加购按钮 loading 形变、`simple` 模式选齐自动 submit。",
+    en: "SKU matrix with selection invert, submit loading, and `simple` auto-submit mode."
   },
   "yn-checkout-address": {
     "zh-CN":
-      "跨境地址：Google → dr5hn → Photon → manual 降级；分步表单；`validate()` / `reportValidity()`；`change` 含 validation 与 changedFields。",
-    en: "Cross-border address with provider fallback chain; stepped form; `validate()` / `reportValidity()`; rich `change` detail."
+      "跨境地址分步表单。完整校验流程（reportValidity / validate）见 Storybook CheckoutValidation。",
+    en: "Stepped cross-border address form. Full validation flow in Storybook CheckoutValidation."
   },
   "yn-drawer": {
     "zh-CN":
-      "Popover 抽屉：`placement=auto` 窄屏底部/宽屏右侧。生命周期 before/after open/close 可 preventDefault。`backdrop-extra` 宽屏遮罩左侧扩展区。",
-    en: "Popover drawer: bottom on narrow, right on wide. Lifecycle hooks with preventDefault. `backdrop-extra` for wide-screen promos."
+      "抽屉基于 Popover：窄屏底部滑入、宽屏右侧滑入，带遮罩与生命周期事件。",
+    en: "Popover drawer: bottom sheet on narrow, right panel on wide, with backdrop."
   },
   "yn-toast": {
     "zh-CN":
-      "灵动岛顶部反馈：loading 双弧 → 状态形变。支持 `show(callback)` + `instance.done()`、遮罩、success/info/warning/error 快捷方法。",
-    en: "Dynamic Island toast: loading arcs morph to status. Callback API with `instance.done()`, optional mask, shortcut methods."
+      "灵动岛反馈：loading 双弧加速 → 状态球形变。点击下方按钮查看动画。",
+    en: "Dynamic Island toast: loading arcs morph to status. Click buttons below to preview."
   },
   "yn-pull-cord-switch": {
     "zh-CN":
-      "Verlet 绳物理抽绳开关。`rope-length` 与 `size` 解耦；双插槽 default/activated；`fixed` 吸顶与 `fixed-move`。组件不绘区域背景。",
-    en: "Verlet rope pull-cord toggle. `rope-length` independent of `size`; dual slots; optional `fixed` viewport mode. No shell background."
+      "Verlet 绳物理：拖拽绳端过阈值切换，松手弹性回弹。深色背景壳内效果最佳。",
+    en: "Verlet rope physics: drag past threshold, elastic snap-back on release."
   }
 };
 
@@ -75,11 +74,19 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "slotted-buttons",
       title: { "zh-CN": "前后置按钮", en: "Prefix/suffix buttons" },
       description: {
-        "zh-CN": "传入插槽后显示可点击图标按钮，触发 yn-prefix-click / yn-suffix-click。",
-        en: "Slotted icon buttons fire yn-prefix-click / yn-suffix-click."
+        "zh-CN": "传入插槽后显示可点击图标按钮。",
+        en: "Slotted icon buttons on both ends."
       },
       storybookComponent: "YnInput",
       storybookStory: "SlottedButtons",
+      demoVariant: "yn-input-slotted"
+    },
+    {
+      id: "filled",
+      title: { "zh-CN": "已填值", en: "Filled value" },
+      description: { "zh-CN": "受控 value 回显。", en: "Controlled value display." },
+      storybookComponent: "YnInput",
+      storybookStory: "Filled",
       demoVariant: "yn-input-slotted"
     }
   ],
@@ -87,7 +94,10 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
     {
       id: "sizes",
       title: { "zh-CN": "尺寸展示", en: "Size showcase" },
-      description: { "zh-CN": "mini / small / normal 三档尺寸。", en: "mini, small, normal sizes." },
+      description: {
+        "zh-CN": "mini / small / normal；悬停查看连接动画。",
+        en: "mini, small, normal — hover for connect animation."
+      },
       storybookComponent: "YnIconConnectButton",
       storybookStory: "SizeShowcase",
       demoVariant: "yn-icon-connect-sizes"
@@ -95,30 +105,87 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
   ],
   "yn-navigation": [
     {
+      id: "controlled",
+      title: { "zh-CN": "受控切换（默认）", en: "Controlled (default)" },
+      description: {
+        "zh-CN": "点击导航项，观察指示器滑动与 glow 动画。",
+        en: "Click tabs to see indicator slide and glow."
+      },
+      storybookComponent: "YnNavigation",
+      storybookStory: "Default",
+      demoVariant: "yn-navigation-controlled"
+    },
+    {
+      id: "dark",
+      title: { "zh-CN": "深色背景", en: "Dark background" },
+      description: {
+        "zh-CN": "Storybook DarkBackground：深底 + 白胶囊对比。",
+        en: "Storybook DarkBackground on dark surface."
+      },
+      storybookComponent: "YnNavigation",
+      storybookStory: "DarkBackground",
+      demoVariant: "yn-navigation-dark"
+    },
+    {
       id: "seo",
       title: { "zh-CN": "SEO 链接模式", en: "SEO link mode" },
       description: {
-        "zh-CN": "seo-mode 渲染真实链接，利于收录。",
-        en: "seo-mode renders real anchors for crawlers."
+        "zh-CN": "seo-mode 渲染真实 `<a href>`，利于 SEO。",
+        en: "seo-mode renders real anchor links."
       },
       storybookComponent: "YnNavigation",
-      storybookStory: "Default"
-    },
+      storybookStory: "Default",
+      demoVariant: "yn-navigation-seo"
+    }
+  ],
+  "yn-search": [
     {
-      id: "controlled",
-      title: { "zh-CN": "受控切换", en: "Controlled mode" },
-      description: { "zh-CN": "非 SEO 模式派发 change 事件。", en: "Non-SEO mode emits change." },
-      storybookComponent: "YnNavigation",
-      storybookStory: "NonSeoControlled"
+      id: "default",
+      title: { "zh-CN": "展开搜索", en: "Expandable search" },
+      description: {
+        "zh-CN": "点击放大镜图标展开输入区。",
+        en: "Click icon to expand input area."
+      },
+      storybookComponent: "YnSearch",
+      storybookStory: "Default",
+      demoVariant: "yn-search-default"
     }
   ],
   "yn-dropdown": [
     {
+      id: "default",
+      title: { "zh-CN": "分类筛选", en: "Category filter" },
+      description: {
+        "zh-CN": "含 yn-group-pick 内容；点击「筛选条件」查看弹层动画。",
+        en: "With yn-group-pick panel; click trigger for motion."
+      },
+      storybookComponent: "YnDropdown",
+      storybookStory: "Default",
+      demoVariant: "yn-dropdown-default"
+    },
+    {
       id: "custom-close",
       title: { "zh-CN": "自定义关闭图标", en: "Custom close icon" },
-      description: { "zh-CN": "close-icon 插槽替换内置 SVG。", en: "Replace close icon via slot." },
+      description: {
+        "zh-CN": "close-icon 插槽 + right-start 方向。",
+        en: "close-icon slot with right-start placement."
+      },
       storybookComponent: "YnDropdown",
-      storybookStory: "CustomCloseIcon"
+      storybookStory: "CustomCloseIcon",
+      demoVariant: "yn-dropdown-custom-close"
+    }
+  ],
+  "yn-dropdown-pick": [
+    {
+      id: "default",
+      title: { "zh-CN": "语言选择", en: "Language select" },
+      description: {
+        "zh-CN": "按钮展示 code 字段，选中即收起。",
+        en: "Button shows code field; closes on select."
+      },
+      storybookComponent: "YnDropdownPick",
+      storybookStory: "Default",
+      demoVariant: "yn-dropdown-pick-default"
     }
   ],
   "yn-quantity": [
@@ -126,8 +193,8 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "product",
       title: { "zh-CN": "商品详情场景", en: "Product detail" },
       description: {
-        "zh-CN": "Storybook ProductDemo：与 yn-button 组合的商品加购条。",
-        en: "Storybook ProductDemo with yn-button add-to-list row."
+        "zh-CN": "Storybook ProductDemo 布局。",
+        en: "Storybook ProductDemo layout."
       },
       storybookComponent: "YnQuantity",
       storybookStory: "ProductDemo",
@@ -137,39 +204,49 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
   "yn-sku-selector": [
     {
       id: "pick-one",
-      title: { "zh-CN": "默认选中", en: "Pick one" },
-      description: { "zh-CN": "pick-one 初始化触发 init。", en: "pick-one fires init on mount." },
+      title: { "zh-CN": "球衣尺码（pick-one）", en: "Jersey sizes (pick-one)" },
+      description: {
+        "zh-CN": "默认选中首组可用 SKU。",
+        en: "Default first available SKU selected."
+      },
       storybookComponent: "YnSkuSelector",
-      storybookStory: "PickOne"
+      storybookStory: "PickOne",
+      demoVariant: "yn-sku-default"
     },
     {
       id: "simple",
       title: { "zh-CN": "Simple 模式", en: "Simple mode" },
-      description: { "zh-CN": "仅规格按钮，选齐自动 submit。", en: "Spec buttons only; auto submit when complete." },
-      storybookComponent: "YnSkuSelector",
-      storybookStory: "SimpleMode"
-    },
-    {
-      id: "async",
-      title: { "zh-CN": "异步加购", en: "Async submit" },
       description: {
-        "zh-CN": "submit 回调内 await 后 instance.done()。",
-        en: "Await in submit handler then instance.done()."
+        "zh-CN": "多维规格，选齐自动触发 submit。",
+        en: "Multi-spec; auto submit when complete."
       },
       storybookComponent: "YnSkuSelector",
-      storybookStory: "AsyncSubmit"
+      storybookStory: "SimpleMode",
+      demoVariant: "yn-sku-simple"
     }
   ],
   "yn-checkout-address": [
     {
+      id: "default",
+      title: { "zh-CN": "地址表单", en: "Address form" },
+      description: {
+        "zh-CN": "分步地区 + 联系信息。完整校验见 Storybook。",
+        en: "Stepped region + contact fields."
+      },
+      storybookComponent: "YnCheckoutAddress",
+      storybookStory: "Default",
+      demoVariant: "yn-checkout-address-default"
+    },
+    {
       id: "validation",
       title: { "zh-CN": "结账校验演示", en: "Checkout validation" },
       description: {
-        "zh-CN": "reportValidity 标红 + validate 硬校验完整流程。",
-        en: "Full reportValidity + validate flow."
+        "zh-CN": "完整 validate / reportValidity 仅 Storybook 可交互演示。",
+        en: "Full validate flow in Storybook only."
       },
       storybookComponent: "YnCheckoutAddress",
-      storybookStory: "CheckoutValidation"
+      storybookStory: "CheckoutValidation",
+      demoVariant: "yn-checkout-address-default"
     }
   ],
   "yn-drawer": [
@@ -177,33 +254,36 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "cart",
       title: { "zh-CN": "购物车抽屉", en: "Cart drawer" },
       description: {
-        "zh-CN": "移动端 sheet-height=auto 随内容高度。",
-        en: "Mobile cart with sheet-height=auto."
+        "zh-CN": "sheet-height=auto，点击「打开购物车」。",
+        en: "sheet-height=auto; click to open."
       },
       storybookComponent: "YnDrawer",
-      storybookStory: "CartDrawer"
+      storybookStory: "CartDrawer",
+      demoVariant: "yn-drawer-cart"
     },
     {
       id: "backdrop-extra",
       title: { "zh-CN": "遮罩扩展推荐位", en: "Backdrop extra" },
       description: {
-        "zh-CN": "宽屏右侧抽屉时 backdrop-extra 展示推荐商品。",
-        en: "Wide-screen promo area in backdrop-extra slot."
+        "zh-CN": "宽屏右侧抽屉 + backdrop-extra 插槽。",
+        en: "Wide right drawer with backdrop-extra slot."
       },
       storybookComponent: "YnDrawer",
-      storybookStory: "CartDrawerDesktop"
+      storybookStory: "CartDrawerDesktop",
+      demoVariant: "yn-drawer-desktop"
     }
   ],
   "yn-toast": [
     {
       id: "api",
-      title: { "zh-CN": "API 用法", en: "API usage" },
+      title: { "zh-CN": "四种状态", en: "Four states" },
       description: {
-        "zh-CN": "show / success / callback + done / hide 全矩阵。",
-        en: "Full show / shortcut / callback / hide matrix."
+        "zh-CN": "点击 success/info/warning/error 查看形变动画。",
+        en: "Click buttons to preview morph animation."
       },
       storybookComponent: "YnToast",
-      storybookStory: "ApiUsage"
+      storybookStory: "ApiUsage",
+      demoVariant: "yn-toast-api"
     }
   ],
   "yn-pull-cord-switch": [
@@ -211,21 +291,23 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "slots",
       title: { "zh-CN": "双插槽绳端", en: "Dual slot cord ends" },
       description: {
-        "zh-CN": "default / activated 切换不同 yn-button。",
-        en: "Swap yn-button via default / activated slots."
+        "zh-CN": "拖拽绳端切换；default / activated 不同按钮。",
+        en: "Drag cord; swap buttons via slots."
       },
       storybookComponent: "YnPullCordSwitch",
-      storybookStory: "Slots"
+      storybookStory: "Slots",
+      demoVariant: "yn-pull-cord-slots"
     },
     {
-      id: "fixed",
-      title: { "zh-CN": "Fixed 吸顶", en: "Fixed mode" },
+      id: "sizes",
+      title: { "zh-CN": "三种尺寸", en: "Three sizes" },
       description: {
-        "zh-CN": "吸附视口顶部，支持负 fixed-x hover 露出。",
-        en: "Viewport-fixed with negative fixed-x peek."
+        "zh-CN": "mini / small / medium，绳长相同。",
+        en: "mini, small, medium at same rope length."
       },
       storybookComponent: "YnPullCordSwitch",
-      storybookStory: "Fixed"
+      storybookStory: "Sizes",
+      demoVariant: "yn-pull-cord-sizes"
     }
   ]
 };

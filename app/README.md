@@ -15,10 +15,17 @@ pnpm dev
 | --- | --- |
 | `main.ts` | 文档站入口 |
 | `docs-app.ts` | 三栏布局主应用（侧栏 / 正文 / TOC） |
-| `data/` | 组件 API 与指南页数据 |
-| `demos/` | Live Preview 示例 |
+| `i18n/` | 中英文文案（`zh-CN` / `en`） |
+| `data/` | 组件 API、Storybook 介绍、打包体积 |
+| `demos/` | Live Preview 与展示变体（如 Pick 色块/图片卡片） |
 | `ui/` | 代码块、预览面板等文档 UI |
 | `styles/docs.css` | Floema 文档站样式 |
+
+## 功能
+
+- 中英文切换（右上角，localStorage 记忆）
+- 每组件：详细介绍、展示形式、Storybook 链接、Live Demo、打包体积
+- `#/bundle-size` 打包体积总览页
 
 ## 与 `src/docs/` 的区别
 

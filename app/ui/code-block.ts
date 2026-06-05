@@ -1,10 +1,13 @@
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import type { Locale } from "../i18n/locale";
+import { ui } from "../i18n/messages";
 
 @customElement("yn-docs-code")
 export class YnDocsCode extends LitElement {
   @property({ type: String }) code = "";
   @property({ type: String }) lang = "html";
+  @property({ type: String }) locale: Locale = "zh-CN";
   @state() private copied = false;
 
   createRenderRoot() {
@@ -29,7 +32,7 @@ export class YnDocsCode extends LitElement {
         <div class="docs-code-header">
           <span class="docs-code-lang">${this.lang}</span>
           <button class="docs-code-copy" type="button" @click=${this.copy}>
-            ${this.copied ? "已复制" : "复制"}
+            ${this.copied ? ui("copied", this.locale) : ui("copy", this.locale)}
           </button>
         </div>
         <pre class="docs-code-block"><code>${this.code}</code></pre>

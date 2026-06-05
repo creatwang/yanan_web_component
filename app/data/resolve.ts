@@ -13,7 +13,7 @@ function same(s: string): L10nText {
   return { "zh-CN": s, en: s };
 }
 
-export type ResolvedShowcase = DocShowcase & {
+export type ResolvedShowcase = Omit<DocShowcase, "title" | "description"> & {
   title: string;
   description: string;
   storybookHref: string;
@@ -93,7 +93,14 @@ function resolveComponent(base: ComponentDocPage, locale: Locale): ResolvedCompo
       detail: e.detail,
       desc: lt(e.desc, locale)
     })),
-    slots: (ext?.slots ?? base.slots.map((s) => ({ ...s, desc: same(s.desc) }))).map((s) => ({
+    slots: (
+      ext?.slots ??
+      base.slots.map((s) => ({
+        ...s,
+        desc: same(s.desc),
+        priority: s.priority ? same(s.priority) : undefined
+      }))
+    ).map((s) => ({
       name: s.name,
       desc: lt(s.desc, locale),
       priority: s.priority ? lt(s.priority, locale) : undefined
