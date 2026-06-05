@@ -130,6 +130,7 @@
     "dev:unified-address": "vite --open /demos/address/unified-address-demo.html",
     "dev:google-address": "vite --open /demos/address/google-address-demo.html",
     "dev:dr5hn-region": "vite --open /demos/address/dr5hn-region-demo.html",
+    "build:docs": "pnpm run generate:sitemap && vite build",
     "build": "vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "analyze": "cem analyze && node scripts/generate-ide-metadata.mjs",

@@ -100,7 +100,6 @@
 
 ```bash
 pnpm dev   # http://localhost:5173/introduction — Floema 风格文档，含中英文、Live Preview、Storybook 链接
-pnpm run generate:sitemap   # 生成 public/sitemap.xml（部署前）
 ```
 
 源码位于 `app/`，与 `src/components` 组件库分离。文档站使用 **pathname 路由**（如 `/yn-button`），便于 Google 收录；旧 `#/yn-button` 链接会自动跳转。
