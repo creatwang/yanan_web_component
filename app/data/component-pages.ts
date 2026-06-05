@@ -136,7 +136,39 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     className: "YnSearch",
     importPath: "yn-web-component/components/yn-search",
     description: "可展开/收起的搜索框，支持 datalist 候选项。",
-    usageCode: `<yn-search @enter=\${onSearch}><datalist>...</datalist></yn-search>`,
+    usageCode: `<!-- 原生 datalist：保留浏览器原生输入建议行为。可优化搜索胶囊和外层容器样式；候选弹层由浏览器绘制。 -->
+<div class="search-demo-stage">
+  <yn-search
+    .inputWidth=\${514}
+    placeholder="O que estás à procura?"
+    style="
+      --yn-search-bg-active: rgba(255, 255, 255, 0.96);
+      --yn-search-bg-idle: rgba(255, 255, 255, 0);
+      --yn-search-icon-color: #241f21;
+      --yn-search-field-color: #241f21;
+      --yn-search-placeholder-color: rgba(36, 31, 33, 0.52);
+      --yn-search-caret-color: #241f21;
+      --yn-search-fill-duration: 220ms;
+      --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1);
+      --yn-search-icon-duration: 220ms;
+      --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1);
+    "
+    @input=\${onInput}
+    @enter=\${onSearch}
+  >
+    <datalist>
+      <option value="Sofa"></option>
+      <option value="Table"></option>
+    </datalist>
+  </yn-search>
+</div>
+
+<style>
+  .search-demo-stage {
+    background: #f2efea;
+    padding: 10px;
+  }
+</style>`,
     props: [
       { name: "input-width", type: "number", default: "514", desc: "输入区宽度 px" },
       { name: "placeholder", type: "string", default: '"O que estás à procura?"', desc: "占位文案" },
@@ -151,7 +183,18 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     cssVars: [
       { name: "--yn-search-bg-active", desc: "展开背景" },
       { name: "--yn-search-bg-idle", desc: "收起背景" },
-      { name: "--yn-search-icon-color", desc: "图标色" }
+      { name: "--yn-search-icon-color", desc: "图标色" },
+      { name: "--yn-search-field-color", desc: "输入文本色" },
+      { name: "--yn-search-placeholder-color", desc: "占位文本色" },
+      { name: "--yn-search-caret-color", desc: "光标色" },
+      { name: "--yn-search-fill-duration", default: "220ms", desc: "背景形变时长" },
+      { name: "--yn-search-fill-ease", desc: "背景形变曲线" },
+      { name: "--yn-search-icon-duration", default: "220ms", desc: "图标切换时长" },
+      { name: "--yn-search-icon-ease", desc: "图标切换曲线" }
+    ],
+    notes: [
+      "示例中的 `search-demo-stage` 是外层页面背景，不属于组件 Shadow DOM；如果复制到业务项目，需要自己提供等价容器样式。",
+      "`datalist` 候选弹层由浏览器原生绘制，不是组件 DOM；Storybook 与文档站若浏览器、缩放、系统主题不同，候选弹层视觉可能不一致。组件主要负责 input 胶囊、图标和背景形变样式。"
     ]
   }),
 

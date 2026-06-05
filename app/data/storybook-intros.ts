@@ -173,11 +173,11 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
   ],
   "yn-search": [
     {
-      id: "default",
-      title: { "zh-CN": "展开搜索", en: "Expandable search" },
+      id: "native-datalist",
+      title: { "zh-CN": "原生 datalist 候选", en: "Native datalist suggestions" },
       description: {
-        "zh-CN": "点击放大镜图标展开输入区。",
-        en: "Click icon to expand input area."
+        "zh-CN": "点击放大镜图标展开输入区；候选弹层由浏览器原生绘制，样式不可控。",
+        en: "Click icon to expand input area. The popup is native browser UI and cannot be reliably styled."
       },
       storybookComponent: "YnSearch",
       storybookStory: "Default",

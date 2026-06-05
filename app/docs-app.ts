@@ -414,6 +414,20 @@ export class YnDocsApp extends LitElement {
               </li>
             `
           : nothing}
+        ${page.id === "yn-search"
+          ? html`
+              <li>
+                ${this.locale === "zh-CN"
+                  ? "`<datalist>` 弹层是浏览器原生 UI，组件同步候选项；弹层视觉由浏览器、缩放和系统主题决定，input/外层容器样式由模板中的 CSS 变量和 `.search-demo-stage` 控制。"
+                  : "`<datalist>` popup is native browser UI. The component syncs options; popup visuals depend on browser, zoom, and system theme, while input/stage styles are controlled by CSS variables and `.search-demo-stage`."}
+              </li>
+              <li>
+                ${this.locale === "zh-CN"
+                  ? "Storybook/文档站中的米色横条来自外层 `.search-demo-stage` 容器；组件自身只负责搜索胶囊与输入形变。"
+                  : "The warm stage background in Storybook/docs comes from the outer `.search-demo-stage`; the component owns only the search pill and input motion."}
+              </li>
+            `
+          : nothing}
       </ul>
     `;
   }

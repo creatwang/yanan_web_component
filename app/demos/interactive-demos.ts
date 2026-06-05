@@ -124,6 +124,7 @@ export class YnDocsSearchDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storySearchDefault();
   }
