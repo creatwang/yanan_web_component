@@ -217,6 +217,7 @@ export class YnPullCordSwitch extends LitElement {
       height: var(--yn-pull-cord-switch-fixed-height, 220px);
       z-index: var(--yn-pull-cord-switch-z-index, var(--yn-pull-cord-switch-fixed-z, 1));
       pointer-events: none;
+      cursor: default;
       overflow: visible;
       --yn-pull-cord-switch-fixed-height: 220px;
       /* host 仅 ~112px 宽，但光晕至少 280px；canvas 需宽于 host，居中绘制 */
@@ -224,7 +225,8 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     :host([fixed][data-fixed-peekable]) {
-      pointer-events: auto;
+      pointer-events: none;
+      cursor: default;
       transition:
         left var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1),
         top var(--yn-pull-cord-switch-fixed-peek-transition-duration) cubic-bezier(0.22, 1, 0.36, 1);
@@ -284,6 +286,10 @@ export class YnPullCordSwitch extends LitElement {
       display: block;
       background: transparent;
       cursor: grab;
+    }
+
+    :host([fixed]) canvas.rope {
+      cursor: default;
     }
 
     :host([glow-up]) canvas.rope {
@@ -375,6 +381,7 @@ export class YnPullCordSwitch extends LitElement {
 
     :host([fixed]) .card {
       pointer-events: auto;
+      cursor: grab;
       z-index: 10000;
     }
 
@@ -659,8 +666,8 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   private setupFixedMode() {
-    this.addEventListener("pointermove", this.onHostPointerMove);
-    this.addEventListener("pointerleave", this.onHostPointerLeave);
+    this.ownerDocument.addEventListener("pointermove", this.onHostPointerMove, { passive: true });
+    this.ownerDocument.addEventListener("pointerleave", this.onHostPointerLeave);
     const grip = this.fixedGripEl;
     if (!grip || this.fixedDrag) return;
     this.fixedDrag = new PullCordFixedDrag({
@@ -685,8 +692,8 @@ export class YnPullCordSwitch extends LitElement {
   }
 
   private teardownFixedMode() {
-    this.removeEventListener("pointermove", this.onHostPointerMove);
-    this.removeEventListener("pointerleave", this.onHostPointerLeave);
+    this.ownerDocument.removeEventListener("pointermove", this.onHostPointerMove);
+    this.ownerDocument.removeEventListener("pointerleave", this.onHostPointerLeave);
     this.fixedDrag?.unbind();
     this.fixedDrag = null;
     this.peeking = false;
