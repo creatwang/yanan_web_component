@@ -103,6 +103,79 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
     ]
   },
 
+  "yn-input": {
+    title: { "zh-CN": "Input 输入框", en: "Input" },
+    description: {
+      "zh-CN": "Floema 风格圆角输入框，支持可选前后置按钮插槽。",
+      en: "Floema-style rounded input with optional prefix/suffix button slots."
+    },
+    longDescription: {
+      "zh-CN":
+        "默认不渲染前缀或后缀按钮；只有传入 `prefix-button` / `suffix-button` 插槽时才显示对应按钮。输入变化触发 `yn-input`，前后按钮点击分别触发 `yn-prefix-click` / `yn-suffix-click`，事件 detail 均为 `{ value }`。",
+      en:
+        "Prefix/suffix buttons are not rendered by default; they appear only when `prefix-button` / `suffix-button` slots are provided. Input changes emit `yn-input`; button clicks emit `yn-prefix-click` / `yn-suffix-click`, all with `{ value }` detail."
+    },
+    usageCode: {
+      "zh-CN": `<yn-input placeholder="请输入内容" @yn-input=\${onInput}></yn-input>
+
+<yn-input placeholder="仅前缀按钮" @yn-prefix-click=\${onPrefixClick}>
+  <span slot="prefix-button">⌘</span>
+</yn-input>
+
+<yn-input placeholder="仅后缀按钮" @yn-suffix-click=\${onSuffixClick}>
+  <span slot="suffix-button">×</span>
+</yn-input>
+
+<yn-input placeholder="前后置按钮" @yn-prefix-click=\${onPrefixClick} @yn-suffix-click=\${onSuffixClick}>
+  <span slot="prefix-button">⌘</span>
+  <span slot="suffix-button">×</span>
+</yn-input>`,
+      en: `<yn-input placeholder="Search" @yn-input=\${onInput}></yn-input>
+
+<yn-input placeholder="Prefix only" @yn-prefix-click=\${onPrefixClick}>
+  <span slot="prefix-button">⌘</span>
+</yn-input>
+
+<yn-input placeholder="Suffix only" @yn-suffix-click=\${onSuffixClick}>
+  <span slot="suffix-button">×</span>
+</yn-input>
+
+<yn-input placeholder="Prefix and suffix" @yn-prefix-click=\${onPrefixClick} @yn-suffix-click=\${onSuffixClick}>
+  <span slot="prefix-button">⌘</span>
+  <span slot="suffix-button">×</span>
+</yn-input>`
+    },
+    showcases: [],
+    props: [
+      { name: "value", type: "string", default: '""', desc: { "zh-CN": "当前值", en: "Current value" } },
+      { name: "placeholder", type: "string", default: '"请输入内容"', desc: { "zh-CN": "占位文案", en: "Placeholder" } },
+      { name: "disabled", type: "boolean", default: "false", desc: { "zh-CN": "禁用输入", en: "Disable input" } }
+    ],
+    events: [
+      { name: "yn-input", detail: "{ value: string }", desc: { "zh-CN": "输入变化", en: "Input value changed" } },
+      { name: "yn-prefix-click", detail: "{ value: string }", desc: { "zh-CN": "前置按钮点击", en: "Prefix button clicked" } },
+      { name: "yn-suffix-click", detail: "{ value: string }", desc: { "zh-CN": "后置按钮点击", en: "Suffix button clicked" } }
+    ],
+    slots: [
+      { name: "prefix-button", desc: { "zh-CN": "前置按钮图标；未传则不渲染按钮", en: "Prefix icon button; not rendered when omitted" } },
+      { name: "suffix-button", desc: { "zh-CN": "后置按钮图标；未传则不渲染按钮", en: "Suffix icon button; not rendered when omitted" } }
+    ],
+    cssVars: [
+      { name: "--yn-input-width", default: "320px", desc: { "zh-CN": "输入框宽度", en: "Input width" } },
+      { name: "--yn-input-height", default: "44px", desc: { "zh-CN": "输入框高度", en: "Input height" } },
+      { name: "--yn-input-bg", desc: { "zh-CN": "背景色", en: "Background" } },
+      { name: "--yn-input-border-color", desc: { "zh-CN": "边框色", en: "Border color" } },
+      { name: "--yn-input-radius", default: "999px", desc: { "zh-CN": "圆角", en: "Radius" } },
+      { name: "--yn-input-button-size", default: "28px", desc: { "zh-CN": "前后按钮尺寸", en: "Prefix/suffix button size" } }
+    ],
+    notes: [
+      {
+        "zh-CN": "按钮插槽可放 SVG、图标字体或普通文本；外部样式不穿透 Shadow DOM，建议通过公开 CSS 变量定制。",
+        en: "Button slots accept SVG, icon fonts, or text. External styles do not pierce Shadow DOM; use public CSS variables for theming."
+      }
+    ]
+  },
+
   "yn-pick": {
     title: { "zh-CN": "Pick 选项", en: "Pick" },
     description: {
@@ -190,8 +263,28 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
         "Works with `yn-pick` children. Storybook demo uses Golf/Urban/Nature/RePlastic cards with optional product images. Supports `multiple`, controlled `value`, group-level icons."
     },
     usageCode: {
-      "zh-CN": `<yn-group-pick multiple .value=\${["Urban","Nature"]} @change=\${onChange}>...</yn-group-pick>`,
-      en: `<yn-group-pick multiple .value=\${["Urban","Nature"]} @change=\${onChange}>...</yn-group-pick>`
+      "zh-CN": `<yn-group-pick multiple .value=\${["Urban", "Nature"]} @change=\${onChange} style="--yn-group-pick-gap:8px;">
+  <yn-pick value="Golf">
+    <div class="category-card category-card--golf">Golf</div>
+  </yn-pick>
+  <yn-pick value="Urban">
+    <div class="category-card category-card--urban">Urban</div>
+  </yn-pick>
+  <yn-pick value="Nature">
+    <div class="category-card category-card--nature">Nature</div>
+  </yn-pick>
+</yn-group-pick>`,
+      en: `<yn-group-pick multiple .value=\${["Urban", "Nature"]} @change=\${onChange} style="--yn-group-pick-gap:8px;">
+  <yn-pick value="Golf">
+    <div class="category-card category-card--golf">Golf</div>
+  </yn-pick>
+  <yn-pick value="Urban">
+    <div class="category-card category-card--urban">Urban</div>
+  </yn-pick>
+  <yn-pick value="Nature">
+    <div class="category-card category-card--nature">Nature</div>
+  </yn-pick>
+</yn-group-pick>`
     },
     showcases: [
       {
@@ -208,10 +301,10 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       },
       {
         id: "multiple",
-        title: { "zh-CN": "多选模式", en: "Multiple selection" },
+        title: { "zh-CN": "多选模式（multiple）", en: "Multiple selection" },
         description: {
-          "zh-CN": "value 为数组；change 返回 ids 与当前项 flag。",
-          en: "Array `value`; `change` returns ids and clicked flag."
+          "zh-CN": "`multiple` 开启后 `value` 使用数组；点击子项后 `change.detail` 返回当前 ids 与当前点击项 flag。",
+          en: "With `multiple`, `value` is an array; `change.detail` returns current ids and the clicked flag."
         },
         storybookComponent: "YnGroupPick",
         storybookStory: "Multiple",

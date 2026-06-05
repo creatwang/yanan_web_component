@@ -51,6 +51,49 @@ body.docs-body {
   overflow-y: auto;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(36, 31, 33, 0.28) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(36, 31, 33, 0.24);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(36, 31, 33, 0.42);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+[data-yn-theme="dark"] * {
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+[data-yn-theme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+[data-yn-theme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.42);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
 yn-docs-app {
   display: block;
   width: 100%;
@@ -182,7 +225,6 @@ yn-docs-checkout-address-demo {
   font-size: 13px;
   color: var(--yn-color-text-subtle);
   text-decoration: none;
-  margin-left: 16px;
 }
 
 .docs-header__links a:hover {
@@ -195,8 +237,18 @@ yn-docs-checkout-address-demo {
   gap: 12px;
 }
 
-.docs-header-theme-trigger {
-  --yn-button-radius: 10px;
+.docs-header__icon-link {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.docs-header__icon-link:hover {
+  background: var(--yn-color-overlay-hover);
 }
 
 .docs-fixed-theme-cord {

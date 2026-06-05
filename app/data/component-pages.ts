@@ -358,8 +358,21 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     tag: "yn-drawer",
     className: "YnDrawer",
     importPath: "yn-web-component/components/yn-drawer",
-    description: "响应式侧滑/底部抽屉，基于 Popover API。",
-    usageCode: `<yn-drawer><yn-button slot="trigger">打开</yn-button><div slot="content">...</div></yn-drawer>`,
+    description: "响应式侧滑/底部抽屉，基于 Popover API；auto 模式下移动端为 bottom sheet，桌面端为右侧抽屉。",
+    usageCode: `<yn-drawer placement="auto" sheet-height="auto" .width=\${420}>
+  <yn-button slot="trigger" variant="default">购物车</yn-button>
+  <span slot="header">Your bag</span>
+  <div slot="header-actions">
+    <yn-button size="mini" variant="neutral">收藏</yn-button>
+  </div>
+  <div slot="content">
+    <p>Your bag is empty</p>
+    <yn-button variant="default">Shop mens</yn-button>
+  </div>
+  <div slot="footer">
+    <yn-button variant="dark">Checkout</yn-button>
+  </div>
+</yn-drawer>`,
     props: [
       { name: "open", type: "boolean", default: "false", desc: "受控开关" },
       { name: "width", type: "number", default: "420", desc: "宽度 px" },
@@ -389,6 +402,11 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
       { name: "show(payload?)", signature: "show(payload?): void", desc: "打开" },
       { name: "close(payload?)", signature: "close(payload?): void", desc: "关闭" },
       { name: "toggle(payload?)", signature: "toggle(payload?): void", desc: "切换" }
+    ],
+    notes: [
+      "placement=\"auto\" 时：窄屏（移动端）从底部滑入，宽屏从右侧滑入；若需要始终移动端样式，可显式设置 placement=\"bottom\"。",
+      "移动端建议使用 sheet-height=\"auto\" 或 80vh/90vh，避免内容过高时遮挡关闭按钮。",
+      "backdrop-extra 仅适合宽屏右侧抽屉推荐位，窄屏下应隐藏或降级为内容区模块。"
     ]
   }),
 

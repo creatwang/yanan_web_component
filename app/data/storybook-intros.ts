@@ -53,7 +53,7 @@ export const STORYBOOK_INTROS: Record<string, L10nText> = {
   },
   "yn-drawer": {
     "zh-CN":
-      "抽屉基于 Popover：窄屏底部滑入、宽屏右侧滑入，带遮罩与生命周期事件。",
+      "抽屉基于 Popover：`placement=\"auto\"` 时窄屏从底部滑入（移动端 bottom sheet），宽屏从右侧滑入，带遮罩与生命周期事件。",
     en: "Popover drawer: bottom sheet on narrow, right panel on wide, with backdrop."
   },
   "yn-toast": {
@@ -70,6 +70,39 @@ export const STORYBOOK_INTROS: Record<string, L10nText> = {
 
 export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
   "yn-input": [
+    {
+      id: "default",
+      title: { "zh-CN": "无插槽", en: "No slots" },
+      description: {
+        "zh-CN": "默认无前后置按钮，仅显示输入区域。",
+        en: "Default input with no prefix or suffix buttons."
+      },
+      storybookComponent: "YnInput",
+      storybookStory: "Default",
+      demoVariant: "yn-input-default"
+    },
+    {
+      id: "prefix-only",
+      title: { "zh-CN": "仅前缀按钮", en: "Prefix only" },
+      description: {
+        "zh-CN": "只传入 `prefix-button` 插槽。",
+        en: "Only the `prefix-button` slot is provided."
+      },
+      storybookComponent: "YnInput",
+      storybookStory: "SlottedButtons",
+      demoVariant: "yn-input-prefix"
+    },
+    {
+      id: "suffix-only",
+      title: { "zh-CN": "仅后缀按钮", en: "Suffix only" },
+      description: {
+        "zh-CN": "只传入 `suffix-button` 插槽。",
+        en: "Only the `suffix-button` slot is provided."
+      },
+      storybookComponent: "YnInput",
+      storybookStory: "SlottedButtons",
+      demoVariant: "yn-input-suffix"
+    },
     {
       id: "slotted-buttons",
       title: { "zh-CN": "前后置按钮", en: "Prefix/suffix buttons" },
@@ -254,7 +287,7 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "cart",
       title: { "zh-CN": "购物车抽屉", en: "Cart drawer" },
       description: {
-        "zh-CN": "sheet-height=auto，点击「打开购物车」。",
+        "zh-CN": "移动端 bottom sheet：sheet-height=auto，内容高度自适应；桌面宽屏会自动切到右侧抽屉。",
         en: "sheet-height=auto; click to open."
       },
       storybookComponent: "YnDrawer",

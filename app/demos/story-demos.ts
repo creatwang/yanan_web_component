@@ -137,6 +137,28 @@ export const storyButtonLoading = () => html`
 `;
 
 /** yn-input SlottedButtons */
+export const storyInputDefault = () => html`
+  <div style="background:#f2efea;padding:24px;">
+    <yn-input placeholder="请输入内容" style=${INPUT_STYLE}></yn-input>
+  </div>
+`;
+
+export const storyInputPrefix = () => html`
+  <div style="background:#f2efea;padding:24px;">
+    <yn-input placeholder="仅前缀按钮" style=${INPUT_STYLE}>
+      <span slot="prefix-button">${unsafeSVG(ynSignpostSvg)}</span>
+    </yn-input>
+  </div>
+`;
+
+export const storyInputSuffix = () => html`
+  <div style="background:#f2efea;padding:24px;">
+    <yn-input placeholder="仅后缀按钮" style=${INPUT_STYLE}>
+      <span slot="suffix-button">${unsafeSVG(ynSearchCloseSvg)}</span>
+    </yn-input>
+  </div>
+`;
+
 export const storyInputSlotted = () => html`
   <div style="background:#f2efea;padding:24px;">
     <yn-input placeholder="带自定义前后按钮" style=${INPUT_STYLE}>

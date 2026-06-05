@@ -9,6 +9,9 @@ import {
   storyButtonVariants,
   storyButtonSizes,
   storyButtonLoading,
+  storyInputDefault,
+  storyInputPrefix,
+  storyInputSuffix,
   storyInputSlotted,
   storyIconConnectSizes,
   storySearchDefault,
@@ -93,10 +96,15 @@ export class YnDocsButtonDemo extends LitElement {
 
 @customElement("yn-docs-input-demo")
 export class YnDocsInputDemo extends LitElement {
+  @property({ type: String }) variant: "default" | "prefix" | "suffix" | "both" = "both";
+
   createRenderRoot() {
     return this;
   }
   render() {
+    if (this.variant === "default") return storyInputDefault();
+    if (this.variant === "prefix") return storyInputPrefix();
+    if (this.variant === "suffix") return storyInputSuffix();
     return storyInputSlotted();
   }
 }
