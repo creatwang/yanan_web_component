@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm run build:docs",
-  "outputDirectory": "dist",
+  "outputDirectory": "dist-docs",
   "rewrites": [
     {
       "source": "/(.*)",
