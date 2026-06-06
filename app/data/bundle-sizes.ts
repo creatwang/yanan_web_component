@@ -20,7 +20,7 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
   { id: "yn-dropdown", importPath: "components/yn-dropdown", sizeKb: 17.06, gzipKb: 4.78 },
   { id: "yn-drawer", importPath: "components/yn-drawer", sizeKb: 18.92, gzipKb: 4.6 },
   { id: "yn-search", importPath: "components/yn-search", sizeKb: 20.46, gzipKb: 5.98 },
-  { id: "yn-toast", importPath: "components/yn-toast", sizeKb: 21.53, gzipKb: 5.42 },
+  { id: "yn-toast", importPath: "components/yn-toast", sizeKb: 21.49, gzipKb: 5.4 },
   { id: "yn-navigation", importPath: "components/yn-navigation", sizeKb: 21.79, gzipKb: 6.93 },
   {
     id: "yn-sku-selector",
@@ -56,8 +56,8 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 
 export const BUNDLE_META = {
   builtAt: "2026-06-06",
-  fullIifeKb: 316.75,
-  fullIifeGzipKb: 76.92,
+  fullIifeKb: 316.74,
+  fullIifeGzipKb: 76.91,
   defineKb: 0.59,
   indexExportKb: 2.45
 } as const;

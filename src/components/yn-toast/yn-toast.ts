@@ -1,6 +1,5 @@
 import { LitElement, css, html } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
-import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { ynToastIconPaths } from "../../asset/svg";
 
 export type YnToastType = "success" | "info" | "warning" | "error";
@@ -903,7 +902,7 @@ export class YnToast extends LitElement {
             </span>
           </div>
         </div>
-        <span class="msg">${unsafeHTML(this.currentMessage)}</span>
+        <span class="msg" .innerHTML=${this.currentMessage}></span>
       </div>
     `;
   }
