@@ -214,19 +214,26 @@ export class YnNavigation extends LitElement {
     const itemsChanged = changed.has("items");
     const activeChanged = changed.has("active");
     const seoModeChanged = changed.has("seoMode");
+    let geometryChanged = false;
 
     if (itemsChanged) {
       this.syncActiveItem();
       this.setupDynamicPaths();
       this.setupBaseGeometry();
+      geometryChanged = true;
     } else if (!this.rectPaths.length) {
       this.setupDynamicPaths();
+      geometryChanged = true;
     }
 
     if (!this.baseWidths.length) {
       this.setupBaseGeometry();
+      geometryChanged = true;
     }
-    this.applyShape();
+
+    if (geometryChanged) {
+      this.applyShape();
+    }
 
     if (itemsChanged || activeChanged || seoModeChanged) {
       this.syncActiveItem();

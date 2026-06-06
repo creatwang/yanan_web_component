@@ -12,13 +12,21 @@ import {
   peekCssLeft,
   peekCssTop
 } from "./pull-cord-layout";
-import { PullCordRopeEngine } from "./pull-cord-rope-engine";
+import type { PullCordRopeEngine } from "./pull-cord-rope-engine";
 
 export { DEFAULT_ROPE_LENGTH } from "./pull-cord-layout";
 
 export type YnPullCordSwitchVariant = "default" | "floema";
 export type YnPullCordSwitchSize = "mini" | "small" | "medium";
 type CardMode = "fallback" | "default-slot" | "dual-slot";
+type PullCordRopeEngineModule = typeof import("./pull-cord-rope-engine");
+
+let ropeEngineModulePromise: Promise<PullCordRopeEngineModule> | null = null;
+
+const loadRopeEngineModule = () => {
+  ropeEngineModulePromise ??= import("./pull-cord-rope-engine");
+  return ropeEngineModulePromise;
+};
 
 function scanLightDomSlots(host: HTMLElement) {
   let hasDefault = false;
@@ -728,6 +736,12 @@ export class YnPullCordSwitch extends LitElement {
   private isPointerInFixedPeekHotspot(event: PointerEvent) {
     if (!this.fixed) return false;
     const hostRect = this.getBoundingClientRect();
+    const styleLeft = Number.parseFloat(this.style.left);
+    const styleTop = Number.parseFloat(this.style.top);
+    const hostLeft = Number.isFinite(styleLeft) ? styleLeft : hostRect.left;
+    const hostTop = Number.isFinite(styleTop) ? styleTop : hostRect.top;
+    const hostWidth = hostRect.width || this.offsetWidth || 112;
+    const hostHeight = hostRect.height || this.offsetHeight || 220;
     const cardTarget = this.getActiveCardVisualEl();
     const cardRect = cardTarget?.getBoundingClientRect();
 
@@ -742,10 +756,10 @@ export class YnPullCordSwitch extends LitElement {
     }
 
     // fixed 模式下光晕画布很宽，但 hover 只认中心绳线附近，避免空白灯光区触发 peek。
-    const ropeCenterX = hostRect.left + hostRect.width / 2;
+    const ropeCenterX = hostLeft + hostWidth / 2;
     const ropeHitWidth = 18;
-    const ropeTop = hostRect.top;
-    const ropeBottom = cardRect ? cardRect.bottom : hostRect.bottom;
+    const ropeTop = hostTop;
+    const ropeBottom = cardRect && cardRect.bottom > cardRect.top ? cardRect.bottom : hostTop + hostHeight;
     return (
       Math.abs(event.clientX - ropeCenterX) <= ropeHitWidth &&
       event.clientY >= ropeTop &&
@@ -848,9 +862,11 @@ export class YnPullCordSwitch extends LitElement {
     this.engine.setInteractionTargets(targets);
   }
 
-  private mountEngine() {
+  private async mountEngine() {
     if (!this.ropeCanvas || this.engine) return;
     try {
+      const { PullCordRopeEngine } = await loadRopeEngineModule();
+      if (!this.isConnected || !this.ropeCanvas || this.engine) return;
       this.engine = new PullCordRopeEngine({
         canvas: this.ropeCanvas,
         host: this,

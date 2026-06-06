@@ -2,6 +2,24 @@ import { fixture, expect, html } from "@open-wc/testing";
 import "./yn-pull-cord-switch";
 import type { YnPullCordSwitch } from "./yn-pull-cord-switch";
 
+const movePointerToFixedHotspot = (el: HTMLElement) => {
+  const rect = el.getBoundingClientRect();
+  const styleLeft = Number.parseFloat(el.style.left);
+  const styleTop = Number.parseFloat(el.style.top);
+  const left = Number.isFinite(styleLeft) ? styleLeft : rect.left;
+  const top = Number.isFinite(styleTop) ? styleTop : rect.top;
+  const width = rect.width || el.offsetWidth || 112;
+  const x = left + width / 2;
+  const y = Math.max(1, top + 8);
+  const event = new PointerEvent("pointermove", { clientX: x, clientY: y, bubbles: true });
+  (el as unknown as { handleFixedPointerMove: (event: PointerEvent) => void }).handleFixedPointerMove(event);
+};
+
+const movePointerAway = (el: HTMLElement) => {
+  const event = new PointerEvent("pointermove", { clientX: -999, clientY: -999, bubbles: true });
+  (el as unknown as { handleFixedPointerMove: (event: PointerEvent) => void }).handleFixedPointerMove(event);
+};
+
 describe("yn-pull-cord-switch", () => {
   it("renders canvas stage and default OFF fallback", async () => {
     const el = await fixture<YnPullCordSwitch>(html`<yn-pull-cord-switch></yn-pull-cord-switch>`);
@@ -138,9 +156,9 @@ describe("yn-pull-cord-switch", () => {
     expect(el.top).to.equal(-24);
     expect(el.style.top).to.equal("-24px");
     expect(el.hasAttribute("data-fixed-peekable")).to.equal(true);
-    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    movePointerToFixedHotspot(el);
     expect(el.style.top).to.equal("0px");
-    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    movePointerAway(el);
     expect(el.style.top).to.equal("-24px");
   });
 
@@ -196,9 +214,9 @@ describe("yn-pull-cord-switch", () => {
     const w = el.offsetWidth;
     const restLeft = window.innerWidth - w - -20;
     expect(Number.parseFloat(el.style.left)).to.be.closeTo(restLeft, 2);
-    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    movePointerToFixedHotspot(el);
     expect(Number.parseFloat(el.style.left)).to.be.closeTo(window.innerWidth - w, 2);
-    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    movePointerAway(el);
     expect(Number.parseFloat(el.style.left)).to.be.closeTo(restLeft, 2);
   });
 
@@ -209,9 +227,9 @@ describe("yn-pull-cord-switch", () => {
     await el.updateComplete;
     await new Promise((resolve) => requestAnimationFrame(resolve));
     expect(el.style.left).to.equal("-20px");
-    el.dispatchEvent(new PointerEvent("pointerenter", { bubbles: true }));
+    movePointerToFixedHotspot(el);
     expect(el.style.left).to.equal("0px");
-    el.dispatchEvent(new PointerEvent("pointerleave", { bubbles: true }));
+    movePointerAway(el);
     expect(el.style.left).to.equal("-20px");
   });
 
