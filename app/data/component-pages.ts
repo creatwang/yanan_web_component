@@ -82,7 +82,38 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     className: "YnIconConnectButton",
     importPath: "yn-web-component/components/yn-icon-connect-button",
     description: "带图标连接动画的按钮或链接，视觉参考 Floema。",
-    usageCode: `<yn-icon-connect-button label="查看系列"></yn-icon-connect-button>`,
+    usageCode: `<!-- 1. 属性方式：label / icon / size -->
+<yn-icon-connect-button
+  label="VER PRODUTOS URBAN"
+  size="normal"
+  .icon=\${signpostSvg}
+  style="
+    --yn-icon-connect-button-bg: #ddd967;
+    --yn-icon-connect-button-color: #241f21;
+  "
+  @click=\${onClick}
+></yn-icon-connect-button>
+
+<!-- 2. 链接模式：传入 link 后内部渲染为 <a> -->
+<yn-icon-connect-button
+  label="VER COLEÇÃO"
+  link="/collections/urban"
+  size="small"
+></yn-icon-connect-button>
+
+<!-- 3. 插槽方式：slot 优先于 label / icon 属性 -->
+<yn-icon-connect-button size="mini">
+  <svg slot="icon" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+    <path d="M18 7.263V5.801L9.925 2.13A.49.49 0 0 1 9.637 1.684V.107H8.031V14.072a.49.49 0 0 1-.491.491H5.809A2.4 2.4 0 1 0 2.222 14.563H0v1.606h16.062v-1.606H9.637V11.38c0-.192.112-.367.288-.446L18 7.263Z" fill="currentColor" />
+  </svg>
+  <span slot="label">Custom Label</span>
+</yn-icon-connect-button>
+
+<!-- 4. 非大写文案 -->
+<yn-icon-connect-button
+  label="View products"
+  .uppercase=\${false}
+></yn-icon-connect-button>`,
     props: [
       { name: "label", type: "string", default: '"VER PRODUTOS URBAN"', desc: "文案（插槽回退）" },
       { name: "size", type: "mini | small | normal", default: "normal", desc: "尺寸" },
@@ -97,8 +128,14 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
       { name: "label", desc: "自定义文案", priority: "优先于 label 属性" }
     ],
     cssVars: [
-      { name: "--yn-icon-connect-button-bg", desc: "背景色" },
-      { name: "--yn-icon-connect-button-color", desc: "文本/图标色" }
+      { name: "--yn-icon-connect-button-bg", default: "var(--yn-color-accent, #ddd967)", desc: "背景色" },
+      { name: "--yn-icon-connect-button-color", default: "var(--yn-color-text, #241f21)", desc: "文本/图标色" },
+      { name: "--yn-icon-connect-button-text-transform", default: "uppercase", desc: "文案大小写转换" }
+    ],
+    notes: [
+      "mini / small / normal 会同时影响图标块尺寸、字体大小、左右 padding 与 hover 展开距离。",
+      "slot=\"icon\" / slot=\"label\" 优先于 icon / label 属性；需要完全自定义图标时推荐使用插槽。",
+      "link 有值时内部渲染为 <a>，无值时渲染为 <button>。"
     ]
   }),
 
