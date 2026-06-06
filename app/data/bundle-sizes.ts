@@ -1,6 +1,6 @@
 import type { L10nText } from "../i18n/locale";
 
-/** 来自 `pnpm build` ESM 产物（v1.0.2）。含分包时标注 total。 */
+/** 来自 `pnpm build` ESM 产物（v1.0.4）。含分包时标注 total。 */
 export type BundleSizeRow = {
   id: string;
   importPath: string;
@@ -32,23 +32,23 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
       en: "entry 0.48 kB + chunk 24.92 kB"
     }
   },
-  { id: "yn-pull-cord-switch", importPath: "components/yn-pull-cord-switch", sizeKb: 49.7, gzipKb: 11.85 },
+  { id: "yn-pull-cord-switch", importPath: "components/yn-pull-cord-switch", sizeKb: 50.53, gzipKb: 12.03 },
   {
     id: "yn-checkout-address",
     importPath: "components/yn-checkout-address",
-    sizeKb: 84.11,
-    gzipKb: 20.55,
+    sizeKb: 77.96,
+    gzipKb: 18.54,
     note: {
-      "zh-CN": "入口 0.41 kB + 分包 83.70 kB（含 dr5hn 等区域数据逻辑）",
-      en: "entry 0.41 kB + chunk 83.70 kB (incl. dr5hn region logic)"
+      "zh-CN": "入口 0.41 kB + 核心分包 77.55 kB；provider/probe/dr5hn 逻辑按需懒加载",
+      en: "entry 0.41 kB + core chunk 77.55 kB; provider/probe/dr5hn logic lazy-loads on demand"
     }
   }
 ];
 
 export const BUNDLE_META = {
-  builtAt: "2026-06-05",
-  fullIifeKb: 314.86,
-  fullIifeGzipKb: 76.52,
+  builtAt: "2026-06-06",
+  fullIifeKb: 316.28,
+  fullIifeGzipKb: 76.79,
   defineKb: 0.59,
   indexExportKb: 2.45
 } as const;

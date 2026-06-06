@@ -3,23 +3,12 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
 import { customElement, property, state } from "lit/decorators.js";
 import type { AddressSuggestion } from "./address-providers";
-import {
-  loadGoogleMaps,
-  probePhotonReachable,
-  resolveGooglePlace,
-  searchGooglePlaces,
-  searchPhoton,
-} from "./address-providers";
 import { checkoutAddressFormStyles } from "./checkout-address-styles";
 import { loadDr5hnModule, peekDr5hnModule } from "./dr5hn-loader";
 import type { Dr5hnRegionSuggestion, RegionSearchLevel } from "./dr5hn-region-types";
 import { resolveCheckoutMessages } from "./messages";
 import { isPostalRequiredForCountry, validateCheckoutAddress } from "./validation";
-import {
-  probeAddressProvider,
-  resolveGoogleMapsApiKey,
-  type AddressProviderMode,
-} from "./provider-probe";
+import type { AddressProviderMode } from "./provider-probe";
 import { filterByRegion, isChinaQuery, passesCountryFilter } from "./region-filter";
 import type {
   YnCheckoutAddressChangeDetail,
@@ -48,6 +37,21 @@ import {
 const DEBOUNCE_GOOGLE_MS = 280;
 const DEBOUNCE_DR5HN_MS = 320;
 type ViewMode = "booting" | "region" | "manual" | "checkout";
+type AddressProvidersModule = typeof import("./address-providers");
+type ProviderProbeModule = typeof import("./provider-probe");
+
+let addressProvidersModulePromise: Promise<AddressProvidersModule> | null = null;
+let providerProbeModulePromise: Promise<ProviderProbeModule> | null = null;
+
+const loadAddressProvidersModule = () => {
+  addressProvidersModulePromise ??= import("./address-providers");
+  return addressProvidersModulePromise;
+};
+
+const loadProviderProbeModule = () => {
+  providerProbeModulePromise ??= import("./provider-probe");
+  return providerProbeModulePromise;
+};
 
 const PROVIDER_LABEL_KEY: Record<AddressProviderMode, keyof YnCheckoutAddressMessages> = {
   google: "providerGoogle",
@@ -392,6 +396,7 @@ export class YnCheckoutAddress extends LitElement {
   /** dr5hn 在当前筛选下无国家：尝试 Photon，最后才 manual */
   private async degradeWhenDr5hnFilteredEmpty() {
     try {
+      const { probePhotonReachable } = await loadAddressProvidersModule();
       if (await probePhotonReachable()) {
         this.activeProvider = "photon";
         this.probeReason = this.msg.dr5hnFallbackToPhoton;
@@ -507,6 +512,7 @@ export class YnCheckoutAddress extends LitElement {
     this.probeAbort = new AbortController();
 
     try {
+      const { probeAddressProvider } = await loadProviderProbeModule();
       const result = await probeAddressProvider({
         googleMapsApiKey: this.googleMapsApiKey,
         regionFilter: this.regionFilter,
@@ -568,6 +574,8 @@ export class YnCheckoutAddress extends LitElement {
   private async syncGoogleMode(mode: "google" | "photon") {
     this.googleReady = false;
     if (mode === "google") {
+      const { loadGoogleMaps } = await loadAddressProvidersModule();
+      const { resolveGoogleMapsApiKey } = await loadProviderProbeModule();
       const key = resolveGoogleMapsApiKey(this.googleMapsApiKey);
       if (key) {
         try {
@@ -977,6 +985,7 @@ export class YnCheckoutAddress extends LitElement {
 
     if (useGoogle) {
       try {
+        const { resolveGooglePlace } = await loadAddressProvidersModule();
         const detail = await resolveGooglePlace(suggestion.id);
         if (detail) {
           resolved = { ...detail, label: suggestion.label };
@@ -1076,6 +1085,7 @@ export class YnCheckoutAddress extends LitElement {
     }
 
     try {
+      const { searchPhoton } = await loadAddressProvidersModule();
       const items = await searchPhoton(query, signal);
       if (signal.aborted) {
         return;
@@ -1095,6 +1105,7 @@ export class YnCheckoutAddress extends LitElement {
   private async runAddressSearch(value: string, signal: AbortSignal) {
     try {
       let items: AddressSuggestion[] = [];
+      const { searchGooglePlaces, searchPhoton } = await loadAddressProvidersModule();
       if (this.activeProvider === "google" && this.googleReady) {
         items = await searchGooglePlaces(value, this.countryCode || undefined);
       } else {
