@@ -119,6 +119,7 @@
   },
   "files": [
     "dist",
+    "src/styles/theme.css",
     "README.md",
     "README.en.md"
   ],
