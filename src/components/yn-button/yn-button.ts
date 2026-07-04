@@ -2,6 +2,7 @@ import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynButtonLoadingSvg } from "../../asset/svg";
+import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 
 type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark" | "default";
 type ButtonSize = "mini" | "small" | "medium";
@@ -341,6 +342,22 @@ export class YnButton extends LitElement {
     this.hasSuffixSlot = hasAssigned;
   }
 
+  bootstrapFromDeclarativeShadow() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    dedupeShadowDsdContent(root, "button.button");
+    ensureRenderRoot(this);
+    root.querySelector('slot[name="prefix-icon"]')?.addEventListener("slotchange", this.handlePrefixSlotChange);
+    root.querySelector('slot[name="suffix-icon"]')?.addEventListener("slotchange", this.handleSuffixSlotChange);
+    this.addEventListener("click", this.handleHostClick);
+  }
+
+  private handleHostClick = (event: Event) => {
+    if (event.target !== this) return;
+    event.preventDefault();
+    this.shadowRoot?.querySelector<HTMLButtonElement>("button.button")?.click();
+  };
+
   /** 判断默认插槽是否存在可见内容。 */
   private hasDefaultSlotContent() {
     return Array.from(this.childNodes).some((node) => {
@@ -457,3 +474,5 @@ declare global {
     "yn-button": YnButton;
   }
 }
+
+applyLitDsd(YnButton, "button.button", (el) => el.bootstrapFromDeclarativeShadow());

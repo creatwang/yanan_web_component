@@ -1,4 +1,4 @@
-import { LitElement, css, html, svg, unsafeCSS } from "lit";
+import { LitElement, css, html, svg, unsafeCSS, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
   NAV_GEOMETRY,
@@ -12,6 +12,37 @@ import {
 import { YN_NAVIGATION_SHADOW_STYLES } from "./yn-navigation-styles.js";
 
 type NavigationNode = Record<string, string>;
+
+type LitUpdateHost = YnNavigation & {
+  renderRoot?: ShadowRoot;
+  isUpdatePending: boolean;
+  _$AL: PropertyValues;
+  _$EM?(): void;
+};
+
+/** Lit 2.x：shouldUpdate 为 false 时不会触发 firstUpdated/updated */
+function finishUpdateWithoutRender(host: LitUpdateHost, changed: PropertyValues) {
+  if (!host.renderRoot && host.shadowRoot) {
+    host.renderRoot = host.shadowRoot;
+  }
+  const lifecycle = host as unknown as {
+    firstUpdated(changed?: PropertyValues): void;
+    updated(changed: PropertyValues): void;
+  };
+  if (!host.hasUpdated) {
+    host.hasUpdated = true;
+    lifecycle.firstUpdated(changed);
+  }
+  if (changed) {
+    lifecycle.updated(changed);
+  }
+  if (typeof host._$EM === "function") {
+    host._$EM();
+  } else {
+    host.isUpdatePending = false;
+    host._$AL = new Map();
+  }
+}
 
 @customElement("yn-navigation")
 export class YnNavigation extends LitElement {
@@ -35,7 +66,7 @@ export class YnNavigation extends LitElement {
   @property({ type: String, attribute: "aria-label" })
   ariaLabel = "Primary navigation";
 
-  /** Astro SSR / DSD：首帧前注入导航项，避免升级时闪回默认 items */
+  /** SSR：首帧前通过 items-json 注入导航项，避免升级时闪回默认 items */
   @property({ type: String, attribute: "items-json" })
   itemsJson?: string;
 
@@ -72,6 +103,12 @@ export class YnNavigation extends LitElement {
   private lastTotalWidth = -1;
   private lastGlowPoint: { x: number; y: number; rx: number; ry: number } | null = null;
   private resizeRaf = 0;
+  private dsdInitialBootstrapped = false;
+  private dsdRenderSkipped = false;
+  private dsdGeometryBootstrapped = false;
+  /** connected 时 Shadow 已含 .nav → 真 DSD（非 Lit 首次 render 产物） */
+  private hadDeclarativeShadowOnConnect = false;
+  private dsdPresenceChecked = false;
 
   /** 窗口尺寸变化时合并重算几何，避免连续触发抖动。 */
   private readonly onWindowResize = () => {
@@ -92,22 +129,96 @@ export class YnNavigation extends LitElement {
     ${unsafeCSS(YN_NAVIGATION_SHADOW_STYLES)}
   `;
 
-  /** 连接 DOM 时尽早解析 SSR 注入的 items-json。 */
+  /** 连接 DOM 时尽早解析 SSR 注入的 items-json，并记录是否已有 DSD。 */
   connectedCallback() {
+    this.captureDeclarativeShadowPresence();
     super.connectedCallback();
     this.hydrateItemsFromAttribute();
   }
 
+  private captureDeclarativeShadowPresence() {
+    if (this.dsdPresenceChecked) return;
+    this.dsdPresenceChecked = true;
+    this.hadDeclarativeShadowOnConnect = Boolean(this.shadowRoot?.querySelector(".nav"));
+  }
+
+  /** 复用 Declarative Shadow Root（Astro DSD SSR）。 */
+  protected createRenderRoot(): HTMLElement | ShadowRoot {
+    if (this.shadowRoot) {
+      return this.shadowRoot;
+    }
+    return super.createRenderRoot() as ShadowRoot;
+  }
+
+  /** DSD 首帧已含完整 markup，跳过 Lit render；Lit 2.x 需手动补全更新生命周期。 */
+  protected shouldUpdate(changed: PropertyValues): boolean {
+    if (this.dsdInitialBootstrapped) {
+      return false;
+    }
+    if (!this.dsdRenderSkipped && this.hasDeclarativeShadowContent()) {
+      this.dsdInitialBootstrapped = true;
+      this.dsdRenderSkipped = true;
+      return false;
+    }
+    return super.shouldUpdate(changed);
+  }
+
+  protected performUpdate(): void {
+    const changed = (this as unknown as LitUpdateHost)._$AL;
+    if (!this.shouldUpdate(changed)) {
+      if (this.dsdInitialBootstrapped && !this.dsdGeometryBootstrapped) {
+        this.dsdGeometryBootstrapped = true;
+        this.bootstrapFromDeclarativeShadow();
+      }
+      finishUpdateWithoutRender(this as unknown as LitUpdateHost, changed);
+      return;
+    }
+    super.performUpdate();
+  }
+
+  private hasDeclarativeShadowContent(): boolean {
+    return this.hadDeclarativeShadowOnConnect && Boolean(this.shadowRoot?.querySelector(".nav"));
+  }
+
+  /** 绑定 DSD 首帧 DOM：refs、几何、事件，不重绘 Shadow。 */
+  private bootstrapFromDeclarativeShadow(): void {
+    this.syncDomRefs();
+    this.syncActiveItem();
+    this.setupDynamicPaths();
+    this.setupBaseGeometry();
+    this.syncSeamStateFromIndices(this.resolveActiveIndex(), -1);
+    this.bindDeclarativeShadowEvents();
+    window.addEventListener("resize", this.onWindowResize, { passive: true });
+  }
+
+  /** 为 SSR 注入的 tab/nav 绑定与 Lit render 等价的交互。 */
+  private bindDeclarativeShadowEvents(): void {
+    this.navRoot?.addEventListener("keydown", (event) => this.onKeyDown(event as KeyboardEvent));
+    this.navRoot?.addEventListener("pointerleave", () => this.onPointerLeave());
+    this.getTabs().forEach((tab, index) => {
+      tab.addEventListener("pointerenter", (event) =>
+        this.onTabPointerEnter(index, event as PointerEvent),
+      );
+      tab.addEventListener("pointermove", (event) =>
+        this.onTabPointerMove(event as PointerEvent),
+      );
+      if (!this.seoMode) {
+        tab.addEventListener("click", () => this.onTabClick(index));
+      }
+    });
+  }
+
   /** 首次渲染后初始化路径、几何与动画目标。 */
   protected firstUpdated() {
+    if (this.dsdInitialBootstrapped) {
+      return;
+    }
     this.syncDomRefs();
-
     this.syncActiveItem();
     this.setupDynamicPaths();
     this.setupBaseGeometry();
     this.applyShape();
     this.refreshShapeTarget(true);
-
     window.addEventListener("resize", this.onWindowResize, { passive: true });
   }
 
@@ -125,7 +236,8 @@ export class YnNavigation extends LitElement {
   }
 
   /** 响应属性变化并按需刷新形状与动画状态。 */
-  protected updated(changed: Map<string, unknown>) {
+  protected updated(changed: PropertyValues) {
+    if (!changed) return;
     if (changed.has("itemsJson")) {
       this.hydrateItemsFromAttribute();
     }
@@ -225,10 +337,16 @@ export class YnNavigation extends LitElement {
     return bestMatchIndex;
   }
 
-  /** 获取当前激活索引（按 SEO 或受控 active）。 */
+  /** 获取当前激活索引（SEO 路径匹配，回退 SSR active 属性）。 */
   private getActiveIndex() {
+    return this.resolveActiveIndex();
+  }
+
+  /** 解析激活 tab：SEO 路径优先，否则 active 属性（SSR 注入）。 */
+  private resolveActiveIndex() {
     if (this.seoMode) {
-      return this.getSeoActiveIndex();
+      const seoIndex = this.getSeoActiveIndex();
+      if (seoIndex >= 0) return seoIndex;
     }
     const index = this.getItemEntries().findIndex(([key]) => key === this.active);
     return index >= 0 ? index : -1;

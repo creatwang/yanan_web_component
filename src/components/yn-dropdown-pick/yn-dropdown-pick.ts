@@ -1,10 +1,12 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import "../yn-pick/yn-pick";
 import type { YnPick } from "../yn-pick/yn-pick";
 import { ynDropdownPickCheckSvg, ynDropdownPickChevronUpSvg } from "../../asset/svg";
+import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
+import { YN_DROPDOWN_PICK_SHADOW_STYLES } from "./yn-dropdown-pick-styles.js";
 
 type Primitive = string | number;
 type PickValue = Primitive | "";
@@ -81,105 +83,7 @@ export class YnDropdownPick extends LitElement {
   private picks!: YnPick[];
 
   static styles = css`
-    :host {
-      display: inline-block;
-      position: relative;
-      --yn-dropdown-pick-panel-bg: var(--yn-color-bg, #f2efea);
-      --yn-dropdown-pick-panel-radius: 12px;
-      --yn-dropdown-pick-panel-padding: 6px;
-      --yn-dropdown-pick-gap: 6px;
-      --yn-dropdown-pick-item-selected-bg: var(--yn-color-bg-muted, #e6e1d8);
-      --yn-dropdown-pick-item-content-right-space: 34px;
-      --yn-dropdown-pick-button-radius: 10px;
-      --yn-dropdown-pick-trigger-font-size: 12px;
-      --yn-dropdown-pick-trigger-font-weight: 600;
-      --yn-dropdown-pick-shadow: var(--yn-color-shadow-md, 0 10px 24px rgba(36, 31, 33, 0.14));
-      --yn-dropdown-pick-button-bg: var(--yn-color-surface, #f8f6f2);
-      --yn-dropdown-pick-button-color: var(--yn-color-text, #241f21);
-      --yn-dropdown-pick-open-button-bg: var(--yn-color-inverse-bg, #241f21);
-      --yn-dropdown-pick-open-button-color: var(--yn-color-on-inverse, #ffffff);
-      --yn-dropdown-pick-item-hover-bg: var(--yn-color-surface-hover, #ebe7df);
-      --yn-dropdown-pick-check-bg: var(--yn-color-inverse-bg, #241f21);
-      --yn-dropdown-pick-check-color: var(--yn-color-on-inverse, #ffffff);
-    }
-
-    .root {
-      position: relative;
-      display: inline-block;
-    }
-
-    .trigger {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: none;
-      border-radius: var(--yn-dropdown-pick-button-radius, 10px);
-      padding: 6px 10px;
-      min-height: 28px;
-      cursor: pointer;
-      background: var(--_btn-bg);
-      color: var(--_btn-color);
-      transition: background-color 180ms ease, color 180ms ease;
-      font-size: var(--yn-dropdown-pick-trigger-font-size, 12px);
-      font-weight: var(--yn-dropdown-pick-trigger-font-weight, 600);
-      line-height: 1;
-      white-space: nowrap;
-    }
-
-    .trigger:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .caret {
-      width: 10px;
-      height: 10px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transform: rotate(0deg);
-      transition: transform 180ms ease;
-      transform-origin: center;
-    }
-
-    .caret.open {
-      transform: rotate(180deg);
-    }
-
-    .panel {
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
-      min-width: var(--_panel-min-width);
-      padding: var(--yn-dropdown-pick-panel-padding, 6px);
-      border-radius: var(--yn-dropdown-pick-panel-radius, 12px);
-      background: var(--yn-dropdown-pick-panel-bg, #f2efea);
-      box-shadow: var(--yn-dropdown-pick-shadow, 0 10px 24px rgba(36, 31, 33, 0.14));
-      opacity: 0;
-      transform: translate3d(0, -8px, 0);
-      visibility: hidden;
-      pointer-events: none;
-      transition: transform 220ms cubic-bezier(0.22, 0.78, 0.24, 1), opacity 220ms cubic-bezier(0.22, 0.78, 0.24, 1);
-      z-index: 1200;
-    }
-
-    .panel.open {
-      opacity: 1;
-      transform: translate3d(0, 0, 0);
-      visibility: visible;
-      pointer-events: auto;
-    }
-
-    .pick-list {
-      display: flex;
-      flex-direction: column;
-      gap: var(--yn-dropdown-pick-gap, 6px);
-    }
-
-    ::slotted(yn-pick) {
-      display: block;
-      width: 100%;
-    }
+    ${unsafeCSS(YN_DROPDOWN_PICK_SHADOW_STYLES)}
   `;
 
   /** 注册外部点击与键盘事件。 */
@@ -212,7 +116,21 @@ export class YnDropdownPick extends LitElement {
     if (changed.has("value") || changed.has("valueField") || changed.has("buttonDisplayField")) {
       this.syncSelectedByValue();
       this.syncPickState();
+      this.syncOpenDom();
     }
+  }
+
+  /** DSD / 无 Lit re-render 时，手动同步 open 态与按钮文案 */
+  private syncOpenDom() {
+    const root = this.shadowRoot?.querySelector(".root") as HTMLElement | null;
+    if (!root) return;
+    const btnBg = this.open ? this.openButtonBg : this.buttonBg;
+    const btnColor = this.open ? this.openButtonColor : this.buttonColor;
+    root.style.cssText = `--_btn-bg:${btnBg};--_btn-color:${btnColor};--_panel-min-width:${this.panelMinWidth};`;
+    root.querySelector(".panel")?.classList.toggle("open", this.open);
+    root.querySelector(".caret")?.classList.toggle("open", this.open);
+    const label = root.querySelector(".trigger > span:first-child");
+    if (label) label.textContent = this.getButtonText();
   }
 
   /** 同步插槽 pick 的默认配置。 */
@@ -386,14 +304,33 @@ export class YnDropdownPick extends LitElement {
   private toggleOpen() {
     if (this.disabled) return;
     this.open = !this.open;
+    this.syncOpenDom();
     this.emitOpenChange();
   }
+
+  private handleDsdTriggerClick = (event: Event) => {
+    event.stopPropagation();
+    this.toggleOpen();
+  };
 
   /** 关闭弹层。 */
   private closePanel() {
     if (!this.open) return;
     this.open = false;
+    this.syncOpenDom();
     this.emitOpenChange();
+  }
+
+  bootstrapFromDeclarativeShadow() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    dedupeShadowDsdContent(root, ".root .trigger");
+    ensureRenderRoot(this);
+    root.querySelector(".trigger")?.addEventListener("click", this.handleDsdTriggerClick);
+    root.querySelector("slot")?.addEventListener("slotchange", this.handleSlotChange);
+    root.querySelector(".pick-list")?.addEventListener("toggle", this.handlePickToggle as EventListener);
+    this.handleSlotChange();
+    this.syncOpenDom();
   }
 
   /** 对外派发开关变化事件。 */
@@ -504,3 +441,5 @@ declare global {
     "yn-dropdown-pick": YnDropdownPick;
   }
 }
+
+applyLitDsd(YnDropdownPick, ".root .trigger", (el) => el.bootstrapFromDeclarativeShadow());

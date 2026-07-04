@@ -1,5 +1,6 @@
 import {
   NAV_GEOMETRY,
+  buildActiveSeamProgress,
   computeNavigationShape,
   normalizeSeoPath,
 } from "./yn-navigation-geometry.js";
@@ -41,7 +42,8 @@ export function renderYnNavigationShadowHtml(options: YnNavigationShadowOptions)
 
   const labels = items.map((item) => item.label);
   const activeIndex = labels.findIndex((label) => label === activeLabel);
-  const { layout, bridgeD, rectDs } = computeNavigationShape(labels);
+  const seamProgress = buildActiveSeamProgress(labels.length, activeIndex);
+  const { layout, bridgeD, rectDs } = computeNavigationShape(labels, undefined, seamProgress);
   const { VIEWBOX_HEIGHT } = NAV_GEOMETRY;
 
   const rectPaths = rectDs

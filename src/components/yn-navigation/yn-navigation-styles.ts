@@ -90,7 +90,7 @@ export const YN_NAVIGATION_SHADOW_STYLES = `
   border-radius: 12px;
 }
 slot[name="seo-fallback"] {
-  display: block;
+  display: none;
 }
 `.trim();
 
@@ -108,6 +108,7 @@ export const YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES = `
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+  pointer-events: none;
 }
 .${YN_NAVIGATION_SEO_FALLBACK_CLASS} ul {
   list-style: none;

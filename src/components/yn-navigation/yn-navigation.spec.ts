@@ -126,4 +126,42 @@ describe("yn-navigation", () => {
     expect(links?.length).to.equal(2);
     expect(links?.[0].textContent?.trim()).to.equal("首页");
   });
+
+  it("bootstraps geometry and hover from declarative shadow DOM", async () => {
+    const { renderYnNavigationShadowHtml } = await import("./yn-navigation-shadow.js");
+    const shadowHtml = renderYnNavigationShadowHtml({
+      items: [
+        { label: "首页", href: "/zh" },
+        { label: "系列", href: "/zh/collections" },
+        { label: "促销", href: "/zh/promotions" },
+      ],
+      activeLabel: "首页",
+      seoMode: true,
+    });
+    const host = document.createElement("yn-navigation") as YnNavigation;
+    host.setAttribute("seo-mode", "");
+    host.setAttribute(
+      "items-json",
+      '{"首页":"/zh","系列":"/zh/collections","促销":"/zh/promotions"}',
+    );
+    host.setAttribute("active", "首页");
+    const template = document.createElement("template");
+    template.setAttribute("shadowrootmode", "open");
+    template.innerHTML = shadowHtml;
+    host.appendChild(template);
+    document.body.appendChild(host);
+
+    await host.updateComplete;
+
+    expect(host.hasUpdated).to.equal(true);
+    const bridgeBefore = host.shadowRoot?.querySelector("[data-meta-row-shape-bridges]")?.getAttribute("d") ?? "";
+    const tab2 = host.shadowRoot?.querySelectorAll<HTMLElement>(".tab")[2];
+    tab2?.dispatchEvent(new PointerEvent("pointerenter", { clientX: 200, clientY: 20, bubbles: true }));
+    await new Promise((resolve) => setTimeout(resolve, 360));
+    const bridgeAfter = host.shadowRoot?.querySelector("[data-meta-row-shape-bridges]")?.getAttribute("d") ?? "";
+    expect(bridgeAfter).to.not.equal("");
+    expect(bridgeAfter).to.not.equal(bridgeBefore);
+
+    host.remove();
+  });
 });

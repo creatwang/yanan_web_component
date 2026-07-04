@@ -1,8 +1,10 @@
-import { LitElement, css, html } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
+import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
+import { YN_SEARCH_SHADOW_STYLES } from "./yn-search-styles.js";
 
 @customElement("yn-search")
 export class YnSearch extends LitElement {
@@ -13,6 +15,9 @@ export class YnSearch extends LitElement {
 
   @state()
   private open = false;
+
+  @state()
+  private animating = false;
 
   @state()
   private value = "";
@@ -81,212 +86,17 @@ export class YnSearch extends LitElement {
   };
 
   static styles = css`
-      :host {
-        --yn-search-bg-active: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.96));
-        --yn-search-bg-idle: transparent;
-        --yn-search-icon-color: var(--yn-color-text, #241f21);
-        --yn-search-field-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.7));
-        --yn-search-caret-color: var(--yn-color-text, #241f21);
-        --yn-search-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.6));
-        --yn-search-fill-duration: 220ms;
-        --yn-search-fill-ease: cubic-bezier(0.4, 0, 1, 1);
-        --yn-search-icon-duration: 220ms;
-        --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1);
-        display: inline-block;
-      }
-
-      @font-face {
-        font-family: "Zimula";
-        src: url("https://www.floema.com/_nuxt/Zimula-Variable.Cb2n2uX-.ttf") format("truetype");
-        font-display: swap;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      .search-shell {
-        position: relative;
-        height: 38px;
-        --bg-fill: var(--yn-search-bg-idle);
-      }
-
-      .search-shell.open,
-      .search-shell:has(.toggle-btn:hover),
-      .search-shell:has(.toggle-btn:focus-visible) {
-        --bg-fill: var(--yn-search-bg-active);
-      }
-
-      .left-shape {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 44px;
-        height: 38px;
-        fill: var(--bg-fill);
-        transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
-      }
-
-      .left-shape path {
-        stroke: var(--bg-fill);
-        stroke-width: 0.65;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        transition:
-          fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)),
-          stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
-      }
-
-      .dynamic-wrap {
-        position: absolute;
-        top: 0;
-        left: 44px;
-        height: 38px;
-        overflow: hidden;
-        opacity: 1;
-        pointer-events: none;
-      }
-
-      .search-shell.open .dynamic-wrap {
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .shape {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 38px;
-        fill: var(--bg-fill);
-        transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
-      }
-
-      .shape path {
-        stroke: var(--bg-fill);
-        stroke-width: 0.65;
-        stroke-linejoin: round;
-        stroke-linecap: round;
-        transition:
-          fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1)),
-          stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
-      }
-
-      .toggle-btn {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 44px;
-        height: 38px;
-        border: 0;
-        background: transparent;
-        color: var(--yn-search-icon-color);
-        cursor: pointer;
-        display: grid;
-        place-items: center;
-        z-index: 2;
-      }
-
-      .toggle-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      .icon {
-        position: absolute;
-        width: 20px;
-        height: 20px;
-        transition:
-          opacity var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1)),
-          transform var(--yn-search-icon-duration, 260ms) var(--yn-search-icon-ease, cubic-bezier(0.2, 0.8, 0.2, 1));
-      }
-
-      .icon.search {
-        opacity: 1;
-        transform: scale(1);
-      }
-
-      .icon.close {
-        opacity: 0;
-        transform: scale(0.7) rotate(-80deg);
-      }
-
-      .search-shell.open .toggle-btn .icon.search {
-        opacity: 0;
-        transform: scale(0.7) rotate(80deg);
-      }
-
-      .search-shell.open .toggle-btn .icon.close {
-        opacity: 1;
-        transform: scale(1) rotate(0deg);
-      }
-
-      .search-input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        margin-left: 10px;
-      }
-
-      .search-input .inner {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 38px;
-        padding: 2px 10px;
-        pointer-events: none;
-      }
-
-      .search-shell.open .search-input .inner {
-        pointer-events: auto;
-      }
-
-      .field {
-        width: 100%;
-        border: 0;
-        outline: 0;
-        background: transparent;
-        color: var(--yn-search-field-color, var(--yn-color-text-muted, #241f21b3));
-        font-family: "Zimula", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
-        font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px);
-        font-variation-settings: "cnct" 1000, "wght" 500;
-        letter-spacing: -0.02em;
-        line-height: 1.4em;
-        caret-color: var(--yn-search-caret-color, var(--yn-color-text, #241f21));
-        padding-left: 3px;
-        opacity: 0;
-        transform: translateX(-10px);
-        transition: none;
-      }
-
-      .search-shell.open .field {
-        opacity: 1;
-        transform: translateX(0px);
-      }
-
-      .field::placeholder {
-        color: var(--yn-search-placeholder-color, var(--yn-color-text-muted, #241f2199));
-      }
-
-      .field::-webkit-calendar-picker-indicator {
-        display: none !important;
-        -webkit-appearance: none;
-      }
-
-      .datalist-slot {
-        display: none;
-      }
-
-      @media only screen and (max-width: 1023px) {
-        .field,
-        .field::placeholder {
-          font-size: 16px;
-        }
-      }
-    `;
+    ${unsafeCSS(YN_SEARCH_SHADOW_STYLES)}
+  `;
 
   private get rectEndOpen() {
     return this.RECT_START_OPEN + Math.max(80, this.inputWidth);
+  }
+
+  private get shellWidth() {
+    return this.open || this.animating
+      ? this.RECT_START_CLOSED + this.dynamicWidth
+      : this.RECT_START_CLOSED;
   }
 
   private get dynamicWidth() {
@@ -312,28 +122,76 @@ export class YnSearch extends LitElement {
     super.disconnectedCallback();
   }
 
-  /** 首次渲染后初始化尺寸并在打开态同步形状。 */
+  /** 首次渲染后同步 datalist；收起态仅靠 CSS，不在此写 inline 隐藏样式。 */
   protected firstUpdated() {
-    this.syncShell();
     if (this.open) {
-      this.dynamicWrapEl.style.opacity = "1";
-      this.dynamicWrapEl.style.visibility = "visible";
-      this.dynamicWrapEl.style.transform = "translateX(0px)";
       this.applyShape(1);
       this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
     } else {
-      this.applyShape(0);
-      this.dynamicWrapEl.style.opacity = "1";
-      this.dynamicWrapEl.style.visibility = "hidden";
-      this.dynamicWrapEl.style.transform = `translateX(-${this.RETRACT_X}px)`;
-      this.inputEl.style.opacity = "0";
-      this.inputEl.style.transform = "translateX(-12px)";
       this.bridgeEl.setAttribute("d", "");
       this.rect1El.setAttribute("d", "");
     }
     if (this.value) this.inputEl.value = this.value;
     this.syncDatalistFromSlot();
+  }
+
+  bootstrapFromDeclarativeShadow() {
+    const root = this.shadowRoot;
+    if (!root) return;
+    dedupeShadowDsdContent(root, "#searchShell");
+    ensureRenderRoot(this);
+    this.ensureDsdRefs();
+    root.querySelector("#bridge")?.setAttribute("d", "");
+    root.querySelector("#rect1")?.setAttribute("d", "");
+    const inputEl = root.querySelector<HTMLInputElement>("#searchInput");
+    if (this.value && inputEl) inputEl.value = this.value;
+    root.querySelector("#toggleBtn")?.addEventListener("click", this.onToggle);
+    inputEl?.addEventListener("input", this.onInput);
+    inputEl?.addEventListener("keydown", this.onInputKeydown);
+    root.querySelector("#datalistSlot")?.addEventListener("slotchange", this.onDatalistSlotChange);
+    this.syncDatalistFromSlot();
+    this.syncShellDom();
     this.ready = true;
+  }
+
+  /** DSD 首帧 @query 未注入，从 shadow 手动取 ref */
+  private ensureDsdRefs(): boolean {
+    const root = this.shadowRoot;
+    if (!root) return false;
+    if (!this.shellEl) this.shellEl = root.querySelector("#searchShell") as HTMLDivElement;
+    if (!this.dynamicWrapEl) this.dynamicWrapEl = root.querySelector("#dynamicWrap") as HTMLDivElement;
+    if (!this.shapeEl) this.shapeEl = root.querySelector("#shape") as SVGSVGElement;
+    if (!this.leftShapeEl) this.leftShapeEl = root.querySelector("#leftShape") as SVGSVGElement;
+    if (!this.bridgeEl) this.bridgeEl = root.querySelector("#bridge") as SVGPathElement;
+    if (!this.rect1El) this.rect1El = root.querySelector("#rect1") as SVGPathElement;
+    if (!this.inputEl) this.inputEl = root.querySelector("#searchInput") as HTMLInputElement;
+    if (!this.datalistSlotEl) this.datalistSlotEl = root.querySelector("#datalistSlot") as HTMLSlotElement;
+    if (!this.internalDatalistEl) {
+      this.internalDatalistEl = root.querySelector("#internalDatalist") as HTMLDataListElement;
+    }
+    return Boolean(this.shellEl && this.bridgeEl && this.dynamicWrapEl && this.inputEl);
+  }
+
+  private syncShellDom() {
+    if (!this.ensureDsdRefs()) return;
+    this.shellEl.classList.toggle("open", this.open);
+    this.shellEl.classList.toggle("animating", this.animating);
+    this.shellEl.style.width = `${this.shellWidth}px`;
+    const toggleBtn = this.shadowRoot?.querySelector("#toggleBtn");
+    toggleBtn?.setAttribute("aria-label", this.open ? "close search" : "open search");
+  }
+
+  /** 动画结束后清掉 inline 样式，交回 CSS 控制显隐。 */
+  private clearDynamicWrapInlineStyles() {
+    this.dynamicWrapEl.style.removeProperty("display");
+    this.dynamicWrapEl.style.removeProperty("visibility");
+    this.dynamicWrapEl.style.removeProperty("transform");
+    this.dynamicWrapEl.style.removeProperty("opacity");
+    this.inputEl.style.removeProperty("opacity");
+    this.inputEl.style.removeProperty("transform");
+    this.lastDynamicTransform = "";
+    this.lastInputOpacity = "";
+    this.lastInputTransform = "";
   }
 
   /** 从 slot 中获取外部 datalist 源节点。 */
@@ -370,23 +228,24 @@ export class YnSearch extends LitElement {
 
   /** 监听属性变化并刷新动画、壳层与事件输出。 */
   protected updated(changed: PropertyValues) {
-    if (!this.ready) return;
+    // 跳过首次 updated：避免 open 从 undefined→false 误触发收起动画
+    if (!this.ready) {
+      this.ready = true;
+      return;
+    }
     if (changed.has("inputWidth")) {
       if (this.open) {
         this.applyShape(1);
         this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
       }
     }
-    if (changed.has("open")) {
-      this.syncShell();
+    if (changed.has("open") && changed.get("open") !== undefined) {
       this.stopAnims();
-      this.animateShape(this.open);
+      this.syncShellDom();
+      if (this.ensureDsdRefs()) {
+        this.animateShape(this.open);
+      }
     }
-  }
-
-  /** 同步宿主开关态到壳层 class。 */
-  private syncShell() {
-    this.shellEl?.classList.toggle("open", this.open);
   }
 
   /** 停止所有进行中的形状动画 RAF。 */
@@ -516,9 +375,12 @@ export class YnSearch extends LitElement {
 
   /** 执行开关阶段形状动画。 */
   private animateShape(opening: boolean) {
+    if (!this.ensureDsdRefs()) return;
     const duration = opening ? 620 : 500;
     const ease = opening ? this.easeOpen : this.easeClose;
     const start = performance.now();
+    this.animating = true;
+    this.syncShellDom();
     this.dynamicWrapEl.style.visibility = "visible";
 
     const tick = (now: number) => {
@@ -569,7 +431,6 @@ export class YnSearch extends LitElement {
           this.lastDynamicTransform = "translateX(0px)";
         }
         if (!opening) {
-          this.dynamicWrapEl.style.visibility = "hidden";
           if (this.lastBridgePath !== "") {
             this.bridgeEl.setAttribute("d", "");
             this.lastBridgePath = "";
@@ -578,7 +439,10 @@ export class YnSearch extends LitElement {
             this.rect1El.setAttribute("d", "");
             this.lastRectPath = "";
           }
+          this.clearDynamicWrapInlineStyles();
         }
+        this.animating = false;
+        this.syncShellDom();
       }
     };
 
@@ -619,6 +483,11 @@ export class YnSearch extends LitElement {
     if (this.disabled) return;
     if (!this.open) {
       this.open = true;
+      this.syncShellDom();
+      if (this.ensureDsdRefs()) {
+        this.stopAnims();
+        this.animateShape(true);
+      }
       setTimeout(() => this.inputEl?.focus(), 180);
       return;
     }
@@ -632,6 +501,11 @@ export class YnSearch extends LitElement {
         return;
       }
       this.open = false;
+      this.syncShellDom();
+      if (this.ensureDsdRefs()) {
+        this.stopAnims();
+        this.animateShape(false);
+      }
       return;
     }
 
@@ -641,6 +515,11 @@ export class YnSearch extends LitElement {
       this.dispatchInputEvent();
     }
     this.open = false;
+    this.syncShellDom();
+    if (this.ensureDsdRefs()) {
+      this.stopAnims();
+      this.animateShape(false);
+    }
   }
 
   /** 渲染搜索组件外壳、路径与输入区域。 */
@@ -648,8 +527,8 @@ export class YnSearch extends LitElement {
     return html`
       <div
         id="searchShell"
-        class="search-shell"
-        style=${`width:${this.RECT_START_CLOSED + this.dynamicWidth}px;`}
+        class=${`search-shell${this.open ? " open" : ""}${this.animating ? " animating" : ""}`}
+        style=${`width:${this.shellWidth}px;`}
       >
         <svg id="leftShape" class="left-shape" viewBox="0 0 44 38" data-meta-row-shape>
           <path
@@ -708,3 +587,5 @@ declare global {
     "yn-search": YnSearch;
   }
 }
+
+applyLitDsd(YnSearch, "#searchShell", (el) => el.bootstrapFromDeclarativeShadow());

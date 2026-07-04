@@ -97,6 +97,15 @@ export function getLayoutFromTabWidths(
   return { starts, ends, seamCenters, totalWidth: ends[ends.length - 1] };
 }
 
+/** 选中项两侧 seam 合并为 1（与 yn-navigation.mergeTabSeams 一致） */
+export function buildActiveSeamProgress(itemCount: number, activeIndex: number): number[] {
+  const progress = new Array(Math.max(0, itemCount - 1)).fill(0);
+  if (activeIndex < 0) return progress;
+  if (activeIndex > 0) progress[activeIndex - 1] = 1;
+  if (activeIndex < itemCount - 1) progress[activeIndex] = 1;
+  return progress;
+}
+
 export function computeNavigationShape(
   labels: string[],
   tabWidths?: number[],

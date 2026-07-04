@@ -20,6 +20,8 @@ describe("renderYnNavigationShadowHtml", () => {
     expect(html).toContain('aria-current="page"');
     expect(html).toContain("首页");
     expect(html).toContain("<style>");
+    // 选中项两侧 bridge 应已合并（progress=1），与客户端首帧一致
+    expect(html).toMatch(/data-meta-row-shape-bridges d="M[\d.]+ 29\.429/);
   });
 
   it("returns empty string when items is empty", () => {

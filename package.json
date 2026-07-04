@@ -115,6 +115,26 @@
       "import": "./dist/ssr/yn-navigation-shadow.js",
       "require": "./dist/ssr/yn-navigation-shadow.cjs"
     },
+    "./ssr/yn-search": {
+      "types": "./dist/types/components/yn-search/yn-search-shadow.d.ts",
+      "import": "./dist/ssr/yn-search-shadow.js",
+      "require": "./dist/ssr/yn-search-shadow.cjs"
+    },
+    "./ssr/yn-dropdown-pick": {
+      "types": "./dist/types/components/yn-dropdown-pick/yn-dropdown-pick-shadow.d.ts",
+      "import": "./dist/ssr/yn-dropdown-pick-shadow.js",
+      "require": "./dist/ssr/yn-dropdown-pick-shadow.cjs"
+    },
+    "./ssr/yn-drawer": {
+      "types": "./dist/types/components/yn-drawer/yn-drawer-shadow.d.ts",
+      "import": "./dist/ssr/yn-drawer-shadow.js",
+      "require": "./dist/ssr/yn-drawer-shadow.cjs"
+    },
+    "./ssr/yn-button": {
+      "types": "./dist/types/components/yn-button/yn-button-shadow.d.ts",
+      "import": "./dist/ssr/yn-button-shadow.js",
+      "require": "./dist/ssr/yn-button-shadow.cjs"
+    },
     "./umd": {
       "default": "./dist/index.umd.js"
     },

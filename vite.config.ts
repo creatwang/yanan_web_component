@@ -28,7 +28,11 @@ export default defineConfig({
         "components/yn-quantity": "src/components/yn-quantity/yn-quantity.ts",
         "components/yn-checkout-address": "src/components/yn-checkout-address/yn-checkout-address.ts",
         "components/yn-sku-selector": "src/components/yn-sku-selector/yn-sku-selector.ts",
-        "ssr/yn-navigation-shadow": "src/components/yn-navigation/yn-navigation-shadow.ts"
+        "ssr/yn-navigation-shadow": "src/components/yn-navigation/yn-navigation-shadow.ts",
+        "ssr/yn-search-shadow": "src/components/yn-search/yn-search-shadow.ts",
+        "ssr/yn-dropdown-pick-shadow": "src/components/yn-dropdown-pick/yn-dropdown-pick-shadow.ts",
+        "ssr/yn-drawer-shadow": "src/components/yn-drawer/yn-drawer-shadow.ts",
+        "ssr/yn-button-shadow": "src/components/yn-button/yn-button-shadow.ts"
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => {
