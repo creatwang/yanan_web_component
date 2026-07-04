@@ -1,6 +1,6 @@
 {
   "name": "yn-web-component",
-  "version": "1.0.7",
+  "version": "1.0.6",
   "description": "Floema-style Lit Web Components for DTC and cross-border e-commerce storefronts — navigation, SKU selector, checkout address, drawer, toast. Tree-shaking subpath exports.",
   "homepage": "https://web-components.yanan.store/",
   "repository": {
@@ -150,7 +150,8 @@
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm build && changeset publish",
-    "publish:npm": "pnpm build && pnpm publish --access public --no-git-checks"
+    "publish:npm": "pnpm build && pnpm publish --access public --no-git-checks",
+    "link:global": "pnpm build && pnpm link --global"
   },
   "keywords": [
     "web-components",
