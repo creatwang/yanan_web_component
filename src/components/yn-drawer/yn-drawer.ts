@@ -1,6 +1,6 @@
 import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
-import { customElement, property, query } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynClose20Svg } from "../../asset/svg";
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
@@ -51,6 +51,7 @@ export class YnDrawer extends LitElement {
     this._open = normalized;
     this.pendingTransitionMeta = nextMeta;
     this.requestUpdate("open", oldValue);
+    this.flushOpenTransition();
   }
 
   @property({ type: Number })
@@ -73,17 +74,21 @@ export class YnDrawer extends LitElement {
   @property({ type: String, attribute: "sheet-height", reflect: true })
   sheetHeight = "90vh";
 
-  @query("#drawerPopover")
-  private popoverEl!: HTMLElement;
+  private getPopoverEl() {
+    return this.shadowRoot?.querySelector("#drawerPopover") as HTMLElement | null;
+  }
 
-  @query('slot[name="trigger"]')
-  private triggerSlotEl!: HTMLSlotElement;
+  private getTriggerSlotEl() {
+    return this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
+  }
 
-  @query('slot[name="footer"]')
-  private footerSlotEl!: HTMLSlotElement;
+  private getFooterSlotEl() {
+    return this.shadowRoot?.querySelector('slot[name="footer"]') as HTMLSlotElement | null;
+  }
 
-  @query('slot[name="backdrop-extra"]')
-  private backdropExtraSlotEl!: HTMLSlotElement;
+  private getBackdropExtraSlotEl() {
+    return this.shadowRoot?.querySelector('slot[name="backdrop-extra"]') as HTMLSlotElement | null;
+  }
 
   private _open = false;
   private footerEmpty = true;
@@ -185,14 +190,16 @@ export class YnDrawer extends LitElement {
       this.syncSheetHeight();
     }
     if (changed.has("open")) {
-      const transitionMeta = this.pendingTransitionMeta ?? {
-        nextOpen: this.open,
-        source: "property" as const
-      };
       this.pendingTransitionMeta = undefined;
-      this.syncPopoverState(false, transitionMeta);
-      this.emitOpenChange(transitionMeta);
     }
+  }
+
+  private flushOpenTransition() {
+    const transitionMeta = this.pendingTransitionMeta;
+    if (!transitionMeta) return;
+    this.pendingTransitionMeta = undefined;
+    this.syncPopoverState(false, transitionMeta);
+    this.emitOpenChange(transitionMeta);
   }
 
   private syncSheetHeight() {
@@ -265,7 +272,8 @@ export class YnDrawer extends LitElement {
       triggerPayload?: unknown;
     } = { source: "property" }
   ) {
-    if (!this.popoverEl) return;
+    const popoverEl = this.getPopoverEl();
+    if (!popoverEl) return;
     if (this.closeTimer) {
       window.clearTimeout(this.closeTimer);
       this.closeTimer = 0;
@@ -285,13 +293,15 @@ export class YnDrawer extends LitElement {
   }
 
   private showDrawerPopover(meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }) {
-    if (!this.popoverEl.matches(":popover-open")) {
-      this.popoverEl.showPopover();
+    const popoverEl = this.getPopoverEl();
+    if (!popoverEl) return;
+    if (!popoverEl.matches(":popover-open")) {
+      popoverEl.showPopover();
     }
-    this.popoverEl.classList.remove("closing");
-    this.popoverEl.classList.remove("visible");
+    popoverEl.classList.remove("closing");
+    popoverEl.classList.remove("visible");
     requestAnimationFrame(() => {
-      this.popoverEl.classList.add("visible");
+      popoverEl.classList.add("visible");
     });
     const openDuration = this.getMotionDuration("--yn-drawer-open-duration", 380);
     this.openTimer = window.setTimeout(() => {
@@ -304,20 +314,21 @@ export class YnDrawer extends LitElement {
     immediate: boolean,
     meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }
   ) {
-    if (!this.popoverEl.matches(":popover-open")) return;
+    const popoverEl = this.getPopoverEl();
+    if (!popoverEl || !popoverEl.matches(":popover-open")) return;
     if (immediate) {
-      this.popoverEl.classList.remove("visible");
-      this.popoverEl.classList.remove("closing");
-      this.popoverEl.hidePopover();
+      popoverEl.classList.remove("visible");
+      popoverEl.classList.remove("closing");
+      popoverEl.hidePopover();
       this.emitLifecycleEvent("after-close", meta);
       return;
     }
-    this.popoverEl.classList.remove("visible");
-    this.popoverEl.classList.add("closing");
+    popoverEl.classList.remove("visible");
+    popoverEl.classList.add("closing");
     const closeDuration = this.getMotionDuration("--yn-drawer-close-duration", 320);
     this.closeTimer = window.setTimeout(() => {
-      this.popoverEl.hidePopover();
-      this.popoverEl.classList.remove("closing");
+      popoverEl.hidePopover();
+      popoverEl.classList.remove("closing");
       this.emitLifecycleEvent("after-close", meta);
       this.closeTimer = 0;
     }, closeDuration);
@@ -332,7 +343,7 @@ export class YnDrawer extends LitElement {
   }
 
   private getTriggerPayload() {
-    const triggerEl = this.triggerSlotEl?.assignedElements({ flatten: true })[0] as
+    const triggerEl = this.getTriggerSlotEl()?.assignedElements({ flatten: true })[0] as
       | (HTMLElement & { drawerLifecyclePayload?: unknown })
       | undefined;
     if (!triggerEl) return undefined;
@@ -400,11 +411,11 @@ export class YnDrawer extends LitElement {
   }
 
   private syncFooterEmptyState() {
-    this.footerEmpty = !this.slotHasMeaningfulContent(this.footerSlotEl);
+    this.footerEmpty = !this.slotHasMeaningfulContent(this.getFooterSlotEl() ?? undefined);
   }
 
   private syncBackdropExtraEmptyState() {
-    this.backdropExtraEmpty = !this.slotHasMeaningfulContent(this.backdropExtraSlotEl);
+    this.backdropExtraEmpty = !this.slotHasMeaningfulContent(this.getBackdropExtraSlotEl() ?? undefined);
   }
 
   private handleFooterSlotChange = () => {

@@ -354,8 +354,10 @@ export class YnButton extends LitElement {
 
   private handleHostClick = (event: Event) => {
     if (event.target !== this) return;
+    const shadowBtn = this.shadowRoot?.querySelector<HTMLButtonElement>("button.button");
+    if (shadowBtn && event.composedPath().includes(shadowBtn)) return;
     event.preventDefault();
-    this.shadowRoot?.querySelector<HTMLButtonElement>("button.button")?.click();
+    shadowBtn?.click();
   };
 
   /** 判断默认插槽是否存在可见内容。 */
