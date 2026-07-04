@@ -109,5 +109,21 @@ describe("yn-navigation", () => {
     expect(clips?.length).to.equal(4);
     expect(rects?.[0]).to.be.instanceOf(SVGPathElement);
     expect(clips?.[0]).to.be.instanceOf(SVGPathElement);
+    const firstPath = rects?.[0]?.getAttribute("d") ?? "";
+    expect(firstPath.length).to.be.greaterThan(10);
+  });
+
+  it("hydrates items from items-json attribute on connect", async () => {
+    const el = await fixture<YnNavigation>(html`
+      <yn-navigation
+        items-json='{"首页":"/zh/","系列":"/zh/collections"}'
+        active="首页"
+        .seoMode=${true}
+      ></yn-navigation>
+    `);
+    expect(el.items).to.deep.equal({ 首页: "/zh/", 系列: "/zh/collections" });
+    const links = el.shadowRoot?.querySelectorAll<HTMLAnchorElement>("a.tab");
+    expect(links?.length).to.equal(2);
+    expect(links?.[0].textContent?.trim()).to.equal("首页");
   });
 });

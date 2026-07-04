@@ -1,6 +1,6 @@
 {
   "name": "yn-web-component",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Floema-style Lit Web Components for DTC and cross-border e-commerce storefronts — navigation, SKU selector, checkout address, drawer, toast. Tree-shaking subpath exports.",
   "homepage": "https://web-components.yanan.store/",
   "repository": {
@@ -109,6 +109,11 @@
       "types": "./dist/types/components/yn-sku-selector/yn-sku-selector.d.ts",
       "import": "./dist/components/yn-sku-selector.js",
       "require": "./dist/components/yn-sku-selector.cjs"
+    },
+    "./ssr/yn-navigation": {
+      "types": "./dist/types/ssr/yn-navigation-shadow.d.ts",
+      "import": "./dist/ssr/yn-navigation-shadow.js",
+      "require": "./dist/ssr/yn-navigation-shadow.cjs"
     },
     "./umd": {
       "default": "./dist/index.umd.js"

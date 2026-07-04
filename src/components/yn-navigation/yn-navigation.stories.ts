@@ -32,7 +32,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "导航胶囊组件，用于在多项导航中展示和切换当前激活项。seoMode=false 时为受控切换模式（button + change 事件）；seoMode=true 时为 SEO 链接模式（a 标签 + href 跳转，不派发 change）。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过以下 CSS 变量定制：`--yn-navigation-fill-color`、`--yn-navigation-text-color`、`--yn-navigation-active-text-color`、`--yn-navigation-indicator-color`、`--yn-navigation-focus-color`、`--yn-navigation-glow-color`、`--yn-navigation-glow-fade`。"
+          "导航胶囊组件，用于在多项导航中展示和切换当前激活项。seoMode=false 时为受控切换模式（button + change 事件）；seoMode=true 时为 SEO 链接模式（a 标签 + href 跳转，不派发 change）。\n\n**SSR 首屏**：Astro 等框架请使用 `renderYnNavigationShadowHtml`（`yn-web-component/ssr/yn-navigation`）生成 Declarative Shadow DOM，配合 `items-json` 属性，不要在消费方重复实现导航 markup。\n\n**SEO 链接层**：在 `<yn-navigation>` 内提供 `slot=\"seo-fallback\"` 的 light DOM `<nav><ul><a href>`，配合 `YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES` 视觉隐藏；DSD/Shadow 负责首屏视觉，light DOM 链接供爬虫抓取。\n\n样式隔离：组件使用 Shadow DOM，可通过 `--yn-navigation-*` CSS 变量定制。"
       }
     }
   },
@@ -64,9 +64,17 @@ const meta = {
     },
     active: {
       control: "text",
-      description: "当前激活导航项 key。seoMode=false 时由外部受控；seoMode=true 时以当前 URL 路径匹配 items.value 自动决定激活项。",
+      description: "当前激活导航项 key。seoMode=false 时由外部受控；seoMode=true 时 SSR 可设初始高亮，运行时以 URL 路径匹配 items.value 为准。",
       table: {
         defaultValue: { summary: "PRODUTOS" },
+        type: { summary: "string" }
+      }
+    },
+    itemsJson: {
+      control: "text",
+      name: "items-json",
+      description: "SSR 用 JSON 字符串预注入 items（Record<label, href>），避免 custom element 升级时闪回默认项。",
+      table: {
         type: { summary: "string" }
       }
     },

@@ -140,9 +140,20 @@ To maximize bundle pruning:
 2. Avoid `yn-web-component/define` in on-demand scenarios (it registers all components)
 3. Keep your app bundler in ESM mode (Vite/Rollup/Webpack5 are fine)
 
-## `yn-navigation` SEO mode
+## `yn-navigation` SEO mode & SSR
 
-When `seoMode=true`, items render as anchor links and active state is resolved from `window.location.pathname`:
+When `seoMode=true`, items render as anchor links and active state is resolved from `window.location.pathname`.
+
+For **first-paint header navigation** in Astro/SSR, use Declarative Shadow DOM via `renderYnNavigationShadowHtml` from `yn-web-component/ssr/yn-navigation` (same geometry/styles as the Lit component — do not duplicate nav markup in your app). Add a **light DOM `seo-fallback` slot** with real `<a href>` links for crawlers that do not traverse Shadow DOM.
+
+**SSR helpers** (`yn-web-component/ssr/yn-navigation`):
+
+| Export | Purpose |
+| --- | --- |
+| `renderYnNavigationShadowHtml` | DSD shadow content (includes `<slot name="seo-fallback">`) |
+| `renderYnNavigationSeoFallbackHtml` | Optional HTML generator for the SEO link layer |
+| `YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES` | Visually-hidden styles for the light DOM layer |
+| `YN_NAVIGATION_SEO_FALLBACK_CLASS` | Class name (`yn-navigation-seo-fallback`) |
 
 ```html
 <yn-navigation
@@ -150,6 +161,31 @@ When `seoMode=true`, items render as anchor links and active state is resolved f
   .items=${{ Home: "/home", Products: "/products", Journal: "/journal" }}
   aria-label="Primary navigation"
 ></yn-navigation>
+```
+
+```astro
+---
+import {
+  renderYnNavigationShadowHtml,
+  YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES,
+} from "yn-web-component/ssr/yn-navigation"
+
+const items = [{ label: "Home", href: "/home" }]
+const itemsJson = JSON.stringify({ Home: "/home" })
+const shadowHtml = renderYnNavigationShadowHtml({
+  items,
+  activeLabel: "Home",
+  seoMode: true,
+})
+---
+<style is:global set:html={YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES}></style>
+
+<yn-navigation seo-mode items-json={itemsJson} active="Home">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+  <nav slot="seo-fallback" class="yn-navigation-seo-fallback" aria-label="Primary navigation">
+    <ul><li><a href="/home" aria-current="page">Home</a></li></ul>
+  </nav>
+</yn-navigation>
 ```
 
 ## Button theming recommendation (`variant` + CSS variables)

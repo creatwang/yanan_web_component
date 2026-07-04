@@ -1,12 +1,15 @@
-import { LitElement, css, html, svg } from "lit";
+import { LitElement, css, html, svg, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-
-type NavigationLayout = {
-  starts: number[];
-  ends: number[];
-  seamCenters: number[];
-  totalWidth: number;
-};
+import {
+  NAV_GEOMETRY,
+  buildBridgeSegment,
+  buildRectPath,
+  computeNavigationShape,
+  estimateTabWidth,
+  getLayoutFromTabWidths,
+  type NavigationLayout,
+} from "./yn-navigation-geometry.js";
+import { YN_NAVIGATION_SHADOW_STYLES } from "./yn-navigation-styles.js";
 
 type NavigationNode = Record<string, string>;
 
@@ -31,6 +34,10 @@ export class YnNavigation extends LitElement {
 
   @property({ type: String, attribute: "aria-label" })
   ariaLabel = "Primary navigation";
+
+  /** Astro SSR / DSD：首帧前注入导航项，避免升级时闪回默认 items */
+  @property({ type: String, attribute: "items-json" })
+  itemsJson?: string;
 
   private focusedIndex = 0;
 
@@ -77,123 +84,19 @@ export class YnNavigation extends LitElement {
     });
   };
 
-  private readonly VIEWBOX_HEIGHT = 36.80397415161133;
   private readonly HOVER_ANIM_MS = 320;
   private readonly SELECT_ANIM_MS = 240;
-  private readonly SEAM_GAP = 20;
-  private readonly R = 12.513351211547853;
-  private readonly PATH_OVERLAP = 0.35;
-  private readonly TAB_HORIZONTAL_PADDING = 20;
-  private readonly TAB_MIN_WIDTH = 64;
   private seamDurationMs = this.HOVER_ANIM_MS;
 
   static styles = css`
-      :host {
-        display: inline-block;
-      }
+    ${unsafeCSS(YN_NAVIGATION_SHADOW_STYLES)}
+  `;
 
-      :host {
-        --yn-navigation-fill-color: var(--yn-color-bg-elevated, #ffffff);
-        --yn-navigation-text-color: var(--yn-color-text, #241f21);
-        --yn-navigation-active-text-color: var(--yn-color-text, #241f21);
-        --yn-navigation-indicator-color: var(--yn-color-text, #241f21);
-        --yn-navigation-focus-color: var(--yn-color-focus-outline, #82b7ff);
-        --yn-navigation-glow-color: var(--yn-color-nav-glow, #e9e77847);
-        --yn-navigation-glow-fade: var(--yn-color-nav-glow-fade, #e9e77800);
-      }
-
-      .nav {
-        position: relative;
-        width: 429px;
-        height: 36.80397415161133px;
-        user-select: none;
-      }
-
-      .shape {
-        width: 100%;
-        height: 100%;
-        display: block;
-        overflow: visible;
-      }
-
-      [data-meta-row-shape] [data-meta-row-shape-bridges],
-      [data-meta-row-shape] [data-meta-row-rect] {
-        fill: var(--yn-navigation-fill-color, #ffffff);
-      }
-
-      .tabs {
-        position: absolute;
-        inset: 0;
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .tab-item {
-        display: contents;
-      }
-
-      .tab {
-        position: absolute;
-        top: 0;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-        border: 0;
-        background: transparent;
-        color: var(--yn-navigation-text-color, #241f21);
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-        white-space: nowrap;
-        cursor: pointer;
-        line-height: 1;
-        text-decoration: none;
-        appearance: none;
-        -webkit-appearance: none;
-      }
-
-      .tab.hit-slope::before {
-        content: "";
-        position: absolute;
-        top: -20px;
-        left: -20px;
-        width: calc(100% + 40px);
-        height: calc(100% + 40px);
-      }
-
-      .tab > span {
-        position: relative;
-        display: inline-block;
-      }
-
-      .tab[aria-selected="true"],
-      .tab[aria-current="page"] {
-        color: var(--yn-navigation-active-text-color, #241f21);
-      }
-
-      .tab[aria-selected="true"]::after,
-      .tab[aria-current="page"]::after {
-        content: "";
-        position: absolute;
-        left: 50%;
-        bottom: 5px;
-        width: 4px;
-        height: 4px;
-        margin-left: -2px;
-        border-radius: 50%;
-        background: var(--yn-navigation-indicator-color, #241f21);
-      }
-
-      .tab:focus-visible {
-        outline: 2px solid var(--yn-navigation-focus-color, #82b7ff);
-        outline-offset: 2px;
-        border-radius: 12px;
-      }
-    `;
+  /** 连接 DOM 时尽早解析 SSR 注入的 items-json。 */
+  connectedCallback() {
+    super.connectedCallback();
+    this.hydrateItemsFromAttribute();
+  }
 
   /** 首次渲染后初始化路径、几何与动画目标。 */
   protected firstUpdated() {
@@ -208,8 +111,24 @@ export class YnNavigation extends LitElement {
     window.addEventListener("resize", this.onWindowResize, { passive: true });
   }
 
+  /** 从 items-json 属性同步导航项（SSR 场景）。 */
+  private hydrateItemsFromAttribute() {
+    if (!this.itemsJson) return;
+    try {
+      const parsed = JSON.parse(this.itemsJson) as NavigationNode;
+      if (parsed && typeof parsed === "object") {
+        this.items = parsed;
+      }
+    } catch {
+      /* ignore malformed JSON */
+    }
+  }
+
   /** 响应属性变化并按需刷新形状与动画状态。 */
   protected updated(changed: Map<string, unknown>) {
+    if (changed.has("itemsJson")) {
+      this.hydrateItemsFromAttribute();
+    }
     this.syncDomRefs();
     const itemsChanged = changed.has("items");
     const activeChanged = changed.has("active");
@@ -330,7 +249,10 @@ export class YnNavigation extends LitElement {
     return tabs.map((tab) => {
       const label = tab.querySelector("span");
       const labelWidth = Math.ceil(label?.getBoundingClientRect().width ?? 0);
-      return Math.max(this.TAB_MIN_WIDTH, labelWidth + this.TAB_HORIZONTAL_PADDING * 2);
+      return Math.max(
+        NAV_GEOMETRY.TAB_MIN_WIDTH,
+        labelWidth + NAV_GEOMETRY.TAB_HORIZONTAL_PADDING * 2,
+      );
     });
   }
 
@@ -364,64 +286,9 @@ export class YnNavigation extends LitElement {
     this.seamAnimStart = new Array(this.seamCount).fill(0);
   }
 
-  /** 线性插值工具。 */
-  private lerp(a: number, b: number, t: number) {
-    return a + (b - a) * t;
-  }
-
-  /** 构建单个圆角矩形片段的 SVG 路径。 */
-  private buildRectPath(startX: number, endX: number, overlapStart = 0, overlapEnd = 0) {
-    const adjustedStart = startX - overlapStart;
-    const adjustedEnd = endX + overlapEnd;
-    const yTop = 0;
-    const yBottom = this.VIEWBOX_HEIGHT;
-    const yArcTop = this.R;
-    const yArcBottom = this.VIEWBOX_HEIGHT - this.R;
-    const leftInner = adjustedStart + this.R;
-    const rightInner = adjustedEnd - this.R;
-    return `M${adjustedStart} ${yArcTop} A${this.R} ${this.R} 0 0 1 ${leftInner} ${yTop} L${rightInner} ${yTop} A${this.R} ${this.R} 0 0 1 ${adjustedEnd} ${yArcTop} L${adjustedEnd} ${yArcBottom} A${this.R} ${this.R} 0 0 1 ${rightInner} ${yBottom} L${leftInner} ${yBottom} A${this.R} ${this.R} 0 0 1 ${adjustedStart} ${yArcBottom} Z`;
-  }
-
   /** 基于当前缝隙进度计算实时布局结果。 */
   private getCurrentLayout() {
-    const gaps = this.seamProgress.map((v) => v * this.SEAM_GAP);
-    const starts: number[] = [];
-    const ends: number[] = [];
-
-    if (!this.baseWidths.length) {
-      return { starts, ends, seamCenters: [], totalWidth: 0 };
-    }
-
-    starts[0] = 0;
-    ends[0] = this.baseWidths[0];
-    for (let i = 1; i < this.baseWidths.length; i += 1) {
-      starts[i] = ends[i - 1] + gaps[i - 1];
-      ends[i] = starts[i] + this.baseWidths[i];
-    }
-
-    const seamCenters: number[] = [];
-    for (let i = 0; i < this.seamCount; i += 1) {
-      seamCenters.push((ends[i] + starts[i + 1]) / 2);
-    }
-
-    return { starts, ends, seamCenters, totalWidth: ends[ends.length - 1] };
-  }
-
-  /** 构建两个片段之间桥接形状路径。 */
-  private buildBridgeSegment(centerX: number, progress: number) {
-    const left = this.lerp(0.48203949, 11.11998719, progress);
-    const control = this.lerp(0.21696813, 6.60909283, progress);
-    const yTop = this.lerp(28.521157255933936, 29.429300665479314, progress);
-    const yTopControl = this.lerp(28.11854174502602, 23.402951368449013, progress);
-    const yBottom = this.lerp(8.282816895677392, 7.374673486132014, progress);
-    const yBottomControl = this.lerp(8.685432406585305, 13.401022783162313, progress);
-
-    const x0 = centerX - left;
-    const x1 = centerX - control;
-    const x2 = centerX + control;
-    const x3 = centerX + left;
-
-    return `M${x0} ${yTop} C${x1} ${yTopControl}, ${x2} ${yTopControl}, ${x3} ${yTop} L${x3} ${yBottom} C${x2} ${yBottomControl}, ${x1} ${yBottomControl}, ${x0} ${yBottom} Z`;
+    return getLayoutFromTabWidths(this.baseWidths, this.seamProgress);
   }
 
   /** 将当前布局与桥接路径应用到 SVG 与 tab 样式。 */
@@ -430,7 +297,9 @@ export class YnNavigation extends LitElement {
 
     const layout = this.getCurrentLayout();
     this.currentLayout = layout;
-    const bridgeD = layout.seamCenters.map((centerX, i) => this.buildBridgeSegment(centerX, this.seamProgress[i])).join(" ");
+    const bridgeD = layout.seamCenters
+      .map((centerX, i) => buildBridgeSegment(centerX, this.seamProgress[i] ?? 0))
+      .join(" ");
 
     if (bridgeD !== this.lastBridgeD) {
       this.bridgePath.setAttribute("d", bridgeD);
@@ -439,9 +308,9 @@ export class YnNavigation extends LitElement {
     }
 
     this.rectPaths.forEach((path, i) => {
-      const overlapStart = i > 0 ? this.PATH_OVERLAP : 0;
-      const overlapEnd = i < this.rectPaths.length - 1 ? this.PATH_OVERLAP : 0;
-      const d = this.buildRectPath(layout.starts[i], layout.ends[i], overlapStart, overlapEnd);
+      const overlapStart = i > 0 ? NAV_GEOMETRY.PATH_OVERLAP : 0;
+      const overlapEnd = i < this.rectPaths.length - 1 ? NAV_GEOMETRY.PATH_OVERLAP : 0;
+      const d = buildRectPath(layout.starts[i], layout.ends[i], overlapStart, overlapEnd);
       if (this.lastRectD[i] !== d) {
         path.setAttribute("d", d);
         this.lastRectD[i] = d;
@@ -449,18 +318,22 @@ export class YnNavigation extends LitElement {
     });
 
     this.rectClipPaths.forEach((path, i) => {
-      const overlapStart = i > 0 ? this.PATH_OVERLAP : 0;
-      const overlapEnd = i < this.rectClipPaths.length - 1 ? this.PATH_OVERLAP : 0;
-      const d = this.lastRectD[i] ?? this.buildRectPath(layout.starts[i], layout.ends[i], overlapStart, overlapEnd);
+      const overlapStart = i > 0 ? NAV_GEOMETRY.PATH_OVERLAP : 0;
+      const overlapEnd = i < this.rectClipPaths.length - 1 ? NAV_GEOMETRY.PATH_OVERLAP : 0;
+      const d =
+        this.lastRectD[i] ?? buildRectPath(layout.starts[i], layout.ends[i], overlapStart, overlapEnd);
       if (path.getAttribute("d") !== d) {
         path.setAttribute("d", d);
       }
     });
 
     if (layout.totalWidth !== this.lastTotalWidth) {
-      this.svgRoot.setAttribute("viewBox", `0 0 ${layout.totalWidth} ${this.VIEWBOX_HEIGHT}`);
+      this.svgRoot.setAttribute(
+        "viewBox",
+        `0 0 ${layout.totalWidth} ${NAV_GEOMETRY.VIEWBOX_HEIGHT}`,
+      );
       this.navRoot.style.width = `${layout.totalWidth}px`;
-      this.navRoot.style.height = `${this.VIEWBOX_HEIGHT}px`;
+      this.navRoot.style.height = `${NAV_GEOMETRY.VIEWBOX_HEIGHT}px`;
       this.lastTotalWidth = layout.totalWidth;
     }
 
@@ -483,7 +356,11 @@ export class YnNavigation extends LitElement {
   private animateSeams = (timestamp: number) => {
     const elapsed = Math.min(1, (timestamp - this.seamStartAt) / this.seamDurationMs);
     const eased = 1 - Math.pow(1 - elapsed, 3);
-    this.seamProgress = this.seamProgress.map((_, i) => this.lerp(this.seamAnimStart[i], this.seamTarget[i], eased));
+    this.seamProgress = this.seamProgress.map((_, i) => {
+      const start = this.seamAnimStart[i] ?? 0;
+      const target = this.seamTarget[i] ?? 0;
+      return start + (target - start) * eased;
+    });
     this.applyShape();
 
     if (elapsed < 1) {
@@ -554,7 +431,7 @@ export class YnNavigation extends LitElement {
     if (!rect) return { x: 0, y: 0 };
     const width = this.currentLayout.totalWidth || rect.width || 1;
     const x = ((clientX - rect.left) / rect.width) * width;
-    const y = ((clientY - rect.top) / rect.height) * this.VIEWBOX_HEIGHT;
+    const y = ((clientY - rect.top) / rect.height) * NAV_GEOMETRY.VIEWBOX_HEIGHT;
     return { x, y };
   }
 
@@ -687,28 +564,46 @@ export class YnNavigation extends LitElement {
     this.getTabs()[nextIndex]?.focus();
   }
 
-  /** 渲染导航外壳、SVG 形状与 tab 列表。 */
+  /** 渲染导航外壳、SVG 形状与 tab 列表。首帧即输出完整路径，避免升级前空白。 */
   render() {
     const entries = this.getItemEntries();
     if (!entries.length) return html``;
 
     const activeIndex = this.getActiveIndex();
+    const labels = entries.map(([label]) => label);
+    const tabWidths =
+      this.baseWidths.length === entries.length
+        ? this.baseWidths
+        : labels.map((label) => estimateTabWidth(label));
+    const { layout, bridgeD, rectDs } = computeNavigationShape(
+      labels,
+      tabWidths,
+      this.seamProgress,
+    );
 
     const tabListRole = this.seoMode ? "list" : "tablist";
+    const { VIEWBOX_HEIGHT } = NAV_GEOMETRY;
 
     return html`
-      <nav class="nav" aria-label=${this.ariaLabel} @keydown=${this.onKeyDown} @pointerleave=${this.onPointerLeave}>
-        <svg class="shape" viewBox="0 0 429.09088134765625 36.80397415161133" data-meta-row-shape>
-          <path data-meta-row-shape-bridges d=""></path>
-          ${entries.map((_, index) => svg`<path data-meta-row-rect=${String(index)} d=""></path>`)}
+      <slot name="seo-fallback"></slot>
+      <nav
+        class="nav"
+        aria-label=${this.ariaLabel}
+        style="width:${layout.totalWidth}px;height:${VIEWBOX_HEIGHT}px"
+        @keydown=${this.onKeyDown}
+        @pointerleave=${this.onPointerLeave}
+      >
+        <svg class="shape" viewBox="0 0 ${layout.totalWidth} ${VIEWBOX_HEIGHT}" data-meta-row-shape>
+          <path data-meta-row-shape-bridges d=${bridgeD}></path>
+          ${entries.map((_, index) => svg`<path data-meta-row-rect=${String(index)} d=${rectDs[index] ?? ""}></path>`)}
           <defs>
             <radialGradient id="metaGlow" cx="50%" cy="50%" r="50%">
               <stop offset="20%" stop-color="var(--yn-navigation-glow-color, #e9e77847)"></stop>
               <stop offset="100%" stop-color="var(--yn-navigation-glow-fade, #e9e77800)"></stop>
             </radialGradient>
             <clipPath id="metaClip" clipPathUnits="userSpaceOnUse">
-              <path data-meta-row-shape-bridges-clip d=""></path>
-              ${entries.map((_, index) => svg`<path data-meta-row-rect-clip=${String(index)} d=""></path>`)}
+              <path data-meta-row-shape-bridges-clip d=${bridgeD}></path>
+              ${entries.map((_, index) => svg`<path data-meta-row-rect-clip=${String(index)} d=${rectDs[index] ?? ""}></path>`)}
             </clipPath>
           </defs>
           <g clip-path="url(#metaClip)">
@@ -727,6 +622,7 @@ export class YnNavigation extends LitElement {
                         href=${this.getSeoPath(href)}
                         aria-current=${index === activeIndex ? "page" : "false"}
                         tabindex="0"
+                        style="left:${layout.starts[index]}px;width:${layout.ends[index] - layout.starts[index]}px"
                         @pointerenter=${(event: PointerEvent) => this.onTabPointerEnter(index, event)}
                         @pointermove=${this.onTabPointerMove}
                       >
@@ -740,6 +636,7 @@ export class YnNavigation extends LitElement {
                         role="tab"
                         aria-selected=${index === activeIndex ? "true" : "false"}
                         tabindex=${index === this.focusedIndex ? "0" : "-1"}
+                        style="left:${layout.starts[index]}px;width:${layout.ends[index] - layout.starts[index]}px"
                         @click=${() => this.onTabClick(index)}
                         @pointerenter=${(event: PointerEvent) => this.onTabPointerEnter(index, event)}
                         @pointermove=${this.onTabPointerMove}

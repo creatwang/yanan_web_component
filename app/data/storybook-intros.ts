@@ -161,10 +161,10 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
     },
     {
       id: "seo",
-      title: { "zh-CN": "SEO 链接模式", en: "SEO link mode" },
+      title: { "zh-CN": "SEO / SSR 首屏", en: "SEO / SSR first paint" },
       description: {
-        "zh-CN": "seo-mode 渲染真实 `<a href>`，利于 SEO。",
-        en: "seo-mode renders real anchor links."
+        "zh-CN": "seo-mode 渲染 `<a href>`；Astro 侧配合 renderYnNavigationShadowHtml + items-json 首屏完整展示。",
+        en: "seo-mode anchors; use renderYnNavigationShadowHtml + items-json for DSD SSR."
       },
       storybookComponent: "YnNavigation",
       storybookStory: "Default",

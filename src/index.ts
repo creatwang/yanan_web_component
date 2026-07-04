@@ -2,6 +2,14 @@ export { YnButton } from "./components/yn-button/yn-button";
 export { YnInput } from "./components/yn-input/yn-input";
 export { YnIconConnectButton } from "./components/yn-icon-connect-button/yn-icon-connect-button";
 export { YnNavigation } from "./components/yn-navigation/yn-navigation";
+export {
+  renderYnNavigationShadowHtml,
+  renderYnNavigationSeoFallbackHtml,
+  YN_NAVIGATION_SEO_FALLBACK_CLASS,
+  YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES,
+  type YnNavigationShadowItem,
+  type YnNavigationShadowOptions,
+} from "./components/yn-navigation/yn-navigation-shadow";
 export { YnSearch } from "./components/yn-search/yn-search";
 export { YnGroupPick } from "./components/yn-group-pick/yn-group-pick";
 export { YnPick } from "./components/yn-pick/yn-pick";

@@ -145,10 +145,28 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     tag: "yn-navigation",
     className: "YnNavigation",
     importPath: "yn-web-component/components/yn-navigation",
-    description: "胶囊式导航，支持受控切换或 SEO 链接模式。",
-    usageCode: `<yn-navigation .items=\${items} active="HOME" @change=\${onChange}></yn-navigation>`,
+    description: "胶囊式导航，支持受控切换、SEO 链接模式、Astro DSD 首屏 SSR 与 light DOM seo-fallback 链接层。",
+    usageCode: `import {
+  renderYnNavigationShadowHtml,
+  YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES,
+} from "yn-web-component/ssr/yn-navigation"
+
+const shadowHtml = renderYnNavigationShadowHtml({
+  items: [{ label: "首页", href: "/zh/" }],
+  activeLabel: "首页",
+  seoMode: true,
+})
+
+<style is:global set:html={YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES}></style>
+<yn-navigation seo-mode items-json='{"首页":"/zh/"}' active="首页">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+  <nav slot="seo-fallback" class="yn-navigation-seo-fallback" aria-label="站点导航">
+    <ul><li><a href="/zh/" aria-current="page">首页</a></li></ul>
+  </nav>
+</yn-navigation>`,
     props: [
       { name: "items", type: "Record<string, string>", default: "内置 4 项", desc: "key=文案，value=路径" },
+      { name: "items-json", type: "string", default: "—", desc: "SSR JSON 预注入 items" },
       { name: "active", type: "string", default: '"PRODUTOS"', desc: "当前激活 key" },
       { name: "seo-mode", type: "boolean", default: "false", desc: "渲染 <a href>，不派发 change" },
       { name: "aria-label", type: "string", default: '"Primary navigation"', desc: "无障碍标签" },
@@ -157,12 +175,17 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     events: [
       { name: "change", detail: "{ key: string; node: Record<string, string> }", desc: "切换项（非 seo 模式）" }
     ],
-    slots: [],
+    slots: [{ name: "seo-fallback", desc: "light DOM SEO 链接层（nav > ul > a），建议视觉隐藏" }],
     cssVars: [
       { name: "--yn-navigation-fill-color", desc: "背景填充" },
       { name: "--yn-navigation-text-color", desc: "文本色" },
       { name: "--yn-navigation-indicator-color", desc: "激活圆点" },
       { name: "--yn-navigation-glow-color", desc: "发光中心色" }
+    ],
+    notes: [
+      "首屏 SSR：renderYnNavigationShadowHtml（DSD）+ light DOM slot=\"seo-fallback\" 真实链接。",
+      "SEO 层使用 yn-navigation-seo-fallback 视觉隐藏，链接仍在 light DOM。",
+      "items-json 与两层链接 href 需保持一致。"
     ]
   }),
 

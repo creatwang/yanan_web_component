@@ -27,7 +27,8 @@ export default defineConfig({
         "components/yn-pull-cord-switch": "src/components/yn-pull-cord-switch/yn-pull-cord-switch.ts",
         "components/yn-quantity": "src/components/yn-quantity/yn-quantity.ts",
         "components/yn-checkout-address": "src/components/yn-checkout-address/yn-checkout-address.ts",
-        "components/yn-sku-selector": "src/components/yn-sku-selector/yn-sku-selector.ts"
+        "components/yn-sku-selector": "src/components/yn-sku-selector/yn-sku-selector.ts",
+        "ssr/yn-navigation-shadow": "src/components/yn-navigation/yn-navigation-shadow.ts"
       },
       formats: ["es", "cjs"],
       fileName: (format, entryName) => {

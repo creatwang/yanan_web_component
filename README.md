@@ -353,14 +353,15 @@ import "yn-web-component/theme.css";
 **标签名**：`yn-navigation`  
 **类名**：`YnNavigation`  
 **导入**：`yn-web-component/components/yn-navigation`  
-**用途**：胶囊式导航栏，支持受控切换或 SEO 链接模式。
+**用途**：胶囊式导航栏，支持受控切换或 SEO 链接模式。SSR 场景推荐 **DSD 视觉层 + light DOM `seo-fallback` 链接层** 双层结构。
 
 #### 属性
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
 | `items` | `Record<string, string>` | 内置 4 项 | `key` 为展示文案，`value` 为路径或上下文标识 |
-| `active` | `string` | `"PRODUTOS"` | 当前激活项的 key；`seo-mode=true` 时由 URL 自动匹配 |
+| `items-json` | `string` | — | SSR 用 JSON 字符串预注入 `items`（见下方 DSD 示例） |
+| `active` | `string` | `"PRODUTOS"` | 当前激活项的 key；`seo-mode=true` 时 SSR 初始高亮 + 运行时 URL 匹配 |
 | `seo-mode` | `boolean` | `false` | `true` 时渲染 `<a href>` 链接，不派发 `change` |
 | `aria-label` | `string` | `"Primary navigation"` | 无障碍标签 |
 | `hit-slop` | `boolean` | `false` | 是否扩大可点击热区 |
@@ -373,7 +374,9 @@ import "yn-web-component/theme.css";
 
 #### 插槽
 
-无。
+| 插槽 | 说明 |
+| --- | --- |
+| `seo-fallback` | light DOM SEO 链接层（`<nav slot="seo-fallback">` → `ul` → `a href`）。建议配合 `YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES` 视觉隐藏，链接仍留在 HTML 源码中供爬虫抓取。 |
 
 #### CSS 变量
 
@@ -404,6 +407,52 @@ import "yn-web-component/theme.css";
   aria-label="Primary navigation"
 ></yn-navigation>
 ```
+
+#### Astro / SSR 首屏（Declarative Shadow DOM + SEO 链接层）
+
+服务端用 **`renderYnNavigationShadowHtml`** 生成与组件一致的 Shadow 内容，浏览器在 `define.js` 加载前即可显示完整导航。同时在 light DOM 保留 **`slot="seo-fallback"`** 真实链接，供不解析 Shadow DOM 的爬虫使用。
+
+**SSR 辅助 API**（`yn-web-component/ssr/yn-navigation`）：
+
+| 导出 | 说明 |
+| --- | --- |
+| `renderYnNavigationShadowHtml(options)` | 生成 DSD Shadow 内容（含 `<slot name="seo-fallback">`） |
+| `renderYnNavigationSeoFallbackHtml(options)` | 生成带 `slot="seo-fallback"` 的 `<nav>` 链接 HTML（可选，也可手写 Astro 模板） |
+| `YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES` | light DOM 视觉隐藏样式，写入页面 `<style>` |
+| `YN_NAVIGATION_SEO_FALLBACK_CLASS` | 隐藏层 class 名（`yn-navigation-seo-fallback`） |
+
+```astro
+---
+import {
+  renderYnNavigationShadowHtml,
+  YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES,
+} from "yn-web-component/ssr/yn-navigation"
+
+const items = [
+  { label: "首页", href: "/zh/" },
+  { label: "系列", href: "/zh/collections" },
+]
+const itemsJson = JSON.stringify(Object.fromEntries(items.map(({ label, href }) => [label, href])))
+const shadowHtml = renderYnNavigationShadowHtml({
+  items,
+  activeLabel: "首页",
+  seoMode: true,
+})
+---
+<style is:global set:html={YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES}></style>
+
+<yn-navigation seo-mode items-json={itemsJson} active="首页">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+  <nav slot="seo-fallback" class="yn-navigation-seo-fallback" aria-label="站点导航">
+    <ul>
+      <li><a href="/zh/" aria-current="page">首页</a></li>
+      <li><a href="/zh/collections">系列</a></li>
+    </ul>
+  </nav>
+</yn-navigation>
+```
+
+> **双层分工**：DSD / Shadow 负责首屏视觉与交互；`seo-fallback` 在 light DOM 保留真实 `<a href>`。`items-json` 与两层链接的 `href` 需保持一致。
 
 ---
 
@@ -1252,6 +1301,7 @@ import "yn-web-component/theme.css";
 | yn-button | `yn-web-component/components/yn-button` |
 | yn-input | `yn-web-component/components/yn-input` |
 | yn-navigation | `yn-web-component/components/yn-navigation` |
+| yn-navigation SSR | `yn-web-component/ssr/yn-navigation`（`renderYnNavigationShadowHtml`、`renderYnNavigationSeoFallbackHtml`、`YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES`） |
 | yn-search | `yn-web-component/components/yn-search` |
 | yn-group-pick | `yn-web-component/components/yn-group-pick` |
 | yn-pick | `yn-web-component/components/yn-pick` |
@@ -1271,6 +1321,7 @@ import "yn-web-component/theme.css";
 | --- | --- |
 | `yn-web-component` | 主入口，导出所有组件类与类型 |
 | `yn-web-component/define` | 全量注册所有自定义元素 |
+| `yn-web-component/ssr/yn-navigation` | Astro DSD 首屏导航 + light DOM SEO 链接层辅助 API |
 | `yn-web-component/theme.css` | 全局主题样式 |
 | `yn-web-component/asset/svg` | SVG 资源 |
 
