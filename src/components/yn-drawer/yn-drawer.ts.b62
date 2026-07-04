@@ -1,10 +1,6 @@
-﻿import { LitElement, css, html, unsafeCSS } from "lit";
+﻿import { LitElement, css, html } from "lit";
 import type { PropertyValues } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { ynClose20Svg } from "../../asset/svg";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
-import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
+import { customElement, property, query } from "lit/decorators.js";
 
 export type YnDrawerOpenChangeDetail = {
   open: boolean;
@@ -51,7 +47,6 @@ export class YnDrawer extends LitElement {
     this._open = normalized;
     this.pendingTransitionMeta = nextMeta;
     this.requestUpdate("open", oldValue);
-    this.flushOpenTransition();
   }
 
   @property({ type: Number })
@@ -63,34 +58,13 @@ export class YnDrawer extends LitElement {
   @property({ type: Boolean, attribute: "close-on-backdrop" })
   closeOnBackdrop = true;
 
-  /** `auto`锛氱獎灞忓簳閮ㄥ脊鍑猴紝瀹藉睆鍙充晶婊戝叆锛沗bottom` / `right` 鍙己鍒舵寚瀹氭柟鍚?*/
-  @property({ type: String, reflect: true })
-  placement: "auto" | "right" | "bottom" = "auto";
+  @query("#drawerPopover")
+  private popoverEl!: HTMLElement;
 
-  /**
-   * 搴曢儴寮瑰嚭鏃堕潰鏉块珮搴︺€傞粯璁?`90vh`锛涜涓?`auto` 鏃堕珮搴﹂殢鍐呭锛屽叧闂€佷粛鐢?`translateY(100%)` 鏁存婊戝叆/婊戝嚭銆?   * 涔熷彲浼犱换鎰?CSS 闀垮害锛堝 `60vh`銆乣420px`锛夛紝浼氬悓姝ュ埌 `--yn-drawer-sheet-height`銆?   */
-  @property({ type: String, attribute: "sheet-height", reflect: true })
-  sheetHeight = "90vh";
-
-  private getPopoverEl() {
-    return this.shadowRoot?.querySelector("#drawerPopover") as HTMLElement | null;
-  }
-
-  private getTriggerSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-  }
-
-  private getFooterSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="footer"]') as HTMLSlotElement | null;
-  }
-
-  private getBackdropExtraSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="backdrop-extra"]') as HTMLSlotElement | null;
-  }
+  @query('slot[name="trigger"]')
+  private triggerSlotEl!: HTMLSlotElement;
 
   private _open = false;
-  private footerEmpty = true;
-  private backdropExtraEmpty = true;
   private closeTimer = 0;
   private openTimer = 0;
   private pendingActionMeta:
@@ -111,13 +85,187 @@ export class YnDrawer extends LitElement {
     | undefined;
 
   static styles = css`
-    ${unsafeCSS(YN_DRAWER_SHADOW_STYLES)}
+    :host {
+      --yn-drawer-z-index: 1500;
+      --yn-drawer-width: 420px;
+      --yn-drawer-bg: #ffffff;
+      --yn-drawer-shadow: -12px 0 36px rgba(36, 31, 33, 0.18);
+      --yn-drawer-backdrop: rgba(12, 10, 11, 0.36);
+      --yn-drawer-header-border: rgba(36, 31, 33, 0.08);
+      --yn-drawer-footer-border: rgba(36, 31, 33, 0.08);
+      --yn-drawer-title-color: #241f21;
+      --yn-drawer-close-color: #241f21;
+      --yn-drawer-close-hover-bg: rgba(36, 31, 33, 0.08);
+      --yn-drawer-content-color: #241f21;
+      --yn-drawer-footer-bg: #ffffff;
+      --yn-drawer-open-duration: 620ms;
+      --yn-drawer-close-duration: 500ms;
+      --yn-drawer-open-ease: cubic-bezier(0.22, 0.01, 0.35, 1);
+      --yn-drawer-close-ease: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+      display: block;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .trigger-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .trigger-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 16px;
+      background: #241f21;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .drawer-popover {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      width: 100vw;
+      max-width: 100vw;
+      height: 100vh;
+      max-height: 100vh;
+      inset: 0;
+      overflow: hidden;
+      z-index: var(--yn-drawer-z-index);
+    }
+
+    .drawer-popover::backdrop {
+      background: transparent;
+    }
+
+    .drawer-surface {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: flex-end;
+      pointer-events: none;
+    }
+
+    .backdrop {
+      position: absolute;
+      inset: 0;
+      background: var(--yn-drawer-backdrop);
+      opacity: 0;
+      transition: opacity var(--yn-drawer-open-duration) var(--yn-drawer-open-ease);
+      pointer-events: none;
+    }
+
+    .panel {
+      position: relative;
+      width: min(100vw, var(--yn-drawer-width));
+      max-width: 100vw;
+      height: 100vh;
+      background: var(--yn-drawer-bg);
+      box-shadow: var(--yn-drawer-shadow);
+      color: var(--yn-drawer-content-color);
+      transform: translateX(100%);
+      opacity: 0;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      transition:
+        transform var(--yn-drawer-open-duration) var(--yn-drawer-open-ease),
+        opacity var(--yn-drawer-open-duration) var(--yn-drawer-open-ease);
+      will-change: transform, opacity;
+    }
+
+    .drawer-popover.visible .backdrop {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .drawer-popover.visible .panel {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .drawer-popover.closing .backdrop {
+      transition-duration: var(--yn-drawer-close-duration);
+      transition-timing-function: var(--yn-drawer-close-ease);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .drawer-popover.closing .panel {
+      transition-duration: var(--yn-drawer-close-duration);
+      transition-timing-function: var(--yn-drawer-close-ease);
+      transform: translateX(100%);
+      opacity: 0;
+    }
+
+    .header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 12px 0 16px;
+      border-bottom: 1px solid var(--yn-drawer-header-border);
+      flex-shrink: 0;
+    }
+
+    .header-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .title {
+      margin: 0;
+      color: var(--yn-drawer-title-color);
+      font-size: 18px;
+      line-height: 1.3;
+      font-weight: 600;
+    }
+
+    .close-btn {
+      border: 0;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      color: var(--yn-drawer-close-color);
+      cursor: pointer;
+      transition: background-color 160ms ease;
+    }
+
+    .close-btn:hover {
+      background: var(--yn-drawer-close-hover-bg);
+    }
+
+    .body {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      padding: 16px;
+    }
+
+    .footer {
+      border-top: 1px solid var(--yn-drawer-footer-border);
+      background: var(--yn-drawer-footer-bg);
+      padding: 12px 16px;
+      flex-shrink: 0;
+    }
   `;
 
- connectedCallback() {
+  connectedCallback() {
     super.connectedCallback();
     this.handleEscape = this.handleEscape.bind(this);
-    this.syncSheetHeight();
   }
 
   disconnectedCallback() {
@@ -132,81 +280,23 @@ export class YnDrawer extends LitElement {
     super.disconnectedCallback();
   }
 
-  private bindTriggerSlotClicks() {
-    const slot = this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-    if (!slot) return;
-    const bind = () => {
-      slot.assignedElements({ flatten: true }).forEach((el) => {
-        if (el instanceof HTMLElement && el.dataset.ynDrawerTriggerBound !== "1") {
-          el.dataset.ynDrawerTriggerBound = "1";
-          el.addEventListener("click", (event) => {
-            event.stopPropagation();
-            this.handleTriggerClick();
-          });
-        }
-      });
-    };
-    bind();
-    slot.addEventListener("slotchange", bind);
-  }
-
   protected firstUpdated() {
-    this.syncFooterEmptyState();
-    this.syncBackdropExtraEmptyState();
-    this.syncPopoverState(true);
-    this.bindTriggerSlotClicks();
-  }
-
-  bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, "#drawerPopover");
-    ensureRenderRoot(this);
-    const triggerSlot = root.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-    const hasSlottedTrigger = (triggerSlot?.assignedElements({ flatten: true }).length ?? 0) > 0;
-    if (!hasSlottedTrigger) {
-      root.querySelector(".trigger-wrap")?.addEventListener("click", this.handleTriggerClick);
-    }
-    this.bindTriggerSlotClicks();
-    queueMicrotask(() => this.bindTriggerSlotClicks());
-    root.querySelector(".close-btn")?.addEventListener("click", this.handleCloseClick);
-    root.querySelector(".backdrop")?.addEventListener("click", this.handleBackdropClick);
-    root.querySelector("#drawerPopover")?.addEventListener("keydown", this.handleEscape as EventListener);
-    root.querySelector('slot[name="footer"]')?.addEventListener("slotchange", this.handleFooterSlotChange);
-    root.querySelector('slot[name="backdrop-extra"]')?.addEventListener("slotchange", this.handleBackdropExtraSlotChange);
-    this.syncFooterEmptyState();
-    this.syncBackdropExtraEmptyState();
     this.syncPopoverState(true);
   }
-
 
   protected updated(changed: PropertyValues) {
     if (changed.has("width")) {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
     }
-    if (changed.has("sheetHeight")) {
-      this.syncSheetHeight();
-    }
     if (changed.has("open")) {
+      const transitionMeta = this.pendingTransitionMeta ?? {
+        nextOpen: this.open,
+        source: "property" as const
+      };
       this.pendingTransitionMeta = undefined;
+      this.syncPopoverState(false, transitionMeta);
+      this.emitOpenChange(transitionMeta);
     }
-  }
-
-  private flushOpenTransition() {
-    const transitionMeta = this.pendingTransitionMeta;
-    if (!transitionMeta) return;
-    this.pendingTransitionMeta = undefined;
-    this.syncPopoverState(false, transitionMeta);
-    this.emitOpenChange(transitionMeta);
-  }
-
-  private syncSheetHeight() {
-    const value = (this.sheetHeight || "90vh").trim();
-    if (value.toLowerCase() === "auto") {
-      this.style.removeProperty("--yn-drawer-sheet-height");
-      return;
-    }
-    this.style.setProperty("--yn-drawer-sheet-height", value);
   }
 
   private emitOpenChange(meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }) {
@@ -270,8 +360,7 @@ export class YnDrawer extends LitElement {
       triggerPayload?: unknown;
     } = { source: "property" }
   ) {
-    const popoverEl = this.getPopoverEl();
-    if (!popoverEl) return;
+    if (!this.popoverEl) return;
     if (this.closeTimer) {
       window.clearTimeout(this.closeTimer);
       this.closeTimer = 0;
@@ -291,17 +380,15 @@ export class YnDrawer extends LitElement {
   }
 
   private showDrawerPopover(meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }) {
-    const popoverEl = this.getPopoverEl();
-    if (!popoverEl) return;
-    if (!popoverEl.matches(":popover-open")) {
-      popoverEl.showPopover();
+    if (!this.popoverEl.matches(":popover-open")) {
+      this.popoverEl.showPopover();
     }
-    popoverEl.classList.remove("closing");
-    popoverEl.classList.remove("visible");
+    this.popoverEl.classList.remove("closing");
+    this.popoverEl.classList.remove("visible");
     requestAnimationFrame(() => {
-      popoverEl.classList.add("visible");
+      this.popoverEl.classList.add("visible");
     });
-    const openDuration = this.getMotionDuration("--yn-drawer-open-duration", 380);
+    const openDuration = this.getMotionDuration("--yn-drawer-open-duration", 620);
     this.openTimer = window.setTimeout(() => {
       this.emitLifecycleEvent("after-open", meta);
       this.openTimer = 0;
@@ -312,21 +399,20 @@ export class YnDrawer extends LitElement {
     immediate: boolean,
     meta: { source: YnDrawerLifecycleSource; payload?: unknown; triggerPayload?: unknown }
   ) {
-    const popoverEl = this.getPopoverEl();
-    if (!popoverEl || !popoverEl.matches(":popover-open")) return;
+    if (!this.popoverEl.matches(":popover-open")) return;
     if (immediate) {
-      popoverEl.classList.remove("visible");
-      popoverEl.classList.remove("closing");
-      popoverEl.hidePopover();
+      this.popoverEl.classList.remove("visible");
+      this.popoverEl.classList.remove("closing");
+      this.popoverEl.hidePopover();
       this.emitLifecycleEvent("after-close", meta);
       return;
     }
-    popoverEl.classList.remove("visible");
-    popoverEl.classList.add("closing");
-    const closeDuration = this.getMotionDuration("--yn-drawer-close-duration", 320);
+    this.popoverEl.classList.remove("visible");
+    this.popoverEl.classList.add("closing");
+    const closeDuration = this.getMotionDuration("--yn-drawer-close-duration", 500);
     this.closeTimer = window.setTimeout(() => {
-      popoverEl.hidePopover();
-      popoverEl.classList.remove("closing");
+      this.popoverEl.hidePopover();
+      this.popoverEl.classList.remove("closing");
       this.emitLifecycleEvent("after-close", meta);
       this.closeTimer = 0;
     }, closeDuration);
@@ -341,7 +427,7 @@ export class YnDrawer extends LitElement {
   }
 
   private getTriggerPayload() {
-    const triggerEl = this.getTriggerSlotEl()?.assignedElements({ flatten: true })[0] as
+    const triggerEl = this.triggerSlotEl?.assignedElements({ flatten: true })[0] as
       | (HTMLElement & { drawerLifecyclePayload?: unknown })
       | undefined;
     if (!triggerEl) return undefined;
@@ -394,36 +480,6 @@ export class YnDrawer extends LitElement {
     this.setOpenWithMeta(false, { source: "escape" });
   }
 
-  private slotHasMeaningfulContent(slotEl: HTMLSlotElement | undefined) {
-    if (!slotEl) return false;
-    const nodes = slotEl.assignedNodes({ flatten: true });
-    return nodes.some((node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return Boolean(node.textContent?.trim());
-      }
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        return true;
-      }
-      return false;
-    });
-  }
-
-  private syncFooterEmptyState() {
-    this.footerEmpty = !this.slotHasMeaningfulContent(this.getFooterSlotEl() ?? undefined);
-  }
-
-  private syncBackdropExtraEmptyState() {
-    this.backdropExtraEmpty = !this.slotHasMeaningfulContent(this.getBackdropExtraSlotEl() ?? undefined);
-  }
-
-  private handleFooterSlotChange = () => {
-    this.syncFooterEmptyState();
-  };
-
-  private handleBackdropExtraSlotChange = () => {
-    this.syncBackdropExtraEmptyState();
-  };
-
   render() {
     return html`
       <span class="trigger-wrap" @click=${this.handleTriggerClick}>
@@ -434,12 +490,6 @@ export class YnDrawer extends LitElement {
       <div id="drawerPopover" class="drawer-popover" popover="manual" @keydown=${this.handleEscape}>
         <div class="drawer-surface">
           <div class="backdrop" @click=${this.handleBackdropClick}></div>
-          <div
-            class="backdrop-extra ${this.backdropExtraEmpty ? "backdrop-extra--empty" : ""}"
-            @click=${(event: Event) => event.stopPropagation()}
-          >
-            <slot name="backdrop-extra" @slotchange=${this.handleBackdropExtraSlotChange}></slot>
-          </div>
           <aside class="panel" role="dialog" aria-modal="true" aria-label=${this.title || "Drawer"} @click=${(event: Event) => event.stopPropagation()}>
             <header class="header">
               <div class="header-main">
@@ -447,18 +497,22 @@ export class YnDrawer extends LitElement {
                   <h2 class="title">${this.title}</h2>
                 </slot>
               </div>
-              <div class="header-actions">
-                <slot name="header-actions"></slot>
-              </div>
               <button class="close-btn" type="button" aria-label="Close drawer" @click=${this.handleCloseClick}>
-                ${unsafeSVG(ynClose20Svg)}
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M5.53033 4.46967C5.23744 4.17678 4.76256 4.17678 4.46967 4.46967C4.17678 4.76256 4.17678 5.23744 4.46967 5.53033L8.05741 9.11807C8.54556 9.60623 8.54556 10.3977 8.05741 10.8858L4.47068 14.4726C4.17779 14.7655 4.17779 15.2403 4.47068 15.5332C4.76357 15.8261 5.23845 15.8261 5.53134 15.5332L9.11807 11.9465C9.60623 11.4583 10.3977 11.4583 10.8858 11.9465L14.4726 15.5332C14.7655 15.8261 15.2403 15.8261 15.5332 15.5332C15.8261 15.2403 15.8261 14.7655 15.5332 14.4726L11.9465 10.8858C11.4583 10.3977 11.4583 9.60623 11.9465 9.11807L15.5342 5.53033C15.8271 5.23744 15.8271 4.76256 15.5342 4.46967C15.2413 4.17678 14.7665 4.17678 14.4736 4.46967L10.8858 8.05741C10.3977 8.54556 9.60623 8.54557 9.11807 8.05741L5.53033 4.46967Z"
+                    fill="currentColor"
+                  />
+                </svg>
               </button>
             </header>
             <div class="body">
               <slot name="content"></slot>
             </div>
-            <footer class="footer ${this.footerEmpty ? "footer--empty" : ""}">
-              <slot name="footer" @slotchange=${this.handleFooterSlotChange}></slot>
+            <footer class="footer">
+              <slot name="footer"></slot>
             </footer>
           </aside>
         </div>
@@ -472,5 +526,3 @@ declare global {
     "yn-drawer": YnDrawer;
   }
 }
-
-applyLitDsd(YnDrawer, "#drawerPopover", (el) => el.bootstrapFromDeclarativeShadow());
