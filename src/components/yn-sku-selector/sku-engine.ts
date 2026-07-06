@@ -14,6 +14,9 @@ export type YnSkuGroupSpec = {
 
 export const toComparable = (value: YnSkuSpecValue) => String(value);
 
+/** 是否允许加购；未传 purchasable 时视为可售（向后兼容） */
+export const isSkuPurchasable = (item: YnSkuItem): boolean => item.purchasable !== false;
+
 export const getSpecKeys = (
   items: YnSkuItem[],
   options?: YnSkuSpecKeyResolverOptions
@@ -43,12 +46,18 @@ export const buildGroupHas = (items: YnSkuItem[], keys: string[], curs: string[]
     const key = keys[depth];
     const values = [...new Set(items.map((row) => row[key]).filter((value) => value !== undefined))] as YnSkuSpecValue[];
     return values.filter((target) =>
-      items.some((row) =>
-        curs.every((cur, depthIndex) => {
-          const rowKey = keys[depthIndex];
-          return depth === depthIndex || !cur || (toComparable(row[rowKey]!) === cur && toComparable(row[key]!) === toComparable(target));
-        })
-      )
+      items.some(
+        (row) =>
+          isSkuPurchasable(row) &&
+          curs.every((cur, depthIndex) => {
+            const rowKey = keys[depthIndex];
+            return (
+              depth === depthIndex ||
+              !cur ||
+              (toComparable(row[rowKey]!) === cur && toComparable(row[key]!) === toComparable(target))
+            );
+          }),
+      ),
     );
   });
 

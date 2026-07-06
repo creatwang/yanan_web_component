@@ -12,6 +12,7 @@ import {
   findMatchedSku,
   getMissingKeys,
   getSpecKeys,
+  isSkuPurchasable,
   toComparable
 } from "./sku-engine";
 import type {
@@ -120,6 +121,24 @@ export class YnSkuSelector extends LitElement {
 
   @property({ type: String, attribute: "incomplete-hint" })
   incompleteHint = "请选择 {label}";
+
+  @property({ type: String, attribute: "sold-out-hint" })
+  soldOutHint = "暂无库存";
+
+  @property({ type: String, attribute: "no-price-hint" })
+  noPriceHint = "暂无价格";
+
+  @property({ type: Boolean, attribute: "show-stock" })
+  showStock = false;
+
+  @property({ type: String, attribute: "stock-label" })
+  stockLabel = "库存";
+
+  @property({ type: String, attribute: "stock-unlimited-label" })
+  stockUnlimitedLabel = "现货";
+
+  @property({ type: String, attribute: "stock-backorder-label" })
+  stockBackorderLabel = "可预订";
 
   @property({
     attribute: "labels",
@@ -308,6 +327,22 @@ export class YnSkuSelector extends LitElement {
       margin-top: var(--yn-sku-selector-submit-margin-top, 24px);
     }
 
+    .stock {
+      margin: 0 0 var(--yn-sku-selector-stock-margin, 12px);
+      font-size: var(--yn-sku-selector-stock-font-size, 13px);
+      line-height: 1.4;
+      color: var(--yn-sku-selector-stock-color, currentColor);
+      word-break: break-word;
+    }
+
+    .stock.is-empty {
+      color: var(--yn-sku-selector-stock-empty-color, #c0392b);
+    }
+
+    .stock.is-backorder {
+      color: var(--yn-sku-selector-stock-backorder-color, var(--yn-sku-selector-stock-color, currentColor));
+    }
+
   `;
 
   connectedCallback() {
@@ -414,7 +449,7 @@ export class YnSkuSelector extends LitElement {
     return {
       selections,
       sku,
-      ready: missingKeys.length === 0 && sku != null,
+      ready: missingKeys.length === 0 && sku != null && isSkuPurchasable(sku),
       missingKeys
     };
   }
@@ -491,11 +526,26 @@ export class YnSkuSelector extends LitElement {
   private trySubmit(snapshot = this.getSnapshot()) {
     if (this.submitting || this.disabled) return;
     if (!snapshot.ready || !snapshot.sku) {
-      this.hint = this.formatHint(snapshot.missingKeys);
+      if (
+        snapshot.missingKeys.length === 0 &&
+        snapshot.sku &&
+        !isSkuPurchasable(snapshot.sku)
+      ) {
+        this.hint = this.resolveUnpurchasableHint(snapshot.sku);
+      } else {
+        this.hint = this.formatHint(snapshot.missingKeys);
+      }
       return;
     }
     this.hint = "";
     this.emitSubmit(snapshot.sku, snapshot.selections);
+  }
+
+  private resolveUnpurchasableHint(sku: YnSkuItem) {
+    if (sku.price == null || Number(sku.price) <= 0) {
+      return this.noPriceHint;
+    }
+    return this.soldOutHint;
   }
 
   private handleOptionClick(depth: number, value: YnSkuSpecValue) {
@@ -527,6 +577,32 @@ export class YnSkuSelector extends LitElement {
   private formatPriceText(price: number | undefined) {
     if (price == null || Number.isNaN(price)) return "—";
     return this.formatDisplayPrice(price);
+  }
+
+  private formatStockText(sku: YnSkuItem | null | undefined) {
+    if (!sku) return "—";
+
+    const manageInventory = sku.manageInventory !== false;
+    if (!manageInventory) return this.stockUnlimitedLabel;
+
+    const stock = sku.stock;
+    if (stock == null || Number.isNaN(stock)) return "—";
+
+    const qty = Math.max(0, Math.floor(Number(stock)));
+    if (qty <= 0 && sku.allowBackorder) {
+      return `${qty}（${this.stockBackorderLabel}）`;
+    }
+    return String(qty);
+  }
+
+  private getStockClass(sku: YnSkuItem | null | undefined) {
+    if (!sku || sku.manageInventory === false) return "";
+    const stock = sku.stock;
+    if (stock == null || Number.isNaN(stock)) return "";
+    const qty = Math.max(0, Math.floor(Number(stock)));
+    if (qty <= 0 && sku.allowBackorder) return "is-backorder";
+    if (qty <= 0) return "is-empty";
+    return "";
   }
 
   private handleSubmitClick() {
@@ -597,6 +673,16 @@ export class YnSkuSelector extends LitElement {
       ${!this.simple
         ? html`
             <div class="submit-wrap">
+              ${this.showStock
+                ? html`
+                    <p
+                      class="stock ${this.getStockClass(snapshot.sku)}"
+                      aria-live="polite"
+                    >
+                      ${this.stockLabel}：${this.formatStockText(snapshot.sku)}
+                    </p>
+                  `
+                : nothing}
               ${this.hint ? html`<p class="hint" role="alert">${this.hint}</p>` : html`<p class="hint" aria-hidden="true"></p>`}
               <yn-sku-cart-button
                 .label=${this.submitLabel}

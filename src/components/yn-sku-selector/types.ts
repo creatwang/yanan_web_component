@@ -6,8 +6,11 @@ export type YnSkuItem = {
   price?: number;
   id?: string | number;
   stock?: number;
-  [specKey: string]: YnSkuSpecValue | undefined;
-};
+  manageInventory?: boolean;
+  allowBackorder?: boolean;
+  /** false 时不可加购（缺价/缺货），仍展示规格 */
+  purchasable?: boolean;
+} & Partial<Record<string, YnSkuSpecValue>>;
 
 export type YnSkuSelection = Record<string, YnSkuSpecValue>;
 
@@ -50,4 +53,12 @@ export interface YnSkuSubmitEvent extends CustomEvent<YnSkuSubmitDetail> {
   instance: YnSkuSubmitInstance;
 }
 
-export const YN_SKU_META_KEYS = new Set(["price", "id", "stock", "skuId"]);
+export const YN_SKU_META_KEYS = new Set([
+  "price",
+  "id",
+  "stock",
+  "skuId",
+  "purchasable",
+  "manageInventory",
+  "allowBackorder"
+]);
