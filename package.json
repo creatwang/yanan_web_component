@@ -85,6 +85,11 @@
       "import": "./dist/components/yn-toast.js",
       "require": "./dist/components/yn-toast.cjs"
     },
+    "./components/yn-cookie-notice": {
+      "types": "./dist/types/components/yn-cookie-notice/yn-cookie-notice.d.ts",
+      "import": "./dist/components/yn-cookie-notice.js",
+      "require": "./dist/components/yn-cookie-notice.cjs"
+    },
     "./components/yn-icon-connect-button": {
       "types": "./dist/types/components/yn-icon-connect-button.d.ts",
       "import": "./dist/components/yn-icon-connect-button.js",

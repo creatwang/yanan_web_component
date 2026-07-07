@@ -150,6 +150,24 @@ describe("yn-search", () => {
     expect(cart.getBoundingClientRect().left).to.be.closeTo(cartLeftBefore, 1);
   });
 
+  it("clears visible input on first close click when value state is out of sync", async () => {
+    const el = await fixture<YnSearch>(html`<yn-search input-width="200" open></yn-search>`);
+    await el.updateComplete;
+
+    const input = el.shadowRoot?.querySelector<HTMLInputElement>("#searchInput");
+    const toggle = el.shadowRoot?.querySelector<HTMLButtonElement>("#toggleBtn");
+    if (!input || !toggle) throw new Error("missing search controls");
+
+    input.value = "Chair";
+    expect(el.value).to.equal("");
+
+    toggle.click();
+    await el.updateComplete;
+
+    expect(input.value).to.equal("");
+    expect(el.open).to.equal(true);
+  });
+
   it("grows shell width with animation and finishes expanded", async () => {
     const container = await fixture(html`
       <div style="display:flex;align-items:center;gap:12px">

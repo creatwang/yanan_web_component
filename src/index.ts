@@ -17,6 +17,7 @@ export { YnDropdown } from "./components/yn-dropdown/yn-dropdown";
 export { YnDropdownPick } from "./components/yn-dropdown-pick/yn-dropdown-pick";
 export { YnDrawer } from "./components/yn-drawer/yn-drawer";
 export { YnToast } from "./components/yn-toast/yn-toast";
+export { YnCookieNotice } from "./components/yn-cookie-notice/yn-cookie-notice";
 export { YnPullCordSwitch } from "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 export { YnQuantity } from "./components/yn-quantity/yn-quantity";
 export { YnCheckoutAddress } from "./components/yn-checkout-address/yn-checkout-address";
@@ -82,4 +83,10 @@ export type {
   YnToastTask,
   YnToastType
 } from "./components/yn-toast/yn-toast";
+export type {
+  YnCookieNoticeCategory,
+  YnCookieNoticePreferenceChangeDetail,
+  YnCookieNoticePreferences,
+  YnCookieNoticePreferenceSource
+} from "./components/yn-cookie-notice/yn-cookie-notice";
 export * from "./asset/svg";

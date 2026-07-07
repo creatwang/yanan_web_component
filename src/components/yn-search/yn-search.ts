@@ -162,6 +162,17 @@ export class YnSearch extends LitElement {
     this.syncDatalistFromSlot();
   }
 
+  /** 读取输入框当前文本（优先 DOM，避免 DSD 场景 state 未同步）。 */
+  private getFieldValue() {
+    return this.inputEl?.value ?? this.value;
+  }
+
+  /** 同步组件值与输入框 DOM。 */
+  private setFieldValue(next: string) {
+    this.value = next;
+    if (this.inputEl) this.inputEl.value = next;
+  }
+
   bootstrapFromDeclarativeShadow() {
     const root = this.shadowRoot;
     if (!root) return;
@@ -170,11 +181,23 @@ export class YnSearch extends LitElement {
     this.ensureDsdRefs();
     root.querySelector("#bridge")?.setAttribute("d", "");
     root.querySelector("#rect1")?.setAttribute("d", "");
+    const toggleBtn = root.querySelector("#toggleBtn");
     const inputEl = root.querySelector<HTMLInputElement>("#searchInput");
-    if (this.value && inputEl) inputEl.value = this.value;
+    if (toggleBtn) toggleBtn.replaceWith(toggleBtn.cloneNode(true));
+    if (inputEl) inputEl.replaceWith(inputEl.cloneNode(true));
+    this.shellEl = root.querySelector("#searchShell") as HTMLDivElement;
+    this.dynamicWrapEl = root.querySelector("#dynamicWrap") as HTMLDivElement;
+    this.shapeEl = root.querySelector("#shape") as SVGSVGElement;
+    this.leftShapeEl = root.querySelector("#leftShape") as SVGSVGElement;
+    this.bridgeEl = root.querySelector("#bridge") as SVGPathElement;
+    this.rect1El = root.querySelector("#rect1") as SVGPathElement;
+    this.inputEl = root.querySelector("#searchInput") as HTMLInputElement;
+    this.datalistSlotEl = root.querySelector("#datalistSlot") as HTMLSlotElement;
+    this.internalDatalistEl = root.querySelector("#internalDatalist") as HTMLDataListElement;
+    if (this.value && this.inputEl) this.inputEl.value = this.value;
     root.querySelector("#toggleBtn")?.addEventListener("click", this.onToggle);
-    inputEl?.addEventListener("input", this.onInput);
-    inputEl?.addEventListener("keydown", this.onInputKeydown);
+    this.inputEl?.addEventListener("input", this.onInput);
+    this.inputEl?.addEventListener("keydown", this.onInputKeydown);
     root.querySelector("#datalistSlot")?.addEventListener("slotchange", this.onDatalistSlotChange);
     this.syncDatalistFromSlot();
     if (this.open) {
@@ -528,7 +551,7 @@ export class YnSearch extends LitElement {
 
   /** 处理输入并同步组件值。 */
   private onInput(event: Event) {
-    this.value = (event.target as HTMLInputElement).value;
+    this.setFieldValue((event.target as HTMLInputElement).value);
     this.dispatchInputEvent();
   }
 
@@ -574,9 +597,8 @@ export class YnSearch extends LitElement {
     }
 
     if (this.close) {
-      if (this.value) {
-        this.value = "";
-        if (this.inputEl) this.inputEl.value = "";
+      if (this.getFieldValue()) {
+        this.setFieldValue("");
         this.dispatchInputEvent();
         this.inputEl?.focus();
         return;
@@ -594,9 +616,8 @@ export class YnSearch extends LitElement {
       return;
     }
 
-    if (this.value) {
-      this.value = "";
-      if (this.inputEl) this.inputEl.value = "";
+    if (this.getFieldValue()) {
+      this.setFieldValue("");
       this.dispatchInputEvent();
     }
     if (this.ensureDsdRefs()) {

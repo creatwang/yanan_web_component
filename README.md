@@ -112,6 +112,7 @@ pnpm dev   # http://localhost:5173/introduction — Floema 风格文档，含中
 | 输入框 | `yn-input` | Floema 风格输入，前后置按钮插槽 |
 | 导航 | `yn-navigation` | 胶囊导航，支持 SEO 链接模式 |
 | 搜索 | `yn-search` | 可展开搜索框，支持左右展开、datalist、两步关闭 |
+| Cookie 同意 | `yn-cookie-notice` | Cookie 横幅，分类偏好与同意持久化 |
 | 选项组 | `yn-group-pick` | 单选/多选容器，配合 `yn-pick` |
 | 选项 | `yn-pick` | 单个可选项 |
 | 下拉弹层 | `yn-dropdown` | 通用下拉定位弹层 |
@@ -564,6 +565,84 @@ import { YnSearch } from "yn-web-component/components/yn-search";
 **两步关闭（`close` 默认 `true`）**
 
 展开后输入内容时：首次点击关闭按钮仅清空并派发 `input`；再次点击才播放收起动画。若希望点击即收起，设置 `close="false"`。
+
+---
+
+### yn-cookie-notice
+
+**标签名**：`yn-cookie-notice`  
+**类名**：`YnCookieNotice`  
+**导入**（推荐按需）：`yn-web-component/components/yn-cookie-notice`  
+**用途**：Cookie 同意横幅，支持接受/拒绝全部、分类偏好设置，并将同意结果写入 `document.cookie`。可监听 `preference-change` 对接 Google Consent Mode 等广告合规逻辑。
+
+> **样式隔离**：组件使用 Shadow DOM，外部样式默认不穿透；请通过 CSS 变量定制外观。
+
+#### 属性
+
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `storage-key` | `string` | `"cookie_consent_v1"` | 同意记录 Cookie 键名 |
+| `auto-show-delay` | `number` | `800` | 无历史同意时自动显示延迟（ms） |
+| `auto-show` | `boolean` | `true` | 是否自动弹出 |
+| `visible` | `boolean` | `false` | 是否显示横幅 |
+| `max-age` | `number` | `31536000` | Cookie Max-Age（秒） |
+| `default-functional` | `boolean` | `false` | 默认 Functional 勾选 |
+| `default-analytics` | `boolean` | `false` | 默认 Analytics 勾选 |
+| `default-marketing` | `boolean` | `true` | 默认 Marketing 勾选 |
+| `title` | `string` | `"We use cookies to improve your experience"` | 标题（可被插槽覆盖） |
+| `policy-line-1` | `string` | `"By continuing, you"` | 政策文案第一行 |
+| `policy-line-2` | `string` | `"cookie policy."` | 政策文案第二行 |
+
+#### 事件
+
+| 事件 | `detail` | 说明 |
+| --- | --- | --- |
+| `preference-change` | `{ prefs, source, changedKey }` | 偏好变化；`source` 含 `accept-all` / `reject-all` / `save` / `checkbox-change` 等 |
+
+#### 插槽
+
+| 插槽 | 说明 |
+| --- | --- |
+| `title` | 自定义标题 |
+| `policy` | 自定义政策说明 |
+
+#### 公开方法
+
+| 方法 | 说明 |
+| --- | --- |
+| `show()` | 显示横幅 |
+| `hide()` | 隐藏横幅 |
+| `openSettings()` | 显示并展开偏好设置 |
+| `resetConsent()` | 清除同意记录并重新显示 |
+| `getPreferences()` | 读取当前偏好 |
+| `setPreferences(prefs)` | 设置表单偏好（不写 Cookie） |
+
+#### CSS 变量
+
+| 变量 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--yn-cookie-notice-bg` | 横幅背景 | `#fff` |
+| `--yn-cookie-notice-border-color` | 外边框色 | `#eedfdf` |
+| `--yn-cookie-notice-accent-color` | 政策强调色 | `#ed3833` |
+| `--yn-cookie-notice-z-index` | 层级 | `1000` |
+| `--yn-cookie-notice-bottom` / `--yn-cookie-notice-right` | 定位 | 响应式 em 值 |
+| `--yn-cookie-notice-width` | 横幅宽度 | 响应式 em 值 |
+
+#### 示例
+
+```ts
+import "yn-web-component/components/yn-cookie-notice";
+```
+
+```html
+<yn-cookie-notice
+  storage-key="cookie_consent_v1"
+  @preference-change=${(e) => {
+    const { functional, analytics, marketing } = e.detail.prefs;
+    // 对接 gtag('consent', 'update', { ... })
+  }}
+></yn-cookie-notice>
+```
 
 ---
 
@@ -1360,6 +1439,7 @@ import { YnSearch } from "yn-web-component/components/yn-search";
 | yn-navigation | `yn-web-component/components/yn-navigation` |
 | yn-navigation SSR | `yn-web-component/ssr/yn-navigation`（`renderYnNavigationShadowHtml`、`renderYnNavigationSeoFallbackHtml`、`YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES`） |
 | yn-search | `yn-web-component/components/yn-search` |
+| yn-cookie-notice | `yn-web-component/components/yn-cookie-notice` |
 | yn-group-pick | `yn-web-component/components/yn-group-pick` |
 | yn-pick | `yn-web-component/components/yn-pick` |
 | yn-dropdown | `yn-web-component/components/yn-dropdown` |
