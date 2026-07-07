@@ -40,4 +40,34 @@ describe("yn-pick", () => {
     const unselectedIcon = el.shadowRoot?.querySelector(".icon.unselected");
     expect(unselectedIcon).to.not.equal(null);
   });
+
+  it("plays scale-in animation when selected", async () => {
+    const el = await fixture<YnPick>(html`<yn-pick></yn-pick>`);
+    const wrap = el.shadowRoot?.querySelector(".wrap");
+    if (!wrap) throw new Error("wrap not found");
+
+    wrap.dispatchEvent(new MouseEvent("click", { bubbles: true, composed: true }));
+    await el.updateComplete;
+
+    const icon = el.shadowRoot?.querySelector(".icon.selected");
+    expect(icon).to.not.equal(null);
+    expect(icon?.classList.contains("anim-in") || icon?.classList.contains("is-visible")).to.equal(true);
+  });
+
+  it("removes selected icon after scale-out animation", async () => {
+    const el = await fixture<YnPick>(html`<yn-pick selected></yn-pick>`);
+    await el.updateComplete;
+
+    el.selected = false;
+    await el.updateComplete;
+
+    const leaving = el.shadowRoot?.querySelector(".icon.selected");
+    expect(leaving).to.not.equal(null);
+    expect(leaving?.classList.contains("anim-out") || leaving?.classList.contains("is-visible")).to.equal(true);
+
+    leaving?.dispatchEvent(new AnimationEvent("animationend", { animationName: "yn-pick-icon-out", bubbles: true }));
+    await el.updateComplete;
+
+    expect(el.shadowRoot?.querySelector(".icon.selected")).to.equal(null);
+  });
 });

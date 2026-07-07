@@ -13,6 +13,8 @@ type Args = {
   borderWidth: string;
   borderColor: string;
   borderRadius: string;
+  iconDuration: string;
+  iconEase: string;
   slot: string;
   toggle?: (id: string | number, flag: boolean) => void;
 };
@@ -27,7 +29,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "单个可选项组件，通常作为 `yn-group-pick` 子项使用。默认插槽内容会放入相对定位容器 `wrap` 内，图标固定在右上角。\n\n图标规则：`selected=true` 时展示 `selected-icon`；`selected=false` 时仅在 `show-unselected-icon=true` 下展示 `unselected-icon`。\n\n组合使用优先级：当和 `yn-group-pick` 组合时，若子项 `yn-pick` 显式设置了 `selected-icon` / `unselected-icon` / `show-unselected-icon`，则子项配置优先；否则回退到父组件组级默认值。\n\n状态边界说明：组件点击后会先在内部切换 `selected` 并派发 `toggle`。若父层采用受控模式并在事件后写回 `selected`，最终显示以父层传入值为准。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过公开 CSS 变量配置边框。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-pick\"`"
+          "单个可选项组件，通常作为 `yn-group-pick` 子项使用。默认插槽内容会放入相对定位容器 `wrap` 内，图标固定在右上角。\n\n图标规则：`selected=true` 时展示 `selected-icon`；`selected=false` 时仅在 `show-unselected-icon=true` 下展示 `unselected-icon`。\n\n图标动画：选中时从中心点放大入场（`scale(0)→scale(1)`），取消选中时缩小至点并消失（`scale(1)→scale(0)`）。可通过 `--yn-pick-icon-duration` / `--yn-pick-icon-ease` 调整。\n\n组合使用优先级：当和 `yn-group-pick` 组合时，若子项 `yn-pick` 显式设置了 `selected-icon` / `unselected-icon` / `show-unselected-icon`，则子项配置优先；否则回退到父组件组级默认值。\n\n状态边界说明：组件点击后会先在内部切换 `selected` 并派发 `toggle`。若父层采用受控模式并在事件后写回 `selected`，最终显示以父层传入值为准。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过公开 CSS 变量配置边框。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-pick\"`"
       }
     }
   },
@@ -41,6 +43,8 @@ const meta = {
     borderWidth: "2px",
     borderColor: "#000000",
     borderRadius: "8px",
+    iconDuration: "220ms",
+    iconEase: "cubic-bezier(0.22, 1, 0.36, 1)",
     slot: "默认插槽内容"
   },
   argTypes: {
@@ -125,6 +129,26 @@ const meta = {
         type: { summary: "string" }
       }
     },
+    iconDuration: {
+      control: "text",
+      name: "--yn-pick-icon-duration",
+      description: "选中/取消图标缩放动画时长。",
+      table: {
+        category: "CSS Variables",
+        defaultValue: { summary: "220ms" },
+        type: { summary: "string" }
+      }
+    },
+    iconEase: {
+      control: "text",
+      name: "--yn-pick-icon-ease",
+      description: "选中图标入场缓动曲线。",
+      table: {
+        category: "CSS Variables",
+        defaultValue: { summary: "cubic-bezier(0.22, 1, 0.36, 1)" },
+        type: { summary: "string" }
+      }
+    },
     toggle: {
       name: "toggle",
       control: false,
@@ -159,7 +183,7 @@ export const Default: Story = {
       selected-icon=${args.selectedIcon}
       unselected-icon=${args.unselectedIcon}
       .showUnselectedIcon=${args.showUnselectedIcon}
-      style=${`--yn-pick-border-width:${args.borderWidth};--yn-pick-border-color:${args.borderColor};--yn-pick-border-radius:${args.borderRadius};`}
+      style=${`--yn-pick-border-width:${args.borderWidth};--yn-pick-border-color:${args.borderColor};--yn-pick-border-radius:${args.borderRadius};--yn-pick-icon-duration:${args.iconDuration};--yn-pick-icon-ease:${args.iconEase};`}
       @toggle=${(event: Event) => {
         if (!(event instanceof CustomEvent)) return;
         const detail = event.detail as { id: string | number; flag: boolean };
@@ -180,8 +204,25 @@ export const Default: Story = {
 
     await step("点击选项后变为选中", async () => {
       clickable.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
       if (!(pick as HTMLElement & { selected?: boolean }).selected) {
         throw new Error("点击后 selected 应为 true");
+      }
+      const icon = pick.shadowRoot?.querySelector(".icon.selected");
+      if (!(icon instanceof HTMLElement)) {
+        throw new Error("选中后应显示 selected 图标");
+      }
+    });
+
+    await step("再次点击后图标播放离场动画", async () => {
+      clickable.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      if ((pick as HTMLElement & { selected?: boolean }).selected) {
+        throw new Error("再次点击后 selected 应为 false");
+      }
+      const leavingIcon = pick.shadowRoot?.querySelector(".icon.selected.anim-out");
+      if (!(leavingIcon instanceof HTMLElement)) {
+        throw new Error("取消选中时应触发 anim-out 离场动画");
       }
     });
   }

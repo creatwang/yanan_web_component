@@ -233,12 +233,14 @@ export class YnDropdownPick extends LitElement {
         checkEl.style.borderRadius = "999px";
         checkEl.style.background = "var(--yn-dropdown-pick-check-bg, var(--yn-color-inverse-bg, #241f21))";
         checkEl.style.color = "var(--yn-dropdown-pick-check-color, var(--yn-color-on-inverse, #ffffff))";
-        checkEl.style.transition = "opacity 140ms ease, transform 180ms cubic-bezier(0.22, 1, 0.36, 1)";
+        checkEl.style.transition =
+          "opacity 140ms ease, transform var(--yn-dropdown-pick-check-duration, 220ms) var(--yn-dropdown-pick-check-ease, cubic-bezier(0.22, 1, 0.36, 1))";
         checkEl.innerHTML = ynDropdownPickCheckSvg;
         contentEl.appendChild(checkEl);
       }
       checkEl.style.opacity = this.showSelectedIcon && selected ? "1" : "0";
-      checkEl.style.transform = this.showSelectedIcon && selected ? "translateY(-50%) scale(1)" : "translateY(-50%) scale(0.86)";
+      checkEl.style.transform =
+        this.showSelectedIcon && selected ? "translateY(-50%) scale(1)" : "translateY(-50%) scale(0)";
       checkEl.style.pointerEvents = "none";
       contentEl.dataset.ynDpSelected = selected ? "1" : "0";
 
