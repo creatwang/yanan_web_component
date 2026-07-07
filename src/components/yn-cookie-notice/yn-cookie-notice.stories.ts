@@ -185,6 +185,10 @@ const renderNotice = (args: Args) => html`
       type="button"
       id="cookie-reset-btn"
       style="margin-top:12px;padding:8px 16px;border:1px solid #000;background:#fff;cursor:pointer;"
+      @click=${() => {
+        document.cookie = `${encodeURIComponent(args.storageKey)}=; Max-Age=0; Path=/`;
+        location.reload();
+      }}
     >
       清除同意记录并重载
     </button>
@@ -209,7 +213,7 @@ const renderNotice = (args: Args) => html`
 
 export const Default: Story = {
   render: renderNotice,
-  play: async ({ canvasElement, step }) => {
+  play: async ({ canvasElement, step, args }) => {
     const resetBtn = canvasElement.querySelector("#cookie-reset-btn");
     resetBtn?.addEventListener("click", () => {
       document.cookie = "storybook_cookie_consent_v1=; Max-Age=0; Path=/";
@@ -220,7 +224,7 @@ export const Default: Story = {
     if (!(notice instanceof HTMLElement)) return;
 
     await step("无历史同意时自动显示横幅", async () => {
-      document.cookie = "storybook_cookie_consent_v1=; Max-Age=0; Path=/";
+      document.cookie = `${encodeURIComponent(args.storageKey)}=; Max-Age=0; Path=/`;
       if (notice instanceof YnCookieNotice) {
         notice.resetConsent();
       }
@@ -287,6 +291,12 @@ export const SettingsPanel: Story = {
   }
 };
 
+const manualControlClick = (method: "show" | "openSettings" | "resetConsent") => (e: Event) => {
+  const container = (e.currentTarget as HTMLElement).closest("div")!;
+  const notice = container.querySelector<YnCookieNotice>("yn-cookie-notice");
+  if (notice) notice[method]();
+};
+
 export const ManualControl: Story = {
   name: "手动控制",
   args: {
@@ -295,9 +305,9 @@ export const ManualControl: Story = {
   },
   render: (args: Args) => html`
     <div style="min-height:100vh;background:#f5f0ee;padding:24px;display:flex;gap:12px;flex-wrap:wrap;">
-      <button type="button" id="show-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;">显示</button>
-      <button type="button" id="settings-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;">打开设置</button>
-      <button type="button" id="reset-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;">重置同意</button>
+      <button type="button" id="show-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;cursor:pointer;" @click=${manualControlClick("show")}>显示</button>
+      <button type="button" id="settings-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;cursor:pointer;" @click=${manualControlClick("openSettings")}>打开设置</button>
+      <button type="button" id="reset-btn" style="padding:8px 16px;border:1px solid #000;background:#fff;cursor:pointer;" @click=${manualControlClick("resetConsent")}>重置同意</button>
       ${renderNotice(args)}
     </div>
   `,
