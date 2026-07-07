@@ -168,6 +168,22 @@ describe("yn-search", () => {
     expect(el.open).to.equal(true);
   });
 
+  it("dispatches enter with input DOM value when state is out of sync", async () => {
+    const el = await fixture<YnSearch>(html`<yn-search input-width="200" open></yn-search>`);
+    await el.updateComplete;
+
+    const input = el.shadowRoot?.querySelector<HTMLInputElement>("#searchInput");
+    if (!input) throw new Error("missing input");
+
+    input.value = "Chair";
+    expect(el.value).to.equal("");
+
+    const enterPromise = oneEvent(el, "enter");
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true }));
+    const enterEvent = (await enterPromise) as CustomEvent<{ value: string }>;
+    expect(enterEvent.detail.value).to.equal("Chair");
+  });
+
   it("grows shell width with animation and finishes expanded", async () => {
     const container = await fixture(html`
       <div style="display:flex;align-items:center;gap:12px">

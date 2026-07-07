@@ -153,6 +153,10 @@ export function applyLitDsd<T extends LitElement>(
       finishUpdateWithoutRender(this as unknown as LitUpdateHost, changed);
       return;
     }
-    return originalPerformUpdate?.call(this);
+  const result = originalPerformUpdate?.call(this);
+    if (this.shadowRoot && (this.dsdRenderSkipped || hasDsdMarker(this.shadowRoot, markerSelector))) {
+      dedupeShadowDsdContent(this.shadowRoot, markerSelector);
+    }
+    return result;
   };
 }

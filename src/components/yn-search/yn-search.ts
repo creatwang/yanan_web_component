@@ -569,9 +569,12 @@ export class YnSearch extends LitElement {
   /** 处理输入框按键行为（回车等）。 */
   private onInputKeydown(event: KeyboardEvent) {
     if (event.key !== "Enter") return;
+    event.preventDefault();
+    const value = this.getFieldValue();
+    if (value !== this.value) this.setFieldValue(value);
     this.dispatchEvent(
       new CustomEvent("enter", {
-        detail: { value: this.value },
+        detail: { value },
         bubbles: true,
         composed: true
       })
