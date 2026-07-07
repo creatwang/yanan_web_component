@@ -117,17 +117,18 @@ export function applyLitDsd<T extends LitElement>(
   };
 
   hostProto.createRenderRoot = function (this: Host) {
-    if (this.shadowRoot) return this.shadowRoot;
+    if (this.shadowRoot) {
+      if (hasDsdMarker(this.shadowRoot, markerSelector)) {
+        this.dsdInitialBootstrapped = true;
+        this.dsdRenderSkipped = true;
+      }
+      return this.shadowRoot;
+    }
     return (LitElement.prototype as Host).createRenderRoot.call(this);
   };
 
   hostProto.shouldUpdate = function (this: Host, changed: PropertyValues) {
     if (shouldBlockLitRenderAfterDsd(this)) {
-      return false;
-    }
-    if (hasDsdMarker(this.shadowRoot, markerSelector)) {
-      this.dsdInitialBootstrapped = true;
-      this.dsdRenderSkipped = true;
       return false;
     }
     return (LitElement.prototype as Host).shouldUpdate.call(this, changed);

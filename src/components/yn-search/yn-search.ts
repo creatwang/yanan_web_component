@@ -6,15 +6,19 @@ import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_SEARCH_SHADOW_STYLES } from "./yn-search-styles.js";
 
+export type YnSearchExpandDirection = "left" | "right";
+
 @customElement("yn-search")
 export class YnSearch extends LitElement {
-  @property({ type: Boolean, reflect: true }) close = false;
+  /** true：有值时首次点击仅清空并派发 input，再次点击才收起；false：点击即清空并收起。 */
+  @property({ type: Boolean, reflect: true }) close = true;
   @property({ type: Boolean, reflect: true }) disabled = false;
   @property({ type: String }) placeholder = "O que estás à procura?";
   @property({ type: Number, attribute: "input-width" }) inputWidth = 514;
-
-  @state()
-  private open = false;
+  @property({ type: String, attribute: "expand-direction", reflect: true })
+  expandDirection: YnSearchExpandDirection = "right";
+  /** 是否默认展开。true：初始即为展开态（无入场动画）；false：初始收起。 */
+  @property({ type: Boolean, reflect: true }) open = false;
 
   @state()
   private animating = false;
@@ -58,6 +62,8 @@ export class YnSearch extends LitElement {
   private readonly RECT_START_CLOSED = 44;
   private readonly RECT_START_OPEN = 54;
   private readonly RETRACT_X = 31.08;
+  /** 展开时：短阶段只做图标切换，长阶段同步增长 layout 宽度。 */
+  private readonly OPEN_LAYOUT_SPLIT = 0.22;
   private readonly TRANSITION_SPLIT = 0.82;
   private readonly GAP = 10;
   private readonly easeOpen = this.cubicBezier(0.22, 0.01, 0.35, 1);
@@ -68,6 +74,8 @@ export class YnSearch extends LitElement {
   private lastDynamicTransform = "";
   private lastInputOpacity = "";
   private lastInputTransform = "";
+  /** 动画帧内壳层宽度，用于同步顶开相邻 flex 兄弟元素。 */
+  private runtimeShellWidth: number | null = null;
 
   private readonly bridgeClosed = {
     x: [44, 44, 44, 44, 44, 44, 44, 44],
@@ -93,10 +101,28 @@ export class YnSearch extends LitElement {
     return this.RECT_START_OPEN + Math.max(80, this.inputWidth);
   }
 
+  private get isExpandLeft() {
+    return this.expandDirection === "left";
+  }
+
+  private get retractSign() {
+    return this.isExpandLeft ? 1 : -1;
+  }
+
   private get shellWidth() {
-    return this.open || this.animating
-      ? this.RECT_START_CLOSED + this.dynamicWidth
-      : this.RECT_START_CLOSED;
+    if (this.runtimeShellWidth !== null) return this.runtimeShellWidth;
+    if (this.open && !this.animating) {
+      return this.RECT_START_CLOSED + this.dynamicWidth;
+    }
+    return this.RECT_START_CLOSED;
+  }
+
+  /** 展开阶段一仅做图标切换，layout 宽度保持收起态，避免顶乱 flex 左缘。 */
+  private resolveLayoutShellWidth(opening: boolean, easedProgress: number, currentEndX: number) {
+    if (opening && easedProgress < this.OPEN_LAYOUT_SPLIT) {
+      return this.RECT_START_CLOSED;
+    }
+    return Math.max(this.RECT_START_CLOSED, currentEndX);
   }
 
   private get dynamicWidth() {
@@ -127,6 +153,7 @@ export class YnSearch extends LitElement {
     if (this.open) {
       this.applyShape(1);
       this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
+      this.syncShellDom();
     } else {
       this.bridgeEl.setAttribute("d", "");
       this.rect1El.setAttribute("d", "");
@@ -150,6 +177,10 @@ export class YnSearch extends LitElement {
     inputEl?.addEventListener("keydown", this.onInputKeydown);
     root.querySelector("#datalistSlot")?.addEventListener("slotchange", this.onDatalistSlotChange);
     this.syncDatalistFromSlot();
+    if (this.open) {
+      this.applyShape(1);
+      this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
+    }
     this.syncShellDom();
     this.ready = true;
   }
@@ -176,7 +207,17 @@ export class YnSearch extends LitElement {
     if (!this.ensureDsdRefs()) return;
     this.shellEl.classList.toggle("open", this.open);
     this.shellEl.classList.toggle("animating", this.animating);
-    this.shellEl.style.width = `${this.shellWidth}px`;
+    this.shellEl.classList.toggle("layout-expanding", this.animating && this.open);
+    this.shellEl.classList.toggle("expand-left", this.isExpandLeft);
+    this.shellEl.classList.toggle("expand-right", !this.isExpandLeft);
+    const width = `${this.shellWidth}px`;
+    this.shellEl.style.width = width;
+    this.style.width = width;
+    if (this.isExpandLeft) {
+      this.style.marginLeft = "auto";
+    } else {
+      this.style.removeProperty("margin-left");
+    }
     const toggleBtn = this.shadowRoot?.querySelector("#toggleBtn");
     toggleBtn?.setAttribute("aria-label", this.open ? "close search" : "open search");
   }
@@ -233,18 +274,30 @@ export class YnSearch extends LitElement {
       this.ready = true;
       return;
     }
+    if (changed.has("expandDirection")) {
+      if (this.expandDirection !== "left" && this.expandDirection !== "right") {
+        this.expandDirection = "right";
+      }
+      this.syncShellDom();
+    }
     if (changed.has("inputWidth")) {
       if (this.open) {
         this.applyShape(1);
         this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
+        this.syncShellDom();
       }
     }
-    if (changed.has("open") && changed.get("open") !== undefined) {
-      this.stopAnims();
-      this.syncShellDom();
-      if (this.ensureDsdRefs()) {
-        this.animateShape(this.open);
+    if (changed.has("open") && !this.animating && changed.get("open") !== undefined) {
+      if (!this.ensureDsdRefs()) return;
+      if (this.open) {
+        this.applyShape(1);
+        this.syncInputToShape(1, true, this.rectEndOpen - this.RECT_START_OPEN);
+      } else {
+        this.bridgeEl.setAttribute("d", "");
+        this.rect1El.setAttribute("d", "");
+        this.clearDynamicWrapInlineStyles();
       }
+      this.syncShellDom();
     }
   }
 
@@ -254,6 +307,7 @@ export class YnSearch extends LitElement {
       cancelAnimationFrame(this.shapeRaf);
       this.shapeRaf = 0;
     }
+    this.runtimeShellWidth = null;
   }
 
   /** 线性插值工具。 */
@@ -299,6 +353,11 @@ export class YnSearch extends LitElement {
     return (x: number) => sampleY(solveT(x));
   }
 
+  /** 将 shape viewBox 内的 x 坐标水平镜像（用于 expand-left）。 */
+  private mirrorShapeX(x: number) {
+    return this.RECT_START_CLOSED * 2 + this.dynamicWidth - x;
+  }
+
   /** 构建矩形胶囊路径。 */
   private buildRectPath(startX: number, endX: number) {
     if (endX <= startX + 0.001) return `M${startX} 0L${startX} 0L${startX} 38L${startX} 38 Z`;
@@ -312,7 +371,7 @@ export class YnSearch extends LitElement {
   }
 
   /** 构建桥接路径，t 表示形态进度。 */
-  private buildBridgePath(t: number) {
+  private buildBridgePath(t: number, mirror = false) {
     const c = this.bridgeClosed;
     const o = this.bridgeOpened;
     const x0 = this.lerp(c.x[0], o.x[0], t);
@@ -332,17 +391,20 @@ export class YnSearch extends LitElement {
     const y5 = this.lerp(c.y[5], o.y[5], t);
     const y6 = this.lerp(c.y[6], o.y[6], t);
     const y7 = this.lerp(c.y[7], o.y[7], t);
-    return `M${x0} ${y0} C${x1} ${y1}, ${x2} ${y2}, ${x3} ${y3} L${x4} ${y4} C${x5} ${y5}, ${x6} ${y6}, ${x7} ${y7} Z`;
+    const mx = (x: number) => (mirror ? this.mirrorShapeX(x) : x);
+    return `M${mx(x0)} ${y0} C${mx(x1)} ${y1}, ${mx(x2)} ${y2}, ${mx(x3)} ${y3} L${mx(x4)} ${y4} C${mx(x5)} ${y5}, ${mx(x6)} ${y6}, ${mx(x7)} ${y7} Z`;
   }
 
   /** 按给定进度和区间写入路径数据。 */
   private applyShapeFromValues(t: number, startX: number, endX: number) {
-    const rectPath = this.buildRectPath(startX, endX);
+    const rectStartX = this.isExpandLeft ? this.mirrorShapeX(endX) : startX;
+    const rectEndX = this.isExpandLeft ? this.mirrorShapeX(startX) : endX;
+    const rectPath = this.buildRectPath(rectStartX, rectEndX);
     if (rectPath !== this.lastRectPath) {
       this.rect1El.setAttribute("d", rectPath);
       this.lastRectPath = rectPath;
     }
-    const bridgePath = this.buildBridgePath(t);
+    const bridgePath = this.buildBridgePath(t, this.isExpandLeft);
     if (bridgePath !== this.lastBridgePath) {
       this.bridgeEl.setAttribute("d", bridgePath);
       this.lastBridgePath = bridgePath;
@@ -362,7 +424,7 @@ export class YnSearch extends LitElement {
       ? Math.max(0, Math.min(1, (rectWidth - 80) / 180))
       : Math.max(0, Math.min(1, (rectWidth - 220) / 180));
     const nextOpacity = String(p);
-    const nextTransform = `translateX(${this.lerp(-12, 0, p)}px)`;
+    const nextTransform = `translateX(${this.lerp(this.retractSign * 12, 0, p)}px)`;
     if (nextOpacity !== this.lastInputOpacity) {
       this.inputEl.style.opacity = nextOpacity;
       this.lastInputOpacity = nextOpacity;
@@ -373,48 +435,62 @@ export class YnSearch extends LitElement {
     }
   }
 
+  /** 展开阶段不做 dynamicWrap 位移，避免窄壳层内左侧绘制溢出被裁切。 */
+  private resolveDynamicWrapTranslateX(opening: boolean) {
+    return opening ? 0 : 0;
+  }
+
   /** 执行开关阶段形状动画。 */
   private animateShape(opening: boolean) {
     if (!this.ensureDsdRefs()) return;
     const duration = opening ? 620 : 500;
     const ease = opening ? this.easeOpen : this.easeClose;
     const start = performance.now();
+    this.runtimeShellWidth = opening ? this.RECT_START_CLOSED : this.rectEndOpen;
     this.animating = true;
     this.syncShellDom();
-    this.dynamicWrapEl.style.visibility = "visible";
+    this.dynamicWrapEl.style.visibility = opening ? "hidden" : "visible";
 
     const tick = (now: number) => {
       const p = Math.min(1, (now - start) / duration);
       const ep = ease(p);
       let t: number;
-      let x: number;
+      let currentStartX: number;
+      let currentEndX: number;
 
       if (opening) {
-        if (ep < this.TRANSITION_SPLIT) {
-          const local = ep / this.TRANSITION_SPLIT;
-          t = this.lerp(0, this.shapeTAtButton, local);
-          x = this.lerp(-this.RETRACT_X, 0, local);
+        if (ep < this.OPEN_LAYOUT_SPLIT) {
+          t = 0;
+          currentStartX = this.RECT_START_CLOSED;
+          currentEndX = this.RECT_START_CLOSED;
         } else {
-          const local = (ep - this.TRANSITION_SPLIT) / (1 - this.TRANSITION_SPLIT);
-          t = this.lerp(this.shapeTAtButton, 1, local);
-          x = 0;
+          const local = (ep - this.OPEN_LAYOUT_SPLIT) / (1 - this.OPEN_LAYOUT_SPLIT);
+          t = 1;
+          currentStartX = this.RECT_START_OPEN;
+          currentEndX = this.lerp(this.RECT_START_OPEN + 30, this.rectEndOpen, local);
         }
       } else if (ep < this.TRANSITION_SPLIT) {
         const local = ep / this.TRANSITION_SPLIT;
         t = this.lerp(1, this.shapeTAtButton, local);
-        x = 0;
+        currentStartX = this.lerp(this.RECT_START_CLOSED, this.RECT_START_OPEN, t);
+        currentEndX = this.lerp(this.RECT_START_CLOSED, this.rectEndOpen, t);
       } else {
         const local = (ep - this.TRANSITION_SPLIT) / (1 - this.TRANSITION_SPLIT);
         t = this.lerp(this.shapeTAtButton, 0, local);
-        x = 0;
+        currentStartX = this.lerp(this.RECT_START_CLOSED, this.RECT_START_OPEN, t);
+        currentEndX = this.lerp(this.RECT_START_CLOSED, this.rectEndOpen, t);
       }
 
-      const currentStartX = this.lerp(this.RECT_START_CLOSED, this.RECT_START_OPEN, t);
-      const currentEndX = this.lerp(this.RECT_START_CLOSED, this.rectEndOpen, t);
       const rectWidth = Math.max(0, currentEndX - currentStartX);
+      this.runtimeShellWidth = this.resolveLayoutShellWidth(opening, ep, currentEndX);
+      if (opening && ep >= this.OPEN_LAYOUT_SPLIT) {
+        this.dynamicWrapEl.style.visibility = "visible";
+        this.shellEl.classList.add("layout-expanding");
+      }
       this.applyShapeFromValues(t, currentStartX, currentEndX);
       this.syncInputToShape(t, opening, rectWidth);
-      const nextTransform = `translateX(${x}px)`;
+      this.syncShellDom();
+      const nextTransform = `translateX(${this.resolveDynamicWrapTranslateX(opening)}px)`;
       if (nextTransform !== this.lastDynamicTransform) {
         this.dynamicWrapEl.style.transform = nextTransform;
         this.lastDynamicTransform = nextTransform;
@@ -441,6 +517,7 @@ export class YnSearch extends LitElement {
           }
           this.clearDynamicWrapInlineStyles();
         }
+        this.runtimeShellWidth = null;
         this.animating = false;
         this.syncShellDom();
       }
@@ -482,11 +559,15 @@ export class YnSearch extends LitElement {
   private onToggle() {
     if (this.disabled) return;
     if (!this.open) {
-      this.open = true;
-      this.syncShellDom();
       if (this.ensureDsdRefs()) {
         this.stopAnims();
+        this.runtimeShellWidth = this.RECT_START_CLOSED;
+        this.animating = true;
+        this.open = true;
+        this.syncShellDom();
         this.animateShape(true);
+      } else {
+        this.open = true;
       }
       setTimeout(() => this.inputEl?.focus(), 180);
       return;
@@ -500,11 +581,15 @@ export class YnSearch extends LitElement {
         this.inputEl?.focus();
         return;
       }
-      this.open = false;
-      this.syncShellDom();
       if (this.ensureDsdRefs()) {
         this.stopAnims();
+        this.runtimeShellWidth = this.rectEndOpen;
+        this.animating = true;
+        this.open = false;
+        this.syncShellDom();
         this.animateShape(false);
+      } else {
+        this.open = false;
       }
       return;
     }
@@ -514,11 +599,15 @@ export class YnSearch extends LitElement {
       if (this.inputEl) this.inputEl.value = "";
       this.dispatchInputEvent();
     }
-    this.open = false;
-    this.syncShellDom();
     if (this.ensureDsdRefs()) {
       this.stopAnims();
+      this.runtimeShellWidth = this.rectEndOpen;
+      this.animating = true;
+      this.open = false;
+      this.syncShellDom();
       this.animateShape(false);
+    } else {
+      this.open = false;
     }
   }
 
@@ -527,7 +616,7 @@ export class YnSearch extends LitElement {
     return html`
       <div
         id="searchShell"
-        class=${`search-shell${this.open ? " open" : ""}${this.animating ? " animating" : ""}`}
+        class=${`search-shell expand-${this.isExpandLeft ? "left" : "right"}${this.open ? " open" : ""}${this.animating ? " animating" : ""}`}
         style=${`width:${this.shellWidth}px;`}
       >
         <svg id="leftShape" class="left-shape" viewBox="0 0 44 38" data-meta-row-shape>

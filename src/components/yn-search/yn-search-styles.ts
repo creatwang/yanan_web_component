@@ -4,6 +4,7 @@ export const YN_SEARCH_SHADOW_STYLES = `
         --yn-search-bg-active: var(--yn-color-surface-hover, rgba(255, 255, 255, 0.96));
         --yn-search-bg-idle: transparent;
         --yn-search-icon-color: var(--yn-color-text, #241f21);
+        --yn-search-field-bg: var(--bg-fill, transparent);
         --yn-search-field-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.7));
         --yn-search-caret-color: var(--yn-color-text, #241f21);
         --yn-search-placeholder-color: var(--yn-color-text-muted, rgba(36, 31, 33, 0.6));
@@ -12,6 +13,21 @@ export const YN_SEARCH_SHADOW_STYLES = `
         --yn-search-icon-duration: 220ms;
         --yn-search-icon-ease: cubic-bezier(0.4, 0, 1, 1);
         display: inline-block;
+        vertical-align: top;
+        overflow: visible;
+        flex-shrink: 0;
+        max-width: 100%;
+      }
+
+      :host([expand-direction="right"]) {
+        align-self: flex-start;
+      }
+
+      :host([expand-direction="left"]) {
+        display: inline-flex;
+        justify-content: flex-end;
+        align-self: flex-start;
+        margin-left: auto;
       }
 
       @font-face {
@@ -29,6 +45,18 @@ export const YN_SEARCH_SHADOW_STYLES = `
         height: 38px;
         --bg-fill: var(--yn-search-bg-idle);
         overflow: hidden;
+      }
+
+      .search-shell.animating {
+        overflow: visible;
+      }
+
+      .search-shell.expand-left.animating {
+        overflow: visible;
+      }
+
+      .search-shell.open.animating:not(.layout-expanding) .dynamic-wrap {
+        visibility: hidden;
       }
 
       .search-shell:not(.open):not(.animating) .dynamic-wrap {
@@ -100,6 +128,38 @@ export const YN_SEARCH_SHADOW_STYLES = `
           stroke var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
       }
 
+      .search-shell.expand-left .toggle-btn {
+        left: auto;
+        right: 0;
+      }
+
+      .search-shell.expand-left .left-shape {
+        left: auto;
+        right: 0;
+        transform: scaleX(-1);
+      }
+
+      .search-shell.expand-left .dynamic-wrap {
+        left: auto;
+        right: 44px;
+      }
+
+      .search-shell.expand-left .search-input {
+        margin-left: 10px;
+        margin-right: 0;
+      }
+
+      .search-shell.expand-left.open .field,
+      .search-shell.expand-left.animating .field {
+        opacity: 1;
+        transform: translateX(0px);
+      }
+
+      .search-shell.expand-left:not(.open):not(.animating) .field {
+        opacity: 0;
+        transform: translateX(12px);
+      }
+
       .toggle-btn {
         position: absolute;
         left: 0;
@@ -164,6 +224,8 @@ export const YN_SEARCH_SHADOW_STYLES = `
         height: 38px;
         padding: 2px 10px;
         pointer-events: none;
+        background: var(--yn-search-field-bg, transparent);
+        border-radius: inherit;
       }
 
       .search-shell.open .search-input .inner {
@@ -174,7 +236,7 @@ export const YN_SEARCH_SHADOW_STYLES = `
         width: 100%;
         border: 0;
         outline: 0;
-        background: transparent;
+        background: var(--yn-search-field-bg, transparent);
         color: var(--yn-search-field-color, var(--yn-color-text-muted, #241f21b3));
         font-family: "Zimula", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
         font-size: clamp(12px, 10.83px + 100vw * 0.003, 16px);
