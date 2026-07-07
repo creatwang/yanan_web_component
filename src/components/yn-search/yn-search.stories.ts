@@ -37,7 +37,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "可展开的搜索组件，点击按钮显示输入区域并支持搜索输入。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；可通过 CSS 变量定制样式。\n\n默认插槽支持传入 `datalist`，组件会自动把插槽内的 `option` 同步到内部 datalist 并完成 input 的 list 绑定。\n\n**关闭行为（`close` 默认 `true`）**：展开且有输入时，首次点击关闭按钮仅清空文本并派发 `input` 事件；再次点击才播放收起动画。\n\n**展开尺寸（`input-width`）**：控制输入区域宽度（px，最小 80）。展开总宽度 = `44 + 10 + input-width`。\n\n**默认展开（`open` 默认 `false`）**：设为 `true` 时初始即为展开态（无入场动画）。\n\n**展开方向（`expand-direction` 默认 `right`）**：`right` 向右展开并顶开右侧元素；`left` 向左展开并顶开左侧元素。\n\n示例：\n```html\nimport \"yn-web-component/components/yn-search\";\n\n<yn-search expand-direction=\"right\" input-width=\"240\" open></yn-search>\n```"
+          "可展开的搜索组件，点击按钮显示输入区域并支持搜索输入。\n\n**样式隔离**：组件使用 Shadow DOM，外部样式默认不穿透；请通过 CSS 变量定制样式。\n\n**按需导入（推荐 Tree Shaking）**：\n```ts\nimport \"yn-web-component/components/yn-search\";\n```\n\n默认插槽支持传入 `datalist`，组件会自动把插槽内的 `option` 同步到内部 datalist 并完成 input 的 list 绑定。\n\n**关闭行为（`close` 默认 `true`）**：展开且有输入时，首次点击关闭按钮仅清空文本并派发 `input` 事件；再次点击才播放收起动画。设置 `close=\"false\"` 则点击即清空并收起。\n\n**展开尺寸（`input-width`）**：控制输入区域宽度（px，最小 80）。展开总宽度 = `44 + 10 + input-width`。\n\n**默认展开（`open` 默认 `false`）**：设为 `true` 时初始即为展开态（无入场动画）。\n\n**展开方向（`expand-direction` 默认 `right`）**：\n- `right`：向右展开，左缘固定，逐步顶开右侧 flex 兄弟元素。\n- `left`：向左展开，右缘固定，逐步顶开左侧 flex 兄弟元素（容器建议 `justify-content: flex-end` 或 `margin-left: auto`）。\n\n示例：\n```html\n<yn-search expand-direction=\"right\" input-width=\"240\" open></yn-search>\n```"
       }
     }
   },

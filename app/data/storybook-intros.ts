@@ -25,8 +25,8 @@ export const STORYBOOK_INTROS: Record<string, L10nText> = {
   },
   "yn-search": {
     "zh-CN":
-      "可展开搜索，点击后背景与图标有位移/透明度过渡。默认插槽可传 `<datalist>` 候选项。",
-    en: "Expandable search with background/icon motion. Optional `<datalist>` in default slot."
+      "可展开搜索，支持 `expand-direction` 左右展开、`open` 默认展开、`close` 两步关闭。默认插槽可传 `<datalist>` 候选项；Shadow DOM 隔离，请用 CSS 变量定制。",
+    en: "Expandable search with left/right expand, default-open, and two-step close. Optional `<datalist>`; style via CSS variables (Shadow DOM)."
   },
   "yn-dropdown": {
     "zh-CN":
@@ -176,12 +176,42 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       id: "native-datalist",
       title: { "zh-CN": "原生 datalist 候选", en: "Native datalist suggestions" },
       description: {
-        "zh-CN": "点击放大镜图标展开输入区；候选弹层由浏览器原生绘制，样式不可控。",
-        en: "Click icon to expand input area. The popup is native browser UI and cannot be reliably styled."
+        "zh-CN": "点击放大镜图标展开输入区；有值时首次点击关闭按钮仅清空，再次点击才收起。候选弹层由浏览器原生绘制。",
+        en: "Click icon to expand. Two-step close when `close` is true. Suggestion popup is native browser UI."
       },
       storybookComponent: "YnSearch",
       storybookStory: "Default",
       demoVariant: "yn-search-default"
+    },
+    {
+      id: "expand-right-push",
+      title: { "zh-CN": "向右展开顶开兄弟", en: "Expand right and push siblings" },
+      description: {
+        "zh-CN": "`expand-direction=\"right\"` 时左缘固定，壳层宽度同步增长并逐步顶开右侧 Cart/Menu。",
+        en: "With `expand-direction=\"right\"`, left edge stays fixed while width grows and pushes right siblings."
+      },
+      storybookComponent: "YnSearch",
+      storybookStory: "PushRightSiblings"
+    },
+    {
+      id: "expand-left",
+      title: { "zh-CN": "向左展开", en: "Expand left" },
+      description: {
+        "zh-CN": "`expand-direction=\"left\"` 时右缘固定，向左展开并顶开左侧 Brand。",
+        en: "With `expand-direction=\"left\"`, right edge stays fixed while expanding left."
+      },
+      storybookComponent: "YnSearch",
+      storybookStory: "ExpandLeft"
+    },
+    {
+      id: "default-open",
+      title: { "zh-CN": "默认展开", en: "Default open" },
+      description: {
+        "zh-CN": "设置 `open` 为 `true` 时初始即为展开态，不播放入场动画。",
+        en: "Set `open` to start expanded without entry animation."
+      },
+      storybookComponent: "YnSearch",
+      storybookStory: "DefaultOpen"
     }
   ],
   "yn-dropdown": [

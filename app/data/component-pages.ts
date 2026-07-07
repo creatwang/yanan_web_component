@@ -195,15 +195,18 @@ const shadowHtml = renderYnNavigationShadowHtml({
     tag: "yn-search",
     className: "YnSearch",
     importPath: "yn-web-component/components/yn-search",
-    description: "可展开/收起的搜索框，支持 datalist 候选项。",
-    usageCode: `<!-- 原生 datalist：保留浏览器原生输入建议行为。可优化搜索胶囊和外层容器样式；候选弹层由浏览器绘制。 -->
+    description:
+      "可展开/收起的搜索框，支持 datalist 候选项。支持 `expand-direction` 左右展开、`open` 默认展开、`close` 两步关闭。组件使用 Shadow DOM，外部样式默认不穿透。",
+    usageCode: `<!-- 推荐按需导入：import "yn-web-component/components/yn-search"; -->
 <div class="search-demo-stage">
   <yn-search
-    .inputWidth=\${514}
+    expand-direction="right"
+    input-width="240"
     placeholder="O que estás à procura?"
     style="
       --yn-search-bg-active: rgba(255, 255, 255, 0.96);
       --yn-search-bg-idle: rgba(255, 255, 255, 0);
+      --yn-search-field-bg: var(--bg-fill);
       --yn-search-icon-color: #241f21;
       --yn-search-field-color: #241f21;
       --yn-search-placeholder-color: rgba(36, 31, 33, 0.52);
@@ -230,19 +233,37 @@ const shadowHtml = renderYnNavigationShadowHtml({
   }
 </style>`,
     props: [
-      { name: "input-width", type: "number", default: "514", desc: "输入区宽度 px" },
+      {
+        name: "input-width",
+        type: "number",
+        default: "514",
+        desc: "输入区宽度 px（最小 80）；展开总宽度 = 44 + 10 + input-width"
+      },
       { name: "placeholder", type: "string", default: '"O que estás à procura?"', desc: "占位文案" },
-      { name: "disabled", type: "boolean", default: "false", desc: "禁用" },
-      { name: "close", type: "boolean", default: "false", desc: "收起行为策略" }
+      { name: "disabled", type: "boolean", default: "false", desc: "禁用交互" },
+      {
+        name: "close",
+        type: "boolean",
+        default: "true",
+        desc: "true：有值时首次点击仅清空并派发 input，无值再收起；false：点击即清空并收起"
+      },
+      { name: "open", type: "boolean", default: "false", desc: "true：初始展开（无入场动画）" },
+      {
+        name: "expand-direction",
+        type: '"left" | "right"',
+        default: '"right"',
+        desc: "right 向右顶开右侧元素；left 向左顶开左侧元素"
+      }
     ],
     events: [
-      { name: "input", detail: "{ value: string }", desc: "输入变化" },
+      { name: "input", detail: "{ value: string }", desc: "输入变化（含清空）" },
       { name: "enter", detail: "{ value: string }", desc: "按回车" }
     ],
     slots: [{ name: "(default)", desc: "datalist 候选项" }],
     cssVars: [
-      { name: "--yn-search-bg-active", desc: "展开背景" },
-      { name: "--yn-search-bg-idle", desc: "收起背景" },
+      { name: "--yn-search-bg-active", desc: "展开/悬停壳层背景" },
+      { name: "--yn-search-bg-idle", desc: "收起壳层背景" },
+      { name: "--yn-search-field-bg", default: "var(--bg-fill)", desc: "输入框背景（建议与壳层一致）" },
       { name: "--yn-search-icon-color", desc: "图标色" },
       { name: "--yn-search-field-color", desc: "输入文本色" },
       { name: "--yn-search-placeholder-color", desc: "占位文本色" },
@@ -253,8 +274,9 @@ const shadowHtml = renderYnNavigationShadowHtml({
       { name: "--yn-search-icon-ease", desc: "图标切换曲线" }
     ],
     notes: [
-      "示例中的 `search-demo-stage` 是外层页面背景，不属于组件 Shadow DOM；如果复制到业务项目，需要自己提供等价容器样式。",
-      "`datalist` 候选弹层由浏览器原生绘制，不是组件 DOM；Storybook 与文档站若浏览器、缩放、系统主题不同，候选弹层视觉可能不一致。组件主要负责 input 胶囊、图标和背景形变样式。"
+      "组件使用 Shadow DOM 样式隔离；示例中的 `search-demo-stage` 是外层页面背景，不属于组件 Shadow DOM。",
+      "展开总宽度 = 44（按钮）+ 10（间距）+ input-width。`expand-direction=\"right\"` 时左缘固定、逐步顶开右侧兄弟；`left` 时右缘固定、逐步顶开左侧兄弟。",
+      "`datalist` 候选弹层由浏览器原生绘制，不是组件 DOM；Storybook 与文档站若浏览器、缩放、系统主题不同，候选弹层视觉可能不一致。"
     ]
   }),
 

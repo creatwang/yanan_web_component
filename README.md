@@ -111,7 +111,7 @@ pnpm dev   # http://localhost:5173/introduction — Floema 风格文档，含中
 | 按钮 | `yn-button` | 语义色按钮、加载态、图标插槽 |
 | 输入框 | `yn-input` | Floema 风格输入，前后置按钮插槽 |
 | 导航 | `yn-navigation` | 胶囊导航，支持 SEO 链接模式 |
-| 搜索 | `yn-search` | 可展开搜索框，支持 datalist |
+| 搜索 | `yn-search` | 可展开搜索框，支持左右展开、datalist、两步关闭 |
 | 选项组 | `yn-group-pick` | 单选/多选容器，配合 `yn-pick` |
 | 选项 | `yn-pick` | 单个可选项 |
 | 下拉弹层 | `yn-dropdown` | 通用下拉定位弹层 |
@@ -460,23 +460,31 @@ const shadowHtml = renderYnNavigationShadowHtml({
 
 **标签名**：`yn-search`  
 **类名**：`YnSearch`  
-**导入**：`yn-web-component/components/yn-search`  
+**导入**（推荐按需）：`yn-web-component/components/yn-search`  
 **用途**：可展开/收起的搜索框，支持原生 `datalist` 候选项。
+
+> **样式隔离**：组件使用 Shadow DOM，外部样式默认不穿透；请通过下方 CSS 变量定制外观。
 
 #### 属性
 
 | 属性 | 类型 | 默认值 | 说明 |
 | --- | --- | --- | --- |
-| `input-width` | `number` | `514` | 展开后输入区宽度（px，不含按钮区） |
+| `input-width` | `number` | `514` | 输入区域宽度（px，最小 80） |
 | `placeholder` | `string` | `"O que estás à procura?"` | 占位文案 |
 | `disabled` | `boolean` | `false` | 禁用交互 |
-| `close` | `boolean` | `false` | `true`：有值时先清空、无值才收起；`false`：直接清空并收起 |
+| `close` | `boolean` | `true` | 关闭行为：`true` 时有值首次点击仅清空并派发 `input`，无值再收起；`false` 时点击即清空并收起 |
+| `open` | `boolean` | `false` | 是否默认展开；`true` 时初始为展开态（无入场动画） |
+| `expand-direction` | `"left" \| "right"` | `"right"` | 展开方向：`right` 向右展开并顶开右侧兄弟元素；`left` 向左展开并顶开左侧兄弟元素 |
+
+#### 展开尺寸
+
+展开总宽度 = **44（按钮区）+ 10（间距）+ input-width**（`input-width` 参与计算时最小按 80 处理）。
 
 #### 事件
 
 | 事件 | `detail` | 说明 |
 | --- | --- | --- |
-| `input` | `{ value: string }` | 输入内容变化 |
+| `input` | `{ value: string }` | 输入内容变化（含清空时 `{ value: "" }`） |
 | `enter` | `{ value: string }` | 按下回车键 |
 
 #### 插槽
@@ -487,26 +495,75 @@ const shadowHtml = renderYnNavigationShadowHtml({
 
 #### CSS 变量
 
-| 变量 | 说明 |
-| --- | --- |
-| `--yn-search-bg-active` | 展开/悬停时背景色 |
-| `--yn-search-bg-idle` | 收起时背景色 |
-| `--yn-search-icon-color` | 图标颜色 |
-| `--yn-search-fill-duration` | 背景过渡时长 |
-| `--yn-search-fill-ease` | 背景过渡曲线 |
-| `--yn-search-icon-duration` | 图标过渡时长 |
-| `--yn-search-icon-ease` | 图标过渡曲线 |
+| 变量 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--yn-search-bg-active` | 展开/悬停时壳层背景色 | `rgba(255, 255, 255, 0.96)` |
+| `--yn-search-bg-idle` | 收起时壳层背景色 | `transparent` |
+| `--yn-search-field-bg` | 输入框背景色（建议与壳层一致） | `var(--bg-fill)` |
+| `--yn-search-icon-color` | 搜索/关闭图标颜色 | `#241f21` |
+| `--yn-search-field-color` | 输入文字颜色 | `rgba(36, 31, 33, 0.7)` |
+| `--yn-search-caret-color` | 光标颜色 | `#241f21` |
+| `--yn-search-placeholder-color` | 占位符颜色 | `rgba(36, 31, 33, 0.6)` |
+| `--yn-search-fill-duration` | 背景 fill/stroke 过渡时长 | `220ms` |
+| `--yn-search-fill-ease` | 背景 fill/stroke 过渡曲线 | `cubic-bezier(0.4, 0, 1, 1)` |
+| `--yn-search-icon-duration` | 图标切换过渡时长 | `220ms` |
+| `--yn-search-icon-ease` | 图标切换过渡曲线 | `cubic-bezier(0.4, 0, 1, 1)` |
 
 #### 示例
 
+**按需导入（推荐 Tree Shaking）**
+
+```ts
+import "yn-web-component/components/yn-search";
+// 或
+import { YnSearch } from "yn-web-component/components/yn-search";
+```
+
+**基础用法 + datalist**
+
 ```html
-<yn-search @enter=${(e) => search(e.detail.value)}>
+<yn-search
+  input-width="240"
+  placeholder="搜索商品"
+  style="--yn-search-field-bg: var(--bg-fill);"
+  @input=${(e) => console.log(e.detail.value)}
+  @enter=${(e) => search(e.detail.value)}
+>
   <datalist>
     <option value="Sofa"></option>
     <option value="Chair"></option>
   </datalist>
 </yn-search>
 ```
+
+**向右展开，顶开右侧导航项（flex 布局）**
+
+```html
+<div style="display:flex;align-items:center;gap:12px;width:fit-content;">
+  <yn-search expand-direction="right" input-width="240"></yn-search>
+  <button type="button">Cart</button>
+  <span>Menu</span>
+</div>
+```
+
+**向左展开，顶开左侧 Brand（右对齐容器）**
+
+```html
+<div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;width:fit-content;margin-left:auto;">
+  <span>Brand</span>
+  <yn-search expand-direction="left" input-width="240"></yn-search>
+</div>
+```
+
+**默认展开（无入场动画）**
+
+```html
+<yn-search open input-width="240"></yn-search>
+```
+
+**两步关闭（`close` 默认 `true`）**
+
+展开后输入内容时：首次点击关闭按钮仅清空并派发 `input`；再次点击才播放收起动画。若希望点击即收起，设置 `close="false"`。
 
 ---
 

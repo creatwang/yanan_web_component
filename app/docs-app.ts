@@ -307,8 +307,8 @@ export class YnDocsApp extends LitElement {
         en: "Tip: click to open the drawer slide animation."
       },
       "yn-search": {
-        "zh-CN": "提示：点击搜索图标展开输入区。",
-        en: "Tip: click the search icon to expand."
+        "zh-CN": "提示：点击搜索图标展开；有值时首次点击关闭仅清空。Controls 可切换 expand-direction / open。",
+        en: "Tip: click to expand; first close click clears text when `close` is true. Try expand-direction / open in Controls."
       },
       "yn-toast": {
         "zh-CN": "提示：点击下方按钮触发灵动岛反馈动画。",
