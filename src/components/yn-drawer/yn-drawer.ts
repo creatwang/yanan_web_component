@@ -6,6 +6,8 @@ import { ynClose20Svg } from "../../asset/svg";
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
+const YN_DRAWER_DSD_DEDUPE = ["#drawerPopover", ".trigger-wrap"] as const;
+
 export type YnDrawerOpenChangeDetail = {
   open: boolean;
   source: YnDrawerLifecycleSource;
@@ -160,7 +162,7 @@ export class YnDrawer extends LitElement {
   bootstrapFromDeclarativeShadow() {
     const root = this.shadowRoot;
     if (!root) return;
-    dedupeShadowDsdContent(root, "#drawerPopover");
+    dedupeShadowDsdContent(root, [...YN_DRAWER_DSD_DEDUPE]);
     ensureRenderRoot(this);
     const triggerSlot = root.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
     const hasSlottedTrigger = (triggerSlot?.assignedElements({ flatten: true }).length ?? 0) > 0;
@@ -473,4 +475,6 @@ declare global {
   }
 }
 
-applyLitDsd(YnDrawer, "#drawerPopover", (el) => el.bootstrapFromDeclarativeShadow());
+applyLitDsd(YnDrawer, "#drawerPopover", (el) => el.bootstrapFromDeclarativeShadow(), {
+  dedupe: [...YN_DRAWER_DSD_DEDUPE],
+});

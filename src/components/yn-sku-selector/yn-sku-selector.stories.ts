@@ -1052,15 +1052,16 @@ export const SpecKeyWhitelistExclude: Story = {
   },
   play: async ({ canvasElement, step }) => {
     const host = getHost(canvasElement);
-    if (!host?.shadowRoot) return;
+    const shadowRoot = host?.shadowRoot;
+    if (!host || !shadowRoot) return;
 
     await step("仅渲染 Weight 与 Size 两组规格", async () => {
       await host.updateComplete;
-      const labels = [...host.shadowRoot.querySelectorAll<HTMLElement>(".label")].map((node) =>
+      const labels = [...shadowRoot.querySelectorAll<HTMLElement>(".label")].map((node) =>
         node.textContent?.trim()
       );
       expect(labels).toEqual(["Weight", "Size"]);
-      expect(host.shadowRoot.querySelectorAll(".section").length).toBe(2);
+      expect(shadowRoot.querySelectorAll(".section").length).toBe(2);
     });
   }
 };

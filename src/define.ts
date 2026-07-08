@@ -1,6 +1,5 @@
 import "./components/yn-button/yn-button";
 import "./components/yn-input/yn-input";
-import "./components/yn-icon-connect-button/yn-icon-connect-button";
 import "./components/yn-navigation/yn-navigation";
 import "./components/yn-search/yn-search";
 import "./components/yn-group-pick/yn-group-pick";
@@ -10,6 +9,7 @@ import "./components/yn-dropdown-pick/yn-dropdown-pick";
 import "./components/yn-drawer/yn-drawer";
 import "./components/yn-toast/yn-toast";
 import "./components/yn-cookie-notice/yn-cookie-notice";
+import "./components/yn-icon-connect-button/yn-icon-connect-button";
 import "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 import "./components/yn-quantity/yn-quantity";
 import "./components/yn-checkout-address/yn-checkout-address";

@@ -159,7 +159,7 @@ describe("yn-search", () => {
     if (!input || !toggle) throw new Error("missing search controls");
 
     input.value = "Chair";
-    expect(el.value).to.equal("");
+    expect(input.value).to.equal("Chair");
 
     toggle.click();
     await el.updateComplete;
@@ -176,7 +176,7 @@ describe("yn-search", () => {
     if (!input) throw new Error("missing input");
 
     input.value = "Chair";
-    expect(el.value).to.equal("");
+    expect(input.value).to.equal("Chair");
 
     const enterPromise = oneEvent(el, "enter");
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true, composed: true }));

@@ -73,26 +73,27 @@
 
 ### 打包体积
 
-> 以下数据来自本地 `pnpm build` ESM 产物（v1.0.2，构建日期 2026-06-05）。按需导入路径：`yn-web-component/components/<name>`。完整表格见文档站 `#/bundle-size`。
+> 以下数据来自本地 `pnpm build` ESM 产物（v1.0.9，构建日期 2026-07-08）。按需导入路径：`yn-web-component/components/<name>`。完整表格见文档站 `#/bundle-size`。
 
 | 组件 | ESM | gzip | 备注 |
 | --- | --- | --- | --- |
-| `yn-pick` | 3.96 kB | 1.65 kB | |
-| `yn-group-pick` | 4.71 kB | 1.97 kB | |
-| `yn-input` | 8.41 kB | 2.39 kB | |
-| `yn-quantity` | 8.66 kB | 2.48 kB | |
-| `yn-icon-connect-button` | 11.61 kB | 3.92 kB | |
-| `yn-button` | 13.79 kB | 3.46 kB | |
-| `yn-dropdown-pick` | 14.88 kB | 4.54 kB | |
-| `yn-dropdown` | 17.06 kB | 4.78 kB | |
-| `yn-drawer` | 18.92 kB | 4.60 kB | |
-| `yn-search` | 20.46 kB | 5.98 kB | |
-| `yn-toast` | 21.53 kB | 5.42 kB | |
-| `yn-navigation` | 21.74 kB | 6.91 kB | |
-| `yn-sku-selector` | ~25.4 kB | ~6.33 kB | 入口 + 分包合计 |
-| `yn-pull-cord-switch` | 49.70 kB | 11.85 kB | 含绳物理引擎 |
-| `yn-checkout-address` | ~84.1 kB | ~20.6 kB | 入口 + 分包，含 dr5hn 逻辑 |
-| **全量 IIFE** | **314.86 kB** | **76.52 kB** | `dist/index.iife.js` |
+| `yn-quantity` | 4.36 kB | 1.51 kB | |
+| `yn-group-pick` | 4.60 kB | 1.92 kB | |
+| `yn-input` | 4.89 kB | 1.55 kB | |
+| `yn-pick` | 7.14 kB | 2.42 kB | |
+| `yn-icon-connect-button` | 11.29 kB | 3.82 kB | |
+| `yn-drawer` | 11.62 kB | 3.18 kB | |
+| `yn-dropdown-pick` | 13.05 kB | 4.19 kB | |
+| `yn-button` | 14.35 kB | 3.70 kB | |
+| `yn-dropdown` | 16.66 kB | 4.67 kB | |
+| `yn-search` | 18.82 kB | 5.17 kB | |
+| `yn-toast` | 20.98 kB | 5.27 kB | |
+| `yn-navigation` | 21.08 kB | 6.72 kB | |
+| `yn-sku-selector` | ~26.8 kB | ~6.8 kB | 入口 + 分包合计 |
+| `yn-pull-cord-switch` | ~49.8 kB | ~12.4 kB | 含绳物理引擎分包 |
+| `yn-checkout-address` | ~74.6 kB | ~18.0 kB | 入口 + 分包，含 dr5hn 逻辑 |
+| `yn-cookie-notice` | 167.17 kB | 114.06 kB | 含内联图片，改版后优化 |
+| **全量 IIFE** | **495.81 kB** | **195.93 kB** | `dist/index.iife.js` |
 
 ### 在线文档站
 
@@ -344,6 +345,31 @@ import "yn-web-component/theme.css";
 ```html
 <yn-input placeholder="搜索" @yn-input=${(e) => console.log(e.detail.value)}>
   <span slot="suffix-button"><!-- SVG 图标 --></span>
+</yn-input>
+```
+
+#### Astro / SSR 首屏（Declarative Shadow DOM）
+
+服务端用 **`renderYnInputShadowHtml`** 生成与组件一致的 Shadow 内容，浏览器在 `define.js` 加载前即可显示完整输入框。
+
+**SSR 辅助 API**（`yn-web-component/ssr/yn-input`）：
+
+| API | 说明 |
+| --- | --- |
+| `renderYnInputShadowHtml(options)` | 生成 DSD Shadow 内容（含共享样式） |
+
+```ts
+import { renderYnInputShadowHtml } from "yn-web-component/ssr/yn-input"
+
+const shadowHtml = renderYnInputShadowHtml({
+  placeholder: "搜索",
+  value: "",
+})
+```
+
+```html
+<yn-input placeholder="搜索">
+  <template shadowrootmode="open" set:html={shadowHtml} />
 </yn-input>
 ```
 
@@ -1220,6 +1246,26 @@ import "yn-web-component/components/yn-cookie-notice";
 <yn-quantity .value=${1} .min=${1} .max=${99} @change=${onChange}></yn-quantity>
 ```
 
+#### Astro / SSR 首屏（Declarative Shadow DOM）
+
+**SSR 辅助 API**（`yn-web-component/ssr/yn-quantity`）：
+
+| API | 说明 |
+| --- | --- |
+| `renderYnQuantityShadowHtml(options)` | 生成 DSD Shadow 内容（减号/数字/加号首帧） |
+
+```ts
+import { renderYnQuantityShadowHtml } from "yn-web-component/ssr/yn-quantity"
+
+const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
+```
+
+```html
+<yn-quantity value="1" min="1" max="99">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-quantity>
+```
+
 ---
 
 ### yn-checkout-address
@@ -1436,19 +1482,25 @@ import "yn-web-component/components/yn-cookie-notice";
 | --- | --- |
 | yn-button | `yn-web-component/components/yn-button` |
 | yn-input | `yn-web-component/components/yn-input` |
+| yn-input SSR | `yn-web-component/ssr/yn-input`（`renderYnInputShadowHtml`） |
 | yn-navigation | `yn-web-component/components/yn-navigation` |
 | yn-navigation SSR | `yn-web-component/ssr/yn-navigation`（`renderYnNavigationShadowHtml`、`renderYnNavigationSeoFallbackHtml`、`YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES`） |
 | yn-search | `yn-web-component/components/yn-search` |
+| yn-search SSR | `yn-web-component/ssr/yn-search`（`renderYnSearchShadowHtml`） |
 | yn-cookie-notice | `yn-web-component/components/yn-cookie-notice` |
 | yn-group-pick | `yn-web-component/components/yn-group-pick` |
 | yn-pick | `yn-web-component/components/yn-pick` |
 | yn-dropdown | `yn-web-component/components/yn-dropdown` |
 | yn-dropdown-pick | `yn-web-component/components/yn-dropdown-pick` |
+| yn-dropdown-pick SSR | `yn-web-component/ssr/yn-dropdown-pick`（`renderYnDropdownPickShadowHtml`） |
 | yn-drawer | `yn-web-component/components/yn-drawer` |
+| yn-drawer SSR | `yn-web-component/ssr/yn-drawer`（`renderYnDrawerShadowHtml`） |
+| yn-button SSR | `yn-web-component/ssr/yn-button`（`renderYnButtonShadowHtml`） |
 | yn-toast | `yn-web-component/components/yn-toast` |
 | yn-icon-connect-button | `yn-web-component/components/yn-icon-connect-button` |
 | yn-pull-cord-switch | `yn-web-component/components/yn-pull-cord-switch` |
 | yn-quantity | `yn-web-component/components/yn-quantity` |
+| yn-quantity SSR | `yn-web-component/ssr/yn-quantity`（`renderYnQuantityShadowHtml`） |
 | yn-checkout-address | `yn-web-component/components/yn-checkout-address` |
 | yn-sku-selector | `yn-web-component/components/yn-sku-selector` |
 
@@ -1458,7 +1510,13 @@ import "yn-web-component/components/yn-cookie-notice";
 | --- | --- |
 | `yn-web-component` | 主入口，导出所有组件类与类型 |
 | `yn-web-component/define` | 全量注册所有自定义元素 |
-| `yn-web-component/ssr/yn-navigation` | Astro DSD 首屏导航 + light DOM SEO 链接层辅助 API |
+| `yn-web-component/ssr/yn-navigation` | Astro DSD 首屏导航 + light DOM SEO 链接层 |
+| `yn-web-component/ssr/yn-search` | Astro DSD 首屏搜索框 |
+| `yn-web-component/ssr/yn-button` | Astro DSD 首屏按钮 |
+| `yn-web-component/ssr/yn-drawer` | Astro DSD 首屏抽屉 |
+| `yn-web-component/ssr/yn-dropdown-pick` | Astro DSD 首屏下拉选择 |
+| `yn-web-component/ssr/yn-input` | Astro DSD 首屏输入框 |
+| `yn-web-component/ssr/yn-quantity` | Astro DSD 首屏数量选择器 |
 | `yn-web-component/theme.css` | 全局主题样式 |
 | `yn-web-component/asset/svg` | SVG 资源 |
 

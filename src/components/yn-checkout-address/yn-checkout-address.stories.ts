@@ -29,6 +29,7 @@ export const SAMPLE_ECHO_VALUE: YnCheckoutAddressValue = {
   lastName: "Al Mansoori",
   phoneNumber: "501234567",
   email: "buyer@example.com",
+  whatsapp: "",
   line1: "Sheikh Zayed Rd 1",
   line2: "Floor 12",
   postalCode: "12345",

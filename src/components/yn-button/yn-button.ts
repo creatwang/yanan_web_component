@@ -8,6 +8,8 @@ type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | 
 type ButtonSize = "mini" | "small" | "medium";
 type ButtonLoadingType = "left" | "center" | "right";
 
+const YN_BUTTON_DSD_DEDUPE = [":scope > button.button", "button.button"] as const;
+
 /**
  * 通用按钮：通过 `variant`、`size` 控制外观，`loading` 显示加载态。
  *
@@ -345,7 +347,7 @@ export class YnButton extends LitElement {
   bootstrapFromDeclarativeShadow() {
     const root = this.shadowRoot;
     if (!root) return;
-    dedupeShadowDsdContent(root, "button.button");
+    dedupeShadowDsdContent(root, [...YN_BUTTON_DSD_DEDUPE]);
     ensureRenderRoot(this);
     root.querySelector('slot[name="prefix-icon"]')?.addEventListener("slotchange", this.handlePrefixSlotChange);
     root.querySelector('slot[name="suffix-icon"]')?.addEventListener("slotchange", this.handleSuffixSlotChange);
@@ -477,4 +479,6 @@ declare global {
   }
 }
 
-applyLitDsd(YnButton, "button.button", (el) => el.bootstrapFromDeclarativeShadow());
+applyLitDsd(YnButton, "button.button", (el) => el.bootstrapFromDeclarativeShadow(), {
+  dedupe: [...YN_BUTTON_DSD_DEDUPE],
+});

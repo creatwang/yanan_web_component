@@ -50,8 +50,14 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
     tag: "yn-input",
     className: "YnInput",
     importPath: "yn-web-component/components/yn-input",
-    description: "Floema 风格圆角输入框，支持前后置按钮插槽。",
-    usageCode: `<yn-input placeholder="搜索" @yn-input=\${onInput}></yn-input>`,
+    description: "Floema 风格圆角输入框，支持前后置按钮插槽与 Astro DSD 首屏 SSR。",
+    usageCode: `import { renderYnInputShadowHtml } from "yn-web-component/ssr/yn-input"
+
+const shadowHtml = renderYnInputShadowHtml({ placeholder: "搜索", value: "" })
+
+<yn-input placeholder="搜索">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-input>`,
     props: [
       { name: "value", type: "string", default: '""', desc: "当前值" },
       { name: "placeholder", type: "string", default: '"请输入内容"', desc: "占位文案" },
@@ -72,6 +78,10 @@ export const COMPONENT_PAGES: ComponentDocPage[] = [
       { name: "--yn-input-bg", desc: "背景" },
       { name: "--yn-input-border-color", desc: "边框" },
       { name: "--yn-input-radius", default: "999px", desc: "圆角" }
+    ],
+    notes: [
+      "首屏 SSR：renderYnInputShadowHtml（yn-web-component/ssr/yn-input）生成 DSD Shadow，与 Lit 组件共用样式。",
+      "前后置按钮通过 slot 注入；SSR 首帧默认无按钮，升级后 slotchange 自动同步。"
     ]
   }),
 
@@ -393,8 +403,14 @@ const shadowHtml = renderYnNavigationShadowHtml({
     tag: "yn-quantity",
     className: "YnQuantity",
     importPath: "yn-web-component/components/yn-quantity",
-    description: "Floema 风格数量选择器（减 / 输入 / 加）。",
-    usageCode: `<yn-quantity .value=\${1} .min=\${1} .max=\${99} @change=\${onChange}></yn-quantity>`,
+    description: "Floema 风格数量选择器（减 / 输入 / 加），支持 Astro DSD 首屏 SSR。",
+    usageCode: `import { renderYnQuantityShadowHtml } from "yn-web-component/ssr/yn-quantity"
+
+const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
+
+<yn-quantity value="1" min="1" max="99">
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-quantity>`,
     props: [
       { name: "value", type: "number", default: "1", desc: "当前数量" },
       { name: "min", type: "number", default: "1", desc: "最小值" },
@@ -408,6 +424,9 @@ const shadowHtml = renderYnNavigationShadowHtml({
       { name: "--yn-quantity-height", default: "44px", desc: "高度" },
       { name: "--yn-quantity-radius", default: "999px", desc: "圆角" },
       { name: "--yn-quantity-color", desc: "文字/图标色" }
+    ],
+    notes: [
+      "首屏 SSR：renderYnQuantityShadowHtml（yn-web-component/ssr/yn-quantity）生成 DSD stepper 首帧。"
     ]
   }),
 

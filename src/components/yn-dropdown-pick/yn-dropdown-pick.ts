@@ -8,6 +8,8 @@ import { ynDropdownPickCheckSvg, ynDropdownPickChevronUpSvg } from "../../asset/
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_DROPDOWN_PICK_SHADOW_STYLES } from "./yn-dropdown-pick-styles.js";
 
+const YN_DROPDOWN_PICK_DSD_DEDUPE = [".root"] as const;
+
 type Primitive = string | number;
 type PickValue = Primitive | "";
 
@@ -326,7 +328,7 @@ export class YnDropdownPick extends LitElement {
   bootstrapFromDeclarativeShadow() {
     const root = this.shadowRoot;
     if (!root) return;
-    dedupeShadowDsdContent(root, ".root .trigger");
+    dedupeShadowDsdContent(root, [...YN_DROPDOWN_PICK_DSD_DEDUPE]);
     ensureRenderRoot(this);
     root.querySelector(".trigger")?.addEventListener("click", this.handleDsdTriggerClick);
     root.querySelector("slot")?.addEventListener("slotchange", this.handleSlotChange);
@@ -444,4 +446,6 @@ declare global {
   }
 }
 
-applyLitDsd(YnDropdownPick, ".root .trigger", (el) => el.bootstrapFromDeclarativeShadow());
+applyLitDsd(YnDropdownPick, ".root .trigger", (el) => el.bootstrapFromDeclarativeShadow(), {
+  dedupe: [...YN_DROPDOWN_PICK_DSD_DEDUPE],
+});

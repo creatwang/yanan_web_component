@@ -266,6 +266,7 @@ export const SettingsPanel: Story = {
 
     await step("展开 cookies settings 面板", async () => {
       const root = notice.shadowRoot;
+      if (!root) throw new Error("missing shadow root");
       const toggle = root.querySelector<HTMLButtonElement>(".settings-toggle");
       if (!toggle) throw new Error("缺少 settings 按钮");
       await userEvent.click(toggle);

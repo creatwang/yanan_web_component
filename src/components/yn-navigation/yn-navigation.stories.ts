@@ -4,6 +4,8 @@ import "./yn-navigation";
 
 type Args = {
   items: Record<string, string>;
+  /** SSR 用 JSON 字符串预注入 items（对应 `items-json` 属性） */
+  itemsJson?: string;
   active: string;
   seoMode: boolean;
   ariaLabel: string;

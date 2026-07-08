@@ -1,9 +1,17 @@
-import { LitElement, html, nothing, type TemplateResult, type PropertyValues } from "lit";
-import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
+import { LitElement, html, nothing, type PropertyValues } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import type { AddressSuggestion } from "./address-providers";
 import { checkoutAddressFormStyles } from "./checkout-address-styles";
+import { renderFloatField } from "./checkout-address-field-templates";
+import {
+  renderCheckoutSkeleton,
+  renderDevPanel,
+  renderManualBanner,
+  renderManualRegionSection,
+  renderRegionStep,
+  renderShippingSection,
+  type CheckoutAddressViewHost,
+} from "./checkout-address-views";
 import { loadDr5hnModule, peekDr5hnModule } from "./dr5hn-loader";
 import type { Dr5hnRegionSuggestion, RegionSearchLevel } from "./dr5hn-region-types";
 import { resolveCheckoutMessages } from "./messages";
@@ -28,7 +36,6 @@ import {
   type CheckoutFieldSet,
 } from "./field-ids";
 import {
-  buildRegionSummary,
   buildSearchLabel,
   diffCheckoutValueKeys,
   isSameChangeDetail,
@@ -754,77 +761,11 @@ export class YnCheckoutAddress extends LitElement {
     });
   }
 
-  /** Flutter / Material 式上浮 label（`placeholder=" "` + label 置于 input 之后） */
-  private renderFloatField(opts: {
-    id: string;
-    label: string;
-    value: string;
-    onInput: (event: Event) => void;
-    errorField?: YnCheckoutAddressField;
-    invalidField?: YnCheckoutAddressField;
-    disabled?: boolean;
-    autocomplete?: string;
-    inputmode?: string;
-    type?: string;
-    maxlength?: number;
-    controlClass?: string;
-    trailing?: TemplateResult;
-    helper?: string;
-  }) {
-    const invalid = opts.invalidField ? this.inputClass(opts.invalidField) : "";
-    return html`
-      <div class="float-field ${opts.trailing ? "float-field--has-trailing" : ""}">
-        <div class="float-field__control ${opts.controlClass ?? ""}">
-          <input
-            id=${opts.id}
-            type=${opts.type ?? "text"}
-            placeholder=" "
-            autocomplete=${opts.autocomplete ?? "off"}
-            inputmode=${opts.inputmode ?? nothing}
-            maxlength=${opts.maxlength ?? nothing}
-            ?disabled=${opts.disabled}
-            class=${invalid}
-            .value=${opts.value}
-            @input=${opts.onInput}
-          />
-          <label class="float-field__label" for=${opts.id}>${opts.label}</label>
-          ${opts.trailing ?? nothing}
-        </div>
-        ${opts.helper ? html`<p class="field-helper">${opts.helper}</p>` : nothing}
-        ${opts.errorField ? this.fieldError(opts.errorField) : nothing}
-      </div>
-    `;
+  private get viewHost(): CheckoutAddressViewHost {
+    return this as unknown as CheckoutAddressViewHost;
   }
 
-  private renderFloatTextarea(opts: {
-    id: string;
-    label: string;
-    value: string;
-    onInput: (event: Event) => void;
-    disabled?: boolean;
-    maxlength?: number;
-    helper?: string;
-  }) {
-    return html`
-      <div class="float-field float-field--multiline">
-        <div class="float-field__control float-field__control--textarea">
-          <label class="float-field__label" for=${opts.id}>${opts.label}</label>
-          <textarea
-            id=${opts.id}
-            class="float-field__textarea"
-            placeholder=" "
-            rows="3"
-            maxlength=${opts.maxlength ?? 500}
-            ?disabled=${opts.disabled}
-            .value=${opts.value}
-            @input=${opts.onInput}
-          ></textarea>
-        </div>
-        ${opts.helper ? html`<p class="field-helper">${opts.helper}</p>` : nothing}
-      </div>
-    `;
-  }
-
+  /** Flutter / Material 式上浮 label 字段由 checkout-address-field-templates 渲染 */
   private fieldError(field: YnCheckoutAddressField) {
     if (!this.showFieldErrors) {
       return nothing;
@@ -841,7 +782,7 @@ export class YnCheckoutAddress extends LitElement {
     if (!this.showEmail) {
       return nothing;
     }
-    return this.renderFloatField({
+    return renderFloatField(this.viewHost, {
       id: "yn-ca-email",
       label: this.msg.email,
       value: this.email,
@@ -861,7 +802,7 @@ export class YnCheckoutAddress extends LitElement {
     const label = this.whatsappRequired
       ? `${this.msg.whatsapp} *`
       : `${this.msg.whatsapp} (${this.msg.fieldMarkOptional})`;
-    return this.renderFloatField({
+    return renderFloatField(this.viewHost, {
       id: "yn-ca-whatsapp",
       label,
       value: this.whatsapp,
@@ -884,7 +825,7 @@ export class YnCheckoutAddress extends LitElement {
     const label = required
       ? `${this.msg.postal} *`
       : `${this.msg.postal} (${this.msg.fieldMarkOptional})`;
-    return this.renderFloatField({
+    return renderFloatField(this.viewHost, {
       id: inputId,
       label,
       value: this.postalCode,
@@ -1270,314 +1211,18 @@ export class YnCheckoutAddress extends LitElement {
     return this.msg[key];
   }
 
-  private renderSkeleton() {
-    return html`
-      <div class="stack skeleton-stack" aria-busy="true" aria-live="polite">
-        <p class="skeleton-hint">${this.msg.probing}</p>
-        <div class="checkout-step skeleton-panel">
-          <div class="skeleton-line skeleton-line--label"></div>
-          <div class="skeleton-line skeleton-line--field"></div>
-        </div>
-      </div>
-    `;
-  }
-
-  private regionSummaryText() {
-    return buildRegionSummary({
-      searchLabel: this.query,
-      cityName: this.cityName,
-      stateName: this.stateName,
-      countryName: this.countryName,
-      countryCode: this.countryCode,
-    });
-  }
-
-  /** 已确认地区：紧凑条，避免再占一整张卡片（结账 UX 常见模式） */
-  private renderRegionChip() {
-    return html`
-      <div class="region-chip">
-        <div class="region-chip__body">
-          <span class="region-chip__step" aria-hidden="true">1</span>
-          <div class="region-chip__text">
-            <span class="region-chip__label">${this.msg.sectionRegion}</span>
-            <p class="region-chip__value">${this.regionSummaryText()}</p>
-          </div>
-        </div>
-        <button
-          type="button"
-          class="region-chip__edit"
-          ?disabled=${this.disabled}
-          @click=${this.startRegionEdit}
-        >
-          ${this.msg.regionEdit}
-        </button>
-      </div>
-    `;
-  }
-
-  /** 步骤 1：仅搜索/选择配送地区（联想优先） */
-  private renderRegionStep() {
-    const mode = this.activeProvider!;
-    return html`
-      <section class="checkout-step checkout-step--region">
-        <header class="step-header">
-          <span class="step-badge" aria-hidden="true">1</span>
-          <div class="step-header__body">
-            <h2 class="step-title">${this.msg.sectionRegion}</h2>
-            <p class="step-lead">${this.usageHintForProvider(mode)}</p>
-          </div>
-        </header>
-        ${this.renderSearch()}
-      </section>
-    `;
-  }
-
-  private renderSearch() {
-    const searchId = this.fields.region;
-    const label = this.isDr5hnRegionSearch
-      ? this.msg.regionSearchLabel
-      : this.msg.addressSearchLabel;
-
-    const showClear = Boolean(this.query.trim()) && !this.disabled;
-
-    return html`
-      <div class="float-field float-field--search search-wrap">
-        <div class="float-field__control float-field__control--search">
-          <input
-            id=${searchId}
-            class=${`float-field__input ${this.inputClass("region")}`}
-            type="text"
-            role="combobox"
-            aria-autocomplete="list"
-            aria-expanded=${this.suggestionsOpen ? "true" : "false"}
-            autocomplete="off"
-            placeholder=" "
-            ?disabled=${this.disabled}
-            .value=${this.query}
-            @input=${this.handleSearchInput}
-          />
-          <label class="float-field__label" for=${searchId}>${label}</label>
-          ${showClear
-            ? html`
-                <button
-                  type="button"
-                  class="search-field__trailing search-field__clear"
-                  aria-label=${this.msg.searchClear}
-                  @click=${this.clearSearch}
-                >
-                  ${unsafeSVG(ynSearchCloseSvg)}
-                </button>
-              `
-            : html`
-                <span class="search-field__trailing search-field__hint" aria-hidden="true">
-                  ${unsafeSVG(ynSearchSvg)}
-                </span>
-              `}
-        </div>
-        ${this.fieldError("region")}
-        ${this.searching ? html`<p class="hint">${this.msg.searching}</p>` : nothing}
-        ${this.searchError
-          ? html`<p class="hint ${this.isDr5hnMode ? "hint--warn" : "hint--error"}">${this.searchError}</p>`
-          : nothing}
-        ${this.suggestionsOpen
-          ? html`
-              <ul class="dropdown" role="listbox">
-                ${this.isDr5hnMode
-                  ? this.dr5hnSuggestions.map(
-                      (item) => html`
-                        <li>
-                          <button type="button" @click=${() => this.applyDr5hnRegion(item)}>
-                            ${item.label}
-                            <span class="meta">${this.dr5hnLevelLabel(item.level)}</span>
-                          </button>
-                        </li>
-                      `,
-                    )
-                  : this.suggestions.map(
-                      (item) => html`
-                        <li>
-                          <button type="button" @click=${() => void this.applyGoogleSuggestion(item)}>
-                            ${item.label}
-                          </button>
-                        </li>
-                      `,
-                    )}
-              </ul>
-            `
-          : nothing}
-      </div>
-    `;
-  }
-
-  /**
-   * 步骤 2：街道 + 联系（文章建议：Line1 主地址、Line2 明确 apt/unit、邮编独立一行）
-   */
-  private renderShippingSection(
-    firstNameId: string,
-    lastNameId: string,
-    phoneId: string,
-    line1Id: string,
-    line2Id: string,
-    zipId: string,
-    notesId: string,
-  ) {
-    return html`
-      <section class="checkout-card" aria-labelledby="yn-ca-shipping-title">
-        ${this.renderRegionChip()}
-        ${this.showInlineRegionSearch && this.activeProvider === "photon"
-          ? html`<p class="step-lead step-lead--inline">${this.msg.usageHintPhoton}</p>`
-          : nothing}
-        ${this.showInlineRegionSearch && this.isDr5hnMode
-          ? html`<p class="step-lead step-lead--inline">${this.msg.usageHintDr5hn}</p>`
-          : nothing}
-        ${this.showInlineRegionSearch ? this.renderSearch() : nothing}
-        <header class="step-header step-header--inset">
-          <span class="step-badge" aria-hidden="true">2</span>
-          <h2 id="yn-ca-shipping-title" class="step-title">${this.msg.sectionShipping}</h2>
-        </header>
-        <div class="field-stack">
-          <div class="grid-2">
-            ${this.renderFloatField({
-              id: firstNameId,
-              label: `${this.msg.firstName} *`,
-              value: this.firstName,
-              autocomplete: "given-name",
-              errorField: "firstName",
-              invalidField: "firstName",
-              disabled: this.disabled,
-              onInput: this.handleFieldInput("firstName"),
-            })}
-            ${this.renderFloatField({
-              id: lastNameId,
-              label: `${this.msg.lastName} *`,
-              value: this.lastName,
-              autocomplete: "family-name",
-              errorField: "lastName",
-              invalidField: "lastName",
-              disabled: this.disabled,
-              onInput: this.handleFieldInput("lastName"),
-            })}
-          </div>
-          ${this.renderEmailFields()}
-          ${this.renderWhatsappFields()}
-          ${this.renderPhoneField(phoneId)}
-          ${this.renderFloatField({
-            id: line1Id,
-            label: `${this.msg.detailAddress} *`,
-            value: this.line1,
-            autocomplete: "address-line1",
-            errorField: "line1",
-            invalidField: "line1",
-            disabled: this.disabled,
-            onInput: this.handleFieldInput("line1"),
-          })}
-          ${this.renderFloatField({
-            id: line2Id,
-            label: `${this.msg.detailAddress2} (${this.msg.fieldMarkOptional})`,
-            value: this.line2,
-            autocomplete: "address-line2",
-            helper: this.msg.line2Helper,
-            disabled: this.disabled,
-            onInput: this.handleFieldInput("line2"),
-          })}
-          ${this.renderPostalField(zipId)}
-          ${this.renderFloatTextarea({
-            id: notesId,
-            label: this.msg.notes,
-            helper: `${this.msg.fieldMarkOptional} · ${this.msg.notesPlaceholder}`,
-            value: this.notes,
-            disabled: this.disabled,
-            onInput: this.handleFieldInput("notes"),
-          })}
-        </div>
-      </section>
-    `;
-  }
-
   private renderCheckoutDetails() {
     const { firstName, lastName, phone, line1, line2, zip, notes } = this.fields;
-    return this.renderShippingSection(firstName, lastName, phone, line1, line2, zip, notes);
-  }
-
-  private renderDevPanel() {
-    if (!this.dev) {
-      return nothing;
-    }
-    const detail = this.buildChangeDetail();
-    const mode = this.activeProvider;
-    return html`
-      <aside class="dev-panel" aria-label=${this.msg.devPanelTitle}>
-        <strong>${this.msg.devPanelTitle}</strong>
-        <p class="dev-meta">
-          ${this.msg.activeProvider}
-          ${mode ? this.providerLabel(mode) : "—"} · ${this.probeReason}
-        </p>
-        <p class="dev-meta">
-          valid: ${detail.validation.valid} · formReady: ${detail.value.formReady} · errors:
-          ${detail.validation.errors.length}
-        </p>
-        <pre>${JSON.stringify(detail, null, 2)}</pre>
-      </aside>
-    `;
-  }
-
-  private renderManualBanner() {
-    return html`
-      <div class="banner banner--warn">
-        <p>${this.usageHintForProvider("manual")}</p>
-        <button type="button" class="retry" @click=${() => void this.runProbe()}>
-          ${this.msg.retryProbe}
-        </button>
-      </div>
-    `;
-  }
-
-  private renderManualRegionSection() {
-    return html`
-      <section class="checkout-step checkout-card manual-region" aria-labelledby="yn-ca-manual-region-heading">
-        <header class="step-header">
-          <span class="step-badge" aria-hidden="true">1</span>
-          <h2 id="yn-ca-manual-region-heading" class="step-title">${this.msg.sectionRegion}</h2>
-        </header>
-        ${this.renderFloatField({
-          id: "yn-ca-m-country-name",
-          label: this.msg.country,
-          value: this.countryName,
-          autocomplete: "country-name",
-          disabled: this.disabled,
-          onInput: this.onManualField("countryName"),
-        })}
-        <div class="grid-3">
-          ${this.renderFloatField({
-            id: "yn-ca-m-country-code",
-            label: this.msg.manualCountryCodePlaceholder,
-            value: this.countryCode,
-            maxlength: 2,
-            invalidField: "region",
-            errorField: "region",
-            disabled: this.disabled,
-            onInput: this.onManualField("countryCode"),
-          })}
-          ${this.renderFloatField({
-            id: "yn-ca-m-state",
-            label: this.msg.state,
-            value: this.stateName ?? "",
-            autocomplete: "address-level1",
-            disabled: this.disabled,
-            onInput: this.onManualField("stateName"),
-          })}
-          ${this.renderFloatField({
-            id: "yn-ca-m-city",
-            label: this.msg.cityDistrict,
-            value: this.cityName,
-            autocomplete: "address-level2",
-            disabled: this.disabled,
-            onInput: this.onManualField("cityName"),
-          })}
-        </div>
-        ${this.fieldError("region")}
-      </section>
-    `;
+    return renderShippingSection(
+      this.viewHost,
+      firstName,
+      lastName,
+      phone,
+      line1,
+      line2,
+      zip,
+      notes,
+    );
   }
 
   static styles = checkoutAddressFormStyles;
@@ -1585,21 +1230,22 @@ export class YnCheckoutAddress extends LitElement {
   /** 固定 DOM 结构，用 hidden / data-view 控制显隐，避免切换筛选时整块挂载/卸载导致闪动 */
   override render() {
     const L = this.layerVis;
+    const host = this.viewHost;
 
     return html`
       <div class="checkout-address" data-view=${this.viewMode}>
-        <div class="layer layer-booting" ?hidden=${!L.boot}>${this.renderSkeleton()}</div>
+        <div class="layer layer-booting" ?hidden=${!L.boot}>${renderCheckoutSkeleton(host)}</div>
         <div class="stack layer layer-main" ?hidden=${!L.main}>
           <div class="layer layer-provider" ?hidden=${!L.provider}>
-            ${this.renderRegionStep()}
+            ${renderRegionStep(host)}
           </div>
           <div class="layer layer-manual" ?hidden=${!L.manual}>
-            ${this.renderManualBanner()}${this.renderManualRegionSection()}
+            ${renderManualBanner(host)}${renderManualRegionSection(host)}
           </div>
           <div class="layer layer-details" ?hidden=${!L.details} ?inert=${!L.details}>
             ${this.renderCheckoutDetails()}
           </div>
-          ${this.renderDevPanel()}
+          ${renderDevPanel(host)}
         </div>
       </div>
     `;

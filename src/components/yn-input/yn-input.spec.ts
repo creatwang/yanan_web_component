@@ -116,4 +116,33 @@ describe("yn-input", () => {
     expect(prefixClicked).to.equal(false);
     expect(suffixClicked).to.equal(false);
   });
+
+  it("bootstraps input events from declarative shadow DOM", async () => {
+    const { renderYnInputShadowHtml } = await import("./yn-input-shadow.js");
+    const shadowHtml = renderYnInputShadowHtml({ placeholder: "搜索", value: "hi" });
+    const host = document.createElement("yn-input") as YnInput;
+    host.setAttribute("placeholder", "搜索");
+    host.value = "hi";
+    const template = document.createElement("template");
+    template.setAttribute("shadowrootmode", "open");
+    template.innerHTML = shadowHtml;
+    host.appendChild(template);
+    document.body.appendChild(host);
+
+    await host.updateComplete;
+
+    let emittedValue = "";
+    host.addEventListener("yn-input", (event) => {
+      emittedValue = (event as CustomEvent<{ value: string }>).detail.value;
+    });
+
+    const input = host.shadowRoot?.querySelector<HTMLInputElement>("input.input");
+    if (!input) throw new Error("input not found");
+    input.value = "floema";
+    input.dispatchEvent(new Event("input"));
+    expect(emittedValue).to.equal("floema");
+    expect(host.value).to.equal("floema");
+
+    host.remove();
+  });
 });
