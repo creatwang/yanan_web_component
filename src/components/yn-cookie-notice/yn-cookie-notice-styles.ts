@@ -1,7 +1,7 @@
 import {
   YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI,
   YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI,
-  YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI
+  YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI,
 } from "./cookie-notice-icons.js";
 
 /** Shadow DOM styles for yn-cookie-notice */
@@ -17,12 +17,12 @@ export const YN_COOKIE_NOTICE_STYLES = `
   --yn-cookie-notice-checkbox-border-color: #121212;
   --yn-cookie-notice-checkbox-hover-fill: #9a9a9a;
   --yn-cookie-notice-checkbox-checked-fill: var(--yn-cookie-notice-accent-color, #ed3833);
-  --yn-cookie-notice-button-text-color: var(--yn-cookie-notice-text-color, #000);
+  --yn-cookie-notice-button-text-color: #fff;
   --yn-cookie-notice-button-bg-left: ${YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI};
   --yn-cookie-notice-button-bg-center: ${YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI};
   --yn-cookie-notice-button-bg-right: ${YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI};
-  --yn-cookie-notice-button-cap-width: 1.75em;
-  --yn-cookie-notice-button-bg-inset: -0.38em -0.18em;
+  --yn-cookie-notice-button-cap-width: 1.42em;
+  --yn-cookie-notice-button-bg-inset: -0.14em -0.08em;
   --yn-cookie-notice-z-index: 1000;
   --yn-cookie-notice-bottom: 1.6em;
   --yn-cookie-notice-right: 1.6em;
@@ -132,6 +132,15 @@ img {
   height: 3.2em;
   align-items: center;
   justify-content: center;
+  --yn-icon-button-bg: transparent;
+  --yn-icon-button-hover-bg: transparent;
+  --yn-icon-button-color: currentColor;
+  transition: color 0.5s 0.2s;
+}
+
+.panel__close:hover {
+  color: var(--yn-cookie-notice-close-hover-color);
+  transition: color 0.5s;
 }
 
 .panel__header {
@@ -172,27 +181,31 @@ img {
 }
 
 .panel__actions {
-  align-items: center;
+  align-items: flex-end;
   display: flex;
-  flex-wrap: nowrap;
-  gap: 0.5em;
+  flex-wrap: wrap;
+  column-gap: 1em;
+  row-gap: 0.65em;
   justify-content: flex-start;
   min-width: 0;
+  width: 100%;
 }
 
-.panel__button-group {
+.panel__ink-buttons {
+  align-items: flex-end;
   display: flex;
-  flex: 1 1 auto;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 0.45em;
-  min-width: 0;
+  flex: 0 0 auto;
+  gap: 1.15em;
+}
+
+.panel__actions > .settings-toggle {
+  flex: 0 0 auto;
 }
 
 .action-button {
   align-items: center;
   display: flex;
-  flex: 0 1 auto;
+  flex-shrink: 0;
   font-size: 1.05em;
   font-weight: 600;
   gap: 0.15em;
@@ -207,6 +220,13 @@ img {
   width: auto;
 }
 
+.action-button--stacked {
+  height: auto;
+  min-height: 3.35em;
+  padding-block: 0.35em;
+  white-space: normal;
+}
+
 .action-button strong {
   font-weight: 100;
   line-height: 1;
@@ -215,6 +235,20 @@ img {
 .action-button__label {
   line-height: 1;
   position: relative;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+.action-button__label--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.08em;
+  line-height: 1.05;
+  text-align: center;
+}
+
+.action-button__line {
+  display: block;
 }
 
 .action-button--primary {
@@ -250,11 +284,11 @@ img {
 }
 
 .action-button--primary:hover {
-  transform: scale(1.01);
+  transform: scale(1.015);
 }
 
 .action-button--primary:hover::before {
-  filter: contrast(1.06);
+  filter: brightness(1.1) contrast(1.05);
 }
 
 .action-button--primary:focus-visible {
@@ -262,22 +296,35 @@ img {
   outline-offset: 3px;
 }
 
+.action-button--save {
+  flex: 0 1 auto;
+  min-width: 12em;
+}
+
 .settings-toggle {
   align-items: center;
   display: flex;
-  flex: 0 0 auto;
-  gap: 0.2em;
+  flex-shrink: 0;
+  gap: 0.35em;
   margin-left: auto;
   white-space: nowrap;
 }
 
 .settings-toggle__label {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.06em;
   font-size: 1.05em;
   font-weight: 600;
   letter-spacing: 0.05em;
-  line-height: 1.2em;
+  line-height: 1.05;
   position: relative;
   text-transform: uppercase;
+}
+
+.settings-toggle__line {
+  display: block;
 }
 
 .settings-toggle__label::after {
@@ -293,11 +340,12 @@ img {
 }
 
 .settings-toggle svg {
+  align-self: center;
   flex-shrink: 0;
-  height: 0.85em;
+  height: 0.72em;
   transform: rotate(180deg);
   transition: transform 0.4s;
-  width: 0.85em;
+  width: 0.72em;
 }
 
 .settings-toggle:hover .settings-toggle__label::after {
@@ -457,6 +505,30 @@ img {
   transform: scaleX(0);
 }
 
+@media (max-width: 767px) {
+  .panel__actions {
+    column-gap: 0.75em;
+    row-gap: 0.75em;
+  }
+
+  .panel__ink-buttons {
+    gap: 0.95em;
+  }
+
+  .action-button {
+    font-size: 0.98em;
+    padding-inline: 0.6em;
+  }
+
+  .action-button--stacked {
+    min-height: 3.15em;
+  }
+
+  .settings-toggle__label {
+    font-size: 0.98em;
+  }
+}
+
 @media (min-width: 768px) {
   :host {
     --yn-cookie-notice-bottom: 3.2em;
@@ -480,17 +552,18 @@ img {
   }
 
   .panel__actions {
-    gap: 0.8em;
+    column-gap: 0.8em;
+    row-gap: 0.8em;
   }
 
-  .panel__button-group {
-    gap: 1.1em;
+  .panel__ink-buttons {
+    gap: 1.25em;
   }
 
   .action-button {
-    font-size: 1.3em;
-    height: 3.15em;
-    padding: 0 1em;
+    font-size: 1.15em;
+    min-height: 3em;
+    padding: 0 1.1em;
   }
 
   .settings-toggle__label {

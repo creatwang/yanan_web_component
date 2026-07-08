@@ -361,10 +361,13 @@ export class YnCookieNotice extends LitElement {
             </slot>
 
             <div class="panel__actions">
-              <div class="panel__button-group">
-                <button class="action-button action-button--primary" type="button" @click=${this.onAcceptAll}>
+              <div class="panel__ink-buttons">
+                <button class="action-button action-button--primary action-button--stacked" type="button" @click=${this.onAcceptAll}>
                   <strong>[</strong>
-                  <span class="action-button__label">accept cookies</span>
+                  <span class="action-button__label action-button__label--stacked">
+                    <span class="action-button__line">accept</span>
+                    <span class="action-button__line">cookies</span>
+                  </span>
                   <strong>]</strong>
                 </button>
                 <button class="action-button action-button--primary" type="button" @click=${this.onRejectAll}>
@@ -379,7 +382,10 @@ export class YnCookieNotice extends LitElement {
                 aria-expanded=${this.settingsOpen ? "true" : "false"}
                 @click=${this.onToggleSettings}
               >
-                <span class="settings-toggle__label">cookies settings</span>
+                <span class="settings-toggle__label">
+                  <span class="settings-toggle__line">cookies</span>
+                  <span class="settings-toggle__line">settings</span>
+                </span>
                 ${unsafeSVG(ynDropdownPickChevronUpSvg)}
               </button>
             </div>
@@ -419,9 +425,12 @@ export class YnCookieNotice extends LitElement {
 
                 <div class="settings-actions">
                   <button class="settings-cancel" type="button" @click=${this.onSettingsCancel}>Cancel</button>
-                  <button class="action-button action-button--primary" type="button" @click=${this.onSettingsSave}>
+                  <button class="action-button action-button--primary action-button--save action-button--stacked" type="button" @click=${this.onSettingsSave}>
                     <strong>[</strong>
-                    <span class="action-button__label">Save preferences</span>
+                    <span class="action-button__label action-button__label--stacked">
+                      <span class="action-button__line">Save</span>
+                      <span class="action-button__line">preferences</span>
+                    </span>
                     <strong>]</strong>
                   </button>
                 </div>

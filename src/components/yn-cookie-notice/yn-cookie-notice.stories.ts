@@ -238,9 +238,9 @@ export const Default: Story = {
       );
     });
 
-    await step("点击 accept cookies 后隐藏横幅", async () => {
+    await step("点击 Accept all 后隐藏横幅", async () => {
       const acceptBtn = notice.shadowRoot?.querySelector<HTMLButtonElement>(
-        ".panel__button-group .action-button:first-child"
+        ".panel__ink-buttons .action-button:first-of-type"
       );
       if (!acceptBtn) throw new Error("缺少 accept 按钮");
       await userEvent.click(acceptBtn);

@@ -33,7 +33,7 @@ describe("yn-cookie-notice", () => {
     await el.updateComplete;
 
     const acceptBtn = el.shadowRoot?.querySelector<HTMLButtonElement>(
-      ".panel__button-group .action-button:first-child"
+      ".panel__ink-buttons .action-button:first-of-type"
     );
     if (!acceptBtn) throw new Error("missing accept button");
 
@@ -54,7 +54,7 @@ describe("yn-cookie-notice", () => {
     await el.updateComplete;
 
     const rejectBtn = el.shadowRoot?.querySelector<HTMLButtonElement>(
-      ".panel__button-group .action-button:nth-child(2)"
+      ".panel__ink-buttons .action-button:nth-of-type(2)"
     );
     rejectBtn?.click();
     await el.updateComplete;

@@ -2,18 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 const VIEW_H = 40;
-const CAP_W = 36;
-const CENTER_W = 18;
+const CAP_W = 34;
+const CENTER_W = 38;
 const ICONS_OUT = path.join(
   path.resolve(import.meta.dirname, ".."),
-  "src/components/yn-cookie-notice/cookie-notice-icons.ts"
+  "src/components/yn-cookie-notice/cookie-notice-icons.ts",
 );
-
-/** Floema sketch bracket — stroke-only frame, no fill plate. */
-const INK = "#241f21";
-const STROKE = 0.58;
-const TOP_Y = 6;
-const BOT_Y = 34;
 
 const MODAL_HOLDER_SVG = `<svg viewBox="0 0 857 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <defs>
@@ -39,155 +33,183 @@ function f(n) {
   return Number(n).toFixed(2);
 }
 
-function wobble(i, amp = 0.35) {
-  return Math.sin(i * 1.65) * amp + Math.cos(i * 0.85) * amp * 0.4;
+function rng(seed) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(1664525, s) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
 }
 
-/** Tiny sketch leaf tick (stroke). */
-function leafTick(x, y, angleDeg, len = 1.7, opacity = 1) {
-  const rad = (angleDeg * Math.PI) / 180;
-  const mx = x + Math.cos(rad + 0.55) * len * 0.55;
-  const my = y + Math.sin(rad + 0.55) * len * 0.55;
-  const ex = x + Math.cos(rad) * len;
-  const ey = y + Math.sin(rad) * len;
-  const op = opacity < 1 ? ` opacity="${opacity}"` : "";
-  return `<path d="M${f(x)},${f(y)} Q${f(mx)},${f(my)} ${f(ex)},${f(ey)}" stroke="${INK}" stroke-width="0.48" fill="none" stroke-linecap="round"${op}/>`;
+/** Palette-knife smear outline — thick horizontal band, torn sides on caps. */
+function smearOutline(w, seed, side) {
+  const rand = rng(seed);
+  const steps = Math.max(10, Math.ceil(w / 2.2));
+  const top = [];
+  const bot = [];
+
+  for (let i = 0; i <= steps; i += 1) {
+    const x = (w * i) / steps;
+    const belly = Math.sin((x / Math.max(w, 1)) * Math.PI) * 1.15;
+    const ty = 10.8 - belly * 1.05 + Math.sin(x * 0.82 + seed * 0.17) * 0.95 + (rand() - 0.5) * 0.35;
+    const by = 29.2 + belly * 0.85 + Math.sin(x * 0.76 + seed * 0.23 + 1.4) * 0.9 + (rand() - 0.5) * 0.35;
+    top.push([x, ty]);
+    bot.push([x, by]);
+  }
+
+  if (side === "left") {
+    const lobe = [];
+    for (let i = 6; i >= 0; i -= 1) {
+      const t = i / 6;
+      const y = top[0][1] + (bot[0][1] - top[0][1]) * t;
+      const lx = Math.max(-0.35, -0.15 - rand() * 0.55 - Math.sin(t * Math.PI) * 0.35);
+      lobe.push([lx, y + (rand() - 0.5) * 0.45]);
+    }
+    top.unshift(...lobe.slice(0, 3).reverse());
+    bot.unshift(...lobe.slice(4).reverse());
+  }
+
+  if (side === "right") {
+    const last = top.length - 1;
+    const rlobe = [];
+    for (let i = 0; i <= 6; i += 1) {
+      const t = i / 6;
+      const y = top[last][1] + (bot[last][1] - top[last][1]) * t;
+      const rx = Math.min(w + 0.35, w + 0.15 + rand() * 0.55 + Math.sin(t * Math.PI) * 0.35);
+      rlobe.push([rx, y + (rand() - 0.5) * 0.45]);
+    }
+    top.push(...rlobe.slice(1, 4));
+    bot.push(...rlobe.slice(4));
+  }
+
+  let d = `M${f(top[0][0])} ${f(top[0][1])}`;
+  for (let i = 1; i < top.length; i += 1) {
+    d += ` L${f(top[i][0])} ${f(top[i][1])}`;
+  }
+  for (let i = bot.length - 1; i >= 0; i -= 1) {
+    d += ` L${f(bot[i][0])} ${f(bot[i][1])}`;
+  }
+  d += " Z";
+  return d;
 }
 
-/** 3-dot floret cluster. */
-function floretDots(x, y, r = 0.55) {
-  return [
-    `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r * 0.35)}" fill="${INK}"/>`,
-    `<circle cx="${f(x - r)}" cy="${f(y)}" r="${f(r * 0.22)}" fill="${INK}" opacity="0.75"/>`,
-    `<circle cx="${f(x + r)}" cy="${f(y)}" r="${f(r * 0.22)}" fill="${INK}" opacity="0.75"/>`,
-    `<circle cx="${f(x)}" cy="${f(y - r * 0.75)}" r="${f(r * 0.2)}" fill="${INK}" opacity="0.65"/>`,
-  ].join("");
+function sharedDefs(id, outline) {
+  return `<defs>
+<path id="o-${id}" d="${outline}"/>
+<linearGradient id="g-${id}" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0%" stop-color="#2a2a2a"/>
+  <stop offset="22%" stop-color="#141414"/>
+  <stop offset="58%" stop-color="#050505"/>
+  <stop offset="100%" stop-color="#101010"/>
+</linearGradient>
+<filter id="sf-${id}" x="-4%" y="-8%" width="108%" height="116%" color-interpolation-filters="sRGB">
+  <feTurbulence type="fractalNoise" baseFrequency="0.055 0.62" numOctaves="2" seed="7" result="t"/>
+  <feDisplacementMap in="SourceGraphic" in2="t" scale="1.15" xChannelSelector="R" yChannelSelector="G" result="d"/>
+  <feTurbulence type="fractalNoise" baseFrequency="0.85 0.35" numOctaves="2" seed="11" result="g"/>
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.09 0" result="a"/>
+  <feBlend in="d" in2="a" mode="multiply"/>
+</filter>
+<clipPath id="c-${id}"><use href="#o-${id}"/></clipPath>
+</defs>`;
 }
 
-/**
- * Hand-drawn horizontal rule with leaf ticks.
- * dense: top vine — more ticks + 1 floret
- * sparse: bottom vine — fewer, lighter ticks
- */
-function sketchRule(x0, x1, y, segments, mode = "dense") {
-  const sparse = mode === "sparse";
-  const amp = sparse ? 0.22 : 0.38;
-  const parts = [];
-  let d = `M${f(x0)},${f(y + wobble(0, amp))}`;
+/** Horizontal blade striations — dark grooves only (no white bleed). */
+function knifeStrokes(w, seed, id) {
+  const rand = rng(seed);
+  const out = [];
+  const count = 22 + Math.floor(w / 3);
 
-  for (let i = 1; i <= segments; i++) {
-    const t = i / segments;
-    const x = x0 + (x1 - x0) * t;
-    const yy = y + wobble(i, amp);
-    d += ` L${f(x)},${f(yy)}`;
+  for (let i = 0; i < count; i += 1) {
+    const y = 11.8 + (i / count) * 16.2 + (rand() - 0.5) * 0.45;
+    const x0 = 0.4 + rand() * 0.8;
+    const x1 = w - 0.4 - rand() * 0.6;
+    const kind = rand();
 
-    const placeTick = sparse ? i % 3 === 1 : i % 2 === 1 || i % 5 === 0;
-    if (placeTick) {
-      const side = i % 2 === 0 ? 1 : -1;
-      parts.push(leafTick(x, yy, side * 78 + wobble(i, 8), sparse ? 1.35 : 1.75, sparse ? 0.7 : 1));
-      if (!sparse && i % 4 === 2) {
-        parts.push(leafTick(x, yy, side * -65, 1.25, 0.85));
+    if (kind > 0.35) {
+      out.push(
+        `<path d="M${f(x0)} ${f(y)} H${f(x1)}" stroke="#000" stroke-width="${f(0.28 + rand() * 0.42)}" stroke-linecap="butt" opacity="${f(0.14 + rand() * 0.2)}"/>`,
+      );
+    }
+    if (kind > 0.62) {
+      out.push(
+        `<path d="M${f(x0 + rand())} ${f(y + 0.28)} H${f(x1 - rand())}" stroke="#2b2b2b" stroke-width="${f(0.18 + rand() * 0.22)}" stroke-linecap="butt" opacity="${f(0.2 + rand() * 0.22)}"/>`,
+      );
+    }
+    if (kind > 0.8 && x1 - x0 > 6) {
+      let x = x0 + rand() * 2;
+      while (x < x1 - 1) {
+        const seg = 2.5 + rand() * 8;
+        const xe = Math.min(x + seg, x1);
+        out.push(
+          `<path d="M${f(x)} ${f(y + (rand() - 0.5) * 0.2)} H${f(xe)}" stroke="#151515" stroke-width="${f(0.2 + rand() * 0.18)}" stroke-linecap="butt" opacity="${f(0.18 + rand() * 0.16)}"/>`,
+        );
+        x = xe + 0.8 + rand() * 2.4;
       }
     }
-    if (!sparse && i === Math.floor(segments * 0.55)) {
-      parts.push(floretDots(x, yy - 1.1, 0.6));
-    }
   }
 
-  parts.push(
-    `<path d="${d}" stroke="${INK}" stroke-width="${STROKE}" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${sparse ? 0.72 : 1}"/>`
-  );
-  return parts.join("");
+  return out.join("");
 }
 
-/** Outward bracket arm (reference side curves). */
-function bracketArm(width, side) {
-  const flip = side === "left" ? -1 : 1;
-  const x0 = side === "left" ? 3.5 : width - 3.5;
-  const xBow = x0 + flip * 5.2;
-  const yTop = 8.5;
-  const yBot = 31.5;
-  const yMid = 20;
-
-  const curve = `M${f(x0)},${f(yTop)} Q${f(xBow)},${f(yMid)} ${f(x0)},${f(yBot)}`;
-  const parts = [
-    `<path d="${curve}" stroke="${INK}" stroke-width="${STROKE}" fill="none" stroke-linecap="round" opacity="0.9"/>`,
-  ];
-
-  const ticks = [
-    [0.18, 82, 1.5],
-    [0.32, -74, 1.65],
-    [0.5, 88, 1.85],
-    [0.5, -86, 1.7],
-    [0.68, 76, 1.55],
-    [0.82, -80, 1.4],
-  ];
-
-  for (const [t, ang, len] of ticks) {
-    const u = 1 - t;
-    const px = u * u * x0 + 2 * u * t * xBow + t * t * x0;
-    const py = u * u * yTop + 2 * u * t * yMid + t * t * yBot;
-    const tickAng = ang * flip;
-    parts.push(leafTick(px + flip * 0.4, py, tickAng, len, 0.82));
+function edgeFlecks(w, seed, side, id) {
+  const rand = rng(seed);
+  const out = [];
+  const n = side === "center" ? 3 : 7;
+  for (let i = 0; i < n; i += 1) {
+    const t = rand();
+    const y = 10 + t * 20;
+    const x =
+      side === "left"
+        ? rand() * 4.5
+        : side === "right"
+          ? w - rand() * 4.5
+          : rand() * w;
+    const rx = 0.35 + rand() * 1.1;
+    const ry = 0.18 + rand() * 0.55;
+    out.push(
+      `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}" fill="#000" opacity="${f(0.35 + rand() * 0.45)}"/>`,
+    );
   }
-
-  const joinY = side === "left" ? yTop : yTop;
-  parts.push(leafTick(x0 + flip * 0.8, joinY + 0.5, flip * 45, 1.3));
-  parts.push(leafTick(x0 + flip * 0.8, yBot - 0.5, flip * -42, 1.2, 0.75));
-
-  return parts.join("");
+  return `<g clip-path="url(#c-${id})">${out.join("")}</g>`;
 }
 
-function leftCap(width) {
-  return [
-    sketchRule(1, width - 1, TOP_Y, 9, "dense"),
-    sketchRule(2, width - 2, BOT_Y, 6, "sparse"),
-    bracketArm(width, "left"),
+function buildTile(w, seed, side, id) {
+  const outline = smearOutline(w, seed, side);
+  const painted = [
+    `<use href="#o-${id}" fill="#000" opacity="0.9" transform="translate(0.1,-0.06)"/>`,
+    `<use href="#o-${id}" fill="url(#g-${id})" filter="url(#sf-${id})"/>`,
+    knifeStrokes(w, seed + 17, id),
+    edgeFlecks(w, seed + 29, side, id),
   ].join("");
-}
-
-function rightCap(width) {
-  return [
-    sketchRule(0, width - 2, TOP_Y, 9, "dense"),
-    sketchRule(1, width - 3, BOT_Y, 6, "sparse"),
-    bracketArm(width, "right"),
+  const body = [
+    sharedDefs(id, outline),
+    `<g clip-path="url(#c-${id})">${painted}</g>`,
   ].join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${VIEW_H}" preserveAspectRatio="none" overflow="hidden" aria-hidden="true">${body}</svg>`;
 }
 
-function centerRepeat(width) {
-  return [sketchRule(0, width, TOP_Y, 3, "dense"), sketchRule(0, width, BOT_Y, 2, "sparse")].join("");
-}
-
-function buildTile(mode) {
-  const width = mode === "center" ? CENTER_W : CAP_W;
-  const body =
-    mode === "left" ? leftCap(width) : mode === "right" ? rightCap(width) : centerRepeat(width);
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${VIEW_H}" preserveAspectRatio="none" aria-hidden="true">${body}</svg>`;
-}
-
-const leftSvg = buildTile("left");
-const centerSvg = buildTile("center");
-const rightSvg = buildTile("right");
+const buttonBgLeftSvg = buildTile(CAP_W, 13, "left", "l");
+const buttonBgCenterSvg = buildTile(CENTER_W, 47, "center", "c");
+const buttonBgRightSvg = buildTile(CAP_W, 79, "right", "r");
 
 const out = `import type { YnSvgSource } from "../../asset/svg/index.js";
 
-/** Sketch bracket frame — stroke vines, leaf ticks, dot florets (transparent). */
-const buttonBgLeftSvg = ${JSON.stringify(leftSvg)};
-const buttonBgCenterSvg = ${JSON.stringify(centerSvg)};
-const buttonBgRightSvg = ${JSON.stringify(rightSvg)};
+/** Palette-knife paint smear tiles — impasto fill + horizontal blade marks. */
+const buttonBgLeftSvg = ${JSON.stringify(buttonBgLeftSvg)};
+const buttonBgCenterSvg = ${JSON.stringify(buttonBgCenterSvg)};
+const buttonBgRightSvg = ${JSON.stringify(buttonBgRightSvg)};
 
 export const YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgLeftSvg)}")\`;
 export const YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgCenterSvg)}")\`;
 export const YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgRightSvg)}")\`;
 
-export const YN_COOKIE_NOTICE_BUTTON_BG_DATA_URI = YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI;
-
 export const YN_COOKIE_NOTICE_MODAL_HOLDER_SVG: YnSvgSource = ${JSON.stringify(MODAL_HOLDER_SVG)};
 `;
 
 fs.writeFileSync(ICONS_OUT, out);
-console.log("Updated sketch-bracket frame tiles", {
-  left: leftSvg.length,
-  center: centerSvg.length,
-  right: rightSvg.length,
+console.log("Updated palette-knife button tiles", {
+  left: buttonBgLeftSvg.length,
+  center: buttonBgCenterSvg.length,
+  right: buttonBgRightSvg.length,
+  total: buttonBgLeftSvg.length + buttonBgCenterSvg.length + buttonBgRightSvg.length,
 });
