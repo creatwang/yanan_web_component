@@ -1,4 +1,5 @@
 import { expect, fixture, html, oneEvent } from "@open-wc/testing";
+import "../yn-icon-button/yn-icon-button.js";
 import "./yn-drawer";
 import type { YnDrawer } from "./yn-drawer";
 
@@ -64,7 +65,7 @@ describe("yn-drawer", () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer open></yn-drawer>`);
     await el.updateComplete;
 
-    const closeBtn = el.shadowRoot?.querySelector<HTMLButtonElement>(".close-btn");
+    const closeBtn = el.shadowRoot?.querySelector(".close-btn");
     if (!closeBtn) throw new Error("missing close button");
 
     closeBtn.click();

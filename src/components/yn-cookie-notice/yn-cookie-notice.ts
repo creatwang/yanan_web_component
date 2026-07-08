@@ -2,6 +2,7 @@ import { LitElement, css, html, unsafeCSS } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { customElement, property, state } from "lit/decorators.js";
 import { ynClose20Svg, ynDropdownPickChevronUpSvg } from "../../asset/svg/index.js";
+import "../yn-icon-button/yn-icon-button.js";
 import { YN_COOKIE_NOTICE_MODAL_HOLDER_SVG } from "./cookie-notice-icons.js";
 import { YN_COOKIE_NOTICE_STYLES } from "./yn-cookie-notice-styles.js";
 import type {
@@ -344,9 +345,9 @@ export class YnCookieNotice extends LitElement {
       <section class=${`panel${this.visible ? " visible" : ""}`} aria-live="polite">
         <div class="panel__holder" aria-hidden="true">${unsafeSVG(YN_COOKIE_NOTICE_MODAL_HOLDER_SVG)}</div>
         <div class="panel__inner">
-          <button class="panel__close" type="button" aria-label="Close" @click=${this.onCloseClick}>
+          <yn-icon-button class="panel__close" size="small" label="Close" @click=${this.onCloseClick}>
             ${unsafeSVG(ynClose20Svg)}
-          </button>
+          </yn-icon-button>
 
           <div class="panel__header">
             <slot name="title">

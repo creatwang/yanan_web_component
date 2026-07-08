@@ -11,6 +11,11 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   --_yn-icon-button-color: var(--yn-color-text, #241f21);
   --_yn-icon-button-border: transparent;
   --_yn-icon-button-hover-mode: overlay;
+  --_yn-icon-button-hover-scale: var(--yn-icon-button-hover-scale, 1.045);
+  --_yn-icon-button-hover-surface-scale: var(--yn-icon-button-hover-surface-scale, 1.06);
+  --_yn-icon-button-hover-duration: var(--yn-icon-button-hover-duration, 220ms);
+  --_yn-icon-button-hover-ease: var(--yn-icon-button-hover-ease, cubic-bezier(0.2, 0, 0, 1));
+  --_yn-icon-button-active-scale: var(--yn-icon-button-active-scale, 0.96);
 }
 
 .icon-button {
@@ -31,7 +36,9 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   isolation: isolate;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms cubic-bezier(0.2, 0, 0, 1);
+  transform: scale(1);
+  transition: transform var(--_yn-icon-button-hover-duration) var(--_yn-icon-button-hover-ease);
+  will-change: transform;
 }
 
 .icon-button.hit-slop::before {
@@ -54,7 +61,11 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   box-sizing: border-box;
   pointer-events: none;
   z-index: 0;
-  transition: background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+  transform: scale(1);
+  transform-origin: center;
+  transition:
+    background-color var(--_yn-icon-button-hover-duration) var(--_yn-icon-button-hover-ease),
+    transform var(--_yn-icon-button-hover-duration) var(--_yn-icon-button-hover-ease);
 }
 
 .hover-surface {
@@ -65,7 +76,11 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   opacity: 0;
   pointer-events: none;
   z-index: 1;
-  transition: opacity 200ms cubic-bezier(0.2, 0, 0, 1);
+  transform: scale(0.82);
+  transform-origin: center;
+  transition:
+    opacity var(--_yn-icon-button-hover-duration) var(--_yn-icon-button-hover-ease),
+    transform var(--_yn-icon-button-hover-duration) var(--_yn-icon-button-hover-ease);
 }
 
 .ripple-surface {
@@ -79,23 +94,43 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   z-index: 1;
 }
 
+.icon-button:hover:not(:disabled),
+.icon-button:focus-visible:not(:disabled) {
+  transform: scale(var(--_yn-icon-button-hover-scale));
+}
+
 .icon-button:hover:not(:disabled) .hover-surface,
 .icon-button:focus-visible:not(:disabled) .hover-surface {
   opacity: 1;
+  transform: scale(1);
 }
 
 :host([data-hover-mode="solid"]) .icon-button:hover:not(:disabled) .bg,
 :host([data-hover-mode="solid"]) .icon-button:focus-visible:not(:disabled) .bg {
   background: var(--yn-icon-button-hover-bg, var(--_yn-icon-button-hover-bg));
+  transform: scale(var(--_yn-icon-button-hover-surface-scale));
 }
 
 :host([data-hover-mode="solid"]) .icon-button:hover:not(:disabled) .hover-surface,
 :host([data-hover-mode="solid"]) .icon-button:focus-visible:not(:disabled) .hover-surface {
   opacity: 0;
+  transform: scale(0.82);
 }
 
 .icon-button:active:not(:disabled) {
-  transform: scale(0.94);
+  transform: scale(var(--_yn-icon-button-active-scale));
+  transition-duration: 140ms;
+}
+
+.icon-button:active:not(:disabled) .hover-surface {
+  opacity: 0.85;
+  transform: scale(0.98);
+  transition-duration: 140ms;
+}
+
+:host([data-hover-mode="solid"]) .icon-button:active:not(:disabled) .bg {
+  transform: scale(1);
+  transition-duration: 140ms;
 }
 
 .icon-button:active:not(:disabled) .ripple-surface {
@@ -159,6 +194,34 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   to {
     opacity: 0;
     transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon-button,
+  .bg,
+  .hover-surface {
+    transition: none;
+  }
+
+  .icon-button:hover:not(:disabled),
+  .icon-button:focus-visible:not(:disabled),
+  .icon-button:active:not(:disabled) {
+    transform: none;
+  }
+
+  .icon-button:hover:not(:disabled) .hover-surface,
+  .icon-button:focus-visible:not(:disabled) .hover-surface {
+    transform: none;
+  }
+
+  :host([data-hover-mode="solid"]) .icon-button:hover:not(:disabled) .bg,
+  :host([data-hover-mode="solid"]) .icon-button:focus-visible:not(:disabled) .bg {
+    transform: none;
+  }
+
+  .icon-button:active:not(:disabled) .ripple-surface {
+    animation: none;
   }
 }
 `;

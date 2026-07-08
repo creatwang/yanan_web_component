@@ -294,21 +294,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     .close-btn {
-      border: 0;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      color: var(--yn-drawer-close-color);
-      cursor: pointer;
-      transition: background-color 160ms ease;
-    }
-
-    .close-btn:hover {
-      background: var(--yn-drawer-close-hover-bg);
+      flex-shrink: 0;
     }
 
     .body {

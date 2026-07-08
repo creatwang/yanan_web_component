@@ -552,7 +552,7 @@ export const CartDrawer: Story = {
     });
 
     await step("点击关闭按钮，触发 before-close / after-close / open-change", async () => {
-      const closeBtn = drawer.shadowRoot?.querySelector<HTMLButtonElement>(".close-btn");
+      const closeBtn = drawer.shadowRoot?.querySelector(".close-btn");
       closeBtn?.click();
       await wait(360);
     });

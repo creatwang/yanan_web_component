@@ -1,14 +1,20 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const VIEW_W = 240;
-const VIEW_H = 48;
+const VIEW_H = 40;
+const CAP_W = 36;
+const CENTER_W = 18;
 const ICONS_OUT = path.join(
   path.resolve(import.meta.dirname, ".."),
   "src/components/yn-cookie-notice/cookie-notice-icons.ts"
 );
 
-/** Hand-traced tag cord — kept in script so regen never depends on file markers. */
+/** Floema sketch bracket — stroke-only frame, no fill plate. */
+const INK = "#241f21";
+const STROKE = 0.58;
+const TOP_Y = 6;
+const BOT_Y = 34;
+
 const MODAL_HOLDER_SVG = `<svg viewBox="0 0 857 108" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 <defs>
   <linearGradient id="yn-cookie-ring" x1="0.15" y1="0.1" x2="0.9" y2="0.95">
@@ -29,184 +35,159 @@ const MODAL_HOLDER_SVG = `<svg viewBox="0 0 857 108" fill="none" xmlns="http://w
 <path d="M688 66 C 748 58, 792 52, 836 58" stroke="url(#yn-cookie-cord)" stroke-width="2.4" stroke-linecap="round"/>
 </svg>`;
 
-function seededRandom(seed) {
-  let s = seed >>> 0;
-  return () => {
-    s = (Math.imul(1_664_525, s) + 1_013_904_223) >>> 0;
-    return s / 0x1_0000_0000;
-  };
+function f(n) {
+  return Number(n).toFixed(2);
 }
 
-const rng = seededRandom(0x1a2b_3c4d);
-
-function jitter(v, amp, t = 1) {
-  return v + (rng() - 0.5) * amp * t;
+function wobble(i, amp = 0.35) {
+  return Math.sin(i * 1.65) * amp + Math.cos(i * 0.85) * amp * 0.4;
 }
 
-function inkOutline() {
-  const n = 60;
-  const top = [];
-  const bottom = [];
-
-  for (let i = 0; i <= n; i++) {
-    const t = i / n;
-    const x = 0.4 + 239.2 * t;
-    const taper = Math.pow(Math.sin(t * Math.PI), 0.68);
-    const fray = taper < 0.22 ? 1 + (0.22 - taper) * 4 : 1;
-
-    let topY =
-      24 -
-      taper * 13.5 +
-      Math.sin(i * 1.07 + 0.4) * 1.8 +
-      (i % 2 ? 1.4 : -1.1);
-    topY = jitter(topY, 4.2 * fray, taper);
-    if (i % 5 === 0) topY += (rng() - 0.5) * 2.8;
-    if (taper < 0.18 && rng() > 0.55) topY += 4 + rng() * 5;
-
-    top.push(`${i === 0 ? "M" : "L"}${x.toFixed(1)} ${topY.toFixed(1)}`);
-  }
-
-  for (let i = n; i >= 0; i--) {
-    const t = i / n;
-    const x = 0.4 + 239.2 * t;
-    const taper = Math.pow(Math.sin(t * Math.PI), 0.68);
-    const fray = taper < 0.22 ? 1 + (0.22 - taper) * 4 : 1;
-
-    let botY =
-      24 +
-      taper * 12.5 +
-      Math.sin(i * 0.93 + 1.1) * 1.9 +
-      (i % 2 ? -1.2 : 1.3);
-    botY = jitter(botY, 4.0 * fray, taper);
-    if (i % 4 === 0) botY += (rng() - 0.5) * 2.6;
-    if (taper < 0.16 && rng() > 0.5) botY -= 3 + rng() * 4;
-
-    bottom.push(`L${x.toFixed(1)} ${botY.toFixed(1)}`);
-  }
-
-  return `${top.join(" ")} ${bottom.join(" ")} Z`;
+/** Tiny sketch leaf tick (stroke). */
+function leafTick(x, y, angleDeg, len = 1.7, opacity = 1) {
+  const rad = (angleDeg * Math.PI) / 180;
+  const mx = x + Math.cos(rad + 0.55) * len * 0.55;
+  const my = y + Math.sin(rad + 0.55) * len * 0.55;
+  const ex = x + Math.cos(rad) * len;
+  const ey = y + Math.sin(rad) * len;
+  const op = opacity < 1 ? ` opacity="${opacity}"` : "";
+  return `<path d="M${f(x)},${f(y)} Q${f(mx)},${f(my)} ${f(ex)},${f(ey)}" stroke="${INK}" stroke-width="0.48" fill="none" stroke-linecap="round"${op}/>`;
 }
 
-function knifeTracks() {
+/** 3-dot floret cluster. */
+function floretDots(x, y, r = 0.55) {
+  return [
+    `<circle cx="${f(x)}" cy="${f(y)}" r="${f(r * 0.35)}" fill="${INK}"/>`,
+    `<circle cx="${f(x - r)}" cy="${f(y)}" r="${f(r * 0.22)}" fill="${INK}" opacity="0.75"/>`,
+    `<circle cx="${f(x + r)}" cy="${f(y)}" r="${f(r * 0.22)}" fill="${INK}" opacity="0.75"/>`,
+    `<circle cx="${f(x)}" cy="${f(y - r * 0.75)}" r="${f(r * 0.2)}" fill="${INK}" opacity="0.65"/>`,
+  ].join("");
+}
+
+/**
+ * Hand-drawn horizontal rule with leaf ticks.
+ * dense: top vine — more ticks + 1 floret
+ * sparse: bottom vine — fewer, lighter ticks
+ */
+function sketchRule(x0, x1, y, segments, mode = "dense") {
+  const sparse = mode === "sparse";
+  const amp = sparse ? 0.22 : 0.38;
   const parts = [];
-  for (let i = 0; i < 26; i++) {
-    const y = 11.5 + i * 1.34 + (i % 3) * 0.22;
-    const x1 = 4 + (i % 7) * 1.1 + rng() * 3;
-    const x2 = VIEW_W - 4 - (i % 5) * 1.3 - rng() * 3;
-    const op = (0.045 + (i % 6) * 0.014 + rng() * 0.02).toFixed(3);
-    const sw = (0.28 + (i % 4) * 0.14 + rng() * 0.12).toFixed(2);
+  let d = `M${f(x0)},${f(y + wobble(0, amp))}`;
 
-    if (rng() > 0.82) {
-      const mid = x1 + (x2 - x1) * (0.35 + rng() * 0.3);
-      parts.push(
-        `<path d="M${x1.toFixed(1)} ${y.toFixed(1)} L${(mid - 8).toFixed(1)} ${(y + (rng() - 0.5) * 0.6).toFixed(1)}" stroke="#fff" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round" fill="none"/>`,
-        `<path d="M${(mid + 10).toFixed(1)} ${(y - (rng() - 0.5) * 0.5).toFixed(1)} L${x2.toFixed(1)} ${y.toFixed(1)}" stroke="#fff" stroke-opacity="${(Number(op) * 0.85).toFixed(3)}" stroke-width="${sw}" stroke-linecap="round" fill="none"/>`
-      );
-      continue;
-    }
+  for (let i = 1; i <= segments; i++) {
+    const t = i / segments;
+    const x = x0 + (x1 - x0) * t;
+    const yy = y + wobble(i, amp);
+    d += ` L${f(x)},${f(yy)}`;
 
-    const wobble = (rng() - 0.5) * 0.9;
-    const midX = (x1 + x2) / 2;
-    parts.push(
-      `<path d="M${x1.toFixed(1)} ${y.toFixed(1)} L${midX.toFixed(1)} ${(y + wobble).toFixed(1)} L${x2.toFixed(1)} ${(y - wobble * 0.5).toFixed(1)}" stroke="#fff" stroke-opacity="${op}" stroke-width="${sw}" stroke-linecap="round" fill="none"/>`
-    );
-  }
-  return parts.join("");
-}
-
-function wetHighlights() {
-  const parts = [];
-  for (let i = 0; i < 8; i++) {
-    const y = 14 + i * 3.1 + rng() * 1.2;
-    const x1 = 12 + rng() * 18;
-    const x2 = VIEW_W - 12 - rng() * 18;
-    parts.push(
-      `<path d="M${x1.toFixed(1)} ${y.toFixed(1)} L${x2.toFixed(1)} ${(y + (rng() - 0.5) * 0.4).toFixed(1)}" stroke="#fff" stroke-opacity="${(0.03 + rng() * 0.04).toFixed(3)}" stroke-width="${(0.6 + rng() * 0.5).toFixed(2)}" stroke-linecap="round" fill="none"/>`
-    );
-  }
-  return parts.join("");
-}
-
-function inkLayers() {
-  const blobs = [
-    [8, 19, 52, 17, 98, 18, 148, 16, 198, 18, 228, 20, 224, 27, 170, 29, 92, 28, 38, 27, 12, 24],
-    [28, 21, 88, 20, 142, 21, 188, 22, 210, 25, 178, 30, 110, 31, 48, 29],
-    [62, 23, 118, 22, 168, 23, 192, 26, 152, 28, 96, 27]
-  ];
-
-  return blobs
-    .map((pts, i) => {
-      const d = [];
-      for (let j = 0; j < pts.length; j += 2) {
-        d.push(
-          `${j === 0 ? "M" : "L"}${jitter(pts[j], 1.8, 1).toFixed(1)} ${jitter(pts[j + 1], 1.2, 1).toFixed(1)}`
-        );
+    const placeTick = sparse ? i % 3 === 1 : i % 2 === 1 || i % 5 === 0;
+    if (placeTick) {
+      const side = i % 2 === 0 ? 1 : -1;
+      parts.push(leafTick(x, yy, side * 78 + wobble(i, 8), sparse ? 1.35 : 1.75, sparse ? 0.7 : 1));
+      if (!sparse && i % 4 === 2) {
+        parts.push(leafTick(x, yy, side * -65, 1.25, 0.85));
       }
-      d.push("Z");
-      return `<path d="${d.join(" ")}" fill="#000" fill-opacity="${(0.28 + i * 0.08).toFixed(2)}"/>`;
-    })
-    .join("");
+    }
+    if (!sparse && i === Math.floor(segments * 0.55)) {
+      parts.push(floretDots(x, yy - 1.1, 0.6));
+    }
+  }
+
+  parts.push(
+    `<path d="${d}" stroke="${INK}" stroke-width="${STROKE}" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${sparse ? 0.72 : 1}"/>`
+  );
+  return parts.join("");
 }
 
-function edgeSplatter() {
-  const parts = [];
-  const crumbs = [
-    [1.2, 22, 0.45],
-    [2.8, 26, 0.32],
-    [4.5, 18, 0.38],
-    [238.2, 21, 0.48],
-    [236.5, 27, 0.34],
-    [239, 19, 0.42],
-    [239.5, 31, 0.28],
-    [0.8, 29, 0.26],
-    [6, 14, 0.22],
-    [234, 13, 0.24],
-    [8, 35, 0.2],
-    [231, 34, 0.22]
+/** Outward bracket arm (reference side curves). */
+function bracketArm(width, side) {
+  const flip = side === "left" ? -1 : 1;
+  const x0 = side === "left" ? 3.5 : width - 3.5;
+  const xBow = x0 + flip * 5.2;
+  const yTop = 8.5;
+  const yBot = 31.5;
+  const yMid = 20;
+
+  const curve = `M${f(x0)},${f(yTop)} Q${f(xBow)},${f(yMid)} ${f(x0)},${f(yBot)}`;
+  const parts = [
+    `<path d="${curve}" stroke="${INK}" stroke-width="${STROKE}" fill="none" stroke-linecap="round" opacity="0.9"/>`,
   ];
 
-  for (const [x, y, r] of crumbs) {
-    parts.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="#000"/>`);
+  const ticks = [
+    [0.18, 82, 1.5],
+    [0.32, -74, 1.65],
+    [0.5, 88, 1.85],
+    [0.5, -86, 1.7],
+    [0.68, 76, 1.55],
+    [0.82, -80, 1.4],
+  ];
+
+  for (const [t, ang, len] of ticks) {
+    const u = 1 - t;
+    const px = u * u * x0 + 2 * u * t * xBow + t * t * x0;
+    const py = u * u * yTop + 2 * u * t * yMid + t * t * yBot;
+    const tickAng = ang * flip;
+    parts.push(leafTick(px + flip * 0.4, py, tickAng, len, 0.82));
   }
 
-  for (const [x1, y1, x2, y2] of [
-    [0, 20, 11, 19],
-    [0, 27, 9, 28.5],
-    [230, 20.5, 240, 20],
-    [232, 29, 240, 29.5],
-    [14, 10, 32, 11.5],
-    [208, 9.5, 226, 11],
-    [16, 38, 38, 36],
-    [204, 37, 224, 35]
-  ]) {
-    parts.push(
-      `<path d="M${x1} ${y1} L${x2} ${y2}" stroke="#000" stroke-width="${(0.45 + rng() * 0.55).toFixed(2)}" stroke-linecap="round" opacity="${(0.35 + rng() * 0.35).toFixed(2)}"/>`
-    );
-  }
+  const joinY = side === "left" ? yTop : yTop;
+  parts.push(leafTick(x0 + flip * 0.8, joinY + 0.5, flip * 45, 1.3));
+  parts.push(leafTick(x0 + flip * 0.8, yBot - 0.5, flip * -42, 1.2, 0.75));
 
   return parts.join("");
 }
 
-function svgFilters() {
-  return `<filter id="yn-ink-edge" x="-8%" y="-20%" width="116%" height="140%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.07 0.55" numOctaves="4" seed="17" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="yn-ink-grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85 0.85" numOctaves="3" seed="31" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.11 0" result="a"/><feBlend in="SourceGraphic" in2="a" mode="multiply"/></filter>`;
+function leftCap(width) {
+  return [
+    sketchRule(1, width - 1, TOP_Y, 9, "dense"),
+    sketchRule(2, width - 2, BOT_Y, 6, "sparse"),
+    bracketArm(width, "left"),
+  ].join("");
 }
 
-const OUTLINE = inkOutline();
-const buttonBgSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${VIEW_W} ${VIEW_H}" preserveAspectRatio="none" aria-hidden="true"><defs>${svgFilters()}<clipPath id="yn-ink-clip"><path d="${OUTLINE}"/></clipPath></defs><path fill="#000" d="${OUTLINE}" filter="url(#yn-ink-edge)"/>${edgeSplatter()}<path d="${OUTLINE}" fill="none" stroke="#000" stroke-width="0.9" stroke-opacity="0.22"/><g clip-path="url(#yn-ink-clip)" filter="url(#yn-ink-grain)">${inkLayers()}${knifeTracks()}${wetHighlights()}</g></svg>`;
+function rightCap(width) {
+  return [
+    sketchRule(0, width - 2, TOP_Y, 9, "dense"),
+    sketchRule(1, width - 3, BOT_Y, 6, "sparse"),
+    bracketArm(width, "right"),
+  ].join("");
+}
+
+function centerRepeat(width) {
+  return [sketchRule(0, width, TOP_Y, 3, "dense"), sketchRule(0, width, BOT_Y, 2, "sparse")].join("");
+}
+
+function buildTile(mode) {
+  const width = mode === "center" ? CENTER_W : CAP_W;
+  const body =
+    mode === "left" ? leftCap(width) : mode === "right" ? rightCap(width) : centerRepeat(width);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${VIEW_H}" preserveAspectRatio="none" aria-hidden="true">${body}</svg>`;
+}
+
+const leftSvg = buildTile("left");
+const centerSvg = buildTile("center");
+const rightSvg = buildTile("right");
 
 const out = `import type { YnSvgSource } from "../../asset/svg/index.js";
 
-/** Ink-wash smear — SVG palette-knife scrape (no raster). */
-const buttonBgSvg = ${JSON.stringify(buttonBgSvg)};
+/** Sketch bracket frame — stroke vines, leaf ticks, dot florets (transparent). */
+const buttonBgLeftSvg = ${JSON.stringify(leftSvg)};
+const buttonBgCenterSvg = ${JSON.stringify(centerSvg)};
+const buttonBgRightSvg = ${JSON.stringify(rightSvg)};
 
-export const YN_COOKIE_NOTICE_BUTTON_BG_DATA_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgSvg)}")\`;
+export const YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgLeftSvg)}")\`;
+export const YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgCenterSvg)}")\`;
+export const YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI = \`url("data:image/svg+xml,\${encodeURIComponent(buttonBgRightSvg)}")\`;
 
-/** Tag cord + grommet (hand-traced vector). */
+export const YN_COOKIE_NOTICE_BUTTON_BG_DATA_URI = YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI;
+
 export const YN_COOKIE_NOTICE_MODAL_HOLDER_SVG: YnSvgSource = ${JSON.stringify(MODAL_HOLDER_SVG)};
 `;
 
 fs.writeFileSync(ICONS_OUT, out);
-console.log("Updated ink-wash SVG button", {
-  svgLen: buttonBgSvg.length,
-  encodedLen: encodeURIComponent(buttonBgSvg).length
+console.log("Updated sketch-bracket frame tiles", {
+  left: leftSvg.length,
+  center: centerSvg.length,
+  right: rightSvg.length,
 });

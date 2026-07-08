@@ -1,4 +1,8 @@
-import { YN_COOKIE_NOTICE_BUTTON_BG_DATA_URI } from "./cookie-notice-icons.js";
+import {
+  YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI,
+  YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI,
+  YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI
+} from "./cookie-notice-icons.js";
 
 /** Shadow DOM styles for yn-cookie-notice */
 export const YN_COOKIE_NOTICE_STYLES = `
@@ -13,8 +17,12 @@ export const YN_COOKIE_NOTICE_STYLES = `
   --yn-cookie-notice-checkbox-border-color: #121212;
   --yn-cookie-notice-checkbox-hover-fill: #9a9a9a;
   --yn-cookie-notice-checkbox-checked-fill: var(--yn-cookie-notice-accent-color, #ed3833);
-  --yn-cookie-notice-button-text-color: #fff;
-  --yn-cookie-notice-button-bg: ${YN_COOKIE_NOTICE_BUTTON_BG_DATA_URI};
+  --yn-cookie-notice-button-text-color: var(--yn-cookie-notice-text-color, #000);
+  --yn-cookie-notice-button-bg-left: ${YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI};
+  --yn-cookie-notice-button-bg-center: ${YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI};
+  --yn-cookie-notice-button-bg-right: ${YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI};
+  --yn-cookie-notice-button-cap-width: 1.75em;
+  --yn-cookie-notice-button-bg-inset: -0.38em -0.18em;
   --yn-cookie-notice-z-index: 1000;
   --yn-cookie-notice-bottom: 1.6em;
   --yn-cookie-notice-right: 1.6em;
@@ -116,23 +124,14 @@ img {
 }
 
 .panel__close {
-  height: 3.2em;
   position: absolute;
   right: 0.3em;
   top: 0.6em;
-  transition: color 0.5s 0.2s;
-  width: 3.2em;
   z-index: 5;
-}
-
-.panel__close svg {
-  height: 100%;
-  width: 100%;
-}
-
-.panel__close:hover {
-  color: var(--yn-cookie-notice-close-hover-color);
-  transition: color 0.5s;
+  width: 3.2em;
+  height: 3.2em;
+  align-items: center;
+  justify-content: center;
 }
 
 .panel__header {
@@ -222,25 +221,45 @@ img {
   background: none;
   color: var(--yn-cookie-notice-button-text-color);
   isolation: isolate;
-  padding-inline: 0.95em;
+  min-height: 2.85em;
+  padding: 0.42em 1em 0.48em;
   position: relative;
-  transition:
-    filter 0.25s ease,
-    opacity 0.4s;
+  transition: transform 0.2s ease;
   z-index: 0;
 }
 
 .action-button--primary::before {
-  background: var(--yn-cookie-notice-button-bg) center center / 100% 100% no-repeat;
+  background-image:
+    var(--yn-cookie-notice-button-bg-left),
+    var(--yn-cookie-notice-button-bg-right),
+    var(--yn-cookie-notice-button-bg-center);
+  background-position:
+    left center,
+    right center,
+    var(--yn-cookie-notice-button-cap-width) center;
+  background-repeat: no-repeat, no-repeat, repeat-x;
+  background-size:
+    var(--yn-cookie-notice-button-cap-width) 100%,
+    var(--yn-cookie-notice-button-cap-width) 100%,
+    auto 100%;
   content: "";
-  inset: -0.14em -0.36em;
+  inset: var(--yn-cookie-notice-button-bg-inset);
   pointer-events: none;
   position: absolute;
   z-index: -1;
 }
 
 .action-button--primary:hover {
-  filter: brightness(1.12);
+  transform: scale(1.01);
+}
+
+.action-button--primary:hover::before {
+  filter: contrast(1.06);
+}
+
+.action-button--primary:focus-visible {
+  outline: 1px dashed var(--yn-cookie-notice-inner-border-color);
+  outline-offset: 3px;
 }
 
 .settings-toggle {

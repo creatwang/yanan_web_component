@@ -3,6 +3,7 @@ import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynClose20Svg } from "../../asset/svg";
+import "../yn-icon-button/yn-icon-button.js";
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
@@ -452,9 +453,9 @@ export class YnDrawer extends LitElement {
               <div class="header-actions">
                 <slot name="header-actions"></slot>
               </div>
-              <button class="close-btn" type="button" aria-label="Close drawer" @click=${this.handleCloseClick}>
+              <yn-icon-button class="close-btn" size="small" label="Close drawer" @click=${this.handleCloseClick}>
                 ${unsafeSVG(ynClose20Svg)}
-              </button>
+              </yn-icon-button>
             </header>
             <div class="body">
               <slot name="content"></slot>

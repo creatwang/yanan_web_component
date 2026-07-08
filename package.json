@@ -160,7 +160,7 @@
     "dev:google-address": "vite --open /demos/address/google-address-demo.html",
     "dev:dr5hn-region": "vite --open /demos/address/dr5hn-region-demo.html",
     "build:docs": "pnpm run generate:sitemap && vite build --config vite.config.docs.ts",
-    "build": "vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json && node scripts/generate-bundle-sizes.mjs --write",
+    "build": "pnpm generate:cookie-notice-btn && vite build && vite build --config vite.config.umd-iife.ts && tsc -p tsconfig.build.json && node scripts/generate-bundle-sizes.mjs --write",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "generate:entries": "node scripts/sync-package-entries.mjs --write",
     "generate:entries:check": "node scripts/sync-package-entries.mjs --check",
