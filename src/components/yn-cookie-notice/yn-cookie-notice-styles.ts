@@ -1,8 +1,4 @@
-import {
-  YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI,
-  YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI,
-  YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI,
-} from "./cookie-notice-icons.js";
+import { YN_COOKIE_NOTICE_BUTTON_BG_URI } from "./cookie-notice-icons.js";
 
 /** Shadow DOM styles for yn-cookie-notice */
 export const YN_COOKIE_NOTICE_STYLES = `
@@ -17,14 +13,9 @@ export const YN_COOKIE_NOTICE_STYLES = `
   --yn-cookie-notice-checkbox-border-color: #121212;
   --yn-cookie-notice-checkbox-hover-fill: #9a9a9a;
   --yn-cookie-notice-checkbox-checked-fill: var(--yn-cookie-notice-accent-color, #ed3833);
-  --yn-cookie-notice-button-text-color: #0f0f0f;
-  --yn-cookie-notice-button-bg-left: ${YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI};
-  --yn-cookie-notice-button-bg-center: ${YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI};
-  --yn-cookie-notice-button-bg-right: ${YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI};
-  --yn-cookie-notice-button-tile-height: 2.35em;
-  --yn-cookie-notice-button-cap-width: calc(var(--yn-cookie-notice-button-tile-height) * 0.28);
-  --yn-cookie-notice-button-center-unit: calc(var(--yn-cookie-notice-button-tile-height) * 0.08);
-  --yn-cookie-notice-button-bg-inset: -0.28em -0.42em;
+  --yn-cookie-notice-button-text-color: #fff;
+  --yn-cookie-notice-button-bg: ${YN_COOKIE_NOTICE_BUTTON_BG_URI};
+  --yn-cookie-notice-button-bg-inset: 0;
   --yn-cookie-notice-z-index: 1000;
   --yn-cookie-notice-bottom: 1.6em;
   --yn-cookie-notice-right: 1.6em;
@@ -229,9 +220,8 @@ img {
   white-space: normal;
 }
 
-.action-button strong {
-  font-weight: 100;
-  line-height: 1;
+.action-button--primary > strong {
+  display: none;
 }
 
 .action-button__label {
@@ -264,19 +254,10 @@ img {
 }
 
 .action-button--primary::before {
-  background-image:
-    var(--yn-cookie-notice-button-bg-left),
-    var(--yn-cookie-notice-button-bg-right),
-    var(--yn-cookie-notice-button-bg-center);
-  background-position:
-    left center,
-    right center,
-    var(--yn-cookie-notice-button-cap-width) center;
-  background-repeat: no-repeat, no-repeat, repeat-x;
-  background-size:
-    auto var(--yn-cookie-notice-button-tile-height),
-    auto var(--yn-cookie-notice-button-tile-height),
-    var(--yn-cookie-notice-button-center-unit) var(--yn-cookie-notice-button-tile-height);
+  background-image: var(--yn-cookie-notice-button-bg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   content: "";
   inset: var(--yn-cookie-notice-button-bg-inset);
   pointer-events: none;
