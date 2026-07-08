@@ -1,5 +1,13 @@
 export { YnButton } from "./components/yn-button/yn-button";
 export { YnInput } from "./components/yn-input/yn-input";
+export { YnIconButton } from "./components/yn-icon-button/yn-icon-button";
+export {
+  renderYnIconButtonShadowHtml,
+  YN_ICON_BUTTON_SHADOW_STYLES,
+  YN_ICON_BUTTON_VARIANTS,
+  type YnIconButtonShadowOptions,
+  type YnIconButtonVariant,
+} from "./components/yn-icon-button/yn-icon-button-shadow";
 export { YnIconConnectButton } from "./components/yn-icon-connect-button/yn-icon-connect-button";
 export { YnNavigation } from "./components/yn-navigation/yn-navigation";
 export {

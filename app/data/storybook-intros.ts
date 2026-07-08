@@ -8,6 +8,11 @@ const IMG = {
 
 /** 各组件 Storybook component 描述摘要（中英） */
 export const STORYBOOK_INTROS: Record<string, L10nText> = {
+  "yn-icon-button": {
+    "zh-CN":
+      "圆形图标按钮：`variant` 切换配色，`hit-slop` 扩展热区，`--yn-icon-button-bg` / `--yn-icon-button-hover-bg` 覆写背景。事件为原生 `click`，在 host 上监听。",
+    en: "Circular icon button: `variant` palettes, `hit-slop` tap target, CSS var overrides. Native `click` on the host."
+  },
   "yn-input": {
     "zh-CN":
       "Floema 风格输入框：暖色半透明背景、细线边框、胶囊圆角。默认无前后置按钮，仅传入 `prefix-button` / `suffix-button` 插槽时渲染。",

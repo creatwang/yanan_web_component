@@ -1,6 +1,8 @@
 import { LitElement, css, html, unsafeCSS } from "lit";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { customElement, property, state } from "lit/decorators.js";
-import { YN_COOKIE_NOTICE_ASSETS } from "./assets.js";
+import { ynClose20Svg, ynDropdownPickChevronUpSvg } from "../../asset/svg/index.js";
+import { YN_COOKIE_NOTICE_MODAL_HOLDER_SVG } from "./cookie-notice-icons.js";
 import { YN_COOKIE_NOTICE_STYLES } from "./yn-cookie-notice-styles.js";
 import type {
   YnCookieNoticeCategory,
@@ -9,19 +11,6 @@ import type {
   YnCookieNoticePreferenceSource
 } from "./types.js";
 
-const CLOSE_ICON = html`<svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-  <path
-    d="M21.0769 10L22 10.9231L16.9231 16L22 21.0769L21.0769 22L16 16.9231L10.9231 22L10 21.0769L15.0769 16L10 10.9231L10.9231 10L16 15.0769L21.0769 10Z"
-    fill="currentColor"
-  />
-</svg>`;
-
-const CHEVRON_ICON = html`<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-  <path
-    d="M5.13093 6.38661C5.05578 6.4517 4.94422 6.4517 4.86907 6.38661L2.80744 4.60119C2.66746 4.47996 2.75319 4.25 2.93837 4.25L7.06163 4.25C7.24681 4.25 7.33254 4.47996 7.19256 4.60119L5.13093 6.38661Z"
-    fill="currentColor"
-  />
-</svg>`;
 
 @customElement("yn-cookie-notice")
 export class YnCookieNotice extends LitElement {
@@ -56,7 +45,6 @@ export class YnCookieNotice extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.style.setProperty("--yn-cookie-notice-button-bg", `url("${YN_COOKIE_NOTICE_ASSETS.buttonBg}")`);
     this.bootstrapFromStorage();
   }
 
@@ -340,11 +328,7 @@ export class YnCookieNotice extends LitElement {
                   this.onCategoryChange(category as YnCookieNoticeCategory, (event.target as HTMLInputElement).checked);
                 }}
           />
-          <span class="checkbox__box">
-            <img src=${YN_COOKIE_NOTICE_ASSETS.checkboxDefault} alt="" />
-            <img src=${YN_COOKIE_NOTICE_ASSETS.checkboxHover} alt="" />
-            <img src=${YN_COOKIE_NOTICE_ASSETS.checkboxChecked} alt="" />
-          </span>
+          <span class="checkbox__box" aria-hidden="true"></span>
           <span class="checkbox__text">
             ${label}
             ${requiredLabel ? html`<small>${requiredLabel}</small>` : null}
@@ -358,10 +342,10 @@ export class YnCookieNotice extends LitElement {
   render() {
     return html`
       <section class=${`panel${this.visible ? " visible" : ""}`} aria-live="polite">
-        <img class="panel__holder" src=${YN_COOKIE_NOTICE_ASSETS.modalHolder} alt="" />
+        <div class="panel__holder" aria-hidden="true">${unsafeSVG(YN_COOKIE_NOTICE_MODAL_HOLDER_SVG)}</div>
         <div class="panel__inner">
           <button class="panel__close" type="button" aria-label="Close" @click=${this.onCloseClick}>
-            ${CLOSE_ICON}
+            ${unsafeSVG(ynClose20Svg)}
           </button>
 
           <div class="panel__header">
@@ -395,7 +379,7 @@ export class YnCookieNotice extends LitElement {
                 @click=${this.onToggleSettings}
               >
                 <span class="settings-toggle__label">cookies settings</span>
-                ${CHEVRON_ICON}
+                ${unsafeSVG(ynDropdownPickChevronUpSvg)}
               </button>
             </div>
           </div>

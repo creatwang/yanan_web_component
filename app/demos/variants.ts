@@ -7,6 +7,8 @@ export const DOC_VARIANT_DEMOS: Record<string, DemoRenderer> = {
   "yn-button-sizes": () => html`<yn-docs-button-demo variant="sizes"></yn-docs-button-demo>`,
   "yn-button-loading": () => html`<yn-docs-button-demo variant="loading"></yn-docs-button-demo>`,
 
+  "yn-icon-button-click": () => html`<yn-docs-icon-button-demo variant="click"></yn-docs-icon-button-demo>`,
+
   "yn-input-default": () => html`<yn-docs-input-demo variant="default"></yn-docs-input-demo>`,
   "yn-input-prefix": () => html`<yn-docs-input-demo variant="prefix"></yn-docs-input-demo>`,
   "yn-input-suffix": () => html`<yn-docs-input-demo variant="suffix"></yn-docs-input-demo>`,

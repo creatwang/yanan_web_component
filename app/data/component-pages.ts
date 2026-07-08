@@ -12,6 +12,87 @@ function page(
 
 export const COMPONENT_PAGES: ComponentDocPage[] = [
   page({
+    id: "yn-icon-button",
+    title: "IconButton 图标按钮",
+    tag: "yn-icon-button",
+    className: "YnIconButton",
+    importPath: "yn-web-component/components/yn-icon-button",
+    description:
+      "Flutter / Material 风格圆形图标按钮：variant 配色、可覆盖默认/hover 背景、hit-slop 热区、按下 ripple。默认插槽传入 SVG 或任意图标元素。",
+    usageCode: `import { renderYnIconButtonShadowHtml } from "yn-web-component/ssr/yn-icon-button"
+import CartIcon from "./CartIcon.astro"
+
+// 1. 点击事件：原生 click，在 host 上监听（与 yn-button 相同）
+function openCart() {
+  console.log("open cart drawer")
+}
+
+<yn-icon-button label="购物车" variant="default" @click=\${openCart}>
+  <CartIcon />
+</yn-icon-button>
+
+// Lit / 客户端
+html\`<yn-icon-button label="关闭" @click=\${onClose}>\${closeIcon}</yn-icon-button>\`
+
+// 原生 DOM
+document.querySelector("yn-icon-button")?.addEventListener("click", (event) => {
+  if ((event.target as HTMLElement).closest("yn-icon-button")?.hasAttribute("disabled")) return
+  onIconClick(event)
+})
+
+// 2. SSR + DSD 首屏（图标走 default slot）
+const shadowHtml = renderYnIconButtonShadowHtml({
+  label: "购物车",
+  variant: "default",
+  hitSlop: true,
+})
+
+<yn-icon-button label="购物车" variant="default" hit-slop @click=\${openCart}>
+  <CartIcon />
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-icon-button>
+
+// 3. 链接模式：设置 href 后内部渲染 <a>，仍监听 host 的 click
+<yn-icon-button label="账户" href="/account" variant="default" @click=\${trackNav}>
+  <AccountIcon />
+</yn-icon-button>`,
+    props: [
+      { name: "label", type: "string", default: '"图标按钮"', desc: "aria-label / title（必填语义）" },
+      { name: "variant", type: "default | filled | primary | tonal | outlined | inverse | danger | success", default: "default", desc: "行业常见配色预设" },
+      { name: "size", type: "small | medium | large", default: "medium", desc: "按钮与图标尺寸" },
+      { name: "hit-slop", type: "boolean", default: "true", desc: "四周各扩展 5px 点击热区" },
+      { name: "disabled", type: "boolean", default: "false", desc: "禁用" },
+      { name: "type", type: "button | submit | reset", default: "button", desc: "原生 button 类型" },
+      { name: "href", type: "string", default: '""', desc: "有值时渲染为链接" },
+    ],
+    events: [
+      {
+        name: "click",
+        detail: "MouseEvent",
+        desc: "原生点击事件，在 `<yn-icon-button>` 上监听；`disabled=true` 时内部阻止冒泡且不触发。`href` 链接模式同样可用。",
+      },
+    ],
+    slots: [{ name: "(default)", desc: "图标内容（SVG 等）" }],
+    cssVars: [
+      { name: "--yn-icon-button-size", default: "2.5rem", desc: "圆形按钮直径" },
+      { name: "--yn-icon-button-icon-size", default: "1.25rem", desc: "图标尺寸" },
+      { name: "--yn-icon-button-bg", desc: "默认背景色（覆盖 variant）" },
+      { name: "--yn-icon-button-hover-bg", desc: "悬停背景/叠层色（覆盖 variant）" },
+      { name: "--yn-icon-button-active-bg", desc: "按下 ripple 色" },
+      { name: "--yn-icon-button-color", desc: "图标颜色" },
+      { name: "--yn-icon-button-border-color", desc: "描边色（outlined 等）" },
+      { name: "--yn-icon-button-focus-ring", desc: "焦点环" },
+      { name: "--yn-icon-button-primary-bg", desc: "primary variant 背景" },
+      { name: "--yn-icon-button-filled-bg", desc: "filled variant 背景" },
+    ],
+    notes: [
+      "事件为原生 `click`，在 host 上使用 `@click` / `addEventListener('click')` 监听，无需自定义事件名。",
+      "`disabled=true` 时内部 `button` 禁用且阻止冒泡；`href` 链接模式在 disabled 时会移除 href。",
+      "`hit-slop` 通过 `::before` 扩展热区，不影响视觉尺寸，适合顶栏小图标。",
+    ],
+  }),
+
+  page({
     id: "yn-button",
     title: "Button 按钮",
     tag: "yn-button",

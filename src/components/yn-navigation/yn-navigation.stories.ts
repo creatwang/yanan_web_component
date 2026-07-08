@@ -2,6 +2,8 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "./yn-navigation";
 
+type YnNavigationChangeDetail = { key: string; node: Record<string, string> };
+
 type Args = {
   items: Record<string, string>;
   /** SSR 用 JSON 字符串预注入 items（对应 `items-json` 属性） */
@@ -17,7 +19,7 @@ type Args = {
   focusColor: string;
   glowColor: string;
   glowFade: string;
-  change?: (event: CustomEvent<{ key: string; node: Record<string, string> }>) => void;
+  change?: (event: CustomEvent<YnNavigationChangeDetail>) => void;
 };
 
 const defaultItems = {
@@ -34,7 +36,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "导航胶囊组件，用于在多项导航中展示和切换当前激活项。seoMode=false 时为受控切换模式（button + change 事件）；seoMode=true 时为 SEO 链接模式（a 标签 + href 跳转，不派发 change）。\n\n**SSR 首屏**：Astro 等框架请使用 `renderYnNavigationShadowHtml`（`yn-web-component/ssr/yn-navigation`）生成 Declarative Shadow DOM，配合 `items-json` 属性，不要在消费方重复实现导航 markup。\n\n**SEO 链接层**：在 `<yn-navigation>` 内提供 `slot=\"seo-fallback\"` 的 light DOM `<nav><ul><a href>`，配合 `YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES` 视觉隐藏；DSD/Shadow 负责首屏视觉，light DOM 链接供爬虫抓取。\n\n样式隔离：组件使用 Shadow DOM，可通过 `--yn-navigation-*` CSS 变量定制。"
+          "导航胶囊组件，用于在多项导航中展示和切换当前激活项。seoMode=false 时为受控切换模式（button + change 事件）；seoMode=true 时为 SEO 链接模式（a 标签 + href 跳转，不派发 change）。\n\n**SSR 首屏**：Astro 等框架请使用 renderYnNavigationShadowHtml（yn-web-component/ssr/yn-navigation）生成 Declarative Shadow DOM，配合 items-json 属性，不要在消费方重复实现导航 markup。\n\n**SEO 链接层**：在 yn-navigation 内提供 slot=\"seo-fallback\" 的 light DOM nav/ul/a 结构，配合 YN_NAVIGATION_SEO_FALLBACK_LIGHT_STYLES 视觉隐藏；DSD/Shadow 负责首屏视觉，light DOM 链接供爬虫抓取。\n\n样式隔离：组件使用 Shadow DOM，可通过 --yn-navigation-* CSS 变量定制。"
       }
     }
   },
@@ -75,7 +77,7 @@ const meta = {
     itemsJson: {
       control: "text",
       name: "items-json",
-      description: "SSR 用 JSON 字符串预注入 items（Record<label, href>），避免 custom element 升级时闪回默认项。",
+      description: "SSR 用 JSON 字符串预注入 items（label→href 映射），避免 custom element 升级时闪回默认项。",
       table: {
         type: { summary: "string" }
       }
@@ -83,7 +85,7 @@ const meta = {
     seoMode: {
       control: "boolean",
       description:
-        "是否启用 SEO 模式。开启后：1) 选项渲染为 <a href>；2) 激活项由 window.location.pathname 与 items.value 最长匹配决定；3) 禁用组件内部 change 派发，交互以浏览器导航为主。",
+        "是否启用 SEO 模式。开启后：1) 选项渲染为 a[href] 链接；2) 激活项由 window.location.pathname 与 items.value 最长匹配决定；3) 禁用组件内部 change 派发，交互以浏览器导航为主。",
       table: {
         defaultValue: { summary: "false" },
         type: { summary: "boolean" }
@@ -183,7 +185,7 @@ const meta = {
       action: "change",
       table: {
         category: "Events",
-        type: { summary: "CustomEvent<{ key: string; node: Record<string, string> }>" }
+        type: { summary: "CustomEvent<YnNavigationChangeDetail>" }
       }
     }
   }
@@ -194,7 +196,7 @@ type Story = StoryObj<Args>;
 
 const renderControlledNavigation = (args: Args) => {
   const onChange = (event: Event) => {
-    const customEvent = event as CustomEvent<{ key: string; node: Record<string, string> }>;
+    const customEvent = event as CustomEvent<YnNavigationChangeDetail>;
     const detail = customEvent.detail;
     args.change?.(customEvent);
     const target = event.currentTarget as HTMLElement & { active: string };

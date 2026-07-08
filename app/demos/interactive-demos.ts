@@ -9,6 +9,8 @@ import {
   storyButtonVariants,
   storyButtonSizes,
   storyButtonLoading,
+  storyIconButtonDefault,
+  storyIconButtonClick,
   storyInputDefault,
   storyInputPrefix,
   storyInputSuffix,
@@ -91,6 +93,20 @@ export class YnDocsButtonDemo extends LitElement {
     if (this.variant === "sizes") return storyButtonSizes();
     if (this.variant === "loading") return storyButtonLoading();
     return storyButtonDefault();
+  }
+}
+
+@customElement("yn-docs-icon-button-demo")
+export class YnDocsIconButtonDemo extends LitElement {
+  @property({ type: String }) variant: "default" | "click" = "default";
+
+  createRenderRoot() {
+    return this;
+  }
+
+  render() {
+    if (this.variant === "click") return storyIconButtonClick();
+    return storyIconButtonDefault();
   }
 }
 

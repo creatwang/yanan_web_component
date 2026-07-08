@@ -1,4 +1,4 @@
-﻿import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";

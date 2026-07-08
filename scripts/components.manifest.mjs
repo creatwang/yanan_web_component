@@ -74,6 +74,12 @@ export const COMPONENTS = [
     defineImport: "./components/yn-cookie-notice/yn-cookie-notice",
   },
   {
+    id: "yn-icon-button",
+    entry: "src/components/yn-icon-button/yn-icon-button.ts",
+    types: "dist/types/components/yn-icon-button/yn-icon-button.d.ts",
+    defineImport: "./components/yn-icon-button/yn-icon-button",
+  },
+  {
     id: "yn-icon-connect-button",
     entry: "src/components/yn-icon-connect-button.ts",
     types: "dist/types/components/yn-icon-connect-button.d.ts",
@@ -144,6 +150,12 @@ export const SSR_ENTRIES = [
     viteKey: "ssr/yn-input-shadow",
     entry: "src/components/yn-input/yn-input-shadow.ts",
     types: "dist/types/components/yn-input/yn-input-shadow.d.ts",
+  },
+  {
+    exportSubpath: "./ssr/yn-icon-button",
+    viteKey: "ssr/yn-icon-button-shadow",
+    entry: "src/components/yn-icon-button/yn-icon-button-shadow.ts",
+    types: "dist/types/components/yn-icon-button/yn-icon-button-shadow.d.ts",
   },
   {
     exportSubpath: "./ssr/yn-quantity",

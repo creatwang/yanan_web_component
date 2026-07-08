@@ -30,6 +30,102 @@ const FLOEMA_IMG =
   "https://www.floema.com/_ipx/f_webp&s_200x114/https:/cdn.sanity.io/images/535lnz3g/production/6adaaad4b7aff57360124f76b64839aafe0bf6bd-317x180.png";
 
 export const COMPONENT_I18N: Record<string, ComponentI18n> = {
+  "yn-icon-button": {
+    title: { "zh-CN": "IconButton 图标按钮", en: "IconButton" },
+    description: {
+      "zh-CN": "圆形图标按钮：variant 配色、背景/hover 可定制、hit-slop 热区、ripple 反馈。",
+      en: "Circular icon button with variants, customizable surfaces, hit-slop, and ripple."
+    },
+    longDescription: {
+      "zh-CN":
+        "Material / Flutter 风格圆形图标按钮。通过 `variant` 切换行业常见配色（default / filled / primary / tonal / outlined / inverse / danger / success），可用 `--yn-icon-button-bg`、`--yn-icon-button-hover-bg` 等变量覆写。`hit-slop` 默认开启，四周各扩展 5px 点击热区。事件为原生 `click`，在 `<yn-icon-button>` 上监听即可（与 yn-button 一致）；`disabled` 时阻止冒泡。",
+      en:
+        "Material / Flutter circular icon button. Use `variant` for common palettes; override with `--yn-icon-button-bg` and `--yn-icon-button-hover-bg`. `hit-slop` extends the tap target by 5px per side (default on). Fires native `click` on the host—same as yn-button; disabled blocks propagation."
+    },
+    usageCode: {
+      "zh-CN": `<!-- 点击：在 host 上监听原生 click -->
+<yn-icon-button label="购物车" variant="default" @click=\${openCart}>
+  <CartIcon />
+</yn-icon-button>
+
+<!-- Lit -->
+html\`<yn-icon-button label="关闭" @click=\${onClose}>\${closeIcon}</yn-icon-button>\`
+
+<!-- SSR + DSD -->
+const shadowHtml = renderYnIconButtonShadowHtml({ label: "购物车", variant: "default" })
+<yn-icon-button label="购物车" @click=\${openCart}>
+  <CartIcon />
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-icon-button>`,
+      en: `<!-- Click: listen for native click on the host -->
+<yn-icon-button label="Cart" variant="default" @click=\${openCart}>
+  <CartIcon />
+</yn-icon-button>
+
+<!-- Lit -->
+html\`<yn-icon-button label="Close" @click=\${onClose}>\${closeIcon}</yn-icon-button>\`
+
+<!-- SSR + DSD -->
+const shadowHtml = renderYnIconButtonShadowHtml({ label: "Cart", variant: "default" })
+<yn-icon-button label="Cart" @click=\${openCart}>
+  <CartIcon />
+  <template shadowrootmode="open" set:html={shadowHtml} />
+</yn-icon-button>`
+    },
+    showcases: [
+      {
+        id: "variants",
+        title: { "zh-CN": "配色变体", en: "Color variants" },
+        description: {
+          "zh-CN": "default / filled / primary / tonal / outlined / inverse / danger / success。",
+          en: "default, filled, primary, tonal, outlined, inverse, danger, success."
+        },
+        storybookComponent: "Components/yn-icon-button",
+        storybookStory: "Variants"
+      },
+      {
+        id: "click",
+        title: { "zh-CN": "点击事件", en: "Click handling" },
+        description: {
+          "zh-CN": "在 host 上监听原生 `click`；下方 Storybook 可交互验证。",
+          en: "Listen for native `click` on the host; try the interactive Storybook story."
+        },
+        storybookComponent: "Components/yn-icon-button",
+        storybookStory: "ClickHandler",
+        demoVariant: "yn-icon-button-click"
+      }
+    ],
+    props: [
+      { name: "label", type: "string", default: '"图标按钮"', desc: { "zh-CN": "aria-label / title", en: "aria-label / title" } },
+      { name: "variant", type: "default | filled | primary | tonal | outlined | inverse | danger | success", default: "default", desc: { "zh-CN": "配色预设", en: "Color preset" } },
+      { name: "hit-slop", type: "boolean", default: "true", desc: { "zh-CN": "热区扩展 +5px", en: "Expand tap target +5px" } },
+      { name: "disabled", type: "boolean", default: "false", desc: { "zh-CN": "禁用点击", en: "Disable interaction" } },
+      { name: "href", type: "string", default: '""', desc: { "zh-CN": "有值渲染链接", en: "Render as link when set" } }
+    ],
+    events: [
+      {
+        name: "click",
+        detail: "MouseEvent",
+        desc: {
+          "zh-CN": "原生点击；在 `<yn-icon-button>` 上 `@click` 或 `addEventListener`；disabled 时不触发。",
+          en: "Native click on the host via `@click` or `addEventListener`; blocked when disabled."
+        }
+      }
+    ],
+    slots: [{ name: "(default)", desc: { "zh-CN": "图标 SVG 等", en: "Icon SVG, etc." } }],
+    cssVars: [
+      { name: "--yn-icon-button-bg", desc: { "zh-CN": "默认背景", en: "Default background" } },
+      { name: "--yn-icon-button-hover-bg", desc: { "zh-CN": "悬停背景", en: "Hover background" } },
+      { name: "--yn-icon-button-color", desc: { "zh-CN": "图标颜色", en: "Icon color" } }
+    ],
+    notes: [
+      {
+        "zh-CN": "与 yn-button 相同，使用原生 `click`，无需 `yn-icon-button-click` 等自定义事件。",
+        en: "Same as yn-button: native `click` on the host—no custom event name required."
+      }
+    ]
+  },
+
   "yn-button": {
     title: { "zh-CN": "Button 按钮", en: "Button" },
     description: {

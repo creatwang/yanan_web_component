@@ -10,6 +10,7 @@ export type BundleSizeRow = {
 };
 
 export const BUNDLE_SIZES: BundleSizeRow[] = [
+  { id: "yn-icon-button", importPath: "components/yn-icon-button", sizeKb: 4.05, gzipKb: 1.42 },
   { id: "yn-quantity", importPath: "components/yn-quantity", sizeKb: 4.36, gzipKb: 1.51 },
   { id: "yn-group-pick", importPath: "components/yn-group-pick", sizeKb: 4.6, gzipKb: 1.92 },
   { id: "yn-input", importPath: "components/yn-input", sizeKb: 4.89, gzipKb: 1.55 },
@@ -27,6 +28,7 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
           "zh-CN": "首次注册约 0.47 kB；SKU 交互代码约 26.32 kB 会按需加载",
           "en": "Initial registration ~0.47 kB; SKU interaction code ~26.32 kB loads on demand"
     } },
+  { id: "yn-cookie-notice", importPath: "components/yn-cookie-notice", sizeKb: 34.26, gzipKb: 8.03 },
   { id: "yn-pull-cord-switch", importPath: "components/yn-pull-cord-switch", sizeKb: 49.81, gzipKb: 12.43,
     note: {
           "zh-CN": "页面先加载约 32.17 kB（gzip 7.57 kB）；首次显示/交互时再加载绳子物理动画约 17.64 kB（gzip 4.86 kB）",
@@ -36,14 +38,13 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
     note: {
           "zh-CN": "页面先加载注册代码约 0.34 kB；地址表单核心约 74.27 kB 按需加载，Google/Photon/dr5hn 探测逻辑再按实际数据源懒加载",
           "en": "Page initially loads registration ~0.34 kB; address form core ~74.27 kB loads on demand, and Google/Photon/dr5hn provider logic lazy-loads based on the selected source"
-    } },
-  { id: "yn-cookie-notice", importPath: "components/yn-cookie-notice", sizeKb: 167.17, gzipKb: 114.06 }
+    } }
 ];
 
 export const BUNDLE_META = {
   builtAt: "2026-07-08",
-  fullIifeKb: 495.81,
-  fullIifeGzipKb: 195.93,
-  defineKb: 0.62,
-  indexExportKb: 2.85
+  fullIifeKb: 373.98,
+  fullIifeGzipKb: 90.68,
+  defineKb: 0.66,
+  indexExportKb: 3.2
 } as const;

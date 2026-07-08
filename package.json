@@ -176,6 +176,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate:sitemap": "node scripts/generate-sitemap.mjs",
+    "generate:cookie-notice-btn": "node scripts/gen-scratch-btn.mjs",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm check && pnpm build && changeset publish",

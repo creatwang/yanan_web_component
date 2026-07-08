@@ -109,6 +109,45 @@ export const storyButtonDefault = () => html`
   <yn-button variant="primary">按钮</yn-button>
 `;
 
+const ICON_BUTTON_CART_SVG = html`
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path
+      fill="currentColor"
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M8.8999 7.5C8.8999 6.28498 9.88488 5.3 11.0999 5.3H12.8999C14.1149 5.3 15.0999 6.28498 15.0999 7.5C15.0999 7.77615 15.3238 8 15.5999 8C15.876 8 16.0999 7.77615 16.0999 7.5C16.0999 5.73269 14.6672 4.3 12.8999 4.3H11.0999C9.33259 4.3 7.8999 5.73269 7.8999 7.5C7.8999 7.77615 8.12376 8 8.3999 8C8.67604 8 8.8999 7.77615 8.8999 7.5ZM5.7998 15.6V9.39999H18.1998V15.6C18.1998 17.0359 17.0357 18.2 15.5998 18.2H8.39981C6.96387 18.2 5.7998 17.0359 5.7998 15.6ZM4.7998 9.29999C4.7998 8.80294 5.20275 8.39999 5.6998 8.39999H18.2998C18.7969 8.39999 19.1998 8.80294 19.1998 9.29999V15.6C19.1998 17.5882 17.588 19.2 15.5998 19.2H8.39981C6.41158 19.2 4.7998 17.5882 4.7998 15.6V9.29999Z"
+    />
+  </svg>
+`;
+
+/** yn-icon-button Default */
+export const storyIconButtonDefault = () => html`
+  <yn-icon-button label="购物车" variant="default">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+`;
+
+/** yn-icon-button ClickHandler */
+export const storyIconButtonClick = () => html`
+  <div
+    class="icon-button-click-demo"
+    style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:8px 0;"
+  >
+    <yn-icon-button
+      label="打开购物车"
+      variant="default"
+      @click=${(event: Event) => {
+        const root = (event.currentTarget as HTMLElement).closest(".icon-button-click-demo");
+        const log = root?.querySelector("[data-click-log]");
+        if (log) {
+          log.textContent = `已触发 click · ${new Date().toLocaleTimeString()}`;
+        }
+      }}
+    >
+      ${ICON_BUTTON_CART_SVG}
+    </yn-icon-button>
+    <p data-click-log style="margin:0;font-size:13px;color:#6f696b;">点击图标，在 host 上监听原生 click</p>
+  </div>
+`;
+
 /** yn-button Variants */
 export const storyButtonVariants = () => html`
   <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap">

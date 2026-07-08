@@ -4,6 +4,7 @@ import { DOC_VARIANT_DEMOS } from "./variants";
 
 export const DOC_DEMOS: Record<string, DemoRenderer> = {
   "yn-button": () => html`<yn-docs-button-demo variant="default"></yn-docs-button-demo>`,
+  "yn-icon-button": () => html`<yn-docs-icon-button-demo variant="default"></yn-docs-icon-button-demo>`,
   "yn-input": () => html`<yn-docs-input-demo></yn-docs-input-demo>`,
   "yn-icon-connect-button": () => html`<yn-docs-icon-connect-demo></yn-docs-icon-connect-demo>`,
   "yn-navigation": () => html`<yn-docs-navigation-demo variant="controlled"></yn-docs-navigation-demo>`,

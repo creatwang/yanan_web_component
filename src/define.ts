@@ -9,6 +9,7 @@ import "./components/yn-dropdown-pick/yn-dropdown-pick";
 import "./components/yn-drawer/yn-drawer";
 import "./components/yn-toast/yn-toast";
 import "./components/yn-cookie-notice/yn-cookie-notice";
+import "./components/yn-icon-button/yn-icon-button";
 import "./components/yn-icon-connect-button/yn-icon-connect-button";
 import "./components/yn-pull-cord-switch/yn-pull-cord-switch";
 import "./components/yn-quantity/yn-quantity";
