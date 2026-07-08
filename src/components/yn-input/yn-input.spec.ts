@@ -117,6 +117,50 @@ describe("yn-input", () => {
     expect(suffixClicked).to.equal(false);
   });
 
+  it("renders floating label and lifts on focus", async () => {
+    const el = await fixture<YnInput>(html`
+      <yn-input variant="floating" label="Email Address *" type="email"></yn-input>
+    `);
+    await el.updateComplete;
+
+    const label = el.shadowRoot?.querySelector(".float-label");
+    const field = el.shadowRoot?.querySelector(".field--floating");
+    expect(label?.textContent).to.equal("Email Address *");
+    expect(field?.classList.contains("is-active")).to.equal(false);
+
+    const input = el.shadowRoot?.querySelector<HTMLInputElement>("input");
+    if (!input) throw new Error("input not found");
+    input.focus();
+    await el.updateComplete;
+    expect(field?.classList.contains("is-active")).to.equal(true);
+  });
+
+  it("keeps floating label up when value is set", async () => {
+    const el = await fixture<YnInput>(html`
+      <yn-input variant="floating" label="Email Address *" value="user@example.com"></yn-input>
+    `);
+    await el.updateComplete;
+
+    const field = el.shadowRoot?.querySelector(".field--floating");
+    expect(field?.classList.contains("is-active")).to.equal(true);
+  });
+
+  it("renders password reveal toggle for floating password fields", async () => {
+    const el = await fixture<YnInput>(html`
+      <yn-input variant="floating" label="Password *" type="password"></yn-input>
+    `);
+    await el.updateComplete;
+
+    const toggle = el.shadowRoot?.querySelector<HTMLButtonElement>(".password-toggle");
+    const input = el.shadowRoot?.querySelector<HTMLInputElement>("input");
+    if (!toggle || !input) throw new Error("password field not found");
+
+    expect(input.type).to.equal("password");
+    toggle.click();
+    await el.updateComplete;
+    expect(input.type).to.equal("text");
+  });
+
   it("bootstraps input events from declarative shadow DOM", async () => {
     const { renderYnInputShadowHtml } = await import("./yn-input-shadow.js");
     const shadowHtml = renderYnInputShadowHtml({ placeholder: "搜索", value: "hi" });

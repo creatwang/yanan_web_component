@@ -1,9 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const VIEW_H = 40;
-const CAP_W = 34;
-const CENTER_W = 38;
+/** Source bracket-frame artwork (50×50), provided by design. */
+const BRACKET_FRAME_PATH =
+  "M44.11 8.56c-.065.316-.192.615-.24.931-.037.395-.11.796-.083 1.197a6 6 0 0 0 .287 1.664c.166.405.303.835.577 1.187.225.358.456.724.788.994.222.222.483.42.614.718.4.748.164 1.758-.536 2.242-.663.515-1.69.47-2.285-.131-.414-.374-.525-.936-.717-1.433-.195-.513-.238-1.06-.316-1.599 0-.442-.015-.886.008-1.327.073-.471.115-.955.235-1.42.081-.295.195-.578.303-.864a6.2 6.2 0 0 1 .74-1.334c.176-.282.439-.515.61-.809zm-2.819.134L38.42 14.01a1.83 1.83 0 0 1-2.446.745c-.878-.452-1.197-1.569-.745-2.446a2 2 0 0 1 .745-.745zm.16-2.819a11 11 0 0 1-.771.638c-.49.34-1.008.652-1.581.832-.469.208-.978.308-1.484.387-.373.019-.736.106-1.112.084-.525.01-1.054-.003-1.566-.128-.563-.05-1.082-.293-1.612-.473-.832-.31-1.33-1.285-1.087-2.14.225-.892 1.211-1.49 2.107-1.28.45.09.836.38 1.111.738.274.272.54.558.89.73.347.243.713.455 1.117.586.428.163.87.291 1.329.322.578.108 1.18.056 1.755-.03.315-.026.605-.176.904-.266m3.377.612a1.33 1.33 0 0 1-1.33-1.33 1.33 1.33 0 0 1 1.33-1.33 1.33 1.33 0 0 1 1.33 1.33 1.33 1.33 0 0 1-1.33 1.33M41.439 44.11c-.315-.065-.614-.192-.93-.24-.395-.037-.796-.11-1.197-.083a6 6 0 0 0-1.664.287c-.405.166-.835.303-1.187.577-.358.225-.724.456-.994.788-.222.222-.42.483-.718.614-.748.4-1.758.164-2.242-.536-.515-.663-.47-1.69.131-2.285.374-.414.936-.525 1.433-.717.513-.195 1.06-.238 1.599-.316.442 0 .885-.015 1.326.008.472.073.956.115 1.421.235.295.081.578.195.864.303a6.2 6.2 0 0 1 1.334.74c.282.177.515.439.809.61zm-.133-2.819L35.99 38.42a1.83 1.83 0 0 1-.745-2.446c.452-.878 1.569-1.197 2.446-.745a2 2 0 0 1 .745.745zm2.819.16a11 11 0 0 1-.638-.771c-.34-.49-.652-1.008-.832-1.581-.208-.469-.308-.978-.387-1.484-.019-.373-.106-.736-.084-1.112-.01-.525.003-1.054.128-1.566.05-.563.293-1.082.473-1.612.31-.832 1.285-1.33 2.14-1.087.892.225 1.49 1.211 1.28 2.107-.09.45-.38.836-.738 1.111-.272.274-.558.54-.73.89-.243.347-.455.713-.586 1.117-.163.428-.291.87-.322 1.329-.108.578-.056 1.18.03 1.755.026.315.176.605.266.904m-.612 3.377a1.33 1.33 0 0 1 1.33-1.33 1.33 1.33 0 0 1 1.33 1.33 1.33 1.33 0 0 1-1.33 1.33 1.33 1.33 0 0 1-1.33-1.33M5.89 41.439c.065-.315.192-.614.24-.93.037-.395.11-.796.083-1.197a6 6 0 0 0-.287-1.664c-.166-.405-.303-.835-.577-1.187-.225-.358-.456-.724-.788-.994-.222-.222-.483-.42-.614-.718-.4-.748-.164-1.758.536-2.242.663-.515 1.69-.47 2.285.131.414.374.525.936.717 1.433.195.513.238 1.06.316 1.599 0 .442.015.885-.008 1.326-.073.472-.115.956-.235 1.421-.081.295-.195.578-.303.864a6.3 6.3 0 0 1-.74 1.334c-.176.282-.439.515-.61.809zm2.819-.133 2.871-5.317a1.83 1.83 0 0 1 2.446-.745c.878.452 1.197 1.569.745 2.446a2 2 0 0 1-.745.745zm-.16 2.819c.247-.226.507-.437.771-.638.49-.34 1.008-.652 1.581-.832.469-.208.978-.308 1.484-.387.373-.019.736-.106 1.112-.084.525-.01 1.054.003 1.566.128.563.05 1.082.293 1.612.473.832.31 1.33 1.285 1.087 2.14-.225.892-1.211 1.49-2.107 1.28-.45-.09-.836-.38-1.111-.738-.274-.272-.54-.559-.89-.73-.347-.243-.713-.455-1.117-.586-.428-.163-.87-.291-1.329-.322-.578-.108-1.18-.056-1.755.03-.315.026-.605.176-.904.266m-3.377-.612a1.33 1.33 0 0 1 1.33 1.33 1.33 1.33 0 0 1-1.33 1.33 1.33 1.33 0 0 1-1.33-1.33 1.33 1.33 0 0 1 1.33-1.33M8.561 5.89c.315.065.614.192.93.24.395.037.796.11 1.197.083a6 6 0 0 0 1.664-.288c.405-.165.835-.302 1.187-.576.358-.225.724-.456.994-.788.222-.222.42-.483.718-.614.748-.4 1.758-.164 2.242.536.515.663.47 1.69-.131 2.285-.374.414-.936.525-1.433.717-.513.195-1.06.238-1.599.316-.442 0-.885.015-1.326-.008-.472-.073-.956-.115-1.421-.235-.295-.081-.578-.195-.864-.303a6.3 6.3 0 0 1-1.334-.74c-.282-.177-.515-.439-.809-.61zm.133 2.819 5.317 2.871a1.83 1.83 0 0 1 .745 2.446c-.452.878-1.569 1.197-2.446.745a2 2 0 0 1-.745-.745zm-2.819-.16c.226.247.437.507.638.771.34.49.652 1.008.832 1.581.208.469.308.978.387 1.484.019.373.106.736.084 1.112.01.525-.003 1.054-.128 1.566-.05.563-.293 1.082-.473 1.612-.31.832-1.285 1.33-2.14 1.087-.892-.225-1.49-1.211-1.28-2.107.09-.45.38-.836.738-1.111.272-.274.558-.54.73-.89.243-.347.455-.713.586-1.117.163-.428.291-.87.322-1.329.108-.578.056-1.18-.03-1.755-.026-.315-.176-.605-.266-.904m.612-3.377a1.33 1.33 0 0 1-1.33 1.33 1.33 1.33 0 0 1-1.33-1.33 1.33 1.33 0 0 1 1.33-1.33 1.33 1.33 0 0 1 1.33 1.33m22.515 22.552c2.052-.142 2.476-1.875 2.476-2.724s-.46-2.582-2.476-2.724C26.951 22.135 24.97 25 24.97 25s2.016 2.83 4.032 2.724m-6.756 1.308c.142 2.052 1.875 2.476 2.724 2.476s2.582-.46 2.724-2.476C27.835 26.981 24.97 25 24.97 25s-2.83 2.016-2.724 4.032m-1.308-6.756c-2.052.142-2.476 1.875-2.476 2.724s.46 2.582 2.476 2.724C22.989 27.865 24.97 25 24.97 25s-2.016-2.83-4.032-2.724m6.756-1.308c-.142-2.052-1.875-2.476-2.724-2.476s-2.582.46-2.724 2.476C22.105 23.019 24.97 25 24.97 25s2.83-2.016 2.724-4.032";
+
+const SOURCE_SIZE = 50;
+const LEFT_CAP_W = 14;
+/** Narrow center strip — repeats densely without stretching. */
+const CENTER_W = 4;
+const CENTER_X = 23;
+const RIGHT_CAP_W = 14;
+const RIGHT_X = SOURCE_SIZE - RIGHT_CAP_W;
+
 const ICONS_OUT = path.join(
   path.resolve(import.meta.dirname, ".."),
   "src/components/yn-cookie-notice/cookie-notice-icons.ts",
@@ -29,172 +38,17 @@ const MODAL_HOLDER_SVG = `<svg viewBox="0 0 857 108" fill="none" xmlns="http://w
 <path d="M688 66 C 748 58, 792 52, 836 58" stroke="url(#yn-cookie-cord)" stroke-width="2.4" stroke-linecap="round"/>
 </svg>`;
 
-function f(n) {
-  return Number(n).toFixed(2);
+function buildTile(viewBox, align = "xMidYMid") {
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" preserveAspectRatio="${align} meet" overflow="hidden" aria-hidden="true"><path fill="#0f0f0f" d="${BRACKET_FRAME_PATH}"/></svg>`;
 }
 
-function rng(seed) {
-  let s = seed >>> 0;
-  return () => {
-    s = (Math.imul(1664525, s) + 1013904223) >>> 0;
-    return s / 4294967296;
-  };
-}
-
-/** Palette-knife smear outline — thick horizontal band, torn sides on caps. */
-function smearOutline(w, seed, side) {
-  const rand = rng(seed);
-  const steps = Math.max(10, Math.ceil(w / 2.2));
-  const top = [];
-  const bot = [];
-
-  for (let i = 0; i <= steps; i += 1) {
-    const x = (w * i) / steps;
-    const belly = Math.sin((x / Math.max(w, 1)) * Math.PI) * 1.15;
-    const ty = 10.8 - belly * 1.05 + Math.sin(x * 0.82 + seed * 0.17) * 0.95 + (rand() - 0.5) * 0.35;
-    const by = 29.2 + belly * 0.85 + Math.sin(x * 0.76 + seed * 0.23 + 1.4) * 0.9 + (rand() - 0.5) * 0.35;
-    top.push([x, ty]);
-    bot.push([x, by]);
-  }
-
-  if (side === "left") {
-    const lobe = [];
-    for (let i = 6; i >= 0; i -= 1) {
-      const t = i / 6;
-      const y = top[0][1] + (bot[0][1] - top[0][1]) * t;
-      const lx = Math.max(-0.35, -0.15 - rand() * 0.55 - Math.sin(t * Math.PI) * 0.35);
-      lobe.push([lx, y + (rand() - 0.5) * 0.45]);
-    }
-    top.unshift(...lobe.slice(0, 3).reverse());
-    bot.unshift(...lobe.slice(4).reverse());
-  }
-
-  if (side === "right") {
-    const last = top.length - 1;
-    const rlobe = [];
-    for (let i = 0; i <= 6; i += 1) {
-      const t = i / 6;
-      const y = top[last][1] + (bot[last][1] - top[last][1]) * t;
-      const rx = Math.min(w + 0.35, w + 0.15 + rand() * 0.55 + Math.sin(t * Math.PI) * 0.35);
-      rlobe.push([rx, y + (rand() - 0.5) * 0.45]);
-    }
-    top.push(...rlobe.slice(1, 4));
-    bot.push(...rlobe.slice(4));
-  }
-
-  let d = `M${f(top[0][0])} ${f(top[0][1])}`;
-  for (let i = 1; i < top.length; i += 1) {
-    d += ` L${f(top[i][0])} ${f(top[i][1])}`;
-  }
-  for (let i = bot.length - 1; i >= 0; i -= 1) {
-    d += ` L${f(bot[i][0])} ${f(bot[i][1])}`;
-  }
-  d += " Z";
-  return d;
-}
-
-function sharedDefs(id, outline) {
-  return `<defs>
-<path id="o-${id}" d="${outline}"/>
-<linearGradient id="g-${id}" x1="0" y1="0" x2="0" y2="1">
-  <stop offset="0%" stop-color="#2a2a2a"/>
-  <stop offset="22%" stop-color="#141414"/>
-  <stop offset="58%" stop-color="#050505"/>
-  <stop offset="100%" stop-color="#101010"/>
-</linearGradient>
-<filter id="sf-${id}" x="-4%" y="-8%" width="108%" height="116%" color-interpolation-filters="sRGB">
-  <feTurbulence type="fractalNoise" baseFrequency="0.055 0.62" numOctaves="2" seed="7" result="t"/>
-  <feDisplacementMap in="SourceGraphic" in2="t" scale="1.15" xChannelSelector="R" yChannelSelector="G" result="d"/>
-  <feTurbulence type="fractalNoise" baseFrequency="0.85 0.35" numOctaves="2" seed="11" result="g"/>
-  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.09 0" result="a"/>
-  <feBlend in="d" in2="a" mode="multiply"/>
-</filter>
-<clipPath id="c-${id}"><use href="#o-${id}"/></clipPath>
-</defs>`;
-}
-
-/** Horizontal blade striations — dark grooves only (no white bleed). */
-function knifeStrokes(w, seed, id) {
-  const rand = rng(seed);
-  const out = [];
-  const count = 22 + Math.floor(w / 3);
-
-  for (let i = 0; i < count; i += 1) {
-    const y = 11.8 + (i / count) * 16.2 + (rand() - 0.5) * 0.45;
-    const x0 = 0.4 + rand() * 0.8;
-    const x1 = w - 0.4 - rand() * 0.6;
-    const kind = rand();
-
-    if (kind > 0.35) {
-      out.push(
-        `<path d="M${f(x0)} ${f(y)} H${f(x1)}" stroke="#000" stroke-width="${f(0.28 + rand() * 0.42)}" stroke-linecap="butt" opacity="${f(0.14 + rand() * 0.2)}"/>`,
-      );
-    }
-    if (kind > 0.62) {
-      out.push(
-        `<path d="M${f(x0 + rand())} ${f(y + 0.28)} H${f(x1 - rand())}" stroke="#2b2b2b" stroke-width="${f(0.18 + rand() * 0.22)}" stroke-linecap="butt" opacity="${f(0.2 + rand() * 0.22)}"/>`,
-      );
-    }
-    if (kind > 0.8 && x1 - x0 > 6) {
-      let x = x0 + rand() * 2;
-      while (x < x1 - 1) {
-        const seg = 2.5 + rand() * 8;
-        const xe = Math.min(x + seg, x1);
-        out.push(
-          `<path d="M${f(x)} ${f(y + (rand() - 0.5) * 0.2)} H${f(xe)}" stroke="#151515" stroke-width="${f(0.2 + rand() * 0.18)}" stroke-linecap="butt" opacity="${f(0.18 + rand() * 0.16)}"/>`,
-        );
-        x = xe + 0.8 + rand() * 2.4;
-      }
-    }
-  }
-
-  return out.join("");
-}
-
-function edgeFlecks(w, seed, side, id) {
-  const rand = rng(seed);
-  const out = [];
-  const n = side === "center" ? 3 : 7;
-  for (let i = 0; i < n; i += 1) {
-    const t = rand();
-    const y = 10 + t * 20;
-    const x =
-      side === "left"
-        ? rand() * 4.5
-        : side === "right"
-          ? w - rand() * 4.5
-          : rand() * w;
-    const rx = 0.35 + rand() * 1.1;
-    const ry = 0.18 + rand() * 0.55;
-    out.push(
-      `<ellipse cx="${f(x)}" cy="${f(y)}" rx="${f(rx)}" ry="${f(ry)}" fill="#000" opacity="${f(0.35 + rand() * 0.45)}"/>`,
-    );
-  }
-  return `<g clip-path="url(#c-${id})">${out.join("")}</g>`;
-}
-
-function buildTile(w, seed, side, id) {
-  const outline = smearOutline(w, seed, side);
-  const painted = [
-    `<use href="#o-${id}" fill="#000" opacity="0.9" transform="translate(0.1,-0.06)"/>`,
-    `<use href="#o-${id}" fill="url(#g-${id})" filter="url(#sf-${id})"/>`,
-    knifeStrokes(w, seed + 17, id),
-    edgeFlecks(w, seed + 29, side, id),
-  ].join("");
-  const body = [
-    sharedDefs(id, outline),
-    `<g clip-path="url(#c-${id})">${painted}</g>`,
-  ].join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${VIEW_H}" preserveAspectRatio="none" overflow="hidden" aria-hidden="true">${body}</svg>`;
-}
-
-const buttonBgLeftSvg = buildTile(CAP_W, 13, "left", "l");
-const buttonBgCenterSvg = buildTile(CENTER_W, 47, "center", "c");
-const buttonBgRightSvg = buildTile(CAP_W, 79, "right", "r");
+const buttonBgLeftSvg = buildTile(`0 0 ${LEFT_CAP_W} ${SOURCE_SIZE}`, "xMinYMid");
+const buttonBgCenterSvg = buildTile(`${CENTER_X} 0 ${CENTER_W} ${SOURCE_SIZE}`, "xMinYMid");
+const buttonBgRightSvg = buildTile(`${RIGHT_X} 0 ${RIGHT_CAP_W} ${SOURCE_SIZE}`, "xMaxYMid");
 
 const out = `import type { YnSvgSource } from "../../asset/svg/index.js";
 
-/** Palette-knife paint smear tiles — impasto fill + horizontal blade marks. */
+/** Sketch bracket frame tiles — sliced from design SVG (50×50). */
 const buttonBgLeftSvg = ${JSON.stringify(buttonBgLeftSvg)};
 const buttonBgCenterSvg = ${JSON.stringify(buttonBgCenterSvg)};
 const buttonBgRightSvg = ${JSON.stringify(buttonBgRightSvg)};
@@ -207,9 +61,10 @@ export const YN_COOKIE_NOTICE_MODAL_HOLDER_SVG: YnSvgSource = ${JSON.stringify(M
 `;
 
 fs.writeFileSync(ICONS_OUT, out);
-console.log("Updated palette-knife button tiles", {
+console.log("Updated bracket-frame button tiles", {
   left: buttonBgLeftSvg.length,
   center: buttonBgCenterSvg.length,
   right: buttonBgRightSvg.length,
-  total: buttonBgLeftSvg.length + buttonBgCenterSvg.length + buttonBgRightSvg.length,
+  capRatio: LEFT_CAP_W / SOURCE_SIZE,
+  centerRatio: CENTER_W / SOURCE_SIZE,
 });

@@ -22,4 +22,20 @@ describe("renderYnInputShadowHtml", () => {
     expect(html).toContain('class="field is-disabled"');
     expect(html).toContain(" disabled");
   });
+
+  it("renders floating label shell for auth fields", () => {
+    const html = renderYnInputShadowHtml({
+      variant: "floating",
+      label: "Email Address *",
+      name: "email",
+      type: "email",
+      inputId: "auth-email",
+    });
+
+    expect(html).toContain('class="field-wrap field-wrap--floating"');
+    expect(html).toContain('class="float-label"');
+    expect(html).toContain("Email Address *");
+    expect(html).toContain('name="email"');
+    expect(html).toContain('for="auth-email"');
+  });
 });

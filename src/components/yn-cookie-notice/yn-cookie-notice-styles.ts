@@ -17,12 +17,14 @@ export const YN_COOKIE_NOTICE_STYLES = `
   --yn-cookie-notice-checkbox-border-color: #121212;
   --yn-cookie-notice-checkbox-hover-fill: #9a9a9a;
   --yn-cookie-notice-checkbox-checked-fill: var(--yn-cookie-notice-accent-color, #ed3833);
-  --yn-cookie-notice-button-text-color: #fff;
+  --yn-cookie-notice-button-text-color: #0f0f0f;
   --yn-cookie-notice-button-bg-left: ${YN_COOKIE_NOTICE_BUTTON_BG_LEFT_URI};
   --yn-cookie-notice-button-bg-center: ${YN_COOKIE_NOTICE_BUTTON_BG_CENTER_URI};
   --yn-cookie-notice-button-bg-right: ${YN_COOKIE_NOTICE_BUTTON_BG_RIGHT_URI};
-  --yn-cookie-notice-button-cap-width: 1.42em;
-  --yn-cookie-notice-button-bg-inset: -0.14em -0.08em;
+  --yn-cookie-notice-button-tile-height: 2.35em;
+  --yn-cookie-notice-button-cap-width: calc(var(--yn-cookie-notice-button-tile-height) * 0.28);
+  --yn-cookie-notice-button-center-unit: calc(var(--yn-cookie-notice-button-tile-height) * 0.08);
+  --yn-cookie-notice-button-bg-inset: -0.28em -0.42em;
   --yn-cookie-notice-z-index: 1000;
   --yn-cookie-notice-bottom: 1.6em;
   --yn-cookie-notice-right: 1.6em;
@@ -222,8 +224,8 @@ img {
 
 .action-button--stacked {
   height: auto;
-  min-height: 3.35em;
-  padding-block: 0.35em;
+  min-height: 3.45em;
+  padding-block: 0.38em;
   white-space: normal;
 }
 
@@ -235,7 +237,6 @@ img {
 .action-button__label {
   line-height: 1;
   position: relative;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
 }
 
 .action-button__label--stacked {
@@ -273,9 +274,9 @@ img {
     var(--yn-cookie-notice-button-cap-width) center;
   background-repeat: no-repeat, no-repeat, repeat-x;
   background-size:
-    var(--yn-cookie-notice-button-cap-width) 100%,
-    var(--yn-cookie-notice-button-cap-width) 100%,
-    auto 100%;
+    auto var(--yn-cookie-notice-button-tile-height),
+    auto var(--yn-cookie-notice-button-tile-height),
+    var(--yn-cookie-notice-button-center-unit) var(--yn-cookie-notice-button-tile-height);
   content: "";
   inset: var(--yn-cookie-notice-button-bg-inset);
   pointer-events: none;
@@ -288,7 +289,7 @@ img {
 }
 
 .action-button--primary:hover::before {
-  filter: brightness(1.1) contrast(1.05);
+  opacity: 0.88;
 }
 
 .action-button--primary:focus-visible {

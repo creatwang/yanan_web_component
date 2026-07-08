@@ -150,4 +150,147 @@ export const YN_INPUT_SHADOW_STYLES = `
   height: 20px;
   display: block;
 }
+
+/* ── floating label variant (auth / form fields) ── */
+
+:host([variant="floating"]) {
+  display: block;
+  width: 100%;
+  --yn-input-width: 100%;
+  --yn-input-height: var(--yn-input-float-height, 3.5rem);
+  --yn-input-radius: var(--yn-input-float-radius, 2px);
+  --yn-input-bg: var(--yn-input-float-bg, #fff);
+  --yn-input-bg-hover: var(--yn-input-float-bg, #fff);
+  --yn-input-bg-focus: var(--yn-input-float-bg, #fff);
+  --yn-input-border-color: var(--yn-input-float-border-color, #c8c8c8);
+  --yn-input-border-color-hover: var(--yn-input-float-border-color-hover, #9a9a9a);
+  --yn-input-border-color-focus: var(--yn-input-float-border-color-focus, #5c5c5c);
+  --yn-input-focus-ring: transparent;
+  --yn-input-font-family: var(
+    --yn-input-float-font-family,
+    "DM Sans",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  --yn-input-font-size: var(--yn-input-float-font-size, 1rem);
+  --yn-input-field-padding-x: 0;
+}
+
+.field-wrap--floating {
+  width: 100%;
+}
+
+.field--floating {
+  position: relative;
+  display: block;
+  height: var(--yn-input-height);
+  padding: 0;
+  overflow: visible;
+}
+
+.field--floating:focus-within {
+  box-shadow: none;
+}
+
+.field--floating.is-error {
+  border-color: var(--yn-input-error-border-color, #c41e3a);
+}
+
+.field--floating.is-error:focus-within {
+  border-color: var(--yn-input-error-border-color, #c41e3a);
+}
+
+.field--floating .float-label {
+  position: absolute;
+  left: var(--yn-input-float-label-inset-x, 0.875rem);
+  top: 50%;
+  z-index: 1;
+  margin: 0;
+  max-width: calc(100% - 1.75rem);
+  overflow: hidden;
+  color: var(--yn-input-float-label-color, rgba(36, 31, 33, 0.62));
+  font-family: var(--yn-input-font-family);
+  font-size: var(--yn-input-float-label-size, 1rem);
+  font-weight: 400;
+  letter-spacing: var(--yn-input-letter-spacing);
+  line-height: 1.2;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  transform: translateY(-50%);
+  transform-origin: left top;
+  transition:
+    top 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    font-size 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.field--floating.is-active .float-label {
+  top: var(--yn-input-float-label-active-top, 0.55rem);
+  color: var(--yn-input-float-label-active-color, rgba(36, 31, 33, 0.72));
+  font-size: var(--yn-input-float-label-active-size, 0.6875rem);
+  transform: translateY(0) scale(1);
+}
+
+.field--floating .input {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  padding:
+    var(--yn-input-float-input-padding-top, 1.35rem)
+    var(--yn-input-float-input-padding-end, 0.875rem)
+    var(--yn-input-float-input-padding-bottom, 0.45rem)
+    var(--yn-input-float-input-padding-start, 0.875rem);
+  line-height: 1.35;
+}
+
+.field--floating.has-password-toggle .input {
+  padding-inline-end: calc(var(--yn-input-float-input-padding-end, 0.875rem) + 3.5rem);
+}
+
+.field--floating .password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  color: var(--yn-input-float-toggle-color, rgba(36, 31, 33, 0.72));
+  font-family: var(--yn-input-font-family);
+  font-size: var(--yn-input-float-toggle-size, 0.8125rem);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  padding: 0.25rem;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.field--floating .password-toggle:hover,
+.field--floating .password-toggle:focus-visible {
+  color: var(--yn-input-color);
+  outline: none;
+}
+
+.field--floating .password-toggle__icon {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+}
+
+.field-error {
+  margin: 0.35rem 0 0;
+  color: var(--yn-input-error-color, #c41e3a);
+  font-family: var(--yn-input-font-family);
+  font-size: var(--yn-input-error-font-size, 0.75rem);
+  line-height: 1.35;
+}
+
+.field-error[hidden] {
+  display: none;
+}
 `;

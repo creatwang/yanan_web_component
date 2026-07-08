@@ -13,8 +13,8 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
   { id: "yn-icon-button", importPath: "components/yn-icon-button", sizeKb: 4.05, gzipKb: 1.42 },
   { id: "yn-quantity", importPath: "components/yn-quantity", sizeKb: 4.36, gzipKb: 1.51 },
   { id: "yn-group-pick", importPath: "components/yn-group-pick", sizeKb: 4.6, gzipKb: 1.92 },
-  { id: "yn-input", importPath: "components/yn-input", sizeKb: 4.89, gzipKb: 1.55 },
   { id: "yn-pick", importPath: "components/yn-pick", sizeKb: 7.14, gzipKb: 2.42 },
+  { id: "yn-input", importPath: "components/yn-input", sizeKb: 9.62, gzipKb: 2.64 },
   { id: "yn-icon-connect-button", importPath: "components/yn-icon-connect-button", sizeKb: 11.29, gzipKb: 3.82 },
   { id: "yn-drawer", importPath: "components/yn-drawer", sizeKb: 11.66, gzipKb: 3.21 },
   { id: "yn-dropdown-pick", importPath: "components/yn-dropdown-pick", sizeKb: 13.05, gzipKb: 4.19 },
@@ -28,7 +28,7 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
           "zh-CN": "首次注册约 0.47 kB；SKU 交互代码约 26.32 kB 会按需加载",
           "en": "Initial registration ~0.47 kB; SKU interaction code ~26.32 kB loads on demand"
     } },
-  { id: "yn-cookie-notice", importPath: "components/yn-cookie-notice", sizeKb: 32.59, gzipKb: 7.08 },
+  { id: "yn-cookie-notice", importPath: "components/yn-cookie-notice", sizeKb: 44.56, gzipKb: 9.88 },
   { id: "yn-pull-cord-switch", importPath: "components/yn-pull-cord-switch", sizeKb: 49.81, gzipKb: 12.43,
     note: {
           "zh-CN": "页面先加载约 32.17 kB（gzip 7.57 kB）；首次显示/交互时再加载绳子物理动画约 17.64 kB（gzip 4.86 kB）",
@@ -43,8 +43,8 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 
 export const BUNDLE_META = {
   builtAt: "2026-07-08",
-  fullIifeKb: 371.93,
-  fullIifeGzipKb: 89.64,
+  fullIifeKb: 394.14,
+  fullIifeGzipKb: 94.63,
   defineKb: 0.66,
   indexExportKb: 3.2
 } as const;
