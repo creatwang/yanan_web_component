@@ -316,8 +316,8 @@ export class YnDocsApp extends LitElement {
         en: "Tip: click buttons below to trigger toast morph."
       },
       "yn-pull-cord-switch": {
-        "zh-CN": "提示：拖拽绳端过阈值切换，松手弹性回弹。",
-        en: "Tip: drag the cord past threshold and release."
+        "zh-CN": "提示：拖拽绳端过阈值切换。fixed 贴 Header 时加 rope-pass-through，避免挡搜索。",
+        en: "Tip: drag past threshold to toggle. On fixed header cords, use rope-pass-through so search stays clickable."
       },
       "yn-sku-selector": {
         "zh-CN": "提示：选择规格后点击加购，观察 loading 形变。",

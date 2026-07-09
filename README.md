@@ -1146,6 +1146,7 @@ import "yn-web-component/components/yn-cookie-notice";
 | `rope-length` | `number` | `260` | 绳长（px） |
 | `card-offset` | `number` | 随绳长缩放 | 绳头到卡片的间距（可为负值） |
 | `z-index` | `number` | `1` | 层级，写入 `--yn-pull-cord-switch-z-index` |
+| `rope-pass-through` | `boolean` | `false` | 绳身 canvas 不接收指针事件（fixed 贴 Header 时推荐开启，避免光晕挡搜索） |
 | `toggle-threshold` | `number` | 随绳长缩放 | 拉动切换阈值（px） |
 
 #### 事件
@@ -1176,6 +1177,8 @@ import "yn-web-component/components/yn-cookie-notice";
 
 #### 示例
 
+内嵌开关：
+
 ```html
 <yn-pull-cord-switch
   ?checked=${false}
@@ -1186,6 +1189,28 @@ import "yn-web-component/components/yn-cookie-notice";
   <yn-button slot="activated" variant="success">日间</yn-button>
 </yn-pull-cord-switch>
 ```
+
+fixed 主题绳（贴站点 Header，不挡搜索/导航）：
+
+```html
+<yn-pull-cord-switch
+  fixed
+  reverse
+  glow-up
+  rope-pass-through
+  size="mini"
+  rope-length="220"
+  fixed-x="-12"
+  top="52"
+  z-index="101"
+  @change=${onThemeChange}
+>
+  <yn-button size="mini" variant="default">日间</yn-button>
+  <yn-button slot="activated" size="mini" variant="success">夜间</yn-button>
+</yn-pull-cord-switch>
+```
+
+> `fixed` 时 host 为 `pointer-events: none`，仅绳端卡片可点；`rope-pass-through` 让宽光晕 canvas 穿透，下层 Header 控件可正常点击。
 
 ---
 

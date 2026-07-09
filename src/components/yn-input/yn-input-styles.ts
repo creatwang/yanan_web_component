@@ -157,24 +157,6 @@ export const YN_INPUT_SHADOW_STYLES = `
   display: block;
   width: 100%;
   --yn-input-width: 100%;
-  --yn-input-height: var(--yn-input-float-height, 3.5rem);
-  --yn-input-radius: var(--yn-input-float-radius, 2px);
-  --yn-input-bg: var(--yn-input-float-bg, #fff);
-  --yn-input-bg-hover: var(--yn-input-float-bg, #fff);
-  --yn-input-bg-focus: var(--yn-input-float-bg, #fff);
-  --yn-input-border-color: var(--yn-input-float-border-color, #c8c8c8);
-  --yn-input-border-color-hover: var(--yn-input-float-border-color-hover, #9a9a9a);
-  --yn-input-border-color-focus: var(--yn-input-float-border-color-focus, #5c5c5c);
-  --yn-input-focus-ring: transparent;
-  --yn-input-font-family: var(
-    --yn-input-float-font-family,
-    "DM Sans",
-    ui-sans-serif,
-    system-ui,
-    sans-serif
-  );
-  --yn-input-font-size: var(--yn-input-float-font-size, 1rem);
-  --yn-input-field-padding-x: 0;
 }
 
 .field-wrap--floating {
@@ -187,10 +169,6 @@ export const YN_INPUT_SHADOW_STYLES = `
   height: var(--yn-input-height);
   padding: 0;
   overflow: visible;
-}
-
-.field--floating:focus-within {
-  box-shadow: none;
 }
 
 .field--floating.is-error {
@@ -257,14 +235,9 @@ export const YN_INPUT_SHADOW_STYLES = `
   z-index: 3;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
   border: 0;
   background: transparent;
   color: var(--yn-input-float-toggle-color, rgba(36, 31, 33, 0.72));
-  font-family: var(--yn-input-font-family);
-  font-size: var(--yn-input-float-toggle-size, 0.8125rem);
-  letter-spacing: 0.01em;
-  line-height: 1;
   padding: 0.25rem;
   transform: translateY(-50%);
   cursor: pointer;

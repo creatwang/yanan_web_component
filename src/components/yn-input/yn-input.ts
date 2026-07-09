@@ -1,4 +1,4 @@
-import { LitElement, css, html, nothing, unsafeCSS } from "lit";
+import { LitElement, css, html, nothing, svg, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_INPUT_SHADOW_STYLES } from "./yn-input-styles.js";
@@ -19,8 +19,6 @@ export class YnInput extends LitElement {
   @property({ type: Boolean, reflect: true }) error = false;
   @property({ type: String, attribute: "error-message" }) errorMessage = "";
   @property({ type: String }) autocomplete = "";
-  @property({ type: String, attribute: "reveal-label" }) revealLabel = "Show";
-  @property({ type: String, attribute: "conceal-label" }) concealLabel = "Hide";
 
   @state() private hasPrefixButton = false;
   @state() private hasSuffixButton = false;
@@ -165,12 +163,9 @@ export class YnInput extends LitElement {
         class="password-toggle"
         type="button"
         ?disabled=${this.disabled}
-        aria-label=${this.passwordVisible ? this.concealLabel : this.revealLabel}
+        aria-label=${this.passwordVisible ? "Hide password" : "Show password"}
         @click=${this.togglePasswordVisibility}
       >
-        <span class="password-toggle__label">
-          ${this.passwordVisible ? this.concealLabel : this.revealLabel}
-        </span>
         <svg
           class="password-toggle__icon"
           viewBox="0 0 24 24"
@@ -180,17 +175,17 @@ export class YnInput extends LitElement {
           aria-hidden="true"
         >
           ${this.passwordVisible
-            ? html`
-                <path d="M3 3l18 18" />
+            ? svg`
+                <path d="M3 3l18 18"></path>
                 <path
                   d="M10.58 10.58a2 2 0 0 0 2.84 2.84M9.88 5.09A10.94 10.94 0 0 1 12 5c5.52 0 10 4.48 10 7a11.2 11.2 0 0 1-2.12 2.88M6.1 6.1A11.18 11.18 0 0 0 2 12c0 2.52 4.48 7 10 7 1.57 0 3.05-.35 4.36-.98"
-                />
+                ></path>
               `
-            : html`
+            : svg`
                 <path
                   d="M2 12s4.48-7 10-7 10 7 10 7-4.48 7-10 7S2 12 2 12Z"
-                />
-                <circle cx="12" cy="12" r="3" />
+                ></path>
+                <circle cx="12" cy="12" r="3"></circle>
               `}
         </svg>
       </button>

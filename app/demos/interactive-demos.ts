@@ -29,6 +29,7 @@ import {
   storyToastApi,
   storyPullCordSlots,
   storyPullCordSizes,
+  storyPullCordFixedHeader,
   storyPullCordThemeSwitch,
   type DocsThemeMode,
   storyGroupPickDefault,
@@ -207,7 +208,7 @@ export class YnDocsToastDemo extends LitElement {
 
 @customElement("yn-docs-pull-cord-demo")
 export class YnDocsPullCordDemo extends LitElement {
-  @property({ type: String }) variant: "theme" | "slots" | "sizes" = "theme";
+  @property({ type: String }) variant: "theme" | "slots" | "sizes" | "fixed-header" = "theme";
   @state() private theme: DocsThemeMode = "light";
   private onExternalThemeChange = (event: Event) => {
     const theme = (event as CustomEvent<{ theme?: DocsThemeMode }>).detail?.theme;
@@ -248,6 +249,7 @@ export class YnDocsPullCordDemo extends LitElement {
   render() {
     if (this.variant === "sizes") return storyPullCordSizes();
     if (this.variant === "slots") return storyPullCordSlots();
+    if (this.variant === "fixed-header") return storyPullCordFixedHeader();
     return storyPullCordThemeSwitch(this.theme, (theme) => this.applyTheme(theme), getLocale());
   }
 }

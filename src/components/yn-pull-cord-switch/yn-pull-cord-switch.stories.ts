@@ -29,6 +29,8 @@ type Args = {
   ropeLength: number;
   cardOffset?: number;
   zIndex: number;
+  /** fixed 贴 Header 时让绳身 canvas 穿透，不挡搜索等控件 */
+  ropePassThrough: boolean;
   /** 锚点额外下移比例，映射 `--yn-pull-cord-switch-anchor-y`（0=天花板贴顶） */
   anchorY: number;
   /** `glow-up` 时画布向上延展（px），映射 `--yn-pull-cord-switch-glow-up-bleed` */
@@ -147,6 +149,7 @@ const renderCord = (args: Args, updateArgs?: (patch: Partial<Args>) => void) =>
     fixed-x=${ifDefined(args.fixedX)}
     top=${ifDefined(args.top)}
     ?reverse=${args.reverse}
+    ?rope-pass-through=${args.ropePassThrough}
     variant=${args.variant}
     size=${args.size}
     rope-length=${args.ropeLength}
@@ -207,8 +210,8 @@ const renderFixedPage = (args: Args, updateArgs?: (patch: Partial<Args>) => void
     </header>
     <main style="padding: 28px 20px; max-width: 640px;">
       <p style="margin:0;line-height:1.6;opacity:0.75;">
-        fixed 吸顶：顶部条可水平拖动；负值 fixed-x / top 时 hover 滑出露出。绳端卡片与 change /
-        fixed-move 事件与内嵌模式相同。
+        fixed 吸顶：顶部条可水平拖动；负值 fixed-x / top 时 hover 滑出露出。开启
+        <code>rope-pass-through</code> 时绳身 canvas 不挡 Header 内搜索等控件。
       </p>
     </main>
     ${renderCord({ ...args, fixed: true }, updateArgs)}
@@ -227,7 +230,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "抽绳开关：向下拖拽绳端切换开/关，松手后 Verlet 多段绳弹性回弹。\n\n| 能力 | 属性 / 说明 |\n| --- | --- |\n| 绳长 | `rope-length`（px，默认 260），与 `size` 解耦 |\n| 绳端间距 | `card-offset`（px，可为负）：绳头到卡片锚点；负值时 fixed 的 hover 滑出关闭；未设则随绳长缩放 |\n| 视觉尺寸 | `size=\"mini\" \\| \"small\" \\| \"medium\"`：卡片、绳粗细、天花板宽度 |\n| 变体 | `variant=\"default\" \\| \"floema\"` |\n| 阈值 | `toggle-threshold` 可选；未设则随绳长缩放 |\n| 背景 | 组件不绘区域背景；外层 `div` + `applyPullCordShellBackground` |\n| 插槽 | 默认插槽 / `activated`：推荐 `yn-button`；无插槽时为内置 ON/OFF |\n| fixed | `fixed`、`fixed-x`（可负，hover 露出）、`top`（可负）、`reverse`、`fixed-move` |\n| 层级 | `z-index`（默认 `1`），或 CSS `--yn-pull-cord-switch-z-index` |\n| 锚点下移 | `--yn-pull-cord-switch-anchor-y`：额外下移比例，`0` 时天花板贴画布顶 |\n| 灯光上扩 | `glow-up`：开启且 checked 时顶灯向锚点上方对称扩散；`--yn-pull-cord-switch-glow-up-bleed` 控制画布向上延展（默认 72px） |\n| 事件 | `change` → `{ checked }` |\n\n**样式隔离**：Shadow DOM；通过 `--yn-pull-cord-switch-*` 覆写。\n\n**导入**：按需 `import \"yn-web-component/components/yn-pull-cord-switch\"`（推荐）。"
+          "抽绳开关：向下拖拽绳端切换开/关，松手后 Verlet 多段绳弹性回弹。\n\n| 能力 | 属性 / 说明 |\n| --- | --- |\n| 绳长 | `rope-length`（px，默认 260），与 `size` 解耦 |\n| 绳端间距 | `card-offset`（px，可为负）：绳头到卡片锚点；负值时 fixed 的 hover 滑出关闭；未设则随绳长缩放 |\n| 视觉尺寸 | `size=\"mini\" \\| \"small\" \\| \"medium\"`：卡片、绳粗细、天花板宽度 |\n| 变体 | `variant=\"default\" \\| \"floema\"` |\n| 阈值 | `toggle-threshold` 可选；未设则随绳长缩放 |\n| 背景 | 组件不绘区域背景；外层 `div` + `applyPullCordShellBackground` |\n| 插槽 | 默认插槽 / `activated`：推荐 `yn-button`；无插槽时为内置 ON/OFF |\n| fixed | `fixed`、`fixed-x`（可负，hover 露出）、`top`（可负）、`reverse`、`fixed-move` |\n| 穿透点击 | `rope-pass-through`：绳身 canvas `pointer-events: none`，fixed 贴 Header 时避免挡搜索 |\n| 层级 | `z-index`（默认 `1`），或 CSS `--yn-pull-cord-switch-z-index` |\n| 锚点下移 | `--yn-pull-cord-switch-anchor-y`：额外下移比例，`0` 时天花板贴画布顶 |\n| 灯光上扩 | `glow-up`：开启且 checked 时顶灯向锚点上方对称扩散；`--yn-pull-cord-switch-glow-up-bleed` 控制画布向上延展（默认 72px） |\n| 事件 | `change` → `{ checked }` |\n\n**样式隔离**：Shadow DOM；通过 `--yn-pull-cord-switch-*` 覆写。\n\n**导入**：按需 `import \"yn-web-component/components/yn-pull-cord-switch\"`（推荐）。"
       }
     }
   },
@@ -241,6 +244,7 @@ const meta = {
     size: "mini",
     ropeLength: 260,
     zIndex: 1,
+    ropePassThrough: false,
     anchorY: 0,
     cardSlot: "",
     activatedSlot: "",
@@ -326,6 +330,13 @@ const meta = {
       name: "z-index",
       description: "组件叠放层级（写入 `--yn-pull-cord-switch-z-index`）。fixed 模式下高于页面 Header 时可设为 `101` 等。",
       table: { defaultValue: { summary: "1" } }
+    },
+    ropePassThrough: {
+      control: "boolean",
+      name: "rope-pass-through",
+      description:
+        "绳身 canvas 不接收指针事件。fixed 贴 Header 时应开启，避免宽光晕挡住搜索/导航。",
+      table: { defaultValue: { summary: "false" } }
     },
     anchorY: {
       control: { type: "number", min: 0, max: 0.25, step: 0.01 },
@@ -617,4 +628,64 @@ export const Fixed: Story = {
     }
   },
   play: playFixed
+};
+
+/** Storefront 主题绳：fixed + rope-pass-through，与跨境商城 BaseLayout 一致 */
+export const FixedStorefrontHeader: Story = {
+  args: {
+    fixed: true,
+    reverse: true,
+    glowUp: true,
+    ropePassThrough: true,
+    fixedX: -12,
+    top: 52,
+    zIndex: 101,
+    ropeLength: 220,
+    size: "mini",
+    variant: "default",
+    cardSlot: "日间",
+    activatedSlot: "夜间"
+  },
+  render: (args, ctx) => html`
+    <div style="min-height:100vh;background:#fafaf9;color:#18181b;">
+      <header
+        style="
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 20px;
+          background: rgba(255,255,255,0.92);
+          border-bottom: 1px solid rgba(0,0,0,0.06);
+          font-weight: 600;
+        "
+      >
+        <span>跨境商城</span>
+        <button
+          type="button"
+          style="margin-left:auto;padding:6px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;"
+        >
+          搜索
+        </button>
+      </header>
+      <main style="padding:24px 20px;max-width:640px;line-height:1.6;opacity:0.75;">
+        <p style="margin:0;">
+          与 storefront <code>BaseLayout</code> 相同配置：左上角主题绳不挡 Header 搜索（<code>rope-pass-through</code>）。
+        </p>
+      </main>
+      ${renderCord({ ...args, fixed: true }, ctx.updateArgs)}
+    </div>
+  `,
+  parameters: {
+    layout: "fullscreen",
+    controls: { exclude: ["fixed"] },
+    docs: {
+      description: {
+        story:
+          "生产用法参考：fixed 主题绳 + `rope-pass-through`，属性在 HTML 声明即可，宿主无需改 shadow DOM。"
+      }
+    }
+  }
 };

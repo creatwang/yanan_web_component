@@ -673,13 +673,19 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
     className: "YnPullCordSwitch",
     importPath: "yn-web-component/components/yn-pull-cord-switch",
     description: "Verlet 绳物理抽绳开关，支持 fixed 吸顶与双插槽内容切换。",
-    usageCode: `<yn-pull-cord-switch @change=\${onChange}>\n  <yn-button>夜间</yn-button>\n  <yn-button slot="activated">日间</yn-button>\n</yn-pull-cord-switch>`,
+    usageCode: `<yn-pull-cord-switch fixed reverse glow-up rope-pass-through\n  size="mini" rope-length="220" fixed-x="-12" top="52" z-index="101"\n  @change=\${onThemeChange}>\n  <yn-button size="mini">日间</yn-button>\n  <yn-button slot="activated" size="mini" variant="success">夜间</yn-button>\n</yn-pull-cord-switch>`,
     props: [
       { name: "checked", type: "boolean", default: "false", desc: "开关状态" },
       { name: "fixed", type: "boolean", default: "false", desc: "吸附视口顶部" },
+      { name: "rope-pass-through", type: "boolean", default: "false", desc: "绳身 canvas 穿透点击（fixed 贴 Header 推荐）" },
       { name: "rope-length", type: "number", default: "260", desc: "绳长 px" },
+      { name: "fixed-x", type: "number", default: "居中", desc: "水平偏移，可负值 peek" },
+      { name: "top", type: "number", default: "0", desc: "距顶偏移，可负值 peek" },
+      { name: "reverse", type: "boolean", default: "false", desc: "fixed-x 自右侧起算" },
+      { name: "glow-up", type: "boolean", default: "false", desc: "顶灯向上扩散" },
       { name: "variant", type: "default | floema", default: "default", desc: "视觉变体" },
       { name: "size", type: "mini | small | medium", default: "mini", desc: "卡片/绳粗细" },
+      { name: "z-index", type: "number", default: "1", desc: "叠放层级" },
       { name: "disabled", type: "boolean", default: "false", desc: "禁用拖拽" }
     ],
     events: [
@@ -694,6 +700,9 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
       { name: "--yn-pull-cord-switch-z-index", desc: "层级" },
       { name: "--yn-pull-cord-switch-accent", desc: "灯光强调色" }
     ],
-    notes: ["组件不绘制区域背景；内嵌用法需外层容器同步背景色。"]
+    notes: [
+      "组件不绘制区域背景；内嵌用法需外层容器同步背景色。",
+      "fixed 贴站点 Header 时务必加 rope-pass-through，避免光晕 canvas 挡住搜索。"
+    ]
   })
 ];

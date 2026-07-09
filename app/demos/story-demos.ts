@@ -773,6 +773,55 @@ const pullCordEmbedded = (size: YnPullCordSwitchSize) => html`
   </div>
 `;
 
+/** Storefront 风格 fixed 主题绳（rope-pass-through） */
+export const storyPullCordFixedHeader = () => html`
+  <div style="min-height:420px;background:#fafaf9;color:#18181b;position:relative;">
+    <header
+      style="
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        background: rgba(255,255,255,0.92);
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+        font-weight: 600;
+      "
+    >
+      <span>${getLocale() === "zh-CN" ? "跨境商城" : "Storefront"}</span>
+      <button
+        type="button"
+        style="margin-left:auto;padding:6px 12px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;"
+      >
+        ${getLocale() === "zh-CN" ? "搜索" : "Search"}
+      </button>
+    </header>
+    <yn-pull-cord-switch
+      fixed
+      reverse
+      glow-up
+      rope-pass-through
+      size="mini"
+      rope-length="220"
+      fixed-x="-12"
+      top="52"
+      z-index="101"
+      variant="default"
+      ?hit-slop=${false}
+    >
+      <yn-button size="mini" variant="default" ?hit-slop=${false}>${getLocale() === "zh-CN" ? "日间" : "Day"}</yn-button>
+      <yn-button slot="activated" size="mini" variant="success" ?hit-slop=${false}>${getLocale() === "zh-CN" ? "夜间" : "Night"}</yn-button>
+    </yn-pull-cord-switch>
+    <p style="margin:24px 20px 0;max-width:520px;line-height:1.6;opacity:0.75;font-size:14px;">
+      ${getLocale() === "zh-CN"
+        ? "与 storefront BaseLayout 相同：`rope-pass-through` 让绳身 canvas 不挡 Header 搜索。"
+        : "Same as storefront BaseLayout: `rope-pass-through` keeps the glow canvas from blocking header search."}
+    </p>
+  </div>
+`;
+
 /** yn-pull-cord-switch Sizes */
 export const storyPullCordSizes = () => html`
   <div

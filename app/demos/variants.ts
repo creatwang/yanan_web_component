@@ -46,5 +46,7 @@ export const DOC_VARIANT_DEMOS: Record<string, DemoRenderer> = {
   "yn-toast-api": () => html`<yn-docs-toast-demo></yn-docs-toast-demo>`,
 
   "yn-pull-cord-slots": () => html`<yn-docs-pull-cord-demo variant="slots"></yn-docs-pull-cord-demo>`,
-  "yn-pull-cord-sizes": () => html`<yn-docs-pull-cord-demo variant="sizes"></yn-docs-pull-cord-demo>`
+  "yn-pull-cord-sizes": () => html`<yn-docs-pull-cord-demo variant="sizes"></yn-docs-pull-cord-demo>`,
+  "yn-pull-cord-fixed-header": () =>
+    html`<yn-docs-pull-cord-demo variant="fixed-header"></yn-docs-pull-cord-demo>`
 };

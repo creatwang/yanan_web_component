@@ -12,8 +12,6 @@ export type YnInputShadowOptions = {
   error?: boolean;
   errorMessage?: string;
   autocomplete?: string;
-  revealLabel?: string;
-  concealLabel?: string;
   inputId?: string;
 };
 
@@ -25,8 +23,8 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function renderPasswordToggle(revealLabel: string) {
-  return `<button class="password-toggle" type="button" aria-label="${escapeHtml(revealLabel)}"><span class="password-toggle__label">${escapeHtml(revealLabel)}</span><svg class="password-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s4.48-7 10-7 10 7 10 7-4.48 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>`;
+function renderPasswordToggle() {
+  return `<button class="password-toggle" type="button" aria-label="Show password"><svg class="password-toggle__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12s4.48-7 10-7 10 7 10 7-4.48 7-10 7S2 12 2 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>`;
 }
 
 function renderFloatingField(options: YnInputShadowOptions): string {
@@ -38,7 +36,6 @@ function renderFloatingField(options: YnInputShadowOptions): string {
   const disabled = options.disabled ? " disabled" : "";
   const autocomplete = options.autocomplete ? ` autocomplete="${escapeHtml(options.autocomplete)}"` : "";
   const inputId = escapeHtml(options.inputId ?? "yn-input-ssr");
-  const revealLabel = options.revealLabel ?? "Show";
   const errorMessage = escapeHtml(options.errorMessage ?? "");
   const hasValue = value.length > 0;
   const isPassword = type === "password";
@@ -54,7 +51,7 @@ function renderFloatingField(options: YnInputShadowOptions): string {
     .filter(Boolean)
     .join(" ");
 
-  const passwordToggle = isPassword ? renderPasswordToggle(revealLabel) : "";
+  const passwordToggle = isPassword ? renderPasswordToggle() : "";
   const errorHidden = !options.error || !errorMessage ? " hidden" : "";
 
   return `<div class="field-wrap field-wrap--floating"><div class="${fieldClass}"><label class="float-label" for="${inputId}">${label}</label><input id="${inputId}" class="input" value="${value}" type="${type}"${name}${required}${disabled}${autocomplete} />${passwordToggle}</div><p class="field-error"${errorHidden}>${errorMessage}</p></div>`;

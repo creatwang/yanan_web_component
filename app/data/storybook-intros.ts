@@ -68,8 +68,8 @@ export const STORYBOOK_INTROS: Record<string, L10nText> = {
   },
   "yn-pull-cord-switch": {
     "zh-CN":
-      "Verlet 绳物理：拖拽绳端过阈值切换，松手弹性回弹。深色背景壳内效果最佳。",
-    en: "Verlet rope physics: drag past threshold, elastic snap-back on release."
+      "Verlet 绳物理：拖拽绳端过阈值切换。fixed 贴 Header 时加 `rope-pass-through` 避免挡搜索。",
+    en: "Verlet rope physics. Use `rope-pass-through` on fixed header cords so glow canvas does not block clicks."
   }
 };
 
@@ -376,6 +376,17 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       storybookComponent: "YnPullCordSwitch",
       storybookStory: "Sizes",
       demoVariant: "yn-pull-cord-sizes"
+    },
+    {
+      id: "fixed-header",
+      title: { "zh-CN": "Header 主题绳", en: "Fixed header theme cord" },
+      description: {
+        "zh-CN": "fixed + rope-pass-through：不挡 Header 搜索（storefront 同款）。",
+        en: "fixed + rope-pass-through for header theme toggle without blocking search."
+      },
+      storybookComponent: "YnPullCordSwitch",
+      storybookStory: "FixedStorefrontHeader",
+      demoVariant: "yn-pull-cord-fixed-header"
     }
   ]
 };

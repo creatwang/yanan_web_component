@@ -16,8 +16,6 @@ type Args = {
   error: boolean;
   errorMessage: string;
   autocomplete: string;
-  revealLabel: string;
-  concealLabel: string;
   width: string;
   height: string;
   background: string;
@@ -60,8 +58,6 @@ const renderInput = (args: Args) => html`
       ?error=${args.error}
       error-message=${args.errorMessage ?? ""}
       autocomplete=${args.autocomplete ?? ""}
-      reveal-label=${args.revealLabel ?? "Show"}
-      conceal-label=${args.concealLabel ?? "Hide"}
       style=${`--yn-input-width:${args.width};--yn-input-height:${args.height};--yn-input-bg:${args.background};--yn-input-bg-hover:${args.backgroundHover};--yn-input-bg-focus:${args.backgroundFocus};--yn-input-bg-disabled:${args.backgroundDisabled};--yn-input-border-color:${args.borderColor};--yn-input-border-color-hover:${args.borderColorHover};--yn-input-border-color-focus:${args.borderColorFocus};--yn-input-color:${args.color};--yn-input-placeholder-color:${args.placeholderColor};--yn-input-disabled-color:${args.disabledColor};--yn-input-focus-ring:${args.focusRing};--yn-input-radius:${args.radius};--yn-input-padding:${args.padding};--yn-input-button-size:${args.buttonSize};--yn-input-button-color:${args.buttonColor};--yn-input-button-bg-hover:${args.buttonBgHover};--yn-input-font-family:${args.fontFamily};--yn-input-font-size:${args.fontSize};--yn-input-letter-spacing:${args.letterSpacing};`}
       @yn-input=${(event: Event) => args.onYnInput?.(event as CustomEvent<{ value: string }>)}
       @yn-prefix-click=${(event: Event) => args.onPrefixClick?.(event as CustomEvent<{ value: string }>)}
@@ -82,7 +78,7 @@ const meta = {
         component:
           "Floema 风格的输入框组件，使用暖色半透明背景、细线边框和胶囊圆角，支持受控 value、占位文案、禁用状态。\n\n" +
           "**变体**：通过 `variant` 属性切换——`default`（标准胶囊输入框，支持前后置按钮插槽）和 `floating`（浮动标签输入框，label 初始在输入框内，聚焦或有值时上浮；密码字段自动显示切换按钮）。\n\n" +
-          "**密码切换**：`variant=\"floating\"` + `type=\"password\"` 时自动显示密码可见切换按钮，支持 `reveal-label` / `conceal-label` 自定义按钮文案。\n\n" +
+          "**密码切换**：`variant=\"floating\"` + `type=\"password\"` 时自动显示密码可见切换按钮（眼睛图标）。\n\n" +
           "**错误态**：`error` + `error-message` 显示红色边框与错误提示（仅 floating 变体）。\n\n" +
           "**前后置按钮**：传入 `prefix-button` / `suffix-button` 插槽时渲染对应可点击按钮（仅 default 变体）。\n\n" +
           "事件：`yn-input`（输入变化）、`yn-prefix-click`（前置按钮）、`yn-suffix-click`（后置按钮），`detail` 均为 `{ value: string }`。\n\n" +
@@ -102,8 +98,6 @@ const meta = {
     error: false,
     errorMessage: "",
     autocomplete: "",
-    revealLabel: "Show",
-    concealLabel: "Hide",
     width: "320px",
     height: "44px",
     background: "rgba(255, 255, 255, 0.62)",
@@ -177,18 +171,6 @@ const meta = {
       control: "text",
       description: "输入框 `autocomplete` 属性，用于浏览器自动填充。",
       table: { defaultValue: { summary: '""' } }
-    },
-    revealLabel: {
-      control: "text",
-      name: "reveal-label",
-      description: "密码切换按钮的「显示密码」文案（仅 `variant=\"floating\"` + `type=\"password\"` 时生效）。",
-      table: { defaultValue: { summary: '"Show"' } }
-    },
-    concealLabel: {
-      control: "text",
-      name: "conceal-label",
-      description: "密码切换按钮的「隐藏密码」文案（仅 `variant=\"floating\"` + `type=\"password\"` 时生效）。",
-      table: { defaultValue: { summary: '"Hide"' } }
     },
     placeholder: {
       control: "text",
@@ -560,18 +542,6 @@ export const FloatingPassword: Story = {
     variant: "floating",
     label: "Password",
     type: "password"
-  },
-  render: renderInput
-};
-
-export const FloatingPasswordCustomLabel: Story = {
-  name: "密码切换自定义文案",
-  args: {
-    variant: "floating",
-    label: "密码",
-    type: "password",
-    revealLabel: "显示",
-    concealLabel: "隐藏"
   },
   render: renderInput
 };
