@@ -8,6 +8,16 @@ type Args = {
   value: string;
   placeholder: string;
   disabled: boolean;
+  variant: "default" | "floating";
+  label: string;
+  type: string;
+  name: string;
+  required: boolean;
+  error: boolean;
+  errorMessage: string;
+  autocomplete: string;
+  revealLabel: string;
+  concealLabel: string;
   width: string;
   height: string;
   background: string;
@@ -42,6 +52,16 @@ const renderInput = (args: Args) => html`
       .value=${args.value}
       placeholder=${args.placeholder}
       ?disabled=${args.disabled}
+      variant=${args.variant ?? "default"}
+      label=${args.label ?? ""}
+      type=${args.type ?? "text"}
+      name=${args.name ?? ""}
+      ?required=${args.required}
+      ?error=${args.error}
+      error-message=${args.errorMessage ?? ""}
+      autocomplete=${args.autocomplete ?? ""}
+      reveal-label=${args.revealLabel ?? "Show"}
+      conceal-label=${args.concealLabel ?? "Hide"}
       style=${`--yn-input-width:${args.width};--yn-input-height:${args.height};--yn-input-bg:${args.background};--yn-input-bg-hover:${args.backgroundHover};--yn-input-bg-focus:${args.backgroundFocus};--yn-input-bg-disabled:${args.backgroundDisabled};--yn-input-border-color:${args.borderColor};--yn-input-border-color-hover:${args.borderColorHover};--yn-input-border-color-focus:${args.borderColorFocus};--yn-input-color:${args.color};--yn-input-placeholder-color:${args.placeholderColor};--yn-input-disabled-color:${args.disabledColor};--yn-input-focus-ring:${args.focusRing};--yn-input-radius:${args.radius};--yn-input-padding:${args.padding};--yn-input-button-size:${args.buttonSize};--yn-input-button-color:${args.buttonColor};--yn-input-button-bg-hover:${args.buttonBgHover};--yn-input-font-family:${args.fontFamily};--yn-input-font-size:${args.fontSize};--yn-input-letter-spacing:${args.letterSpacing};`}
       @yn-input=${(event: Event) => args.onYnInput?.(event as CustomEvent<{ value: string }>)}
       @yn-prefix-click=${(event: Event) => args.onPrefixClick?.(event as CustomEvent<{ value: string }>)}
@@ -60,7 +80,13 @@ const meta = {
     docs: {
       description: {
         component:
-          "Floema 风格的输入框组件，使用暖色半透明背景、细线边框和胶囊圆角，支持受控 value、占位文案、禁用状态。\n\n**默认无前后置图标**；仅在传入 `prefix-button` / `suffix-button` 插槽时渲染对应按钮。\n\n事件：输入变化时触发 `yn-input`；前置按钮点击触发 `yn-prefix-click`；后置按钮点击触发 `yn-suffix-click`。三个事件的 `event.detail` 均为 `{ value: string }`。\n\n插槽：`prefix-button`、`suffix-button` 为可选；传入后显示可点击按钮，插槽内容即按钮图标。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；应通过公开 CSS 变量定制样式：\n- `--yn-input-width`\n- `--yn-input-height`\n- `--yn-input-bg`\n- `--yn-input-bg-hover`\n- `--yn-input-bg-focus`\n- `--yn-input-bg-disabled`\n- `--yn-input-border-color`\n- `--yn-input-border-color-hover`\n- `--yn-input-border-color-focus`\n- `--yn-input-color`\n- `--yn-input-placeholder-color`\n- `--yn-input-disabled-color`\n- `--yn-input-focus-ring`\n- `--yn-input-radius`\n- `--yn-input-padding`\n- `--yn-input-button-size`\n- `--yn-input-button-color`\n- `--yn-input-button-bg-hover`\n- `--yn-input-font-family`\n- `--yn-input-font-size`\n- `--yn-input-letter-spacing`\n\n示例：\n```html\n<yn-input @yn-prefix-click=\"...\" @yn-suffix-click=\"...\">\n  <span slot=\"prefix-button\">...</span>\n  <span slot=\"suffix-button\">...</span>\n</yn-input>\n```"
+          "Floema 风格的输入框组件，使用暖色半透明背景、细线边框和胶囊圆角，支持受控 value、占位文案、禁用状态。\n\n" +
+          "**变体**：通过 `variant` 属性切换——`default`（标准胶囊输入框，支持前后置按钮插槽）和 `floating`（浮动标签输入框，label 初始在输入框内，聚焦或有值时上浮；密码字段自动显示切换按钮）。\n\n" +
+          "**密码切换**：`variant=\"floating\"` + `type=\"password\"` 时自动显示密码可见切换按钮，支持 `reveal-label` / `conceal-label` 自定义按钮文案。\n\n" +
+          "**错误态**：`error` + `error-message` 显示红色边框与错误提示（仅 floating 变体）。\n\n" +
+          "**前后置按钮**：传入 `prefix-button` / `suffix-button` 插槽时渲染对应可点击按钮（仅 default 变体）。\n\n" +
+          "事件：`yn-input`（输入变化）、`yn-prefix-click`（前置按钮）、`yn-suffix-click`（后置按钮），`detail` 均为 `{ value: string }`。\n\n" +
+          "样式隔离：Shadow DOM，通过 CSS 变量定制外观。"
       }
     }
   },
@@ -68,6 +94,16 @@ const meta = {
     value: "",
     placeholder: "请输入内容",
     disabled: false,
+    variant: "default",
+    label: "",
+    type: "text",
+    name: "",
+    required: false,
+    error: false,
+    errorMessage: "",
+    autocomplete: "",
+    revealLabel: "Show",
+    concealLabel: "Hide",
     width: "320px",
     height: "44px",
     background: "rgba(255, 255, 255, 0.62)",
@@ -98,9 +134,65 @@ const meta = {
       description: "输入框当前值。",
       table: { defaultValue: { summary: '""' } }
     },
+    variant: {
+      control: "select",
+      options: ["default", "floating"],
+      description:
+        "输入框变体。`default` 为标准胶囊输入框，支持前后置按钮插槽；`floating` 为浮动标签输入框，`label` 初始在输入框内，聚焦或有值时上浮，且密码字段自动显示切换按钮。",
+      table: { defaultValue: { summary: "default" } }
+    },
+    label: {
+      control: "text",
+      description: "浮动标签文案。仅在 `variant=\"floating\"` 时生效，作为输入框内的浮动标签显示。",
+      table: { defaultValue: { summary: '""' } }
+    },
+    type: {
+      control: "text",
+      description:
+        '输入框类型，支持所有原生 `<input>` 类型。`variant="floating"` 时 `type="password"` 会自动显示密码切换按钮。',
+      table: { defaultValue: { summary: "text" } }
+    },
+    name: {
+      control: "text",
+      description: "输入框 `name` 属性，用于表单提交。",
+      table: { defaultValue: { summary: '""' } }
+    },
+    required: {
+      control: "boolean",
+      description: "是否必填（原生 `required` 属性）。",
+      table: { defaultValue: { summary: "false" } }
+    },
+    error: {
+      control: "boolean",
+      description: "是否显示错误状态。`variant=\"floating\"` 时显示红色边框；错误文案通过 `error-message` 设置。",
+      table: { defaultValue: { summary: "false" } }
+    },
+    errorMessage: {
+      control: "text",
+      name: "error-message",
+      description: "错误提示文案。仅在 `error=true` 且 `variant=\"floating\"` 时显示在输入框下方。",
+      table: { defaultValue: { summary: '""' } }
+    },
+    autocomplete: {
+      control: "text",
+      description: "输入框 `autocomplete` 属性，用于浏览器自动填充。",
+      table: { defaultValue: { summary: '""' } }
+    },
+    revealLabel: {
+      control: "text",
+      name: "reveal-label",
+      description: "密码切换按钮的「显示密码」文案（仅 `variant=\"floating\"` + `type=\"password\"` 时生效）。",
+      table: { defaultValue: { summary: '"Show"' } }
+    },
+    concealLabel: {
+      control: "text",
+      name: "conceal-label",
+      description: "密码切换按钮的「隐藏密码」文案（仅 `variant=\"floating\"` + `type=\"password\"` 时生效）。",
+      table: { defaultValue: { summary: '"Hide"' } }
+    },
     placeholder: {
       control: "text",
-      description: "输入框占位文案。",
+      description: "输入框占位文案。`variant=\"default\"` 时作为原生 placeholder；`variant=\"floating\"` 时无效（使用 `label` 替代）。",
       table: { defaultValue: { summary: "请输入内容" } }
     },
     disabled: {
@@ -111,7 +203,7 @@ const meta = {
     width: {
       control: "text",
       name: "--yn-input-width",
-      description: "输入框宽度。",
+      description: "输入框宽度（仅 `variant=\"default\"` 时生效；floating 默认 100%）。",
       table: { category: "CSS Variables", defaultValue: { summary: "320px" } }
     },
     height: {
@@ -240,7 +332,7 @@ const meta = {
     prefixButtonSlot: {
       name: "prefix-button",
       description:
-        "可选前置按钮插槽。未传入时不渲染前置按钮。最小示例：`<span slot=\"prefix-button\">...</span>`。",
+        "可选前置按钮插槽（仅 `variant=\"default\"`）。未传入时不渲染前置按钮。最小示例：`<span slot=\"prefix-button\">...</span>`。",
       control: false,
       table: {
         category: "Slots",
@@ -250,7 +342,7 @@ const meta = {
     suffixButtonSlot: {
       name: "suffix-button",
       description:
-        "可选后置按钮插槽。未传入时不渲染后置按钮。最小示例：`<span slot=\"suffix-button\">...</span>`。",
+        "可选后置按钮插槽（仅 `variant=\"default\"`）。未传入时不渲染后置按钮。最小示例：`<span slot=\"suffix-button\">...</span>`。",
       control: false,
       table: {
         category: "Slots",
@@ -375,6 +467,8 @@ const playSlottedButtonInteractions: NonNullable<Story["play"]> = async ({ canva
   });
 };
 
+// ── default 变体 ──
+
 export const Default: Story = {
   render: renderInput,
   play: playInputValue
@@ -389,6 +483,16 @@ export const Filled: Story = {
   render: renderInput
 };
 
+export const Disabled: Story = {
+  name: "禁用态",
+  args: {
+    disabled: true,
+    placeholder: "已禁用",
+    value: "不可编辑"
+  },
+  render: renderInput
+};
+
 export const SlottedButtons: Story = {
   args: {
     placeholder: "带自定义前后按钮",
@@ -399,6 +503,24 @@ export const SlottedButtons: Story = {
   play: playSlottedButtonInteractions
 };
 
+export const PrefixOnly: Story = {
+  name: "仅前置按钮",
+  args: {
+    placeholder: "仅前置按钮",
+    prefixButtonSlot: ynSignpostSvg
+  },
+  render: renderInput
+};
+
+export const SuffixOnly: Story = {
+  name: "仅后置按钮",
+  args: {
+    placeholder: "仅后置按钮",
+    suffixButtonSlot: ynSearchCloseSvg
+  },
+  render: renderInput
+};
+
 export const Interactions: Story = {
   args: {
     placeholder: "在 Interactions 面板查看步骤",
@@ -407,4 +529,84 @@ export const Interactions: Story = {
   },
   render: renderInput,
   play: playSlottedButtonInteractions
+};
+
+// ── floating 变体 ──
+
+export const Floating: Story = {
+  name: "浮动标签",
+  args: {
+    variant: "floating",
+    label: "Email Address",
+    value: "",
+    required: true
+  },
+  render: renderInput
+};
+
+export const FloatingFilled: Story = {
+  name: "浮动标签（有值）",
+  args: {
+    variant: "floating",
+    label: "Email Address",
+    value: "user@example.com"
+  },
+  render: renderInput
+};
+
+export const FloatingPassword: Story = {
+  name: "浮动标签密码",
+  args: {
+    variant: "floating",
+    label: "Password",
+    type: "password"
+  },
+  render: renderInput
+};
+
+export const FloatingPasswordCustomLabel: Story = {
+  name: "密码切换自定义文案",
+  args: {
+    variant: "floating",
+    label: "密码",
+    type: "password",
+    revealLabel: "显示",
+    concealLabel: "隐藏"
+  },
+  render: renderInput
+};
+
+export const FloatingWithError: Story = {
+  name: "浮动标签错误态",
+  args: {
+    variant: "floating",
+    label: "Email Address",
+    value: "invalid-email",
+    error: true,
+    errorMessage: "Please enter a valid email address"
+  },
+  render: renderInput
+};
+
+export const FloatingDisabled: Story = {
+  name: "浮动标签禁用",
+  args: {
+    variant: "floating",
+    label: "Email Address",
+    value: "user@example.com",
+    disabled: true
+  },
+  render: renderInput
+};
+
+export const FloatingEmail: Story = {
+  name: "浮动标签邮箱",
+  args: {
+    variant: "floating",
+    label: "Email Address",
+    type: "email",
+    autocomplete: "email",
+    required: true
+  },
+  render: renderInput
 };

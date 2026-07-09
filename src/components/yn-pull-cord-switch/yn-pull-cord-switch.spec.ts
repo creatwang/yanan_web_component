@@ -80,6 +80,18 @@ describe("yn-pull-cord-switch", () => {
     expect(el.getAttribute("aria-checked")).to.equal("true");
   });
 
+  it("reflects rope-pass-through on canvas pointer events", async () => {
+    const el = await fixture<YnPullCordSwitch>(
+      html`<yn-pull-cord-switch fixed rope-pass-through></yn-pull-cord-switch>`
+    );
+    await el.updateComplete;
+    expect(el.ropePassThrough).to.equal(true);
+    expect(el.hasAttribute("rope-pass-through")).to.equal(true);
+    const canvas = el.shadowRoot?.querySelector("canvas.rope") as HTMLElement | null;
+    expect(canvas).to.not.equal(null);
+    expect(getComputedStyle(canvas!).pointerEvents).to.equal("none");
+  });
+
   it("reflects fixed mode with horizontal grip", async () => {
     const el = await fixture<YnPullCordSwitch>(
       html`<yn-pull-cord-switch fixed></yn-pull-cord-switch>`

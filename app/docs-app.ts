@@ -179,6 +179,7 @@ export class YnDocsApp extends LitElement {
         .checked=${checked}
         fixed
         reverse
+        rope-pass-through
         .fixedX=${-12}
         .top=${top}
         .zIndex=${10}

@@ -73,6 +73,12 @@ export class YnPullCordSwitch extends LitElement {
   @property({ type: Number, attribute: "card-offset" }) cardOffset?: number;
   /** 组件层级（映射 `--yn-pull-cord-switch-z-index`）；fixed 模式下控制相对页面的叠放顺序 */
   @property({ type: Number, attribute: "z-index", reflect: true }) zIndex = 1;
+  /**
+   * 绳身 canvas 是否穿透指针事件（仅展示、不参与点击）。
+   * fixed 模式下光晕 canvas 较宽，开启后可避免遮挡 Header 等下层 UI。
+   */
+  @property({ type: Boolean, attribute: "rope-pass-through", reflect: true })
+  ropePassThrough = false;
 
   @query("canvas.rope") private ropeCanvas?: HTMLCanvasElement;
   @query(".card") private cardEl?: HTMLElement;
@@ -310,6 +316,11 @@ export class YnPullCordSwitch extends LitElement {
       cursor: not-allowed;
     }
 
+    :host([rope-pass-through]) canvas.rope {
+      pointer-events: none;
+      cursor: default;
+    }
+
     .card {
       position: absolute;
       left: 0;
@@ -538,7 +549,7 @@ export class YnPullCordSwitch extends LitElement {
       }
     }
 
-    if (changed.has("fixed") || changed.has("disabled")) {
+    if (changed.has("fixed") || changed.has("disabled") || changed.has("ropePassThrough")) {
       this.syncEngineInteractionTargets();
     }
 
@@ -855,7 +866,9 @@ export class YnPullCordSwitch extends LitElement {
   private syncEngineInteractionTargets() {
     if (!this.engine) return;
     const targets: HTMLElement[] = [];
-    if (this.ropeCanvas && !this.fixed) targets.push(this.ropeCanvas);
+    if (this.ropeCanvas && !this.fixed && !this.ropePassThrough) {
+      targets.push(this.ropeCanvas);
+    }
     if (this.cardEl && (this.fixed || this.usesSlotCard())) {
       targets.push(this.cardEl);
     }
