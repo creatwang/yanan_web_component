@@ -1,5 +1,6 @@
 /**
  * 需要受控状态的文档 Demo（markup 来自 story-demos，与 Storybook 一致）
+ * 仅输出预览内容；外层由 docs-app 统一包裹 yn-docs-demo。
  */
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
@@ -11,12 +12,17 @@ import {
   storyButtonLoading,
   storyIconButtonDefault,
   storyIconButtonClick,
+  storyIconButtonVariants,
+  storyIconButtonSizes,
   storyInputDefault,
   storyInputPrefix,
   storyInputSuffix,
   storyInputSlotted,
   storyIconConnectSizes,
   storySearchDefault,
+  storySearchExpandRight,
+  storySearchExpandLeft,
+  storySearchDefaultOpen,
   storyDropdownDefault,
   storyDropdownCustomClose,
   storyDropdownPickDefault,
@@ -36,7 +42,11 @@ import {
   storyGroupPickMultiple,
   storyPickDefault,
   renderGroupPickCard,
-  GROUP_PICK_CATEGORIES
+  GROUP_PICK_CATEGORIES,
+  storyCookieNoticeDefault,
+  storyCookieNoticeSettings,
+  storySkuCartButtonDefault,
+  storySkuCartButtonLoading
 } from "./story-demos";
 import { getLocale } from "../i18n/locale";
 
@@ -66,18 +76,11 @@ export class YnDocsNavigationDemo extends LitElement {
     if (this.variant === "seo") {
       return storyNavigationInner("PRODUTOS", false, true);
     }
-
     const hitSlop = this.variant === "dark";
-
     const inner = storyNavigationInner(this.active, hitSlop, false, this.onChange.bind(this));
-
-    if (this.variant === "dark") {
-      return html`
-        <div class="yn-inline-block yn-rounded-xl yn-bg-[#2f2521] yn-p-4">${inner}</div>
-      `;
-    }
-
-    return inner;
+    return this.variant === "dark"
+      ? html`<div class="yn-inline-block yn-rounded-xl yn-bg-[#2f2521] yn-p-4">${inner}</div>`
+      : inner;
   }
 }
 
@@ -99,13 +102,15 @@ export class YnDocsButtonDemo extends LitElement {
 
 @customElement("yn-docs-icon-button-demo")
 export class YnDocsIconButtonDemo extends LitElement {
-  @property({ type: String }) variant: "default" | "click" = "default";
+  @property({ type: String }) variant: "default" | "variants" | "sizes" | "click" = "default";
 
   createRenderRoot() {
     return this;
   }
 
   render() {
+    if (this.variant === "variants") return storyIconButtonVariants();
+    if (this.variant === "sizes") return storyIconButtonSizes();
     if (this.variant === "click") return storyIconButtonClick();
     return storyIconButtonDefault();
   }
@@ -118,6 +123,7 @@ export class YnDocsInputDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     if (this.variant === "default") return storyInputDefault();
     if (this.variant === "prefix") return storyInputPrefix();
@@ -131,6 +137,7 @@ export class YnDocsIconConnectDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storyIconConnectSizes();
   }
@@ -138,11 +145,16 @@ export class YnDocsIconConnectDemo extends LitElement {
 
 @customElement("yn-docs-search-demo")
 export class YnDocsSearchDemo extends LitElement {
+  @property({ type: String }) variant: "default" | "expand-right" | "expand-left" | "default-open" = "default";
+
   createRenderRoot() {
     return this;
   }
 
   render() {
+    if (this.variant === "expand-right") return storySearchExpandRight();
+    if (this.variant === "expand-left") return storySearchExpandLeft();
+    if (this.variant === "default-open") return storySearchDefaultOpen();
     return storySearchDefault();
   }
 }
@@ -165,6 +177,7 @@ export class YnDocsDropdownPickDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storyDropdownPickDefault();
   }
@@ -201,6 +214,7 @@ export class YnDocsToastDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storyToastApi();
   }
@@ -292,6 +306,7 @@ export class YnDocsCheckoutAddressDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storyCheckoutAddress();
   }
@@ -302,7 +317,34 @@ export class YnDocsQuantityDemo extends LitElement {
   createRenderRoot() {
     return this;
   }
+
   render() {
     return storyQuantityProduct();
+  }
+}
+
+@customElement("yn-docs-cookie-notice-demo")
+export class YnDocsCookieNoticeDemo extends LitElement {
+  @property({ type: String }) variant: "default" | "settings" = "default";
+
+  createRenderRoot() {
+    return this;
+  }
+
+  render() {
+    return this.variant === "settings" ? storyCookieNoticeSettings() : storyCookieNoticeDefault();
+  }
+}
+
+@customElement("yn-docs-sku-cart-button-demo")
+export class YnDocsSkuCartButtonDemo extends LitElement {
+  @property({ type: String }) variant: "default" | "loading" = "default";
+
+  createRenderRoot() {
+    return this;
+  }
+
+  render() {
+    return this.variant === "loading" ? storySkuCartButtonLoading() : storySkuCartButtonDefault();
   }
 }

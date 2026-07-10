@@ -4,6 +4,7 @@
 import { html, nothing } from "lit";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ref } from "lit/directives/ref.js";
+import { getLocale } from "../i18n/locale";
 import {
   ynSearchCloseSvg,
   ynSignpostSvg,
@@ -148,6 +149,75 @@ export const storyIconButtonClick = () => html`
   </div>
 `;
 
+/** yn-icon-button Variants */
+export const storyIconButtonVariants = () => html`
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+    <yn-icon-button label="default" variant="default">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="filled" variant="filled">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="primary" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="tonal" variant="tonal">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="outlined" variant="outlined">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="danger" variant="danger">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button label="success" variant="success">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+  </div>
+  <div style="margin-top:16px;padding:12px;background:#241f21;display:inline-flex;gap:12px;border-radius:8px;">
+    <yn-icon-button label="inverse" variant="inverse">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+  </div>
+`;
+
+/** yn-icon-button Sizes */
+export const storyIconButtonSizes = () => html`
+  <div class="yn-flex yn-items-center yn-gap-3">
+    <yn-icon-button size="small" label="small" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button size="medium" label="medium" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    <yn-icon-button size="large" label="large" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+  </div>
+`;
+
+const ICON_BUTTON_SVG_SNIPPET = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8.9 7.5C8.9 6.28 9.88 5.3 11.1 5.3H12.9C14.11 5.3 15.1 6.28 15.1 7.5C15.1 7.776 15.324 8 15.6 8C15.876 8 16.1 7.776 16.1 7.5C16.1 5.733 14.667 4.3 12.9 4.3H11.1C9.333 4.3 7.9 5.733 7.9 7.5C7.9 7.776 8.124 8 8.4 8C8.676 8 8.9 7.776 8.9 7.5ZM5.8 15.6V9.4H18.2V15.6C18.2 17.036 17.036 18.2 15.6 18.2H8.4C6.964 18.2 5.8 17.036 5.8 15.6V9.3C5.8 8.803 6.203 8.4 6.7 8.4H17.3C17.797 8.4 18.2 8.803 18.2 9.3V15.6C18.2 17.588 16.588 19.2 14.6 19.2H8.4C6.412 19.2 4.8 17.588 4.8 15.6V9.3Z"/>
+</svg>`;
+
+/** yn-icon-button 完整属性展示（嵌套 default slot 传 SVG） */
+export const storyIconButtonPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;border-radius:12px;">
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">variant 配色</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-icon-button label="default" variant="default">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button label="filled" variant="filled">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button label="primary" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button label="outlined" variant="outlined">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">size 尺寸</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-icon-button size="small" label="small" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button size="medium" label="medium" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button size="large" label="large" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">disabled 禁用</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-icon-button label="可用" variant="primary">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button label="禁用" variant="primary" disabled>${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">href 链接模式</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-icon-button label="账户" href="/account" variant="default">${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">hit-slop 热区</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-icon-button label="默认热区" variant="default" hit-slop>${ICON_BUTTON_CART_SVG}</yn-icon-button>
+      <yn-icon-button label="无热区" variant="default" ?hit-slop=${false}>${ICON_BUTTON_CART_SVG}</yn-icon-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">CSS 变量覆写</h4>
+    <yn-icon-button
+      label="自定义配色"
+      style="--yn-icon-button-bg:#eef2ff;--yn-icon-button-hover-bg:#c7d2fe;--yn-icon-button-color:#3730a3;"
+    >
+      ${ICON_BUTTON_CART_SVG}
+    </yn-icon-button>
+  </div>
+`;
+
 /** yn-button Variants */
 export const storyButtonVariants = () => html`
   <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap">
@@ -231,6 +301,36 @@ export const storyIconConnectSizes = () => html`
   </div>
 `;
 
+/** yn-icon-connect-button 属性展示 */
+export const storyIconConnectPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:20px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">size 尺寸</p>
+      ${storyIconConnectSizes()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">link 链接模式</p>
+      <yn-icon-connect-button
+        label="VIEW PRODUCTS"
+        size="normal"
+        link="/products"
+        .icon=${ynSignpostSvg}
+        style="--yn-icon-connect-button-bg:#ddd967;--yn-icon-connect-button-color:#241f21;"
+      ></yn-icon-connect-button>
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">disabled 禁用</p>
+      <yn-icon-connect-button
+        label="DISABLED"
+        size="normal"
+        disabled
+        .icon=${ynSignpostSvg}
+        style="--yn-icon-connect-button-bg:#ddd967;--yn-icon-connect-button-color:#241f21;"
+      ></yn-icon-connect-button>
+    </div>
+  </div>
+`;
+
 export const storyNavigationInner = (
   active: string,
   hitSlop: boolean,
@@ -263,6 +363,38 @@ export const storySearchDefault = () => html`
         <option value="Table"></option>
       </datalist>
     </yn-search>
+  </div>
+`;
+
+/** yn-search 向右展开顶开兄弟 */
+export const storySearchExpandRight = () => html`
+  <div class="yn-bg-[#F2EFEA] yn-p-[16px] yn-flex yn-items-center yn-gap-[12px]" style="width:fit-content;">
+    <yn-search expand-direction="right" .inputWidth=${240} placeholder="Search" style=${SEARCH_STYLE}></yn-search>
+    <button
+      type="button"
+      class="yn-h-[38px] yn-px-[16px] yn-rounded-[8px] yn-border yn-border-[#241f21]/20 yn-bg-white"
+    >
+      Cart
+    </button>
+    <span class="yn-text-[14px] yn-text-[#241f21]">Menu</span>
+  </div>
+`;
+
+/** yn-search 向左展开 */
+export const storySearchExpandLeft = () => html`
+  <div
+    class="yn-bg-[#F2EFEA] yn-p-[16px] yn-flex yn-items-center yn-justify-end yn-gap-[12px]"
+    style="width:fit-content;margin-left:auto;"
+  >
+    <span class="yn-text-[14px] yn-text-[#241f21]">Brand</span>
+    <yn-search expand-direction="left" .inputWidth=${240} placeholder="Search" style=${SEARCH_STYLE}></yn-search>
+  </div>
+`;
+
+/** yn-search 默认展开 */
+export const storySearchDefaultOpen = () => html`
+  <div class="yn-bg-[#F2EFEA] yn-p-[10px]">
+    <yn-search open .inputWidth=${240} placeholder="O que estás à procura?" style=${SEARCH_STYLE}></yn-search>
   </div>
 `;
 
@@ -357,6 +489,20 @@ export const storyDropdownCustomClose = () => html`
   </div>
 `;
 
+/** yn-dropdown 嵌套插槽组合（trigger + content + close-icon） */
+export const storyDropdownPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:32px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">默认：yn-button 触发 + yn-group-pick 面板</p>
+      ${storyDropdownDefault()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">close-icon 插槽 + right-start</p>
+      ${storyDropdownCustomClose()}
+    </div>
+  </div>
+`;
+
 const renderLanguagePicks = () =>
   LANGUAGE_NODES.map(
     (item) => html`
@@ -391,6 +537,32 @@ export const storyDropdownPickDefault = () => html`
   </div>
 `;
 
+/** yn-dropdown-pick 属性展示（嵌套 yn-pick + data-node） */
+export const storyDropdownPickPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:28px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">默认：value + button-display-field + 嵌套 yn-pick</p>
+      ${storyDropdownPickDefault()}
+    </div>
+    <div class="yn-min-h-[120px] yn-bg-[#efede8] yn-p-8 yn-flex yn-flex-col yn-items-end" style="width:100%;">
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;width:100%;">disabled 禁用</p>
+      <yn-dropdown-pick
+        value="en"
+        disabled
+        value-field="id"
+        button-display-field="code"
+        placeholder="Language"
+        button-bg="#f8f6f2"
+        button-color="#241f21"
+        panel-min-width="132px"
+        style="--yn-dropdown-pick-panel-bg:#f2efea;--yn-dropdown-pick-panel-radius:12px;--yn-dropdown-pick-panel-padding:6px;"
+      >
+        ${renderLanguagePicks()}
+      </yn-dropdown-pick>
+    </div>
+  </div>
+`;
+
 /** yn-quantity ProductDemo */
 export const storyQuantityProduct = () => html`
   <div
@@ -416,6 +588,28 @@ export const storyQuantityProduct = () => html`
         Adicionar à lista de interesse
       </yn-button>
     </article>
+  </div>
+`;
+
+/** yn-quantity 属性展示 */
+export const storyQuantityPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:20px;align-items:flex-start;">
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">默认 min=1 max=99</p>
+      <yn-quantity value="1" min="1" max="99" style="--yn-quantity-font-family:inherit;"></yn-quantity>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">边界 max=5</p>
+      <yn-quantity value="5" min="1" max="5" style="--yn-quantity-font-family:inherit;"></yn-quantity>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">step=2</p>
+      <yn-quantity value="2" min="2" max="10" step="2" style="--yn-quantity-font-family:inherit;"></yn-quantity>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">disabled 禁用</p>
+      <yn-quantity value="3" min="1" max="99" disabled style="--yn-quantity-font-family:inherit;"></yn-quantity>
+    </div>
   </div>
 `;
 
@@ -464,10 +658,38 @@ export const storySkuSimple = () => html`
   </div>
 `;
 
+/** yn-sku-selector 属性展示 */
+export const storySkuPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:32px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">pick-one 自动选中 + title 插槽</p>
+      ${storySkuPickOne()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">simple 选齐自动 submit</p>
+      ${storySkuSimple()}
+    </div>
+  </div>
+`;
+
 /** yn-checkout-address Default */
 export const storyCheckoutAddress = () => html`
   <div style="background:var(--yn-color-bg,#f2efea);padding:24px;max-width:560px;margin:0 auto;">
     <yn-checkout-address locale="en"></yn-checkout-address>
+  </div>
+`;
+
+/** yn-checkout-address 属性展示 */
+export const storyCheckoutAddressPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:32px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">locale="zh-CN" + show-email + show-whatsapp</p>
+      <yn-checkout-address locale="zh-CN" show-email show-whatsapp email-required whatsapp-required></yn-checkout-address>
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">locale="en" 默认</p>
+      <yn-checkout-address locale="en"></yn-checkout-address>
+    </div>
   </div>
 `;
 
@@ -570,6 +792,9 @@ export const storyDrawerDesktop = () => html`
     </yn-drawer>
   </div>
 `;
+
+/** yn-drawer 完整插槽组合（trigger / header / header-actions / content / backdrop-extra） */
+export const storyDrawerSlotsDemo = () => storyDrawerCart();
 
 const sleep = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
 
@@ -837,3 +1062,1186 @@ export const storyPullCordSizes = () => html`
     )}
   </div>
 `;
+
+// ── Event-log helper ──────────────────────────────────────────────
+
+const EVENT_LOG_STYLE = `
+  margin-top:12px;
+  padding:8px 12px;
+  background:rgba(36,31,33,0.06);
+  border-radius:8px;
+  font-size:12px;
+  font-family:ui-monospace,monospace;
+  line-height:1.6;
+  max-height:180px;
+  overflow-y:auto;
+  color:#241f21;
+`;
+
+/**
+ * 通用事件日志包装器：渲染组件内容，监听指定事件，
+ * 在预览下方同时展示事件数据 + console.log
+ */
+export function withEventLog(
+  content: ReturnType<typeof html>,
+  eventMap: Record<string, string>,
+  extraAttr?: string
+) {
+  return html`
+    <div
+      ${ref((el) => {
+        if (!el || (el as any).__eventLogAttached) return;
+        (el as any).__eventLogAttached = true;
+        const root = el as HTMLElement;
+        for (const [eventName, detailLabel] of Object.entries(eventMap)) {
+          root.addEventListener(eventName, ((e: Event) => {
+            const ce = e as CustomEvent;
+            const detail = ce.detail ?? {};
+            let detailStr: string;
+            try {
+              detailStr = JSON.stringify(detail, null, 1);
+            } catch {
+              detailStr = String(detail);
+            }
+            const logLine = `[${eventName}] detail: ${detailStr}`;
+            console.log(logLine);
+            const log = root.querySelector('[data-event-log]');
+            if (log) {
+              const entry = document.createElement('div');
+              entry.textContent = logLine;
+              log.appendChild(entry);
+              log.scrollTop = log.scrollHeight;
+            }
+          }) as EventListener);
+        }
+      })}
+      ${extraAttr ? extraAttr : ''}
+    >
+      ${content}
+      <div style=${EVENT_LOG_STYLE} data-event-log><em style="opacity:0.5;">事件日志将显示在此处...</em></div>
+    </div>
+  `;
+}
+
+/** yn-button 事件日志 */
+export const storyButtonEventLog = () => withEventLog(
+  html`<yn-button variant="primary">点击我</yn-button>`,
+  { click: "MouseEvent" }
+);
+
+/** yn-icon-button 事件日志 */
+export const storyIconButtonEventLog = () => withEventLog(
+  html`<yn-icon-button label="购物车" variant="default">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8.8999 7.5C8.8999 6.28498 9.88488 5.3 11.0999 5.3H12.8999C14.1149 5.3 15.0999 6.28498 15.0999 7.5C15.0999 7.77615 15.3238 8 15.5999 8C15.876 8 16.0999 7.77615 16.0999 7.5C16.0999 5.73269 14.6672 4.3 12.8999 4.3H11.0999C9.33259 4.3 7.8999 5.73269 7.8999 7.5C7.8999 7.77615 8.12376 8 8.3999 8C8.67604 8 8.8999 7.77615 8.8999 7.5ZM5.7998 15.6V9.39999H18.1998V15.6C18.1998 17.0359 17.0357 18.2 15.5998 18.2H8.39981C6.96387 18.2 5.7998 17.0359 5.7998 15.6ZM4.7998 9.29999C4.7998 8.80294 5.20275 8.39999 5.6998 8.39999H18.2998C18.7969 8.39999 19.1998 8.80294 19.1998 9.29999V15.6C19.1998 17.5882 17.588 19.2 15.5998 19.2H8.39981C6.41158 19.2 4.7998 17.5882 4.7998 15.6V9.29999Z"/>
+    </svg>
+  </yn-icon-button>`,
+  { click: "MouseEvent" }
+);
+
+/** yn-input 事件日志（全部事件） */
+export const storyInputEventLog = () => withEventLog(
+  html`
+    <yn-input
+      placeholder="输入内容查看事件..."
+      style=${INPUT_STYLE}
+    >
+      <span slot="prefix-button">${unsafeSVG(ynSignpostSvg)}</span>
+      <span slot="suffix-button">${unsafeSVG(ynSearchCloseSvg)}</span>
+    </yn-input>
+  `,
+  { "yn-input": "{value}", "yn-prefix-click": "{value}", "yn-suffix-click": "{value}" }
+);
+
+/** yn-pick 事件日志 */
+export const storyPickEventLog = () => withEventLog(
+  html`
+    <yn-pick value="nature" style="--yn-pick-border-width:2px;--yn-pick-border-color:#000000;--yn-pick-border-radius:8px;">
+      <div style="padding:12px 20px;background:#d5c29f;border-radius:8px;font-size:18px;font-weight:bold;">Nature</div>
+    </yn-pick>
+  `,
+  { toggle: "{id, flag}" }
+);
+
+/** yn-group-pick 事件日志 */
+export const storyGroupPickEventLog = () => withEventLog(
+  html`
+    <yn-group-pick style="--yn-group-pick-gap:12px;">
+      ${GROUP_PICK_CATEGORIES.map((item) => html`
+        <yn-pick .value=${item.id} ?border=${true}>
+          <div style="padding:8px 16px;background:${item.color};border-radius:8px;font-weight:bold;">${item.id}</div>
+        </yn-pick>
+      `)}
+    </yn-group-pick>
+  `,
+  { change: "{ids, flag}" }
+);
+
+/** yn-navigation 事件日志 */
+export const storyNavigationEventLog = () => withEventLog(
+  html`<div class="yn-bg-[#F2EFEA] yn-p-[10px]">
+    <yn-navigation
+      .items=${{ PRODUTOS: "/produtos", SOBRE: "/sobre", SUSTENTABILIDADE: "/sustentabilidade", JORNAL: "/jornal" }}
+      active="PRODUTOS"
+      aria-label="Primary navigation"
+      style=${NAV_STYLE}
+    ></yn-navigation>
+  </div>`,
+  { change: "{key, node}" }
+);
+
+/** yn-search 事件日志 */
+export const storySearchEventLog = () => withEventLog(
+  html`<div class="yn-bg-[#F2EFEA] yn-p-[10px]">
+    <yn-search
+      .inputWidth=${514}
+      placeholder="O que estás à procura?"
+      style=${SEARCH_STYLE}
+    >
+      <datalist>
+        <option value="Sofa"></option>
+        <option value="Table"></option>
+      </datalist>
+    </yn-search>
+  </div>`,
+  { input: "{value}", enter: "{value}" }
+);
+
+/** yn-dropdown 事件日志 */
+export const storyDropdownEventLog = () => withEventLog(
+  html`<div class="yn-flex yn-min-h-[280px] yn-items-start yn-justify-center yn-pt-12">
+    <yn-dropdown placement="bottom-start" style=${DROPDOWN_PANEL_STYLE}>
+      <yn-button variant="default">筛选条件</yn-button>
+      <div slot="content">${renderDropdownContent()}</div>
+    </yn-dropdown>
+  </div>`,
+  { "open-change": "{open, placement}" }
+);
+
+/** yn-dropdown-pick 事件日志 */
+export const storyDropdownPickEventLog = () => withEventLog(
+  html`<div class="yn-min-h-[220px] yn-bg-[#efede8] yn-p-8 yn-flex yn-justify-end" style="width:100%;">
+    <yn-dropdown-pick
+      value="en"
+      value-field="id"
+      button-display-field="code"
+      placeholder="Language"
+      button-bg="#f8f6f2"
+      button-color="#241f21"
+      open-button-bg="#241f21"
+      open-button-color="#ffffff"
+      panel-min-width="132px"
+      ?show-selected-icon=${true}
+      style="--yn-dropdown-pick-panel-bg:#f2efea;--yn-dropdown-pick-panel-radius:12px;--yn-dropdown-pick-panel-padding:6px;--yn-dropdown-pick-gap:6px;"
+    >
+      ${LANGUAGE_NODES.map((item) => html`
+        <yn-pick value=${item.id} data-node=${JSON.stringify(item)}>
+          <div style="padding:8px 12px;">${item.label}</div>
+        </yn-pick>
+      `)}
+    </yn-dropdown-pick>
+  </div>`,
+  { change: "{id, node}", "open-change": "{open}" }
+);
+
+/** yn-quantity 事件日志 */
+export const storyQuantityEventLog = () => withEventLog(
+  html`
+    <div style="padding:24px;background:#f2efea;display:flex;flex-direction:column;align-items:flex-start;gap:12px;">
+      <yn-quantity value="1" min="1" max="99" style="--yn-quantity-font-family:inherit;"></yn-quantity>
+    </div>
+  `,
+  { change: "{value}" }
+);
+
+/** yn-sku-selector 事件日志 */
+export const storySkuEventLog = () => withEventLog(
+  html`
+    <div style="padding:16px;max-width:320px;color:#000;">
+      <yn-sku-selector
+        .skus=${DEMO_SKUS}
+        currency="€"
+        submit-label="ADD TO CART"
+        pick-one
+        .labels=${{ weight: "Weight", color: "Color", size: "Size" }}
+        .cartIcon=${ynSkuCartSvg}
+        ?show-cart-icon=${true}
+        style=${SKU_STYLE}
+        @submit=${(e: CustomEvent & { instance?: { done: () => void } }) => e.instance?.done()}
+      >
+        ${CART_SVG}
+      </yn-sku-selector>
+    </div>
+  `,
+  { change: "{selections, sku, ready, missingKeys}", submit: "{selections, sku}", init: "{selections, sku}" }
+);
+
+/** yn-drawer 事件日志 */
+export const storyDrawerEventLog = () => withEventLog(
+  html`<div class="yn-min-h-[360px] yn-bg-[#f5f1ea] yn-p-6">
+    <yn-drawer placement="auto" sheet-height="auto" .width=${420} style=${DRAWER_STYLE}>
+      <yn-button slot="trigger" variant="default">打开购物车</yn-button>
+      <span slot="header" class="yn-text-sm yn-font-bold yn-uppercase">Your bag</span>
+      <div slot="content" class="yn-p-8 yn-text-center">
+        <p>购物车是空的</p>
+      </div>
+    </yn-drawer>
+  </div>`,
+  { "open-change": "{open, source, payload}", "before-open": "{open}", "after-open": "{open}", "before-close": "{open}", "after-close": "{open}" }
+);
+
+/** yn-toast 事件日志 */
+export const storyToastEventLog = () => withEventLog(
+  html`
+    <div class="yn-min-h-[360px] yn-overflow-hidden yn-rounded-[28px] yn-p-8" style="background:linear-gradient(135deg,#efe8d8 0%,#e8e1d0 48%,#d8d1bd 100%);">
+      <yn-toast type="success" message="success!" style=${TOAST_STYLE}></yn-toast>
+      <div class="yn-flex yn-flex-col yn-items-center yn-justify-center yn-gap-4 yn-pt-20">
+        <div class="yn-flex yn-flex-wrap yn-gap-3">
+          <yn-button variant="default" @click=${(e: Event) => {
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
+            toast?.success?.('success!');
+          }}>Success</yn-button>
+          <yn-button variant="default" @click=${(e: Event) => {
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
+            toast?.info?.('info!');
+          }}>Info</yn-button>
+          <yn-button variant="default" @click=${(e: Event) => {
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
+            toast?.warning?.('warning!');
+          }}>Warning</yn-button>
+          <yn-button variant="default" @click=${(e: Event) => {
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
+            toast?.error?.('error!');
+          }}>Error</yn-button>
+        </div>
+      </div>
+    </div>
+  `,
+  { show: "{type, message, source}", close: "{type, message, source}" },
+  'data-event-root=""'
+);
+
+/** yn-pull-cord-switch 事件日志 */
+export const storyPullCordEventLog = () => withEventLog(
+  html`
+    <div class="pull-cord-shell" style=${shellStyle("default", false)} ${ref((el) => syncShell(el, false))}>
+      <yn-pull-cord-switch
+        rope-length="260"
+        variant="default"
+        ?hit-slop=${false}
+        @change=${(e: Event) => {
+          const checked = (e as CustomEvent<{ checked: boolean }>).detail.checked;
+          const lamp = e.target as HTMLElement;
+          const shell = lamp.parentElement;
+          if (shell?.classList.contains("pull-cord-shell")) {
+            applyPullCordShellBackground(shell, lamp, checked);
+          }
+        }}
+      >
+        <yn-button size="mini" variant="neutral" ?hit-slop=${false}>关闭</yn-button>
+        <yn-button slot="activated" size="mini" variant="success" ?hit-slop=${false}>开启</yn-button>
+      </yn-pull-cord-switch>
+    </div>
+  `,
+  { change: "{checked}", "fixed-move": "{x, reverse}" }
+);
+
+/** yn-checkout-address 事件日志 */
+export const storyCheckoutAddressEventLog = () => withEventLog(
+  html`<div style="background:var(--yn-color-bg,#f2efea);padding:24px;max-width:560px;margin:0 auto;">
+    <yn-checkout-address locale="en"></yn-checkout-address>
+  </div>`,
+  { change: "{value, validation, changedFields}" }
+);
+
+/** yn-icon-connect-button 事件日志 */
+export const storyIconConnectEventLog = () => withEventLog(
+  html`
+    <yn-icon-connect-button
+      label="VER PRODUTOS"
+      size="normal"
+      .icon=${ynSignpostSvg}
+      style="--yn-icon-connect-button-bg:#ddd967;--yn-icon-connect-button-color:#241f21;"
+    ></yn-icon-connect-button>
+  `,
+  { click: "MouseEvent" }
+);
+
+/** yn-button 完整属性展示 */
+export const storyButtonPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;border-radius:12px;">
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">variant 语义色</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-button variant="primary">Primary</yn-button>
+      <yn-button variant="success">Success</yn-button>
+      <yn-button variant="warning">Warning</yn-button>
+      <yn-button variant="danger">Danger</yn-button>
+      <yn-button variant="neutral">Neutral</yn-button>
+      <yn-button variant="dark">Dark</yn-button>
+      <yn-button variant="default">Default</yn-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">size 尺寸</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-button size="mini" variant="primary">Mini</yn-button>
+      <yn-button size="small" variant="primary">Small</yn-button>
+      <yn-button size="medium" variant="primary">Medium</yn-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">loading 加载态</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap yn-mb-6">
+      <yn-button variant="primary" loading loading-type="left">提交中</yn-button>
+      <yn-button variant="primary" loading loading-type="center">提交中</yn-button>
+      <yn-button variant="primary" loading loading-type="right">提交中</yn-button>
+    </div>
+    <h4 style="margin:0 0 16px;font-size:14px;font-weight:600;">disabled 禁用</h4>
+    <div class="yn-flex yn-items-center yn-gap-3 yn-flex-wrap">
+      <yn-button variant="primary" disabled>禁用按钮</yn-button>
+      <yn-button variant="dark" disabled>禁用按钮</yn-button>
+    </div>
+  </div>
+`;
+
+/** yn-input 完整属性展示 */
+export const storyInputPropsDemo = () => html`
+  <div style="background:#f2efea;padding:24px;display:flex;flex-direction:column;gap:16px;">
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">基本（无插槽）</p>
+      <yn-input placeholder="请输入内容" style=${INPUT_STYLE}></yn-input>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">前缀按钮</p>
+      <yn-input placeholder="仅前缀" style=${INPUT_STYLE}>
+        <span slot="prefix-button">${unsafeSVG(ynSignpostSvg)}</span>
+      </yn-input>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">后缀按钮</p>
+      <yn-input placeholder="仅后缀" style=${INPUT_STYLE}>
+        <span slot="suffix-button">${unsafeSVG(ynSearchCloseSvg)}</span>
+      </yn-input>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">前后置按钮（完整）</p>
+      <yn-input placeholder="带自定义前后按钮" style=${INPUT_STYLE}>
+        <span slot="prefix-button">${unsafeSVG(ynSignpostSvg)}</span>
+        <span slot="suffix-button">${unsafeSVG(ynSearchCloseSvg)}</span>
+      </yn-input>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">disabled 禁用</p>
+      <yn-input placeholder="已禁用" disabled style=${INPUT_STYLE}></yn-input>
+    </div>
+  </div>
+`;
+
+const COOKIE_NOTICE_STYLE = `position:relative;min-height:520px;background:#f2efea;border-radius:28px;overflow:hidden;`;
+
+/** yn-pick 属性展示 */
+export const storyPickPropsDemo = () => html`
+  <div style="background:#efede8;padding:24px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">selected + border 边框动画</p>
+      ${storyPickDefault()}
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">show-unselected-icon 未选中图标</p>
+      <yn-pick value="urban" show-unselected-icon style="--yn-pick-border-width:2px;--yn-pick-border-color:#000;--yn-pick-border-radius:8px;">
+        <div
+          class="yn-box-border yn-flex yn-h-[100px] yn-w-[180px] yn-items-end yn-rounded-lg yn-bg-[#ef7d53] yn-p-3 yn-text-2xl yn-font-bold yn-text-[#241f21]"
+        >
+          Urban
+        </div>
+      </yn-pick>
+    </div>
+    <div>
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;">border=false 无边框</p>
+      <yn-pick value="golf" ?border=${false}>
+        <div
+          class="yn-flex yn-h-[80px] yn-w-[120px] yn-items-center yn-justify-center yn-rounded-lg yn-bg-[#b8d28a] yn-font-bold yn-text-[#241f21]"
+        >
+          Golf
+        </div>
+      </yn-pick>
+    </div>
+  </div>
+`;
+
+/** yn-group-pick 属性展示 */
+export const storyGroupPickPropsDemo = () => html`
+  <div style="display:flex;flex-direction:column;gap:24px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">单选（默认）</p>
+      ${storyGroupPickDefault()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">multiple 多选 + value 数组</p>
+      ${storyGroupPickMultiple()}
+    </div>
+  </div>
+`;
+
+/** yn-toast 属性展示（四种 type + 编程 API） */
+export const storyToastPropsDemo = storyToastApi;
+
+/** yn-pull-cord-switch 属性展示 */
+export const storyPullCordPropsDemo = () => html`
+  <div style="display:flex;flex-direction:column;gap:32px;padding:8px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">default / activated 双插槽</p>
+      ${storyPullCordSlots()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">size: mini / small / medium</p>
+      ${storyPullCordSizes()}
+    </div>
+  </div>
+`;
+
+/** yn-cookie-notice 属性展示 */
+export const storyCookieNoticePropsDemo = () => html`
+  <div style="display:flex;flex-direction:column;gap:24px;">
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">auto-show + auto-show-delay</p>
+      ${storyCookieNoticeDefault()}
+    </div>
+    <div>
+      <p style="margin:0 0 12px;font-size:13px;font-weight:600;">visible 受控显示 + 偏好面板</p>
+      ${storyCookieNoticeSettings()}
+    </div>
+  </div>
+`;
+
+/** yn-sku-cart-button 属性展示 */
+export const storySkuCartButtonPropsDemo = () => html`
+  <div style="display:flex;flex-direction:column;gap:32px;">
+    ${storySkuCartButtonDefault()}
+    ${storySkuCartButtonLoading()}
+  </div>
+`;
+
+/** yn-cookie-notice Default */
+export const storyCookieNoticeDefault = () => html`
+  <div style=${COOKIE_NOTICE_STYLE}>
+    <yn-cookie-notice storage-key="doc_demo_cookie_v1" auto-show auto-show-delay="300"></yn-cookie-notice>
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:520px;gap:12px;">
+      <p style="margin:0;font-size:14px;color:#6f696b;">Cookie 横幅将在 300ms 后自动弹出</p>
+      <yn-button variant="default" @click=${(e: Event) => {
+        const root = (e.currentTarget as HTMLElement).closest("div");
+        const notice = root?.querySelector("yn-cookie-notice") as any;
+        notice?.resetConsent?.();
+      }}>重置并重新弹出</yn-button>
+    </div>
+  </div>
+`;
+
+/** yn-cookie-notice WithSettings */
+export const storyCookieNoticeSettings = () => html`
+  <div style=${COOKIE_NOTICE_STYLE}>
+    <yn-cookie-notice storage-key="doc_demo_settings_v1" auto-show-delay="999999" visible>
+    </yn-cookie-notice>
+  </div>
+`;
+
+/** yn-sku-cart-button Default */
+export const storySkuCartButtonDefault = () => html`
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:360px;">
+    <p style="margin:0;font-size:13px;font-weight:600;">默认状态</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00"></yn-sku-cart-button>
+    <p style="margin:0;font-size:13px;font-weight:600;">隐藏图标</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00" ?show-cart-icon=${false}></yn-sku-cart-button>
+    <p style="margin:0;font-size:13px;font-weight:600;">禁用</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00" disabled></yn-sku-cart-button>
+  </div>
+`;
+
+/** yn-sku-cart-button LoadingModes */
+export const storySkuCartButtonLoading = () => html`
+  <div style="display:flex;flex-direction:column;gap:16px;max-width:360px;">
+    <p style="margin:0;font-size:13px;font-weight:600;">loading-mode="icon"（默认）</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="icon"></yn-sku-cart-button>
+    <p style="margin:0;font-size:13px;font-weight:600;">loading-mode="overlay"</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="overlay"></yn-sku-cart-button>
+    <p style="margin:0;font-size:13px;font-weight:600;">loading-text 文案替换</p>
+    <yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-text="ADDING..."></yn-sku-cart-button>
+  </div>
+`;
+
+/** yn-sku-cart-button EventLog */
+export const storySkuCartButtonEventLog = () => withEventLog(
+  html`<yn-sku-cart-button label="ADD TO CART" price="€65.00"></yn-sku-cart-button>`,
+  { click: "MouseEvent" }
+);
+
+/** yn-cookie-notice EventLog */
+export const storyCookieNoticeEventLog = () => withEventLog(
+  html`<div style="position:relative;min-height:400px;background:#f2efea;border-radius:20px;overflow:hidden;">
+    <yn-cookie-notice storage-key="doc_event_cookie_v1" auto-show auto-show-delay="300"></yn-cookie-notice>
+  </div>`,
+  { "preference-change": "{ prefs, source, changedKey }" },
+  'data-event-root=""'
+);
+
+// ── Demo Code Map ──────────────────────────────────────────────
+// 每个 demoVariant 对应的 HTML 代码字符串（用于 Show Code 功能）
+
+export const DEMO_CODE_MAP: Record<string, string> = {
+  // yn-button
+  "yn-button-variants": `<yn-button variant="primary">主色按钮</yn-button>
+<yn-button variant="success">成功按钮</yn-button>
+<yn-button variant="warning">警告按钮</yn-button>
+<yn-button variant="danger">危险按钮</yn-button>
+<yn-button variant="neutral">中性色按钮</yn-button>
+<yn-button variant="dark">深色按钮</yn-button>
+<yn-button variant="default">默认白色</yn-button>`,
+
+  "yn-button-sizes": `<yn-button size="mini" variant="primary">Mini 按钮</yn-button>
+<yn-button size="small" variant="primary">Small 按钮</yn-button>
+<yn-button size="medium" variant="primary">Medium 按钮</yn-button>`,
+
+  "yn-button-loading": `<yn-button variant="primary" loading loading-type="left">提交中</yn-button>`,
+
+  // yn-icon-button
+  "yn-icon-button-click": `<yn-icon-button label="打开购物车" variant="default" @click="handleClick">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path fill="currentColor" d="M8.9 7.5C8.9 6.28 9.88 5.3 11.1 5.3H12.9C14.11 5.3 15.1 6.28 15.1 7.5"/>
+  </svg>
+</yn-icon-button>`,
+
+  "yn-icon-button-variants": `<yn-icon-button label="default" variant="default">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="filled" variant="filled">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="primary" variant="primary">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="tonal" variant="tonal">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="outlined" variant="outlined">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="danger" variant="danger">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="success" variant="success">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="inverse" variant="inverse">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>`,
+
+  "yn-icon-button-sizes": `<yn-icon-button size="small" label="small" variant="primary">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button size="medium" label="medium" variant="primary">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button size="large" label="large" variant="primary">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>`,
+
+  "yn-icon-button-props-demo": `<yn-icon-button label="primary" variant="primary">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="禁用" variant="primary" disabled>${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="账户" href="/account" variant="default">${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button label="无热区" variant="default" ?hit-slop=\${false}>${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>
+<yn-icon-button
+  label="自定义配色"
+  style="--yn-icon-button-bg:#eef2ff;--yn-icon-button-hover-bg:#c7d2fe;--yn-icon-button-color:#3730a3;"
+>${ICON_BUTTON_SVG_SNIPPET}</yn-icon-button>`,
+
+  // yn-input
+  "yn-input-default": `<yn-input placeholder="请输入内容"></yn-input>`,
+
+  "yn-input-prefix": `<yn-input placeholder="仅前缀按钮">
+  <span slot="prefix-button">⌘</span>
+</yn-input>`,
+
+  "yn-input-suffix": `<yn-input placeholder="仅后缀按钮">
+  <span slot="suffix-button">×</span>
+</yn-input>`,
+
+  "yn-input-slotted": `<yn-input placeholder="带自定义前后按钮">
+  <span slot="prefix-button">⌘</span>
+  <span slot="suffix-button">×</span>
+</yn-input>`,
+
+  // yn-icon-connect-button
+  "yn-icon-connect-sizes": `<yn-icon-connect-button label="BUTTON" size="mini"></yn-icon-connect-button>
+<yn-icon-connect-button label="BUTTON" size="small"></yn-icon-connect-button>
+<yn-icon-connect-button label="BUTTON" size="normal"></yn-icon-connect-button>`,
+
+  // yn-navigation
+  "yn-navigation-controlled": `<yn-navigation
+  .items=${'{ PRODUTOS: "/produtos", SOBRE: "/sobre" }'}
+  active="PRODUTOS"
+  aria-label="Primary navigation"
+></yn-navigation>`,
+
+  "yn-navigation-dark": `<yn-navigation
+  .items=${'{ PRODUTOS: "/produtos", SOBRE: "/sobre" }'}
+  active="PRODUTOS"
+  style="--yn-navigation-fill-color:#1a1a1a;--yn-navigation-text-color:#fff;"
+></yn-navigation>`,
+
+  "yn-navigation-seo": `<yn-navigation
+  .items=${'{ PRODUTOS: "/produtos", SOBRE: "/sobre" }'}
+  active="PRODUTOS"
+  seo-mode
+  aria-label="Primary navigation"
+></yn-navigation>`,
+
+  // yn-search
+  "yn-search-default": `<yn-search placeholder="O que estás à procura?">
+  <datalist>
+    <option value="Sofa"></option>
+    <option value="Table"></option>
+  </datalist>
+</yn-search>`,
+
+  "yn-search-expand-right": `<div style="display:flex;align-items:center;gap:12px;width:fit-content;">
+  <yn-search expand-direction="right" input-width="240" placeholder="Search"></yn-search>
+  <button type="button">Cart</button>
+  <span>Menu</span>
+</div>`,
+
+  "yn-search-expand-left": `<div style="display:flex;align-items:center;justify-content:flex-end;gap:12px;width:fit-content;margin-left:auto;">
+  <span>Brand</span>
+  <yn-search expand-direction="left" input-width="240" placeholder="Search"></yn-search>
+</div>`,
+
+  "yn-search-default-open": `<yn-search open input-width="240" placeholder="O que estás à procura?"></yn-search>`,
+
+  "yn-dropdown-props-demo": `<yn-dropdown placement="bottom-start">
+  <yn-button variant="default">筛选条件</yn-button>
+  <div slot="content">
+    <yn-group-pick>
+      <yn-pick value="Nature">Nature</yn-pick>
+    </yn-group-pick>
+  </div>
+</yn-dropdown>
+
+<yn-dropdown placement="right-start">
+  <yn-button variant="default">更多选项</yn-button>
+  <svg slot="close-icon" width="24" height="24" viewBox="0 0 24 24">...</svg>
+  <div slot="content">Panel content</div>
+</yn-dropdown>`,
+
+  "yn-icon-connect-props-demo": `<yn-icon-connect-button label="BUTTON" size="mini"></yn-icon-connect-button>
+<yn-icon-connect-button label="BUTTON" size="small"></yn-icon-connect-button>
+<yn-icon-connect-button label="BUTTON" size="normal"></yn-icon-connect-button>
+<yn-icon-connect-button label="VIEW PRODUCTS" size="normal" link="/products"></yn-icon-connect-button>
+<yn-icon-connect-button label="DISABLED" size="normal" disabled></yn-icon-connect-button>`,
+
+  "yn-drawer-slots": `<yn-drawer placement="auto" sheet-height="auto" width="420">
+  <yn-button slot="trigger" variant="default" drawer-payload='{"scene":"cart"}'>购物车</yn-button>
+  <span slot="header">Your bag</span>
+  <div slot="header-actions"><!-- 头部操作 --></div>
+  <div slot="content">Drawer content</div>
+  <div slot="footer">Footer actions</div>
+</yn-drawer>`,
+
+  // yn-pick
+  "yn-pick-color-card": `<yn-pick value="nature">
+  <div style="padding:12px 20px;background:#d5c29f;border-radius:8px;font-size:18px;font-weight:bold;">
+    Nature
+  </div>
+</yn-pick>`,
+
+  "yn-pick-image-card": `<yn-pick value="nature">
+  <img src="image.jpg" alt="Nature" style="width:180px;height:100px;object-fit:cover;border-radius:8px;"/>
+</yn-pick>`,
+
+  // yn-group-pick
+  "yn-group-pick-cards": `<yn-group-pick>
+  <yn-pick value="Golf">
+    <div style="padding:8px 16px;background:#b8d28a;border-radius:8px;font-weight:bold;">Golf</div>
+  </yn-pick>
+  <yn-pick value="Urban">
+    <div style="padding:8px 16px;background:#ef7d53;border-radius:8px;font-weight:bold;">Urban</div>
+  </yn-pick>
+</yn-group-pick>`,
+
+  "yn-group-pick-multiple": `<yn-group-pick multiple value=${'["Urban", "Nature"]'}>
+  <yn-pick value="Golf">
+    <div style="padding:8px 16px;background:#b8d28a;border-radius:8px;font-weight:bold;">Golf</div>
+  </yn-pick>
+  <yn-pick value="Urban">
+    <div style="padding:8px 16px;background:#ef7d53;border-radius:8px;font-weight:bold;">Urban</div>
+  </yn-pick>
+</yn-group-pick>`,
+
+  // yn-dropdown
+  "yn-dropdown-default": `<yn-dropdown placement="bottom-start">
+  <yn-button variant="default">筛选条件</yn-button>
+  <div slot="content">
+    <!-- dropdown content -->
+  </div>
+</yn-dropdown>`,
+
+  "yn-dropdown-custom-close": `<yn-dropdown placement="right-start">
+  <yn-button variant="default">更多选项</yn-button>
+  <svg slot="close-icon" width="24" height="24" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10.5" stroke="#241f21"/>
+    <path d="M8 8L16 16M16 8L8 16" stroke="#241f21" stroke-width="1.8"/>
+  </svg>
+  <div slot="content">
+    <!-- dropdown content -->
+  </div>
+</yn-dropdown>`,
+
+  // yn-dropdown-pick
+  "yn-dropdown-pick-default": `<yn-dropdown-pick
+  value="en"
+  value-field="id"
+  button-display-field="code"
+  placeholder="Language"
+>
+  <yn-pick value="en" data-node='{"id":"en","label":"English"}'>
+    <div style="padding:8px 12px;">English</div>
+  </yn-pick>
+  <yn-pick value="pt" data-node='{"id":"pt","label":"Português"}'>
+    <div style="padding:8px 12px;">Português</div>
+  </yn-pick>
+</yn-dropdown-pick>`,
+
+  // yn-quantity
+  "yn-quantity-product": `<yn-quantity value="1" min="1" max="99"></yn-quantity>`,
+
+  // yn-sku-selector
+  "yn-sku-default": `<yn-sku-selector\n  .skus=\${skusArray}\n  currency="€"\n  submit-label="ADD TO CART"\n  pick-one\n></yn-sku-selector>`,
+
+  "yn-sku-simple": `<yn-sku-selector\n  .skus=\${skusArray}\n  currency="€"\n  submit-label="ADD TO CART"\n  simple\n></yn-sku-selector>`,
+
+  // yn-checkout-address
+  "yn-checkout-address-default": `<yn-checkout-address locale="en"></yn-checkout-address>`,
+
+  // yn-drawer
+  "yn-drawer-cart": `<yn-drawer placement="auto" sheet-height="auto" width="420">
+  <yn-button slot="trigger" variant="default">购物车</yn-button>
+  <span slot="header" class="yn-text-sm yn-font-bold">Your bag</span>
+  <div slot="content">
+    <!-- drawer content -->
+  </div>
+</yn-drawer>`,
+
+  "yn-drawer-desktop": `<yn-drawer placement="auto" sheet-height="auto" width="420">
+  <yn-button slot="trigger" variant="default">购物车</yn-button>
+  <span slot="header" class="yn-text-sm yn-font-bold">Your bag</span>
+  <div slot="content">
+    <!-- drawer content -->
+  </div>
+</yn-drawer>`,
+
+  // yn-toast
+  "yn-toast-api": `<yn-toast type="success" message="success!"></yn-toast>
+
+<!-- 在 JS 中调用 -->
+<script>
+  toast.success('saved successfully');
+  toast.info('info message');
+  toast.warning('warning!');
+  toast.error('error!');
+</script>`,
+
+  // yn-pull-cord-switch
+  "yn-pull-cord-slots": `<yn-pull-cord-switch rope-length="260" variant="default">
+  <yn-button size="mini" variant="neutral">夜间</yn-button>
+  <yn-button slot="activated" size="mini" variant="success">日间</yn-button>
+</yn-pull-cord-switch>`,
+
+  "yn-pull-cord-sizes": `<yn-pull-cord-switch size="mini" rope-length="260" variant="default">
+  <yn-button size="mini" variant="neutral">mini</yn-button>
+</yn-pull-cord-switch>
+
+<yn-pull-cord-switch size="small" rope-length="260" variant="default">
+  <yn-button size="mini" variant="neutral">small</yn-button>
+</yn-pull-cord-switch>
+
+<yn-pull-cord-switch size="medium" rope-length="260" variant="default">
+  <yn-button size="mini" variant="neutral">medium</yn-button>
+</yn-pull-cord-switch>`,
+
+  "yn-pull-cord-fixed-header": `<yn-pull-cord-switch
+  fixed
+  reverse
+  glow-up
+  rope-pass-through
+  size="mini"
+  rope-length="220"
+  fixed-x="-12"
+  top="52"
+  z-index="101"
+  variant="default"
+>
+  <yn-button size="mini" variant="default">日间</yn-button>
+  <yn-button slot="activated" size="mini" variant="success">夜间</yn-button>
+</yn-pull-cord-switch>`,
+
+  // yn-cookie-notice
+  "yn-cookie-notice-default": `<yn-cookie-notice
+  storage-key="consent_v1"
+  auto-show
+  auto-show-delay="1000"
+></yn-cookie-notice>`,
+
+  "yn-cookie-notice-settings": `<yn-cookie-notice
+  storage-key="consent_v1"
+  auto-show-delay="999999"
+  visible
+></yn-cookie-notice>`,
+
+  // yn-sku-cart-button
+  "yn-sku-cart-button-default": `<yn-sku-cart-button label="ADD TO CART" price="€29.00"></yn-sku-cart-button>
+
+<!-- 隐藏图标 -->
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" show-cart-icon="false"></yn-sku-cart-button>
+
+<!-- 禁用 -->
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" disabled></yn-sku-cart-button>`,
+
+  "yn-sku-cart-button-loading": `<yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="icon"></yn-sku-cart-button>
+
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="overlay"></yn-sku-cart-button>
+
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-text="ADDING..."></yn-sku-cart-button>`,
+
+  // ── Event log variants ──────────────────────────
+  "yn-button-props-demo": `<yn-button variant="primary">主色</yn-button>
+<yn-button variant="success">成功</yn-button>
+<yn-button variant="warning">警告</yn-button>
+<yn-button variant="danger">危险</yn-button>
+<yn-button variant="neutral">中性</yn-button>
+<yn-button variant="dark">深色</yn-button>
+<yn-button variant="default" hit-slop>默认</yn-button>
+<yn-button loading loading-type="center">加载中</yn-button>`,
+
+  "yn-button-event-log": `<!-- 模板 -->
+<yn-button variant="primary" @click=${'{onClick}'}>点击我</yn-button>
+
+<!-- 事件处理 -->
+<script>
+  function onClick(event) {
+    // event: MouseEvent
+    console.log('按钮被点击', event);
+  }
+</script>`,
+
+  "yn-icon-button-event-log": `<!-- 模板 -->
+<yn-icon-button label="购物车" variant="default" @click=${'{onClick}'}>
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+    <path fill="currentColor" d="M8.9 7.5C8.9 6.28 9.88 5.3 11.1 5.3H12.9C14.11 5.3 15.1 6.28 15.1 7.5"/>
+  </svg>
+</yn-icon-button>
+
+<!-- 事件处理 -->
+<script>
+  function onClick(event) {
+    // event: MouseEvent
+    console.log('图标按钮被点击', event);
+  }
+</script>`,
+
+  "yn-input-props-demo": `<yn-input placeholder="请输入内容"></yn-input>
+<yn-input variant="floating" label="邮箱" type="email" required></yn-input>
+<yn-input placeholder="搜索" error error-message="必填">
+  <span slot="suffix-button">×</span>
+</yn-input>`,
+
+  "yn-input-event-log": `<!-- 模板 -->
+<yn-input placeholder="输入内容查看事件..." @yn-input=${'{onInput}'} @yn-prefix-click=${'{onPrefix}'} @yn-suffix-click=${'{onSuffix}'}>
+  <span slot="prefix-button">⌘</span>
+  <span slot="suffix-button">×</span>
+</yn-input>
+
+<!-- 事件处理 -->
+<script>
+  function onInput(event) {
+    // event.detail: { value: string }
+    console.log('输入值变化:', event.detail.value);
+  }
+  function onPrefix(event) {
+    // 前缀按钮点击
+    console.log('前缀按钮被点击');
+  }
+  function onSuffix(event) {
+    // 后缀按钮点击
+    console.log('后缀按钮被点击');
+  }
+</script>`,
+
+  "yn-pick-event-log": `<!-- 模板 -->
+<yn-pick value="nature" @toggle=${'{onToggle}'}>
+  <div style="padding:12px 20px;background:#d5c29f;border-radius:8px;font-size:18px;font-weight:bold;">Nature</div>
+</yn-pick>
+
+<!-- 事件处理 -->
+<script>
+  function onToggle(event) {
+    // event.detail: { id: string, flag: boolean }
+    console.log('选项切换:', event.detail.id, '选中:', event.detail.flag);
+  }
+</script>`,
+
+  "yn-group-pick-event-log": `<!-- 模板 -->
+<yn-group-pick @change=${'{onChange}'}>
+  <yn-pick value="Golf">
+    <div style="padding:8px 16px;background:#b8d28a;border-radius:8px;font-weight:bold;">Golf</div>
+  </yn-pick>
+  <yn-pick value="Urban">
+    <div style="padding:8px 16px;background:#ef7d53;border-radius:8px;font-weight:bold;">Urban</div>
+  </yn-pick>
+</yn-group-pick>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { ids: string[], flag: boolean }
+    console.log('选中项变化:', event.detail.ids, '选中:', event.detail.flag);
+  }
+</script>`,
+
+  "yn-navigation-event-log": `<!-- 模板 -->
+<yn-navigation
+  .items=${'{ PRODUTOS: "/produtos", SOBRE: "/sobre" }'}
+  active="PRODUTOS"
+  @click=${'{onNavClick}'}
+></yn-navigation>
+
+<!-- 事件处理 -->
+<script>
+  function onNavClick(event) {
+    // event: MouseEvent，通过 event.target 获取点击的导航项
+    const item = event.target.closest('yn-navigation')?.active;
+    console.log('导航切换:', item);
+  }
+</script>`,
+
+  "yn-search-event-log": `<!-- 模板 -->
+<yn-search placeholder="搜索..." @input=${'{onInput}'} @enter=${'{onEnter}'}>
+  <datalist>
+    <option value="Sofa"></option>
+    <option value="Table"></option>
+  </datalist>
+</yn-search>
+
+<!-- 事件处理 -->
+<script>
+  function onInput(event) {
+    // event.detail: { value: string }
+    console.log('搜索输入:', event.detail.value);
+  }
+  function onEnter(event) {
+    // event.detail: { value: string }
+    console.log('搜索提交:', event.detail.value);
+  }
+</script>`,
+
+  "yn-dropdown-event-log": `<!-- 模板 -->
+<yn-dropdown placement="bottom-start" @open-change=${'{onOpenChange}'}>
+  <yn-button variant="default">筛选条件</yn-button>
+  <div slot="content">Dropdown content</div>
+</yn-dropdown>
+
+<!-- 事件处理 -->
+<script>
+  function onOpenChange(event) {
+    // event.detail: { open: boolean; placement: string }
+    console.log('下拉状态:', event.detail.open ? '打开' : '关闭', '方向:', event.detail.placement);
+  }
+</script>`,
+
+  "yn-dropdown-pick-event-log": `<!-- 模板 -->
+<yn-dropdown-pick
+  value="en"
+  value-field="id"
+  button-display-field="code"
+  placeholder="Language"
+  @change=${'{onChange}'}
+>
+  <yn-pick value="en" data-node='{"id":"en","label":"English"}'>
+    <div style="padding:8px 12px;">English</div>
+  </yn-pick>
+  <yn-pick value="pt" data-node='{"id":"pt","label":"Português"}'>
+    <div style="padding:8px 12px;">Português</div>
+  </yn-pick>
+</yn-dropdown-pick>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { id: string }
+    console.log('选中语言:', event.detail.id);
+  }
+</script>`,
+
+  "yn-quantity-event-log": `<!-- 模板 -->
+<yn-quantity value="1" min="1" max="99" @change=${'{onChange}'}></yn-quantity>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { value: number }
+    console.log('数量变化:', event.detail.value);
+  }
+</script>`,
+
+  "yn-sku-event-log": `<!-- 模板 -->
+<yn-sku-selector
+  .skus=${'{skusArray}'}
+  currency="€"
+  submit-label="ADD TO CART"
+  @submit=${'{onSubmit}'}
+  @change=${'{onChange}'}
+></yn-sku-selector>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { selections: object, sku: object|null, ready: boolean, missingKeys: string[] }
+    console.log('规格变化:', event.detail.selections, '已选齐:', event.detail.ready);
+  }
+  function onSubmit(event) {
+    // event.detail: { selections: object, sku: object } + instance.done()
+    console.log('加购提交:', event.detail.sku);
+    event.detail.instance.done();
+  }
+</script>`,
+
+  "yn-drawer-event-log": `<!-- 模板 -->
+<yn-drawer placement="auto" sheet-height="auto" width="420" @open-change=${'{onOpenChange}'}>
+  <yn-button slot="trigger" variant="default">购物车</yn-button>
+  <span slot="header">Your bag</span>
+  <div slot="content">Drawer content</div>
+</yn-drawer>
+
+<!-- 事件处理 -->
+<script>
+  function onOpenChange(event) {
+    // event.detail: { open: boolean; source: string; payload?: any }
+    console.log('抽屉状态:', event.detail.open ? '打开' : '关闭', '来源:', event.detail.source);
+  }
+</script>`,
+
+  "yn-toast-event-log": `<!-- 模板 -->
+<yn-button variant="primary" @click=${'{showToast}'}>触发 Toast</yn-button>
+
+<!-- 事件处理 -->
+<script>
+  function showToast(event) {
+    // 调用 toast 方法
+    const toast = document.querySelector('yn-toast');
+    toast.success('保存成功');
+    toast.info('提示信息');
+    toast.warning('警告信息');
+    toast.error('错误信息');
+  }
+</script>`,
+
+  "yn-pull-cord-event-log": `<!-- 模板 -->
+<yn-pull-cord-switch rope-length="260" variant="default" @change=${'{onChange}'}>
+  <yn-button size="mini" variant="neutral">夜间</yn-button>
+  <yn-button slot="activated" size="mini" variant="success">日间</yn-button>
+</yn-pull-cord-switch>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { checked: boolean }
+    console.log('开关状态:', event.detail.checked ? '开启' : '关闭');
+  }
+</script>`,
+
+  "yn-checkout-address-event-log": `<!-- 模板 -->
+<yn-checkout-address locale="en" @change=${'{onChange}'}></yn-checkout-address>
+
+<!-- 事件处理 -->
+<script>
+  function onChange(event) {
+    // event.detail: { value: object, validation: object, changedFields: string[] }
+    console.log('地址变化:', event.detail.value, '校验:', event.detail.validation);
+  }
+</script>`,
+
+  "yn-icon-connect-event-log": `<!-- 模板 -->
+<yn-icon-connect-button label="BUTTON" size="normal" @click=${'{onClick}'}></yn-icon-connect-button>
+
+<!-- 事件处理 -->
+<script>
+  function onClick(event) {
+    // event: MouseEvent
+    console.log('连接按钮被点击', event);
+  }
+</script>`,
+
+  "yn-cookie-notice-event-log": `<!-- 模板 -->
+<yn-cookie-notice
+  storage-key="consent_v1"
+  auto-show
+  auto-show-delay="1000"
+  @preference-change=${'{onPreferenceChange}'}
+></yn-cookie-notice>
+
+<!-- 事件处理 -->
+<script>
+  function onPreferenceChange(event) {
+    // event.detail: { functional: boolean, analytics: boolean, marketing: boolean }
+    console.log('偏好设置变化:', event.detail);
+  }
+</script>`,
+
+  "yn-sku-cart-button-event-log": `<!-- 模板 -->
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" @click=${'{onClick}'}></yn-sku-cart-button>
+
+<!-- 事件处理 -->
+<script>
+  function onClick(event) {
+    // event: MouseEvent
+    console.log('加购按钮被点击', event);
+  }
+</script>`,
+
+  "yn-dropdown-pick-props-demo": `<yn-dropdown-pick value="en" button-display-field="code" placeholder="Language">
+  <yn-pick value="en" data-node='{"id":"en","code":"EN","label":"English"}'>EN</yn-pick>
+  <yn-pick value="pt" data-node='{"id":"pt","code":"PT","label":"Português"}'>PT</yn-pick>
+</yn-dropdown-pick>
+
+<yn-dropdown-pick value="en" disabled button-display-field="code">
+  ...
+</yn-dropdown-pick>`,
+
+  "yn-quantity-props-demo": `<yn-quantity value="1" min="1" max="99"></yn-quantity>
+<yn-quantity value="5" min="1" max="5"></yn-quantity>
+<yn-quantity value="2" min="2" max="10" step="2"></yn-quantity>
+<yn-quantity value="3" disabled></yn-quantity>`,
+
+  "yn-checkout-address-props-demo": `<yn-checkout-address locale="zh-CN" show-email show-whatsapp email-required></yn-checkout-address>
+<yn-checkout-address locale="en"></yn-checkout-address>`,
+
+  "yn-sku-props-demo": `<yn-sku-selector .skus=\${skusArray} currency="€" pick-one submit-label="ADD TO CART"></yn-sku-selector>
+<yn-sku-selector .skus=\${skusArray} currency="€" simple submit-label="ADD TO CART"></yn-sku-selector>`,
+
+  "yn-pick-props-demo": `<yn-pick value="nature" selected border>
+  <div style="background:#d5c29f;padding:12px;border-radius:8px;">Nature</div>
+</yn-pick>
+<yn-pick value="urban" show-unselected-icon border>...</yn-pick>
+<yn-pick value="golf" ?border=\${false}>...</yn-pick>`,
+
+  "yn-group-pick-props-demo": `<yn-group-pick>
+  <yn-pick value="Golf">Golf</yn-pick>
+  <yn-pick value="Urban">Urban</yn-pick>
+</yn-group-pick>
+
+<yn-group-pick multiple .value=\${["Urban", "Nature"]}>
+  ...
+</yn-group-pick>`,
+
+  "yn-toast-props-demo": `<yn-toast type="success" message="success!"></yn-toast>
+
+<yn-button @click=\${() => YnToast.success('保存成功')}>Success</yn-button>
+<yn-button @click=\${() => YnToast.info('提示')}>Info</yn-button>
+<yn-button @click=\${() => YnToast.warning('警告')}>Warning</yn-button>
+<yn-button @click=\${() => YnToast.error('错误')}>Error</yn-button>`,
+
+  "yn-pull-cord-props-demo": `<yn-pull-cord-switch rope-length="260" variant="default">
+  <yn-button size="mini" variant="neutral">夜间</yn-button>
+  <yn-button slot="activated" size="mini" variant="success">日间</yn-button>
+</yn-pull-cord-switch>
+
+<yn-pull-cord-switch size="mini" rope-length="260">...</yn-pull-cord-switch>
+<yn-pull-cord-switch size="small" rope-length="260">...</yn-pull-cord-switch>
+<yn-pull-cord-switch size="medium" rope-length="260">...</yn-pull-cord-switch>`,
+
+  "yn-cookie-notice-props-demo": `<yn-cookie-notice storage-key="consent_v1" auto-show auto-show-delay="1000"></yn-cookie-notice>
+
+<yn-cookie-notice storage-key="consent_v1" visible></yn-cookie-notice>`,
+
+  "yn-sku-cart-button-props-demo": `<yn-sku-cart-button label="ADD TO CART" price="€29.00"></yn-sku-cart-button>
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" show-cart-icon="false"></yn-sku-cart-button>
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" disabled></yn-sku-cart-button>
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="icon"></yn-sku-cart-button>
+<yn-sku-cart-button label="ADD TO CART" price="€29.00" loading loading-mode="overlay"></yn-sku-cart-button>`
+};
+
+/** 获取 demoVariant 对应的代码字符串 */
+export function getDemoCode(variant: string): string | undefined {
+  return DEMO_CODE_MAP[variant];
+}

@@ -552,6 +552,73 @@ yn-docs-checkout-address-demo {
   background: rgba(255, 255, 255, 0.4);
 }
 
+.docs-demo__code-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--docs-demo-border);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.docs-demo__code-btn,
+.docs-demo__copy-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--yn-color-text);
+  background: transparent;
+  border: 1px solid var(--docs-demo-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.docs-demo__code-btn:hover,
+.docs-demo__copy-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--yn-color-text-subtle);
+}
+
+.docs-demo__code-btn svg,
+.docs-demo__copy-btn svg {
+  flex-shrink: 0;
+}
+
+.docs-demo__copy-btn {
+  margin-left: auto;
+}
+
+.docs-demo__copy-btn[data-copied="true"],
+.docs-demo__copy-btn:has(svg polyline[points="20 6 9 17 4 12"]) {
+  color: #16a34a;
+  border-color: #16a34a;
+}
+
+.docs-demo__code-block {
+  border-top: 1px solid var(--docs-demo-border);
+  background: #fafafa;
+  overflow-x: auto;
+}
+
+.docs-demo__code-block pre {
+  margin: 0;
+  padding: 16px 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Mono', 'Droid Sans Mono', 'Source Code Pro', monospace;
+  color: #1a1a1a;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.docs-demo__code-block code {
+  font-family: inherit;
+}
+
 .docs-theme-switcher {
   width: 100%;
   min-height: 420px;

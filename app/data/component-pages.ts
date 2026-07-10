@@ -704,5 +704,80 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
       "组件不绘制区域背景；内嵌用法需外层容器同步背景色。",
       "fixed 贴站点 Header 时务必加 rope-pass-through，避免光晕 canvas 挡住搜索。"
     ]
+  }),
+
+  page({
+    id: "yn-cookie-notice",
+    title: "Cookie Notice 隐私通知",
+    tag: "yn-cookie-notice",
+    className: "YnCookieNotice",
+    importPath: "yn-web-component/components/yn-cookie-notice",
+    description: "GDPR 风格 Cookie 同意横幅，支持 accept/reject/settings 三态、偏好分类勾选与 cookie 持久化。",
+    usageCode: `<yn-cookie-notice\n  storage-key="cookie_consent_v1"\n  auto-show\n  auto-show-delay="800"\n  @preference-change=\${onPrefsChange}>\n</yn-cookie-notice>`,
+    props: [
+      { name: "storage-key", type: "string", default: '"cookie_consent_v1"', desc: "cookie 键名" },
+      { name: "auto-show-delay", type: "number", default: "800", desc: "自动弹出延迟 ms" },
+      { name: "visible", type: "boolean", default: "false", desc: "受控显示状态" },
+      { name: "auto-show", type: "boolean", default: "true", desc: "无记录时自动弹出" },
+      { name: "max-age", type: "number", default: "31536000", desc: "Cookie 有效期（秒）" },
+      { name: "default-functional", type: "boolean", default: "false", desc: "默认勾选 functional" },
+      { name: "default-analytics", type: "boolean", default: "false", desc: "默认勾选 analytics" },
+      { name: "default-marketing", type: "boolean", default: "true", desc: "默认勾选 marketing" },
+      { name: "title", type: "string", default: '"We use cookies to improve your experience"', desc: "标题文案" },
+      { name: "policy-line-1", type: "string", default: '"By continuing, you"', desc: "政策文案行1" },
+      { name: "policy-line-2", type: "string", default: '"cookie policy."', desc: "政策文案行2" }
+    ],
+    events: [
+      { name: "preference-change", detail: "{ prefs, source, changedKey }", desc: "偏好变化（accept-all / reject-all / save / close / checkbox-change）" }
+    ],
+    slots: [
+      { name: "title", desc: "自定义标题" },
+      { name: "policy", desc: "自定义政策文案" }
+    ],
+    cssVars: [],
+    methods: [
+      { name: "show()", signature: "show(): void", desc: "手动显示横幅" },
+      { name: "hide()", signature: "hide(): void", desc: "隐藏横幅" },
+      { name: "openSettings()", signature: "openSettings(): void", desc: "展开偏好设置面板" },
+      { name: "resetConsent()", signature: "resetConsent(): void", desc: "清除同意记录并重新显示" },
+      { name: "getPreferences()", signature: "getPreferences(): YnCookieNoticePreferences", desc: "读取当前偏好" },
+      { name: "setPreferences()", signature: "setPreferences(prefs): void", desc: "编程式设置偏好" }
+    ]
+  }),
+
+  page({
+    id: "yn-sku-cart-button",
+    title: "SKU Cart Button 加购按钮",
+    tag: "yn-sku-cart-button",
+    className: "YnSkuCartButton",
+    importPath: "yn-web-component/components/yn-sku-cart-button",
+    description: "黑底白框加购按钮，左文案区 + 竖线 + 右价格区，支持三种 loading 模式。",
+    usageCode: `<yn-sku-cart-button\n  label="ADD TO CART"\n  price="€29.00"\n  @click=\${onSubmit}>\n</yn-sku-cart-button>`,
+    props: [
+      { name: "label", type: "string", default: '"ADD TO CART"', desc: "按钮文案" },
+      { name: "price", type: "string", default: '"—"', desc: "价格文案" },
+      { name: "cart-icon", type: "YnSvgSource", default: "内置 SVG", desc: "购物车图标" },
+      { name: "currency-icon", type: "string", default: '""', desc: "货币图标 SVG" },
+      { name: "show-cart-icon", type: "boolean", default: "true", desc: "显示购物车图标" },
+      { name: "loading", type: "boolean", default: "false", desc: "加载态" },
+      { name: "loading-text", type: "string", default: '""', desc: "loading 替换文案（优先于 loading-mode）" },
+      { name: "loading-mode", type: "icon | overlay", default: "icon", desc: "spinner 展示方式" },
+      { name: "disabled", type: "boolean", default: "false", desc: "禁用点击" }
+    ],
+    events: [
+      { name: "click", detail: "MouseEvent", desc: "点击加购" }
+    ],
+    slots: [
+      { name: "icon", desc: "自定义图标（优先于 cart-icon）" }
+    ],
+    cssVars: [
+      { name: "--yn-sku-selector-submit-bg", default: "#000", desc: "外框背景" },
+      { name: "--yn-sku-selector-submit-color", default: "#fff", desc: "文字色" },
+      { name: "--yn-sku-selector-submit-height", default: "64px", desc: "按钮高度" },
+      { name: "--yn-sku-selector-submit-inner-height", default: "44px", desc: "内框高度" },
+      { name: "--yn-sku-selector-submit-divider-width", default: "1px", desc: "竖线宽度" },
+      { name: "--yn-sku-selector-submit-divider-color", default: "#fff", desc: "竖线颜色" },
+      { name: "--yn-sku-selector-submit-loading-size", default: "18px", desc: "loading spinner 大小" }
+    ]
   })
 ];

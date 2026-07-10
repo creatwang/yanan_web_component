@@ -2,12 +2,13 @@ import { LitElement, html, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { getDocPage, getBundleTableRows } from "./data";
 import { getDemoRenderer } from "./demos";
+import { getDemoCode } from "./demos/story-demos";
 import { getLocale, setLocale, type Locale } from "./i18n/locale";
 import { NAV, ui } from "./i18n/messages";
 import { applyDocumentSeo } from "./seo";
 import { docHref, getRouteFromLocation, navigateTo, subscribeRoute } from "./router";
 import type { GuideDocPage } from "./types";
-import type { ResolvedComponentPage } from "./data/resolve";
+import type { ResolvedComponentPage, ResolvedUsageExample } from "./data/resolve";
 import { BUNDLE_META } from "./data/bundle-sizes";
 import "./ui/code-block";
 import "./ui/demo-panel";
@@ -363,10 +364,34 @@ export class YnDocsApp extends LitElement {
                     align="left"
                     label=${this.t("livePreview")}
                     .tall=${s.demoVariant.includes("dropdown") || s.demoVariant.includes("drawer") || s.demoVariant.includes("toast") || s.demoVariant.includes("pull-cord") || s.demoVariant.includes("quantity")}
+                    .code=${s.code ?? getDemoCode(s.demoVariant) ?? ""}
                   ></yn-docs-demo>
                 `
               : html`<p class="docs-showcase__hint">${this.t("viewInStorybook")} →</p>`}
           </div>
+        `
+      )}
+    `;
+  }
+
+  private renderUsageExamples(examples: ResolvedUsageExample[]) {
+    return html`
+      <p>${this.t("templateExample")}</p>
+      ${examples.map(
+        (ex) => html`
+          <h3 style="margin-top:1.5em;">${ex.title}</h3>
+          <yn-docs-code lang="html" .code=${ex.code} .locale=${this.locale}></yn-docs-code>
+          ${ex.demoVariant && getDemoRenderer(ex.demoVariant)
+            ? html`
+                <yn-docs-demo
+                  .renderDemo=${getDemoRenderer(ex.demoVariant)!}
+                  align="left"
+                  label=${this.t("livePreview")}
+                  .tall=${ex.demoVariant.includes("dropdown") || ex.demoVariant.includes("drawer") || ex.demoVariant.includes("toast") || ex.demoVariant.includes("pull-cord")}
+                  .code=${ex.code ?? getDemoCode(ex.demoVariant) ?? ""}
+                ></yn-docs-demo>
+              `
+            : nothing}
         `
       )}
     `;
@@ -460,6 +485,7 @@ export class YnDocsApp extends LitElement {
           align=${demoAlign}
           label=${this.t("livePreview")}
           .tall=${page.id === "yn-dropdown" || page.id === "yn-drawer" || page.id === "yn-toast" || page.id === "yn-pull-cord-switch"}
+          .code=${page.usageCode ?? ""}
         ></yn-docs-demo>
         ${this.renderPreviewHint(page.id)}
 
@@ -472,8 +498,12 @@ export class YnDocsApp extends LitElement {
           .code=${`import { ${page.className} } from "${page.importPath}";`}
           .locale=${this.locale}
         ></yn-docs-code>
-        <p>${this.t("templateExample")}</p>
-        <yn-docs-code lang="html" .code=${page.usageCode} .locale=${this.locale}></yn-docs-code>
+        ${page.usageExamples
+          ? this.renderUsageExamples(page.usageExamples)
+          : html`
+            <p>${this.t("templateExample")}</p>
+            <yn-docs-code lang="html" .code=${page.usageCode} .locale=${this.locale}></yn-docs-code>
+          `}
         ${this.renderStyleDependencies(page)}
 
         <h2 id="props" data-toc-id="props">${this.t("props")}</h2>

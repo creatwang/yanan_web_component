@@ -70,6 +70,16 @@ export const STORYBOOK_INTROS: Record<string, L10nText> = {
     "zh-CN":
       "Verlet 绳物理：拖拽绳端过阈值切换。fixed 贴 Header 时加 `rope-pass-through` 避免挡搜索。",
     en: "Verlet rope physics. Use `rope-pass-through` on fixed header cords so glow canvas does not block clicks."
+  },
+  "yn-cookie-notice": {
+    "zh-CN":
+      "GDPR 风格 Cookie 同意横幅：accept/reject/settings 三态，偏好分类勾选，cookie 持久化。",
+    en: "GDPR-style cookie consent banner with accept/reject/settings, preference categories, and cookie persistence."
+  },
+  "yn-sku-cart-button": {
+    "zh-CN":
+      "加购按钮：左文案 + 竖线 + 右价格，三种 loading 模式（icon / overlay / text）。",
+    en: "Cart button: label | divider | price. Three loading modes: icon, overlay, text."
   }
 };
 
@@ -196,7 +206,8 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
         en: "With `expand-direction=\"right\"`, left edge stays fixed while width grows and pushes right siblings."
       },
       storybookComponent: "YnSearch",
-      storybookStory: "PushRightSiblings"
+      storybookStory: "PushRightSiblings",
+      demoVariant: "yn-search-expand-right"
     },
     {
       id: "expand-left",
@@ -206,7 +217,8 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
         en: "With `expand-direction=\"left\"`, right edge stays fixed while expanding left."
       },
       storybookComponent: "YnSearch",
-      storybookStory: "ExpandLeft"
+      storybookStory: "ExpandLeft",
+      demoVariant: "yn-search-expand-left"
     },
     {
       id: "default-open",
@@ -216,7 +228,8 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
         en: "Set `open` to start expanded without entry animation."
       },
       storybookComponent: "YnSearch",
-      storybookStory: "DefaultOpen"
+      storybookStory: "DefaultOpen",
+      demoVariant: "yn-search-default-open"
     }
   ],
   "yn-dropdown": [
@@ -387,6 +400,54 @@ export const STORYBOOK_SHOWCASES: Record<string, DocShowcase[]> = {
       storybookComponent: "YnPullCordSwitch",
       storybookStory: "FixedStorefrontHeader",
       demoVariant: "yn-pull-cord-fixed-header"
+    }
+  ],
+  "yn-cookie-notice": [
+    {
+      id: "default",
+      title: { "zh-CN": "自动弹出", en: "Auto show" },
+      description: {
+        "zh-CN": "无同意记录时自动弹出横幅，支持 accept/reject/settings。",
+        en: "Auto-shows banner when no consent record. Accept/reject/settings flow."
+      },
+      storybookComponent: "YnCookieNotice",
+      storybookStory: "Default",
+      demoVariant: "yn-cookie-notice-default"
+    },
+    {
+      id: "settings",
+      title: { "zh-CN": "偏好设置面板", en: "Settings panel" },
+      description: {
+        "zh-CN": "展开偏好设置面板，可勾选 functional / analytics / marketing。",
+        en: "Expanded settings with functional/analytics/marketing checkboxes."
+      },
+      storybookComponent: "YnCookieNotice",
+      storybookStory: "WithSettings",
+      demoVariant: "yn-cookie-notice-settings"
+    }
+  ],
+  "yn-sku-cart-button": [
+    {
+      id: "default",
+      title: { "zh-CN": "默认状态", en: "Default states" },
+      description: {
+        "zh-CN": "默认 / 隐藏图标 / 禁用三种状态。",
+        en: "Default, hidden icon, and disabled states."
+      },
+      storybookComponent: "YnSkuCartButton",
+      storybookStory: "Default",
+      demoVariant: "yn-sku-cart-button-default"
+    },
+    {
+      id: "loading",
+      title: { "zh-CN": "Loading 模式", en: "Loading modes" },
+      description: {
+        "zh-CN": "icon / overlay / text 三种 loading 展示方式。",
+        en: "icon, overlay, and text loading display modes."
+      },
+      storybookComponent: "YnSkuCartButton",
+      storybookStory: "LoadingModes",
+      demoVariant: "yn-sku-cart-button-loading"
     }
   ]
 };

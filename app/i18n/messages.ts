@@ -74,6 +74,7 @@ export const NAV: Array<{
   {
     title: { "zh-CN": "基础", en: "Basic" },
     items: [
+      { id: "yn-icon-button", label: { "zh-CN": "Icon Button 图标按钮", en: "Icon Button" } },
       { id: "yn-button", label: { "zh-CN": "Button 按钮", en: "Button" } },
       { id: "yn-input", label: { "zh-CN": "Input 输入框", en: "Input" } },
       { id: "yn-icon-connect-button", label: { "zh-CN": "Icon Connect", en: "Icon Connect" } }
@@ -100,6 +101,7 @@ export const NAV: Array<{
     items: [
       { id: "yn-quantity", label: { "zh-CN": "Quantity 数量", en: "Quantity" } },
       { id: "yn-sku-selector", label: { "zh-CN": "SKU Selector", en: "SKU Selector" } },
+      { id: "yn-sku-cart-button", label: { "zh-CN": "SKU Cart Button 加购按钮", en: "SKU Cart Button" } },
       { id: "yn-checkout-address", label: { "zh-CN": "Checkout Address", en: "Checkout Address" } }
     ]
   },
@@ -108,6 +110,7 @@ export const NAV: Array<{
     items: [
       { id: "yn-drawer", label: { "zh-CN": "Drawer 抽屉", en: "Drawer" } },
       { id: "yn-toast", label: { "zh-CN": "Toast 提示", en: "Toast" } },
+      { id: "yn-cookie-notice", label: { "zh-CN": "Cookie Notice 隐私通知", en: "Cookie Notice" } },
       { id: "yn-pull-cord-switch", label: { "zh-CN": "Pull Cord 抽绳", en: "Pull Cord" } }
     ]
   }

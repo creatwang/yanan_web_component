@@ -57,6 +57,7 @@ export const DOC_ROUTE_IDS = [
   "introduction",
   "installation",
   "bundle-size",
+  "yn-icon-button",
   "yn-button",
   "yn-input",
   "yn-icon-connect-button",
@@ -68,8 +69,10 @@ export const DOC_ROUTE_IDS = [
   "yn-dropdown-pick",
   "yn-quantity",
   "yn-sku-selector",
+  "yn-sku-cart-button",
   "yn-checkout-address",
   "yn-drawer",
   "yn-toast",
+  "yn-cookie-notice",
   "yn-pull-cord-switch"
 ] as const;

@@ -1,6 +1,6 @@
 import type { Locale, L10nText } from "../i18n/locale";
 import { lt } from "../i18n/locale";
-import type { ComponentDocPage, DocPage, GuideDocPage } from "../types";
+import type { ComponentDocPage, DocPage, GuideDocPage, UsageExample } from "../types";
 import { COMPONENT_PAGES } from "./component-pages";
 import { COMPONENT_I18N } from "./component-i18n";
 import { STORYBOOK_INTROS, STORYBOOK_SHOWCASES } from "./storybook-intros";
@@ -13,10 +13,17 @@ function same(s: string): L10nText {
   return { "zh-CN": s, en: s };
 }
 
-export type ResolvedShowcase = Omit<DocShowcase, "title" | "description"> & {
+export type ResolvedShowcase = Omit<DocShowcase, "title" | "description" | "code"> & {
   title: string;
   description: string;
   storybookHref: string;
+  code?: string;
+};
+
+export type ResolvedUsageExample = {
+  title: string;
+  code: string;
+  demoVariant?: string;
 };
 
 export type ResolvedComponentPage = {
@@ -38,6 +45,7 @@ export type ResolvedComponentPage = {
   methods?: Array<{ name: string; signature: string; desc: string }>;
   notes?: string[];
   showcases: ResolvedShowcase[];
+  usageExamples?: ResolvedUsageExample[];
 };
 
 export type ResolvedGuidePage = GuideDocPage;
@@ -51,7 +59,8 @@ function resolveShowcases(id: string, locale: Locale): ResolvedShowcase[] {
     ...s,
     title: lt(s.title, locale),
     description: lt(s.description, locale),
-    storybookHref: storybookUrl(s.storybookComponent, s.storybookStory)
+    storybookHref: storybookUrl(s.storybookComponent, s.storybookStory),
+    code: s.code ? lt(s.code, locale) : undefined
   }));
 }
 
@@ -116,7 +125,12 @@ function resolveComponent(base: ComponentDocPage, locale: Locale): ResolvedCompo
       desc: lt(m.desc, locale)
     })),
     notes: (ext?.notes ?? base.notes?.map((n) => same(n)))?.map((n) => lt(n, locale)),
-    showcases: resolveShowcases(base.id, locale)
+    showcases: resolveShowcases(base.id, locale),
+    usageExamples: ext?.usageExamples?.map((ex) => ({
+      title: lt(ex.title, locale),
+      code: lt(ex.code, locale),
+      demoVariant: ex.demoVariant
+    }))
   };
 }
 

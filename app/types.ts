@@ -1,4 +1,5 @@
 import type { TemplateResult } from "lit";
+import type { L10nText } from "./i18n/locale";
 
 export type DocProp = {
   name: string;
@@ -77,3 +78,9 @@ export type NavGroup = {
 };
 
 export type DemoRenderer = () => TemplateResult;
+
+export type UsageExample = {
+  title: L10nText;
+  code: L10nText;
+  demoVariant?: string;
+};
