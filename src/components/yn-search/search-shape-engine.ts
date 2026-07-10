@@ -137,8 +137,27 @@ function shapeTAtButton(inputWidth: number) {
   return RETRACT_X / (rectEndOpen(inputWidth) - RECT_START_OPEN);
 }
 
-function retractSign(layout: SearchShapeLayout) {
-  return layout.expandLeft ? 1 : -1;
+const INPUT_FADE_BAND = 48;
+
+function inputOpacity(layout: SearchShapeLayout, rectWidth: number, opening: boolean) {
+  const fieldWidth = Math.max(80, layout.inputWidth);
+  if (layout.expandLeft) {
+    if (opening) {
+      if (rectWidth < fieldWidth - INPUT_FADE_BAND) return 0;
+      return Math.min(1, (rectWidth - (fieldWidth - INPUT_FADE_BAND)) / INPUT_FADE_BAND);
+    }
+    if (rectWidth > INPUT_FADE_BAND) return 1;
+    return Math.max(0, rectWidth / INPUT_FADE_BAND);
+  }
+  const p = opening
+    ? Math.max(0, Math.min(1, (rectWidth - 80) / 180))
+    : Math.max(0, Math.min(1, (rectWidth - 220) / 180));
+  return p;
+}
+
+function inputTranslateX(layout: SearchShapeLayout, rectWidth: number, p: number) {
+  if (layout.expandLeft) return 0;
+  return lerp(-12, 0, p);
 }
 
 export class SearchShapeEngine {
@@ -202,11 +221,9 @@ export class SearchShapeEngine {
     opening: boolean,
     rectWidth = 0,
   ) {
-    const p = opening
-      ? Math.max(0, Math.min(1, (rectWidth - 80) / 180))
-      : Math.max(0, Math.min(1, (rectWidth - 220) / 180));
-    const nextOpacity = String(p);
-    const nextTransform = `translateX(${lerp(retractSign(layout) * 12, 0, p)}px)`;
+    const opacity = inputOpacity(layout, rectWidth, opening);
+    const nextOpacity = String(opacity);
+    const nextTransform = `translateX(${inputTranslateX(layout, rectWidth, opacity)}px)`;
     if (nextOpacity !== this.lastInputOpacity) {
       refs.inputEl.style.opacity = nextOpacity;
       this.lastInputOpacity = nextOpacity;

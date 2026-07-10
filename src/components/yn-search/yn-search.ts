@@ -130,13 +130,14 @@ export class YnSearch extends LitElement {
     if (this.open && refs) {
       this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
       this.shapeEngine.syncInputToShape(refs, this.shapeLayout, 1, true, this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN);
-      this.syncShellDom();
     } else if (refs) {
       refs.bridgeEl.setAttribute("d", "");
       refs.rect1El.setAttribute("d", "");
+      this.shapeEngine.clearDynamicWrapInlineStyles(refs);
     }
     if (this.value) this.inputEl.value = this.value;
     this.syncDatalistFromSlot();
+    this.syncShellDom();
   }
 
   private getFieldValue() {
@@ -213,8 +214,15 @@ export class YnSearch extends LitElement {
     this.style.width = width;
     if (this.isExpandLeft) {
       this.style.marginLeft = "auto";
+      this.style.overflow = "hidden";
     } else {
       this.style.removeProperty("margin-left");
+      this.style.removeProperty("overflow");
+    }
+    if (!this.open && !this.animating) {
+      this.dynamicWrapEl.style.display = "none";
+    } else {
+      this.dynamicWrapEl.style.removeProperty("display");
     }
     const toggleBtn = this.shadowRoot?.querySelector("#toggleBtn");
     toggleBtn?.setAttribute("aria-label", this.open ? "close search" : "open search");
@@ -396,7 +404,11 @@ export class YnSearch extends LitElement {
           ></path>
         </svg>
 
-        <div id="dynamicWrap" class="dynamic-wrap" style=${`width:${this.dynamicWidth}px;`}>
+        <div
+          id="dynamicWrap"
+          class="dynamic-wrap"
+          style=${`width:${this.dynamicWidth}px;${!this.open && !this.animating ? "display:none;" : ""}`}
+        >
           <svg
             id="shape"
             class="shape"

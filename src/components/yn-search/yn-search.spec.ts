@@ -81,6 +81,42 @@ describe("yn-search", () => {
     expect(shell?.classList.contains("expand-left")).to.equal(true);
   });
 
+  it("hides expand-left input area while closed on first paint", async () => {
+    const el = await fixture<YnSearch>(
+      html`<yn-search expand-direction="left" input-width="200" placeholder="Search"></yn-search>`
+    );
+    await el.updateComplete;
+
+    const wrap = el.shadowRoot?.querySelector("#dynamicWrap") as HTMLElement | null;
+    if (!wrap) throw new Error("missing dynamic wrap");
+
+    expect(el.open).to.equal(false);
+    expect(el.getBoundingClientRect().width).to.be.closeTo(44, 2);
+    expect(el.style.width).to.equal("44px");
+    expect(getComputedStyle(wrap).display).to.equal("none");
+  });
+
+  it("keeps expand-left input hidden while the shell is still growing", async () => {
+    const el = await fixture<YnSearch>(
+      html`<yn-search expand-direction="left" input-width="200"></yn-search>`
+    );
+    await el.updateComplete;
+
+    el.shadowRoot?.querySelector<HTMLButtonElement>("#toggleBtn")?.click();
+    await el.updateComplete;
+
+    await new Promise((resolve) => setTimeout(resolve, 180));
+
+    const input = el.shadowRoot?.querySelector<HTMLInputElement>("#searchInput");
+    const shell = el.shadowRoot?.querySelector("#searchShell");
+    if (!input || !shell) throw new Error("missing search nodes");
+
+    expect(Number.parseFloat(input.style.opacity || "0")).to.equal(0);
+    expect(input.style.transform).to.equal("translateX(0px)");
+    expect(shell.classList.contains("layout-expanding")).to.equal(true);
+    expect(Number.parseFloat(el.style.width)).to.be.lessThan(220);
+  });
+
   it("mirrors shape paths for expand-left so outer cap stays on the left", async () => {
     const el = await fixture<YnSearch>(
       html`<yn-search expand-direction="left" input-width="200" open></yn-search>`

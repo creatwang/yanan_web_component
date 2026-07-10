@@ -28,6 +28,7 @@ export const YN_SEARCH_SHADOW_STYLES = `
         justify-content: flex-end;
         align-self: flex-start;
         margin-left: auto;
+        overflow: hidden;
       }
 
       @font-face {
@@ -51,8 +52,16 @@ export const YN_SEARCH_SHADOW_STYLES = `
         overflow: visible;
       }
 
-      .search-shell.expand-left.animating {
+      .search-shell.expand-left {
+        overflow: hidden;
+      }
+
+      .search-shell.expand-left.animating:not(.layout-expanding) {
         overflow: visible;
+      }
+
+      .search-shell.expand-left.animating.layout-expanding {
+        overflow: hidden;
       }
 
       .search-shell.open.animating:not(.layout-expanding) .dynamic-wrap {
@@ -149,15 +158,19 @@ export const YN_SEARCH_SHADOW_STYLES = `
         margin-right: 0;
       }
 
-      .search-shell.expand-left.open .field,
-      .search-shell.expand-left.animating .field {
+      .search-shell.expand-left.open:not(.animating) .field {
         opacity: 1;
+        transform: translateX(0px);
+      }
+
+      .search-shell.expand-left.animating .field {
+        opacity: 0;
         transform: translateX(0px);
       }
 
       .search-shell.expand-left:not(.open):not(.animating) .field {
         opacity: 0;
-        transform: translateX(12px);
+        transform: translateX(0px);
       }
 
       .toggle-btn {
