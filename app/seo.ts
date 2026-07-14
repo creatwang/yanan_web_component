@@ -15,7 +15,6 @@ export function getSiteOrigin(): string {
   return "https://web-components.yanan.store";
 }
 
-
 export function absoluteDocUrl(route: string): string {
   const origin = getSiteOrigin();
   const base = getBasePath();
