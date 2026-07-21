@@ -1,7 +1,6 @@
-import { loadGoogleMaps } from "./address-providers";
 import { loadCountries } from "./dr5hn-region-service";
 
-export type AddressProviderMode = "google" | "dr5hn" | "photon";
+export type AddressProviderMode = "google" | "dr5hn" | "photon" | "manual";
 
 export type ProviderProbeResult = {
   mode: AddressProviderMode;
@@ -38,23 +37,10 @@ const withTimeout = <T>(task: Promise<T>, ms: number, signal?: AbortSignal): Pro
 };
 
 /**
- * Resolve checkout address provider:
- * 1) Google Places when VITE_GOOGLE_MAPS_API_KEY is set and script loads
- * 2) dr5hn when CDN data is reachable
- * 3) Photon as last resort
+ * Demo 选源（与组件一致的省额度意图）：
+ * dr5hn → Photon（demo 无独立 Photon 探测，失败后直接用 Photon；Google 见正式组件探测）。
  */
 export async function probeAddressProvider(signal?: AbortSignal): Promise<ProviderProbeResult> {
-  const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY?.trim();
-
-  if (key) {
-    try {
-      await withTimeout(loadGoogleMaps(key), PROBE_TIMEOUT_MS, signal);
-      return { mode: "google", reason: "检测到 VITE_GOOGLE_MAPS_API_KEY" };
-    } catch {
-      /* try dr5hn then photon */
-    }
-  }
-
   try {
     await withTimeout(loadCountries(), PROBE_TIMEOUT_MS, signal);
     return { mode: "dr5hn", reason: "dr5hn CDN 可访问" };

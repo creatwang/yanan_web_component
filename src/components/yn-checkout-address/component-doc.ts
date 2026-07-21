@@ -4,10 +4,10 @@
  */
 
 /** Storybook Markdown 首段（可加粗） */
-export const CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO = `跨境独立站结账地址：**优先检测 Google API Key** → 无 Key 或 Google 失败则 **探测 dr5hn CDN** → 再不可用则 **探测 Photon** → 三者均不可用则进入 **manual 手动填写**（开放国家/地区、省/州、城市编辑）。运行中若 dr5hn 搜索无匹配或失败，会**清空区域并降级 Photon** 用同一关键词重搜；Photon 搜索仍失败则**切至 manual**。表单**分步展示**（先地区、再联系方式与详细地址）；内置 \`validate()\` / \`reportValidity()\`，\`change\` 的 \`detail\` 为 \`{ value, validation, changedFields }\`。保存 / 回显 / 编辑均使用 \`YnCheckoutAddressValue\`。`;
+export const CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO = `跨境独立站结账地址：**优先探测自建 dr5hn**（\`dr5hn-base-url\`）→ **默认 dr5hn CDN** → 再 **Photon** → 再 **Google**（有 Key 且脚本可加载）→ 均不可用则 **manual 手动填写**（开放国家/地区、省/州、城市编辑）。优先免费源以节省 Google 额度。运行中若 dr5hn 搜索无匹配或失败，会**清空区域并降级 Photon** 用同一关键词重搜；Photon 搜索仍失败则**切至 manual**。开启 \`allow-manual-entry\` 后，用户可在搜索与手填间双向切换。表单**分步展示**（先地区、再联系方式与详细地址；手填模式一次展开全部字段）；内置 \`validate()\` / \`reportValidity()\`，\`change\` 的 \`detail\` 为 \`{ value, validation, changedFields }\`。保存 / 回显 / 编辑均使用 \`YnCheckoutAddressValue\`。`;
 
 /** CEM / 类 JSDoc 用纯文本（无 Markdown） */
-export const CHECKOUT_ADDRESS_COMPONENT_DOC_PLAIN = `跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN → 再不可用则探测 Photon → 三者均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。分步表单；内置 validate/reportValidity；change 派发 { value, validation, changedFields }。统一 YnCheckoutAddressValue 保存、回显与受控 .value。`;
+export const CHECKOUT_ADDRESS_COMPONENT_DOC_PLAIN = `跨境独立站结账地址：优先探测自建 dr5hn（dr5hn-base-url）→ 默认 dr5hn CDN → Photon → Google（有 Key 且脚本可加载）→ 均不可用则 manual 手动填写。优先免费源以节省 Google 额度。运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。allow-manual-entry 开启后可在搜索与手填间双向切换。文案：内置仅 en/zh-CN，默认 en 缺 key 兜底；新语言由宿主 messages 传入，勿扩展 locale。分步表单（手填一次展开）；内置 validate/reportValidity；change 派发 { value, validation, changedFields }。统一 YnCheckoutAddressValue 保存、回显与受控 .value。`;
 
 /** Storybook Docs：公开方法与校验结构 */
 export const CHECKOUT_ADDRESS_METHODS_DOC = `## 公开方法

@@ -58,7 +58,7 @@
 ### 为什么选择这套方案
 
 - **为电商而生**：覆盖浏览、选购、加购、结账等独立站核心链路，而非通用 UI 拼凑
-- **跨境开箱即用**：地址组件内置 Google → dr5hn → Photon → manual 降级策略，适配多地区配送
+- **跨境开箱即用**：地址组件内置自建 dr5hn → 默认 CDN → Photon → Google → manual 降级策略（优先免费源），适配多地区配送
 - **跨框架复用**：基于 Web Components，同一套组件可用于 React / Vue / Angular / 原生页面
 - **品牌可定制**：Shadow DOM 隔离样式，通过 `--yn-*` CSS 变量与 `variant` 语义层灵活换肤
 - **按需加载**：组件级子路径导入，配合 Tree Shaking 控制首屏体积
@@ -1301,9 +1301,9 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
 **导入**：`yn-web-component/components/yn-checkout-address`  
 **用途**：跨境独立站结账地址表单。数据源按优先级自动降级：
 
-**Google API Key** → **dr5hn CDN** → **Photon** → **manual 手动填写**
+**自建 dr5hn**（可选）→ **默认 dr5hn CDN** → **Photon** → **Google**（有 Key 且可加载）→ **manual 手动填写**
 
-表单分步展示（先选地区，再填联系方式与详细地址）。运行中若 dr5hn 搜索失败会降级 Photon；Photon 仍失败则切至 manual。
+表单分步展示（先选地区，再填联系方式与详细地址）。运行中若 dr5hn 搜索失败会降级 Photon；Photon 仍失败则切至 manual。自建地址通过 `dr5hn-base-url` / `VITE_DR5HN_BASE_URL` 配置，须指向含 `/data/countries.json` 的目录（与 npm 包 `dist` 同结构）。
 
 #### 属性
 
@@ -1311,16 +1311,18 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
 | --- | --- | --- | --- |
 | `dev` | `boolean` | `false` | 显示 JSON 调试面板 |
 | `disabled` | `boolean` | `false` | 禁用表单 |
-| `locale` | `"en" \| "zh-CN"` | `"en"` | 界面语言 |
+| `locale` | `"en" \| "zh-CN"` | `"en"` | 内置兜底语言（只维护这两份）；新语言勿扩枚举 |
 | `google-maps-api-key` | `string` | `""` | Google Maps API Key；变更会重新探测数据源 |
+| `dr5hn-base-url` | `string` | `""` | 自建/本地 dr5hn JSON 根；失败时回退官方 jsDelivr；变更会重新探测 |
 | `excludeRegions` | `YnCheckoutExcludeRegions` | — | 排除指定国家/州/城市 |
 | `includeCountries` | `string[]` | — | 仅允许的国家 ISO2 列表 |
 | `value` | `YnCheckoutAddressValue \| null` | `null` | 受控回显；绑定后不会重新探测 |
-| `messages` | `Partial<YnCheckoutAddressMessages>` | — | 局部文案覆盖 |
+| `messages` | `Partial<YnCheckoutAddressMessages>` | — | **推荐由店面传入**主文案；合并顺序 en → locale → messages |
 | `show-email` | `boolean` | `false` | 是否展示邮箱输入 |
 | `email-required` | `boolean` | `false` | 邮箱是否必填 |
 | `show-whatsapp` | `boolean` | `false` | 是否展示 WhatsApp 输入 |
 | `whatsapp-required` | `boolean` | `false` | WhatsApp 是否必填（6–15 位数字） |
+| `allow-manual-entry` | `boolean` | `false` | 允许用户在搜索与手填间双向切换 |
 
 #### 事件
 

@@ -132,6 +132,10 @@ export type YnCheckoutRegionFilter = {
   includeCountries?: string[];
 };
 
+/**
+ * 组件内置语言枚举：只保留 en / zh-CN。
+ * 其它语言通过宿主传入的 `messages` 提供，不要在此扩展。
+ */
 export type YnCheckoutAddressLocale = "en" | "zh-CN";
 
 export type YnCheckoutAddressMessages = {
@@ -149,6 +153,12 @@ export type YnCheckoutAddressMessages = {
   usageHintPhoton: string;
   /** 全部联想不可用时的手动填写指引 */
   usageHintManual: string;
+  /** 用户主动选择手动填写时的指引 */
+  usageHintManualChosen: string;
+  /** 搜索模式下切换到手填的入口文案 */
+  enterManualEntry: string;
+  /** 手填模式下切回地址搜索的入口文案 */
+  useAddressSearch: string;
   /** 仅 dev 面板展示：数据源标签 */
   activeProvider: string;
   providerGoogle: string;
@@ -191,7 +201,10 @@ export type YnCheckoutAddressMessages = {
   empty: string;
   phoneDial: string;
   phonePrefixEmpty: string;
+  /** 已自动带出区号时的手机号标签 */
   phoneNumber: string;
+  /** 无区号（前缀为 —）时：引导用户自行填写含国际区号的号码 */
+  phoneNumberEnterDial: string;
   phonePlaceholder: string;
   firstName: string;
   lastName: string;

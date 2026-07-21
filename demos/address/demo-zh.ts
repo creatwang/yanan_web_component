@@ -43,7 +43,7 @@ export const ZH = {
   detailAddress2Placeholder: "楼层、单元等",
   bootWarn:
     "组件未加载：请在项目根目录执行 pnpm dev:unified-address（或各独立 Demo），不要用 IDE 直接打开 HTML。",
-  unifiedProbing: "正在检测地址服务：Google Key → dr5hn CDN → Photon…",
+  unifiedProbing: "正在检测地址服务：dr5hn CDN → Photon → Google…",
   unifiedActiveProvider: "当前数据源：",
   unifiedProviderGoogle: "Google Places",
   unifiedProviderDr5hn: "dr5hn（国家/省/市，不含 CN）",
@@ -52,5 +52,5 @@ export const ZH = {
   unifiedProbeFailedFallback: "已降级为 Photon。",
   unifiedRetry: "重新检测",
   unifiedBanner:
-    "启动时自动选择：有 Google Key 用 Places；否则检测 dr5hn CDN；不可用则 Photon。检测期间显示骨架屏。",
+    "启动时自动选择：优先 dr5hn CDN，其次 Photon，再尝试 Google Key；均不可用则手填。检测期间显示骨架屏。",
 } as const;

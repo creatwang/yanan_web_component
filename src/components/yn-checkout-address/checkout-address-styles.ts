@@ -54,6 +54,12 @@ export const checkoutAddressFormStyles = css`
     display: none !important;
   }
 
+  .layer-manual {
+    display: grid;
+    gap: 16px;
+    min-width: 0;
+  }
+
   .checkout-step,
   .checkout-card {
     display: flex;
@@ -727,11 +733,18 @@ export const checkoutAddressFormStyles = css`
     }
   }
 
+  .banner__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 16px;
+    margin-top: 12px;
+  }
+
   .retry {
     display: inline-flex;
     align-items: center;
     min-height: 40px;
-    margin-top: 12px;
     padding: 10px 22px;
     border: 0;
     border-radius: 999px;
@@ -751,5 +764,35 @@ export const checkoutAddressFormStyles = css`
   .retry:focus-visible {
     outline: 2px solid var(--flo-primary);
     outline-offset: 2px;
+  }
+
+  .mode-switch {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 8px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--flo-primary);
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+    cursor: pointer;
+  }
+
+  .mode-switch--banner {
+    margin-top: 0;
+  }
+
+  .mode-switch:hover {
+    color: var(--flo-primary-hover);
+  }
+
+  .mode-switch:focus-visible {
+    outline: 2px solid var(--flo-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 `;

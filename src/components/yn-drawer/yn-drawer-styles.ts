@@ -1,5 +1,30 @@
 /** Shadow DOM styles — Lit + DSD SSR shared */
 export const YN_DRAWER_SHADOW_STYLES = `
+:host([hide-trigger]) {
+      position: fixed;
+      width: 0;
+      height: 0;
+      margin: 0;
+      padding: 0;
+      overflow: visible;
+      border: 0;
+      pointer-events: none;
+    }
+
+    :host([hide-trigger]) .trigger-wrap,
+    :host([hide-trigger]) .trigger-wrap[hidden] {
+      display: none !important;
+    }
+
+    :host([hide-trigger]) .drawer-popover {
+      pointer-events: none;
+    }
+
+    :host([hide-trigger]) .drawer-popover:popover-open,
+    :host([hide-trigger]) .drawer-popover[open] {
+      pointer-events: auto;
+    }
+
 :host {
       --yn-drawer-z-index: 1500;
       --yn-drawer-width: 420px;

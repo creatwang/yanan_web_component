@@ -1,8 +1,8 @@
 import type { YnCheckoutAddressLocale, YnCheckoutAddressMessages } from "./types";
 
 /**
- * 默认文案：跨境独立站结账场景（收货地址 / 配送地址）。
- * 店铺可通过 `locale` + `messages` Partial 覆盖任意字段。
+ * 内置文案：仅维护 `en` / `zh-CN` 两份，**不再扩展**其它 locale。
+ * 新语言与品牌文案由宿主通过 `messages` 传入；解析顺序：en → locale 包 → messages。
  */
 export const CHECKOUT_ADDRESS_MESSAGES: Record<
   YnCheckoutAddressLocale,
@@ -18,6 +18,10 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
       "Search your delivery region (country, state/province, district) and choose a suggestion. Country/region and dial code will be filled in—then enter your contact number and address details.",
     usageHintManual:
       "Address lookup is unavailable. Enter country/region, state/province, and city manually, then complete contact and address details.",
+    usageHintManualChosen:
+      "Fill in the delivery region, contact details, and address below. You can switch back to address search anytime.",
+    enterManualEntry: "Enter manually",
+    useAddressSearch: "Use address search",
     activeProvider: "Data source:",
     providerGoogle: "Google Places",
     providerDr5hn: "Region lookup",
@@ -60,6 +64,7 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     phoneDial: "Dial code",
     phonePrefixEmpty: "—",
     phoneNumber: "Mobile number",
+    phoneNumberEnterDial: "Mobile with dial code (e.g. +1 555…)",
     phonePlaceholder: "Local number without dial code",
     firstName: "First name",
     lastName: "Last name",
@@ -112,6 +117,10 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
       "请搜索配送区域(国家，省，区)并选择建议，系统将自动填充收货地区与电话区号，再填写联系电话与详细地址。",
     usageHintManual:
       "地址联想服务暂不可用，请手动填写国家/地区、省/州、城市，并继续填写联系方式与详细地址。",
+    usageHintManualChosen:
+      "请在下方填写收货地区、联系方式与详细地址。可随时切换回地址搜索。",
+    enterManualEntry: "手动填写",
+    useAddressSearch: "使用地址搜索",
     activeProvider: "当前数据源：",
     providerGoogle: "Google Places",
     providerDr5hn: "国家/地区联想",
@@ -154,6 +163,7 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
     phoneDial: "电话区号",
     phonePrefixEmpty: "—",
     phoneNumber: "手机号码",
+    phoneNumberEnterDial: "手机号（含区号，如 +1 555…）",
     phonePlaceholder: "仅填写号码，不含区号",
     firstName: "名字",
     lastName: "姓氏",
@@ -197,9 +207,14 @@ export const CHECKOUT_ADDRESS_MESSAGES: Record<
   },
 };
 
+/**
+ * 合并文案：始终以 `en` 为缺 key 兜底，再叠 locale 内置包，最后叠宿主 `messages`。
+ */
 export function resolveCheckoutMessages(
   locale: YnCheckoutAddressLocale,
   override?: Partial<YnCheckoutAddressMessages>,
 ): YnCheckoutAddressMessages {
-  return { ...CHECKOUT_ADDRESS_MESSAGES[locale], ...override };
+  const en = CHECKOUT_ADDRESS_MESSAGES.en;
+  const localized = locale === "en" ? en : CHECKOUT_ADDRESS_MESSAGES[locale];
+  return { ...en, ...localized, ...override };
 }

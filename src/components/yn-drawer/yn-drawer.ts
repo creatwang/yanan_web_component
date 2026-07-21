@@ -1,4 +1,4 @@
-import { LitElement, css, html, unsafeCSS } from "lit";
+import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
@@ -65,6 +65,12 @@ export class YnDrawer extends LitElement {
 
   @property({ type: Boolean, attribute: "close-on-backdrop" })
   closeOnBackdrop = true;
+
+  /**
+   * 仅 API 打开（无 trigger 槽）时设为 true：不渲染默认 Open drawer 按钮，宿主不占布局。
+   */
+  @property({ type: Boolean, attribute: "hide-trigger", reflect: true })
+  hideTrigger = false;
 
   /** `auto`锛氱獎灞忓簳閮ㄥ脊鍑猴紝瀹藉睆鍙充晶婊戝叆锛沗bottom` / `right` 鍙己鍒舵寚瀹氭柟鍚?*/
   @property({ type: String, reflect: true })
@@ -443,9 +449,11 @@ export class YnDrawer extends LitElement {
 
   render() {
     return html`
-      <span class="trigger-wrap" @click=${this.handleTriggerClick}>
+      <span class="trigger-wrap" ?hidden=${this.hideTrigger} @click=${this.handleTriggerClick}>
         <slot name="trigger">
-          <button class="trigger-btn" type="button">Open drawer</button>
+          ${this.hideTrigger
+            ? nothing
+            : html`<button class="trigger-btn" type="button">Open drawer</button>`}
         </slot>
       </span>
       <div id="drawerPopover" class="drawer-popover" popover="manual" @keydown=${this.handleEscape}>

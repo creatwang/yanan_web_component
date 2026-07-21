@@ -1857,8 +1857,8 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       en: "Cross-border checkout address form with auto-probing Google/dr5hn/Photon/manual providers."
     },
     longDescription: {
-      "zh-CN": "分步表单：先选地区（自动探测 Google API → dr5hn CDN → Photon → manual 手动填写），再填写联系方式与详细地址。内置校验（reportValidity），`value` 受控回显。`locale` 切换界面语言，`messages` 局部覆盖文案。支持 `excludeRegions` / `includeCountries` 过滤可选国家。`show-email` / `show-whatsapp` 控制联系字段。",
-      en: "Step form: region selection (auto-probe Google → dr5hn → Photon → manual), then contact + address. Built-in validation. Controlled value. locale + messages i18n. Region filtering. Email/whatsapp fields."
+      "zh-CN": "分步表单：先选地区（自动探测自建 dr5hn → 默认 CDN → Photon → Google → manual，优先免费源），再填写联系方式与详细地址。内置校验（reportValidity），`value` 受控回显。`locale` 切换界面语言，`messages` 局部覆盖文案。支持 `excludeRegions` / `includeCountries` 过滤可选国家。`dr5hn-base-url` 自建数据源。`show-email` / `show-whatsapp` 控制联系字段。",
+      en: "Step form: region selection (auto-probe self-hosted dr5hn → default CDN → Photon → Google → manual; free providers first), then contact + address. Built-in validation. Controlled value. locale + messages i18n. Region filtering. dr5hn-base-url for self-host. Email/whatsapp fields."
     },
     usageCode: {
       "zh-CN": `<yn-checkout-address locale="en" @change=\${onAddressChange}></yn-checkout-address>`,

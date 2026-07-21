@@ -3,10 +3,13 @@
  * 由 `dr5hn-loader` 动态 import，避免 Google/Photon 路径拉取 @countrystatecity 大包。
  */
 import {
+  clearCache,
+  configure,
   getAllCitiesOfCountry,
   getCountries,
   getCountryByCode,
   getStatesOfCountry,
+  resetConfiguration,
   searchCitiesByName,
   type ICity,
   type ICountry,
@@ -32,9 +35,39 @@ const FETCH_CONCURRENCY = 4;
 
 let countriesCache: ICountry[] | null = null;
 let cacheFilterKey = "";
+/** 已应用到 `@countrystatecity/countries-browser` 的 baseURL；空串表示默认 jsDelivr */
+let appliedBaseUrl = "";
 const statesRequestCache = new Map<string, Promise<IState[]>>();
 const countryMetaCache = new Map<string, ICountry>();
 const stateIsoResolveCache = new Map<string, string | null>();
+
+function clearLocalCaches() {
+  countriesCache = null;
+  cacheFilterKey = "";
+  clearStatesRequestCache();
+  countryMetaCache.clear();
+  stateIsoResolveCache.clear();
+}
+
+/**
+ * 设置 dr5hn JSON 数据根地址（对应 package `configure({ baseURL })`）。
+ * 空值则 `resetConfiguration()` 回默认 jsDelivr。
+ * baseURL 须指向含 `/data/countries.json` 的目录（与 npm 包 `dist` 同级结构）。
+ */
+export function applyDr5hnBaseUrl(baseUrl?: string | null) {
+  const next = (baseUrl ?? "").trim().replace(/\/+$/, "");
+  if (next === appliedBaseUrl) {
+    return;
+  }
+  if (next) {
+    configure({ baseURL: next });
+  } else {
+    resetConfiguration();
+  }
+  appliedBaseUrl = next;
+  clearCache();
+  clearLocalCaches();
+}
 
 const LEVEL_RANK: Record<RegionSearchLevel, number> = {
   city: 0,

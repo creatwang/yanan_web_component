@@ -23,6 +23,8 @@ type CheckoutFields = (typeof CHECKOUT_FIELD_IDS)[CheckoutFieldSet];
 export type CheckoutAddressViewHost = CheckoutFieldTemplateHost & {
   dev: boolean;
   disabled: boolean;
+  allowManualEntry: boolean;
+  manualEntryUserChosen: boolean;
   msg: YnCheckoutAddressMessages;
   activeProvider: AddressProviderMode | null;
   probeReason: string;
@@ -55,6 +57,8 @@ export type CheckoutAddressViewHost = CheckoutFieldTemplateHost & {
   providerLabel: (mode: AddressProviderMode) => string;
   buildChangeDetail: () => YnCheckoutAddressChangeDetail;
   runProbe: () => void | Promise<void>;
+  chooseManualEntry: () => void;
+  returnToAddressSearch: () => void | Promise<void>;
   onManualField: (
     key: "countryName" | "countryCode" | "stateName" | "cityName",
   ) => (event: Event) => void;
@@ -198,6 +202,15 @@ export function renderAddressSearch(host: CheckoutAddressViewHost) {
   `;
 }
 
+function renderManualEntryLink(host: CheckoutAddressViewHost) {
+  if (!host.allowManualEntry || host.disabled) return nothing;
+  return html`
+    <button type="button" class="mode-switch" @click=${() => host.chooseManualEntry()}>
+      ${host.msg.enterManualEntry}
+    </button>
+  `;
+}
+
 /** 步骤 1：仅搜索/选择配送地区（联想优先） */
 export function renderRegionStep(host: CheckoutAddressViewHost) {
   const mode = host.activeProvider!;
@@ -208,6 +221,7 @@ export function renderRegionStep(host: CheckoutAddressViewHost) {
         <div class="step-header__body">
           <h2 class="step-title">${host.msg.sectionRegion}</h2>
           <p class="step-lead">${host.usageHintForProvider(mode)}</p>
+          ${renderManualEntryLink(host)}
         </div>
       </header>
       ${renderAddressSearch(host)}
@@ -228,17 +242,19 @@ export function renderShippingSection(
   zipId: string,
   notesId: string,
 ) {
+  const isManual = host.activeProvider === "manual";
   return html`
     <section class="checkout-card" aria-labelledby="yn-ca-shipping-title">
-      ${renderRegionChip(host)}
-      ${host.showInlineRegionSearch && host.activeProvider === "photon"
+      ${isManual ? nothing : renderRegionChip(host)}
+      ${!isManual && host.showInlineRegionSearch && host.activeProvider === "photon"
         ? html`<p class="step-lead step-lead--inline">${host.msg.usageHintPhoton}</p>`
         : nothing}
-      ${host.showInlineRegionSearch && host.isDr5hnMode
+      ${!isManual && host.showInlineRegionSearch && host.isDr5hnMode
         ? html`<p class="step-lead step-lead--inline">${host.msg.usageHintDr5hn}</p>`
         : nothing}
-      ${host.showInlineRegionSearch ? renderAddressSearch(host) : nothing}
-      <header class="step-header step-header--inset">
+      ${!isManual && host.showInlineRegionSearch ? renderManualEntryLink(host) : nothing}
+      ${!isManual && host.showInlineRegionSearch ? renderAddressSearch(host) : nothing}
+      <header class="step-header ${isManual ? "" : "step-header--inset"}">
         <span class="step-badge" aria-hidden="true">2</span>
         <h2 id="yn-ca-shipping-title" class="step-title">${host.msg.sectionShipping}</h2>
       </header>
@@ -324,12 +340,32 @@ export function renderDevPanel(host: CheckoutAddressViewHost) {
 }
 
 export function renderManualBanner(host: CheckoutAddressViewHost) {
+  const hint = host.manualEntryUserChosen
+    ? host.msg.usageHintManualChosen
+    : host.msg.usageHintManual;
   return html`
     <div class="banner banner--warn">
-      <p>${host.usageHintForProvider("manual")}</p>
-      <button type="button" class="retry" @click=${() => void host.runProbe()}>
-        ${host.msg.retryProbe}
-      </button>
+      <p>${hint}</p>
+      <div class="banner__actions">
+        ${host.manualEntryUserChosen
+          ? nothing
+          : html`
+              <button type="button" class="retry" @click=${() => void host.runProbe()}>
+                ${host.msg.retryProbe}
+              </button>
+            `}
+        ${host.allowManualEntry
+          ? html`
+              <button
+                type="button"
+                class=${host.manualEntryUserChosen ? "retry" : "mode-switch mode-switch--banner"}
+                @click=${() => void host.returnToAddressSearch()}
+              >
+                ${host.msg.useAddressSearch}
+              </button>
+            `
+          : nothing}
+      </div>
     </div>
   `;
 }

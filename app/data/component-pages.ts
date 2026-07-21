@@ -551,7 +551,7 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
     tag: "yn-checkout-address",
     className: "YnCheckoutAddress",
     importPath: "yn-web-component/components/yn-checkout-address",
-    description: "跨境结账地址：Google → dr5hn → Photon → manual 自动降级。",
+    description: "跨境结账地址：自建 dr5hn → CDN → Photon → Google → manual 自动降级。",
     usageCode: `<yn-checkout-address locale="zh-CN" .value=\${addr} @change=\${onChange}></yn-checkout-address>`,
     props: [
       { name: "locale", type: '"en" | "zh-CN"', default: '"en"', desc: "界面语言" },

@@ -45,6 +45,7 @@ type Args = {
   disabled: boolean;
   locale: "en" | "zh-CN";
   googleMapsApiKey: string;
+  dr5hnBaseUrl?: string;
   excludeRegions?: YnCheckoutExcludeRegions;
   includeCountries?: string[];
   value: YnCheckoutAddressValue | null;
@@ -53,6 +54,7 @@ type Args = {
   emailRequired?: boolean;
   showWhatsapp?: boolean;
   whatsappRequired?: boolean;
+  allowManualEntry?: boolean;
   onChange?: (detail: YnCheckoutAddressChangeDetail) => void;
 };
 
@@ -66,6 +68,7 @@ const renderCheckoutAddress = (args: Args) => html`
       ?disabled=${args.disabled}
       locale=${args.locale}
       .googleMapsApiKey=${args.googleMapsApiKey}
+      .dr5hnBaseUrl=${args.dr5hnBaseUrl ?? ""}
       .excludeRegions=${args.excludeRegions}
       .includeCountries=${args.includeCountries}
       .value=${args.value ?? null}
@@ -74,6 +77,7 @@ const renderCheckoutAddress = (args: Args) => html`
       ?email-required=${args.emailRequired ?? false}
       ?show-whatsapp=${args.showWhatsapp ?? false}
       ?whatsapp-required=${args.whatsappRequired ?? false}
+      ?allow-manual-entry=${args.allowManualEntry ?? false}
       @change=${(event: Event) => {
         const detail = (event as CustomEvent<YnCheckoutAddressChangeDetail>).detail;
         args.onChange?.(detail);
@@ -166,7 +170,7 @@ const componentDescription = `${CHECKOUT_ADDRESS_COMPONENT_DOC_INTRO}
 
 ## Controls 说明
 
-Storybook Controls 与组件属性一一对应；仅修改 \`googleMapsApiKey\` 会**重新探测**数据源；\`excludeRegions\` / \`includeCountries\` 只刷新国家列表并同步视图，不会整表重置。
+Storybook Controls 与组件属性一一对应；修改 \`googleMapsApiKey\` / \`dr5hnBaseUrl\` 会**重新探测**数据源；\`excludeRegions\` / \`includeCountries\` 只刷新国家列表并同步视图，不会整表重置。
 
 **提交校验演示**：请打开同组件下的 Story **「结账校验（完整演示）」**（文件 yn-checkout-address-validation.stories.ts），含「提交订单」按钮、validate / reportValidity 与 Interactions 自动化步骤。
 
@@ -207,6 +211,7 @@ const meta = {
     disabled: false,
     locale: "en",
     googleMapsApiKey: "",
+    dr5hnBaseUrl: "",
     excludeRegions: undefined,
     includeCountries: undefined,
     value: null,
@@ -234,6 +239,13 @@ const meta = {
       control: "text",
       description:
         "Google Maps Places API Key。修改后会重新探测；未设时尝试 VITE_GOOGLE_MAPS_API_KEY。",
+      table: { defaultValue: { summary: '""' } },
+    },
+    dr5hnBaseUrl: {
+      name: "dr5hn-base-url",
+      control: "text",
+      description:
+        "自建/本地 dr5hn JSON 根（含 `/data/countries.json`）。修改后重新探测：自建 → 默认 CDN → Photon → Google。未设时尝试 VITE_DR5HN_BASE_URL。",
       table: { defaultValue: { summary: '""' } },
     },
     excludeRegions: {
@@ -297,6 +309,13 @@ const meta = {
       description: "WhatsApp 必填（需同时开启 show-whatsapp，6–15 位数字）。",
       table: { defaultValue: { summary: "false" } },
     },
+    allowManualEntry: {
+      name: "allow-manual-entry",
+      control: "boolean",
+      description:
+        "开启后显示「手动填写 / 使用地址搜索」双向切换；默认关闭，仅服务不可用时被迫手填。",
+      table: { defaultValue: { summary: "false" } },
+    },
     ...checkoutAddressMethodArgTypes,
   },
   render: renderCheckoutAddress,
@@ -327,6 +346,25 @@ export const Default: Story = {
   play: playProbeComplete,
 };
 
+export const AllowManualEntry: Story = {
+  name: "可选手动填写",
+  args: {
+    allowManualEntry: true,
+    locale: "zh-CN",
+    showEmail: true,
+    emailRequired: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "开启 `allow-manual-entry` 后会出现「手动填写」。手填模式下地区、联系方式与详细地址一次全部展开；可点「使用地址搜索」切回联想（不清空已填明细）。",
+      },
+    },
+  },
+  play: playProbeComplete,
+};
+
 export const DevPanel: Story = {
   name: "调试面板",
   args: { dev: true, locale: "zh-CN" },
@@ -344,6 +382,7 @@ export const CustomBackground: Story = {
         ?disabled=${args.disabled}
         locale=${args.locale}
         .googleMapsApiKey=${args.googleMapsApiKey}
+        .dr5hnBaseUrl=${args.dr5hnBaseUrl ?? ""}
         .excludeRegions=${args.excludeRegions}
         .includeCountries=${args.includeCountries}
         .value=${args.value ?? null}
@@ -460,7 +499,7 @@ export const Interactions: Story = {
     docs: {
       description: {
         story:
-          "工具栏按钮 + 右侧 Controls 均可改属性；仅 `googleMapsApiKey` 变更会重新探测，区域过滤只刷新列表。",
+          "工具栏按钮 + 右侧 Controls 均可改属性；`googleMapsApiKey` / `dr5hnBaseUrl` 变更会重新探测，区域过滤只刷新列表。",
       },
     },
   },

@@ -75,9 +75,10 @@ const PROVIDER_HINT_KEY: Record<AddressProviderMode, keyof YnCheckoutAddressMess
 };
 
 /**
- * 跨境独立站结账地址：优先检测 Google API Key → 无 Key 或 Google 失败则探测 dr5hn CDN
- * → 再不可用则探测 Photon → 三者均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。
+ * 跨境独立站结账地址：优先探测自建 dr5hn（可选）→ 默认 dr5hn CDN → Photon → Google（有 Key 且脚本可加载）
+ * → 均不可用则 manual 手动填写（开放国家/地区、省/州、城市编辑）。
  * 运行中 dr5hn 搜索无匹配或失败时清空区域并降级 Photon 用同一关键词重搜；Photon 仍失败则切至 manual。
+ * `allow-manual-entry` 为 true 时可在搜索与手填间双向切换。
  * 分步表单（先地区摘要，再联系方式与详细地址）；内置校验；`change` 的 `detail` 为 `{ value, validation, changedFields }`。
  * 统一 `YnCheckoutAddressValue` 保存、回显与受控 `.value`。
  *
@@ -96,10 +97,16 @@ export class YnCheckoutAddress extends LitElement {
 
   @property({ type: Boolean }) disabled = false;
 
-  /** 界面语言；文案可通过 `messages` 局部覆盖（适合店铺 i18n JSON 片段） */
+  /**
+   * 内置兜底语言：仅 `en` | `zh-CN`，默认 `en`。
+   * 新语言请走 `messages`，勿再扩展此枚举。缺 key 时回落 `en`。
+   */
   @property({ type: String }) locale: YnCheckoutAddressLocale = "en";
 
-  /** 局部覆盖内置文案（与店铺 i18n JSON 片段对齐） */
+  /**
+   * 宿主主文案（推荐传全量）。合并顺序：内置 en → 内置 locale → 本对象。
+   * 品牌/多语言字典应放在店面 i18n，而不是改组件。
+   */
   @property({ attribute: false }) messages?: Partial<YnCheckoutAddressMessages>;
 
   /**
@@ -118,6 +125,13 @@ export class YnCheckoutAddress extends LitElement {
   /** Google Maps Places API Key；未设时尝试构建环境变量 `VITE_GOOGLE_MAPS_API_KEY` */
   @property({ type: String, attribute: "google-maps-api-key" }) googleMapsApiKey = "";
 
+  /**
+   * dr5hn 地区 JSON 根地址（自建/本地 CDN）。
+   * 须指向含 `/data/countries.json` 的目录；未设时用 `VITE_DR5HN_BASE_URL`，再回退官方 jsDelivr。
+   * 探测顺序：自建 → 默认 CDN → Photon → Google → manual。
+   */
+  @property({ type: String, attribute: "dr5hn-base-url" }) dr5hnBaseUrl = "";
+
   /** 为 true 时展示联系邮箱输入框 */
   @property({ type: Boolean, attribute: "show-email" }) showEmail = false;
 
@@ -130,9 +144,18 @@ export class YnCheckoutAddress extends LitElement {
   /** 为 true 且 showWhatsapp 时 WhatsApp 必填 */
   @property({ type: Boolean, attribute: "whatsapp-required" }) whatsappRequired = false;
 
+  /**
+   * 为 true 时提供「手动填写 / 使用地址搜索」双向切换入口。
+   * 默认 false：仅在服务不可用时被迫进入 manual。
+   */
+  @property({ type: Boolean, attribute: "allow-manual-entry", reflect: true })
+  allowManualEntry = false;
+
   @state() private viewMode: ViewMode = "booting";
   @state() private activeProvider: AddressProviderMode | null = null;
   @state() private probeReason = "";
+  /** 用户主动选手填（非服务降级） */
+  @state() private manualEntryUserChosen = false;
 
   @state() private query = "";
   @state() private suggestions: AddressSuggestion[] = [];
@@ -170,6 +193,10 @@ export class YnCheckoutAddress extends LitElement {
   @state() private filterRefreshing = false;
 
   private lastEmitted: YnCheckoutAddressChangeDetail | null = null;
+  /** 最近一次探测成功的非 manual 数据源，用于切回搜索 */
+  private lastProbedProvider: Exclude<AddressProviderMode, "manual"> | null = null;
+  /** 国家元数据请求代数：避免慢请求覆盖更新后的区号 */
+  private countryMetaRequestId = 0;
   private probeGeneration = 0;
   private suppressEmit = false;
   private validationCache: YnCheckoutAddressValidation | null = null;
@@ -221,18 +248,25 @@ export class YnCheckoutAddress extends LitElement {
     const boot = vm === "booting";
     const manual = this.activeProvider === "manual";
     const ap = this.activeProvider;
+    const showManual = !boot && manual && !this.filterRefreshing;
     return {
       boot,
       main: !boot,
       provider: !boot && !manual && ap != null && vm === "region",
-      manual: !boot && manual && !this.filterRefreshing,
-      details: vm === "checkout",
+      // 手填：地区 + 联系方式 + 详细地址一次全部展开（不再分步）
+      manual: showManual,
+      details: showManual || vm === "checkout",
     };
   }
 
   private get regionConfirmed() {
     if (this.isManualMode) {
-      return Boolean(this.countryCode.trim() && this.cityName.trim());
+      return Boolean(
+        this.countryCode.trim() &&
+          this.countryName.trim() &&
+          this.stateName?.trim() &&
+          this.cityName.trim(),
+      );
     }
     if (!this.countryCode.trim()) {
       return false;
@@ -247,13 +281,13 @@ export class YnCheckoutAddress extends LitElement {
     return Boolean(this.cityName.trim() || this.stateName?.trim());
   }
 
-  /** dr5hn / Photon：选中国家或州省即可进入配送步骤；Google 需有城市或州省 */
+  /** dr5hn / Photon：选中国家或州省即可进入配送步骤；Google 需有城市或州省；手填始终展开全部字段 */
   private get canShowShippingStep() {
+    if (this.isManualMode) {
+      return true;
+    }
     if (!this.countryCode.trim()) {
       return false;
-    }
-    if (this.isManualMode) {
-      return this.regionConfirmed;
     }
     if (this.isDr5hnMode) {
       return true;
@@ -286,12 +320,15 @@ export class YnCheckoutAddress extends LitElement {
   private startRegionEdit = () => {
     this.regionEditing = true;
     this.suggestionsOpen = false;
-    if (this.isManualMode && this.regionConfirmed) {
-      this.viewMode = "manual";
+    if (this.isManualMode) {
+      // 手填已全部展开：聚焦地区字段即可
       this.emitChange();
-    } else {
-      this.syncViewEmit();
+      this.updateComplete.then(() => {
+        this.shadowRoot?.querySelector<HTMLInputElement>("#yn-ca-m-country-name")?.focus();
+      });
+      return;
     }
+    this.syncViewEmit();
     this.updateComplete.then(() => {
       this.shadowRoot?.querySelector<HTMLInputElement>(`#${this.fields.region}`)?.focus();
     });
@@ -327,7 +364,7 @@ export class YnCheckoutAddress extends LitElement {
     if (changed.has("excludeRegions") || changed.has("includeCountries")) {
       this.applyRegionFilterChange();
     }
-    if (changed.has("googleMapsApiKey")) {
+    if (changed.has("googleMapsApiKey") || changed.has("dr5hnBaseUrl")) {
       void this.runProbe();
     }
   }
@@ -406,6 +443,8 @@ export class YnCheckoutAddress extends LitElement {
       const { probePhotonReachable } = await loadAddressProvidersModule();
       if (await probePhotonReachable()) {
         this.activeProvider = "photon";
+        this.lastProbedProvider = "photon";
+        this.manualEntryUserChosen = false;
         this.probeReason = this.msg.dr5hnFallbackToPhoton;
         await this.syncGoogleMode("photon");
         return;
@@ -413,9 +452,7 @@ export class YnCheckoutAddress extends LitElement {
     } catch {
       /* manual */
     }
-    this.activeProvider = "manual";
-    this.probeReason = this.msg.servicesUnavailable;
-    this.googleReady = false;
+    this.enterManualMode(this.msg.servicesUnavailable);
   }
 
   /** 探测开始时原子重置：只保留 booting 视图 */
@@ -423,6 +460,8 @@ export class YnCheckoutAddress extends LitElement {
     this.viewMode = "booting";
     this.activeProvider = null;
     this.probeReason = "";
+    this.manualEntryUserChosen = false;
+    this.lastProbedProvider = null;
     this.googleReady = false;
     this.searching = false;
     this.suggestionsOpen = false;
@@ -443,10 +482,8 @@ export class YnCheckoutAddress extends LitElement {
       return;
     }
     if (this.isManualMode) {
-      this.viewMode =
-        this.regionEditing || !this.regionConfirmed
-          ? "manual"
-          : "checkout";
+      // 手填模式固定展开全部字段；viewMode 仅用于 data-view / 非手填分支
+      this.viewMode = "checkout";
       return;
     }
     this.viewMode = this.canShowShippingStep ? "checkout" : "region";
@@ -522,6 +559,7 @@ export class YnCheckoutAddress extends LitElement {
       const { probeAddressProvider } = await loadProviderProbeModule();
       const result = await probeAddressProvider({
         googleMapsApiKey: this.googleMapsApiKey,
+        dr5hnBaseUrl: this.dr5hnBaseUrl,
         regionFilter: this.regionFilter,
         signal: this.probeAbort.signal,
       });
@@ -531,9 +569,12 @@ export class YnCheckoutAddress extends LitElement {
       if (result.mode === "manual") {
         this.activeProvider = "manual";
         this.probeReason = result.reason;
+        this.manualEntryUserChosen = false;
         this.googleReady = false;
       } else {
         this.activeProvider = result.mode;
+        this.lastProbedProvider = result.mode;
+        this.manualEntryUserChosen = false;
         this.probeReason = result.reason;
         if (result.mode === "dr5hn") {
           const dr5hn = await loadDr5hnModule();
@@ -560,23 +601,79 @@ export class YnCheckoutAddress extends LitElement {
       }
       this.activeProvider = "manual";
       this.probeReason = this.msg.probeFailed;
+      this.manualEntryUserChosen = false;
       this.googleReady = false;
       this.syncViewEmit();
     }
   }
 
-  private enterManualMode(reason: string) {
-    if (this.filterRefreshing) return;
+  private enterManualMode(reason: string, opts?: { userChosen?: boolean }) {
+    if (this.filterRefreshing && !opts?.userChosen) return;
+    if (
+      this.activeProvider &&
+      this.activeProvider !== "manual"
+    ) {
+      this.lastProbedProvider = this.activeProvider;
+    }
     this.activeProvider = "manual";
     this.probeReason = reason;
+    this.manualEntryUserChosen = Boolean(opts?.userChosen);
     this.searching = false;
     this.suggestionsOpen = false;
     this.googleReady = false;
     this.dr5hnRegionLevel = null;
     this.cityId = null;
     this.stateCode = null;
+    this.regionEditing = true;
     this.syncViewEmit();
   }
+
+  /** 用户主动切换到手填（需 allow-manual-entry） */
+  private chooseManualEntry = () => {
+    if (!this.allowManualEntry || this.disabled) return;
+    this.query = "";
+    this.searchError = "";
+    this.suggestions = [];
+    this.dr5hnSuggestions = [];
+    this.suggestionsOpen = false;
+    this.clearRegion();
+    this.enterManualMode(this.msg.usageHintManualChosen, { userChosen: true });
+  };
+
+  /** 从手填切回地址搜索（优先恢复上次探测成功的 provider） */
+  private returnToAddressSearch = async () => {
+    if (!this.allowManualEntry || this.disabled) return;
+    this.query = "";
+    this.searchError = "";
+    this.suggestions = [];
+    this.dr5hnSuggestions = [];
+    this.suggestionsOpen = false;
+    this.clearRegion();
+    this.manualEntryUserChosen = false;
+    this.regionEditing = true;
+    this.showFieldErrors = false;
+    this.validationCache = null;
+
+    const target = this.lastProbedProvider;
+    if (target) {
+      this.activeProvider = target;
+      this.probeReason = "";
+      try {
+        if (target === "dr5hn") {
+          const dr5hn = await loadDr5hnModule();
+          await dr5hn.loadCountries(this.regionFilter);
+        } else {
+          await this.syncGoogleMode(target);
+        }
+      } catch {
+        await this.runProbe();
+        return;
+      }
+      this.syncViewEmit();
+      return;
+    }
+    await this.runProbe();
+  };
 
   private async syncGoogleMode(mode: "google" | "photon") {
     this.googleReady = false;
@@ -843,7 +940,9 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private renderPhoneField(phoneInputId: string) {
-    const phonePrefix = this.phonecode ? `+${this.phonecode}` : this.msg.phonePrefixEmpty;
+    const hasDial = Boolean(this.phonecode);
+    const phonePrefix = hasDial ? `+${this.phonecode}` : this.msg.phonePrefixEmpty;
+    const phoneLabel = hasDial ? this.msg.phoneNumber : this.msg.phoneNumberEnterDial;
     const phoneDisabled =
       this.disabled || (!this.isManualMode && this.activeProvider === "dr5hn" && !this.phonecode);
     const phoneInvalid = this.inputClass("phoneNumber");
@@ -852,9 +951,9 @@ export class YnCheckoutAddress extends LitElement {
         <div class="float-field float-field--phone">
           <div class="float-field__control ${this.phoneControlClass()}">
             <label class="float-field__label" for=${phoneInputId}>
-              ${this.msg.phoneNumber}<span class="float-field__required" aria-hidden="true">*</span>
+              ${phoneLabel}<span class="float-field__required" aria-hidden="true">*</span>
             </label>
-            ${this.phonecode
+            ${hasDial
               ? html`<span
                   id="${phoneInputId}-prefix"
                   class="float-field__prefix"
@@ -869,11 +968,11 @@ export class YnCheckoutAddress extends LitElement {
                 id=${phoneInputId}
                 class=${`float-field__input ${phoneInvalid}`}
                 type="tel"
-                inputmode="numeric"
-                autocomplete="tel-national"
+                inputmode=${hasDial ? "numeric" : "tel"}
+                autocomplete=${hasDial ? "tel-national" : "tel"}
                 placeholder=" "
                 aria-required="true"
-                aria-describedby=${this.phonecode ? `${phoneInputId}-prefix` : nothing}
+                aria-describedby=${hasDial ? `${phoneInputId}-prefix` : nothing}
                 ?disabled=${phoneDisabled}
                 .value=${this.phoneNumber}
                 @input=${this.handleFieldInput("phone")}
@@ -903,19 +1002,26 @@ export class YnCheckoutAddress extends LitElement {
   }
 
   private async applyCountryMeta(code: string) {
-    if (!code) {
+    const requestId = ++this.countryMetaRequestId;
+    const key = code.trim().toUpperCase();
+    // 先清空，避免国家代码变更后仍显示上一次区号
+    this.phonecode = "";
+    if (key.length !== 2) {
       return;
     }
     try {
       const dr5hn = await loadDr5hnModule();
-      const meta = await dr5hn.fetchCountryMeta(code);
+      const meta = await dr5hn.fetchCountryMeta(key);
+      if (requestId !== this.countryMetaRequestId) {
+        return;
+      }
       if (meta) {
         this.phonecode = meta.phonecode;
         this.currency = meta.currency;
         this.countryName = meta.name;
       }
     } catch {
-      /* optional */
+      /* 查不到则保持区号为空 */
     }
   }
 
@@ -1016,6 +1122,8 @@ export class YnCheckoutAddress extends LitElement {
     this.suggestions = [];
     this.suggestionsOpen = false;
     this.activeProvider = "photon";
+    this.lastProbedProvider = "photon";
+    this.manualEntryUserChosen = false;
     this.probeReason = this.msg.dr5hnFallbackToPhoton;
     await this.syncGoogleMode("photon");
     this.searchError = "";
@@ -1155,24 +1263,31 @@ export class YnCheckoutAddress extends LitElement {
 
   private onManualField =
     (field: "countryName" | "countryCode" | "stateName" | "cityName") => (event: Event) => {
-      const input = event.target as HTMLInputElement;
-      if (field === "countryName") {
-        this.countryName = input.value;
-      } else if (field === "countryCode") {
-        const code = input.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
-        input.value = code;
-        this.countryCode = code;
-        void this.applyCountryMeta(code);
-      } else if (field === "stateName") {
-        this.stateName = input.value;
-        this.stateCode = null;
-      } else {
-        this.cityName = input.value;
-        this.cityId = null;
-        this.dr5hnRegionLevel = null;
-      }
-      this.syncViewEmit();
+      void this.handleManualFieldInput(field, event);
     };
+
+  private async handleManualFieldInput(
+    field: "countryName" | "countryCode" | "stateName" | "cityName",
+    event: Event,
+  ) {
+    const input = event.target as HTMLInputElement;
+    if (field === "countryName") {
+      this.countryName = input.value;
+    } else if (field === "countryCode") {
+      const code = input.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
+      input.value = code;
+      this.countryCode = code;
+      await this.applyCountryMeta(code);
+    } else if (field === "stateName") {
+      this.stateName = input.value;
+      this.stateCode = null;
+    } else {
+      this.cityName = input.value;
+      this.cityId = null;
+      this.dr5hnRegionLevel = null;
+    }
+    this.syncViewEmit();
+  }
 
   private handleFieldInput =
     (
@@ -1273,6 +1388,7 @@ export {
   isPostalRequiredForCountry,
 } from "./validation";
 export { emptyCheckoutAddressValue } from "./types";
+export { CHECKOUT_ADDRESS_MESSAGES, resolveCheckoutMessages } from "./messages";
 
 declare global {
   interface HTMLElementTagNameMap {

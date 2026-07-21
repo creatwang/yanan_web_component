@@ -14,7 +14,7 @@ Interaction and visual quality reference: [Floema](https://www.floema.com/) — 
 
 `yn-web-component` is a framework-agnostic `yn-*` custom element set for cross-border storefronts. It packages recurring e-commerce UI — multi-source address forms, SKU matrices, cart drawers, SEO-friendly navigation — so product and order logic stay in your app layer.
 
-**Built for storefront flows**: browse → pick specs → add to cart → checkout. **Cross-border ready**: address provider fallback (Google → dr5hn → Photon → manual). **Brand-friendly**: Shadow DOM + `--yn-*` CSS variables for theming without style leaks.
+**Built for storefront flows**: browse → pick specs → add to cart → checkout. **Cross-border ready**: address provider fallback (self-hosted dr5hn → default CDN → Photon → Google → manual; free providers first). **Brand-friendly**: Shadow DOM + `--yn-*` CSS variables for theming without style leaks.
 
 ## Why this project
 
