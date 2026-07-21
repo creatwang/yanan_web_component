@@ -73,27 +73,27 @@
 
 ### 打包体积
 
-> 以下数据来自本地 `pnpm build` ESM 产物（v1.0.9，构建日期 2026-07-08）。按需导入路径：`yn-web-component/components/<name>`。完整表格见文档站 `#/bundle-size`。
+> 以下数据来自本地 `pnpm build` ESM 产物（v1.0.10，构建日期 2026-07-21）。按需导入路径：`yn-web-component/components/<name>`。完整表格见文档站 `#/bundle-size`。
 
 | 组件 | ESM | gzip | 备注 |
 | --- | --- | --- | --- |
 | `yn-quantity` | 4.36 kB | 1.51 kB | |
 | `yn-group-pick` | 4.60 kB | 1.92 kB | |
-| `yn-input` | 4.89 kB | 1.55 kB | |
+| `yn-input` | 9.29 kB | 2.60 kB | |
 | `yn-pick` | 7.14 kB | 2.42 kB | |
 | `yn-icon-connect-button` | 11.29 kB | 3.82 kB | |
-| `yn-drawer` | 11.62 kB | 3.18 kB | |
+| `yn-drawer` | 12.18 kB | 3.26 kB | |
 | `yn-dropdown-pick` | 13.05 kB | 4.19 kB | |
 | `yn-button` | 14.35 kB | 3.70 kB | |
 | `yn-dropdown` | 16.66 kB | 4.67 kB | |
-| `yn-search` | 18.82 kB | 5.17 kB | |
+| `yn-search` | 19.36 kB | 5.29 kB | |
 | `yn-toast` | 20.98 kB | 5.27 kB | |
 | `yn-navigation` | 21.08 kB | 6.72 kB | |
 | `yn-sku-selector` | ~26.8 kB | ~6.8 kB | 入口 + 分包合计 |
-| `yn-pull-cord-switch` | ~49.8 kB | ~12.4 kB | 含绳物理引擎分包 |
+| `yn-cookie-notice` | 30.07 kB | 8.57 kB | 按钮背景为内联 SVG |
+| `yn-pull-cord-switch` | ~50.1 kB | ~12.5 kB | 含绳物理引擎分包 |
 | `yn-checkout-address` | ~74.6 kB | ~18.0 kB | 入口 + 分包，含 dr5hn 逻辑 |
-| `yn-cookie-notice` | 167.17 kB | 114.06 kB | 含内联图片，改版后优化 |
-| **全量 IIFE** | **495.81 kB** | **195.93 kB** | `dist/index.iife.js` |
+| **全量 IIFE** | **379.84 kB** | **93.13 kB** | `dist/index.iife.js` |
 
 ### 在线文档站
 
@@ -650,6 +650,7 @@ import { YnSearch } from "yn-web-component/components/yn-search";
 | `--yn-cookie-notice-bg` | 横幅背景 | `#fff` |
 | `--yn-cookie-notice-border-color` | 外边框色 | `#eedfdf` |
 | `--yn-cookie-notice-accent-color` | 政策强调色 | `#ed3833` |
+| `--yn-cookie-notice-button-bg` | 主按钮背景 | SVG data-uri |
 | `--yn-cookie-notice-z-index` | 层级 | `1000` |
 | `--yn-cookie-notice-bottom` / `--yn-cookie-notice-right` | 定位 | 响应式 em 值 |
 | `--yn-cookie-notice-width` | 横幅宽度 | 响应式 em 值 |
