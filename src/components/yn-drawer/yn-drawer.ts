@@ -158,6 +158,10 @@ export class YnDrawer extends LitElement {
     this.syncBackdropExtraEmptyState();
     this.syncPopoverState(true);
     this.bindTriggerSlotClicks();
+    queueMicrotask(() => {
+      this.syncFooterEmptyState();
+      this.syncBackdropExtraEmptyState();
+    });
   }
 
   bootstrapFromDeclarativeShadow() {
@@ -180,6 +184,11 @@ export class YnDrawer extends LitElement {
     this.syncFooterEmptyState();
     this.syncBackdropExtraEmptyState();
     this.syncPopoverState(true);
+    // 插槽分配偶发滞后一帧：再同步一次，避免 footer 仍被 footer--empty 隐藏
+    queueMicrotask(() => {
+      this.syncFooterEmptyState();
+      this.syncBackdropExtraEmptyState();
+    });
   }
 
 
@@ -413,10 +422,15 @@ export class YnDrawer extends LitElement {
 
   private syncFooterEmptyState() {
     this.footerEmpty = !this.slotHasMeaningfulContent(this.getFooterSlotEl() ?? undefined);
+    // DSD 跳过 Lit render：必须直接改 DOM；非 DSD 下 slotchange 也不一定 requestUpdate
+    this.shadowRoot?.querySelector(".footer")?.classList.toggle("footer--empty", this.footerEmpty);
   }
 
   private syncBackdropExtraEmptyState() {
     this.backdropExtraEmpty = !this.slotHasMeaningfulContent(this.getBackdropExtraSlotEl() ?? undefined);
+    this.shadowRoot
+      ?.querySelector(".backdrop-extra")
+      ?.classList.toggle("backdrop-extra--empty", this.backdropExtraEmpty);
   }
 
   private handleFooterSlotChange = () => {
