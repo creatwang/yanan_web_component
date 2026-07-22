@@ -1,14 +1,12 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_ICON_BUTTON_SHADOW_STYLES } from "./yn-icon-button-styles.js";
 import {
   resolveIconButtonVariant,
   variantStyleVars,
   type YnIconButtonVariant,
 } from "./yn-icon-button-variants.js";
-
-const YN_ICON_BUTTON_DSD_DEDUPE = [":scope > .icon-button", ".icon-button"] as const;
 
 export type YnIconButtonSize = "small" | "medium" | "large";
 export type YnIconButtonType = "button" | "submit" | "reset";
@@ -53,28 +51,13 @@ export class YnIconButton extends LitElement {
     this.dataset.hoverMode = preset.hoverMode;
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后 @click 由 Lit 绑定；此处仅同步 variant dataset 与 control DOM。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_ICON_BUTTON_DSD_DEDUPE]);
-    ensureRenderRoot(this);
     this.syncVariantDataset();
     this.syncDsdDom();
-    this.bindDsdControl();
-  }
-
-  private bindDsdControl() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    const control = root.querySelector<HTMLButtonElement | HTMLAnchorElement>(".icon-button");
-    if (!control || control.dataset.bound === "true") return;
-    control.dataset.bound = "true";
-    control.addEventListener("click", (event) => {
-      if (this.disabled) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    });
   }
 
   private syncDsdDom() {
@@ -175,9 +158,5 @@ declare global {
     "yn-icon-button": YnIconButton;
   }
 }
-
-applyLitDsd(YnIconButton, ".icon-button", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_ICON_BUTTON_DSD_DEDUPE],
-});
 
 export type { YnIconButtonVariant } from "./yn-icon-button-variants.js";

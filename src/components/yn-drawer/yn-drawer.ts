@@ -1,13 +1,11 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, nothing, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynClose20Svg } from "../../asset/svg";
 import "../yn-icon-button/yn-icon-button.js";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
-
-const YN_DRAWER_DSD_DEDUPE = ["#drawerPopover", ".trigger-wrap"] as const;
 
 export type YnDrawerOpenChangeDetail = {
   open: boolean;
@@ -170,23 +168,13 @@ export class YnDrawer extends LitElement {
     });
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后 @click 由 Lit 绑定；此处同步 footer/backdrop 空态与 popover，并绑定 trigger 插槽点击。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_DRAWER_DSD_DEDUPE]);
-    ensureRenderRoot(this);
-    const triggerSlot = root.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-    const hasSlottedTrigger = (triggerSlot?.assignedElements({ flatten: true }).length ?? 0) > 0;
-    if (!hasSlottedTrigger) {
-      root.querySelector(".trigger-wrap")?.addEventListener("click", this.handleTriggerClick);
-    }
     this.bindTriggerSlotClicks();
     queueMicrotask(() => this.bindTriggerSlotClicks());
-    root.querySelector(".close-btn")?.addEventListener("click", this.handleCloseClick);
-    root.querySelector(".backdrop")?.addEventListener("click", this.handleBackdropClick);
-    root.querySelector("#drawerPopover")?.addEventListener("keydown", this.handleEscape as EventListener);
-    root.querySelector('slot[name="footer"]')?.addEventListener("slotchange", this.handleFooterSlotChange);
-    root.querySelector('slot[name="backdrop-extra"]')?.addEventListener("slotchange", this.handleBackdropExtraSlotChange);
     this.syncFooterEmptyState();
     this.syncBackdropExtraEmptyState();
     this.syncPopoverState(true);
@@ -497,7 +485,3 @@ declare global {
     "yn-drawer": YnDrawer;
   }
 }
-
-applyLitDsd(YnDrawer, "#drawerPopover", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_DRAWER_DSD_DEDUPE],
-});

@@ -1,8 +1,7 @@
-import {
-  YN_ICON_BUTTON_SHADOW_STYLES,
-  YN_ICON_BUTTON_SIZE_VARS,
-} from "./yn-icon-button-styles.js";
-import { variantStyleVars, type YnIconButtonVariant } from "./yn-icon-button-variants.js";
+import { html, nothing } from "lit";
+import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
+import "./yn-icon-button.js";
+import type { YnIconButtonVariant } from "./yn-icon-button-variants.js";
 
 export type YnIconButtonShadowOptions = {
   size?: "small" | "medium" | "large";
@@ -14,43 +13,28 @@ export type YnIconButtonShadowOptions = {
   hitSlop?: boolean;
 };
 
-function sizeStyleVars(size: NonNullable<YnIconButtonShadowOptions["size"]>) {
-  const preset = YN_ICON_BUTTON_SIZE_VARS[size];
-  return `--_yn-icon-button-size:${preset.size};--_yn-icon-button-icon-size:${preset.icon};`;
-}
-
-function renderControlMarkup(options: YnIconButtonShadowOptions, tag: "button" | "a", attrs: string) {
+/**
+ * Lit SSR 生成 yn-icon-button 的 Declarative Shadow Root（含 lit-part，供官方 hydrate）。
+ */
+export function renderYnIconButtonShadowHtml(options: YnIconButtonShadowOptions = {}): string {
   const size = options.size ?? "medium";
   const variant = options.variant ?? "default";
-  const hitSlop = options.hitSlop !== false;
-  const className = `icon-button${hitSlop ? " hit-slop" : ""}`;
-  const style = `${sizeStyleVars(size)}${variantStyleVars(variant)}`;
-  const inner = `<span class="bg" aria-hidden="true"></span><span class="hover-surface" aria-hidden="true"></span><span class="ripple-surface" aria-hidden="true"></span><span class="icon"><slot></slot></span>`;
-  return `<style>${YN_ICON_BUTTON_SHADOW_STYLES}</style><${tag} class="${className}" style="${style}"${attrs}>${inner}</${tag}>`;
-}
-
-/** 默认态 yn-icon-button DSD（图标走 default slot） */
-export function renderYnIconButtonShadowHtml(options: YnIconButtonShadowOptions = {}): string {
-  const label = (options.label ?? "图标按钮").replace(/"/g, "&quot;");
-  const disabled = options.disabled;
-  const href = options.href?.trim();
-
-  if (href && !disabled) {
-    return renderControlMarkup(
-      options,
-      "a",
-      ` href="${href.replace(/"/g, "&quot;")}" aria-label="${label}" title="${label}"`,
-    );
-  }
-
   const type = options.type ?? "button";
-  const disabledAttr = disabled ? " disabled" : "";
-  return renderControlMarkup(
-    options,
-    "button",
-    ` type="${type}" aria-label="${label}" title="${label}"${disabledAttr}`,
-  );
+  const hitSlop = options.hitSlop !== false;
+  const label = options.label ?? "";
+
+  return renderLitElementShadowHtml(html`
+    <yn-icon-button
+      size=${size}
+      variant=${variant}
+      type=${type}
+      label=${label || nothing}
+      href=${options.href || nothing}
+      ?disabled=${Boolean(options.disabled)}
+      ?hit-slop=${hitSlop}
+    ></yn-icon-button>
+  `);
 }
 
-export { YN_ICON_BUTTON_SHADOW_STYLES };
+export { YN_ICON_BUTTON_SHADOW_STYLES } from "./yn-icon-button-styles.js";
 export { YN_ICON_BUTTON_VARIANTS, type YnIconButtonVariant } from "./yn-icon-button-variants.js";

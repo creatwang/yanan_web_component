@@ -1,14 +1,12 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import {
   YN_QUANTITY_MINUS_ICON,
   YN_QUANTITY_PLUS_ICON,
   YN_QUANTITY_SHADOW_STYLES,
 } from "./yn-quantity-styles.js";
-
-const YN_QUANTITY_DSD_DEDUPE = [":scope > .stepper", ".stepper"] as const;
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
@@ -96,15 +94,11 @@ export class YnQuantity extends LitElement {
     stepper?.classList.toggle("is-disabled", this.disabled);
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后事件由 Lit 模板绑定；此处仅同步 disabled / 边界态 DOM。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_QUANTITY_DSD_DEDUPE]);
-    ensureRenderRoot(this);
-    root.querySelector<HTMLButtonElement>(".btn-decrease")?.addEventListener("click", this.handleDecrease);
-    root.querySelector<HTMLButtonElement>(".btn-increase")?.addEventListener("click", this.handleIncrease);
-    root.querySelector<HTMLInputElement>("input.value")?.addEventListener("input", (e) => this.handleInput(e));
-    root.querySelector<HTMLInputElement>("input.value")?.addEventListener("blur", (e) => this.handleBlur(e));
     this.syncDsdDom();
   }
 
@@ -162,7 +156,3 @@ declare global {
     "yn-quantity": YnQuantity;
   }
 }
-
-applyLitDsd(YnQuantity, ".stepper", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_QUANTITY_DSD_DEDUPE],
-});

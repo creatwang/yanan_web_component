@@ -1,3 +1,4 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, svg, unsafeCSS, type PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import {
@@ -12,37 +13,6 @@ import {
 import { YN_NAVIGATION_SHADOW_STYLES } from "./yn-navigation-styles.js";
 
 type NavigationNode = Record<string, string>;
-
-type LitUpdateHost = YnNavigation & {
-  renderRoot?: ShadowRoot;
-  isUpdatePending: boolean;
-  _$AL: PropertyValues;
-  _$EM?(): void;
-};
-
-/** Lit 2.x：shouldUpdate 为 false 时不会触发 firstUpdated/updated */
-function finishUpdateWithoutRender(host: LitUpdateHost, changed: PropertyValues) {
-  if (!host.renderRoot && host.shadowRoot) {
-    host.renderRoot = host.shadowRoot;
-  }
-  const lifecycle = host as unknown as {
-    firstUpdated(changed?: PropertyValues): void;
-    updated(changed: PropertyValues): void;
-  };
-  if (!host.hasUpdated) {
-    host.hasUpdated = true;
-    lifecycle.firstUpdated(changed);
-  }
-  if (changed) {
-    lifecycle.updated(changed);
-  }
-  if (typeof host._$EM === "function") {
-    host._$EM();
-  } else {
-    host.isUpdatePending = false;
-    host._$AL = new Map();
-  }
-}
 
 @customElement("yn-navigation")
 export class YnNavigation extends LitElement {
@@ -103,12 +73,10 @@ export class YnNavigation extends LitElement {
   private lastTotalWidth = -1;
   private lastGlowPoint: { x: number; y: number; rx: number; ry: number } | null = null;
   private resizeRaf = 0;
-  private dsdInitialBootstrapped = false;
-  private dsdRenderSkipped = false;
-  private dsdGeometryBootstrapped = false;
-  /** connected 时 Shadow 已含 .nav → 真 DSD（非 Lit 首次 render 产物） */
-  private hadDeclarativeShadowOnConnect = false;
-  private dsdPresenceChecked = false;
+
+  private readonly HOVER_ANIM_MS = 320;
+  private readonly SELECT_ANIM_MS = 240;
+  private seamDurationMs = this.HOVER_ANIM_MS;
 
   /** 窗口尺寸变化时合并重算几何，避免连续触发抖动。 */
   private readonly onWindowResize = () => {
@@ -121,102 +89,31 @@ export class YnNavigation extends LitElement {
     });
   };
 
-  private readonly HOVER_ANIM_MS = 320;
-  private readonly SELECT_ANIM_MS = 240;
-  private seamDurationMs = this.HOVER_ANIM_MS;
-
   static styles = css`
     ${unsafeCSS(YN_NAVIGATION_SHADOW_STYLES)}
   `;
 
-  /** 连接 DOM 时尽早解析 SSR 注入的 items-json，并记录是否已有 DSD。 */
+  /** 连接 DOM 时尽早解析 SSR 注入的 items-json。 */
   connectedCallback() {
-    this.captureDeclarativeShadowPresence();
     super.connectedCallback();
     this.hydrateItemsFromAttribute();
   }
 
-  private captureDeclarativeShadowPresence() {
-    if (this.dsdPresenceChecked) return;
-    this.dsdPresenceChecked = true;
-    this.hadDeclarativeShadowOnConnect = Boolean(this.shadowRoot?.querySelector(".nav"));
-  }
-
-  /** 复用 Declarative Shadow Root（Astro DSD SSR）。 */
-  protected createRenderRoot(): HTMLElement | ShadowRoot {
-    if (this.shadowRoot) {
-      return this.shadowRoot;
-    }
-    return super.createRenderRoot() as ShadowRoot;
-  }
-
-  /** DSD 首帧已含完整 markup，跳过 Lit render；Lit 2.x 需手动补全更新生命周期。 */
-  protected shouldUpdate(changed: PropertyValues): boolean {
-    if (this.dsdInitialBootstrapped) {
-      return false;
-    }
-    if (!this.dsdRenderSkipped && this.hasDeclarativeShadowContent()) {
-      this.dsdInitialBootstrapped = true;
-      this.dsdRenderSkipped = true;
-      return false;
-    }
-    return super.shouldUpdate(changed);
-  }
-
-  protected performUpdate(): void {
-    const changed = (this as unknown as LitUpdateHost)._$AL;
-    if (!this.shouldUpdate(changed)) {
-      if (this.dsdInitialBootstrapped && !this.dsdGeometryBootstrapped) {
-        this.dsdGeometryBootstrapped = true;
-        this.bootstrapFromDeclarativeShadow();
-      }
-      finishUpdateWithoutRender(this as unknown as LitUpdateHost, changed);
-      return;
-    }
-    super.performUpdate();
-  }
-
-  private hasDeclarativeShadowContent(): boolean {
-    return this.hadDeclarativeShadowOnConnect && Boolean(this.shadowRoot?.querySelector(".nav"));
-  }
-
-  /** 绑定 DSD 首帧 DOM：refs、几何、事件，不重绘 Shadow。 */
-  private bootstrapFromDeclarativeShadow(): void {
+  /**
+   * 兼容旧 storefront rebootstrap / DSD 首帧。
+   * 官方 hydrate 后事件由 Lit 模板绑定；此处仅同步 refs 与几何。
+   */
+  bootstrapFromDeclarativeShadow(): void {
     this.syncDomRefs();
     this.syncActiveItem();
     this.setupDynamicPaths();
     this.setupBaseGeometry();
     this.syncSeamStateFromIndices(this.resolveActiveIndex(), -1);
-    this.bindDeclarativeShadowEvents();
-    window.addEventListener("resize", this.onWindowResize, { passive: true });
-  }
-
-  /** 为 SSR 注入的 tab/nav 绑定与 Lit render 等价的交互。 */
-  private bindDeclarativeShadowEvents(): void {
-    this.navRoot?.addEventListener("keydown", (event) => this.onKeyDown(event as KeyboardEvent));
-    this.navRoot?.addEventListener("pointerleave", () => this.onPointerLeave());
-    this.getTabs().forEach((tab, index) => {
-      tab.addEventListener("pointerenter", (event) =>
-        this.onTabPointerEnter(index, event as PointerEvent),
-      );
-      tab.addEventListener("pointermove", (event) =>
-        this.onTabPointerMove(event as PointerEvent),
-      );
-      if (!this.seoMode) {
-        tab.addEventListener("click", () => this.onTabClick(index));
-      }
-    });
   }
 
   /** 首次渲染后初始化路径、几何与动画目标。 */
   protected firstUpdated() {
-    if (this.dsdInitialBootstrapped) {
-      return;
-    }
-    this.syncDomRefs();
-    this.syncActiveItem();
-    this.setupDynamicPaths();
-    this.setupBaseGeometry();
+    this.bootstrapFromDeclarativeShadow();
     this.applyShape();
     this.refreshShapeTarget(true);
     window.addEventListener("resize", this.onWindowResize, { passive: true });

@@ -1139,10 +1139,11 @@ export class YnCheckoutAddress extends LitElement {
       if (signal.aborted) {
         return;
       }
+      // 接口成功但可售国家过滤后为空 → 无匹配，不是网络失败
       this.suggestions = filterByRegion(items, this.regionFilter);
       this.suggestionsOpen = this.suggestions.length > 0;
       if (this.suggestions.length === 0) {
-        this.searchError = this.msg.searchFailed;
+        this.searchError = this.msg.regionSearchNoResults;
       }
     } catch {
       if (!signal.aborted) {
@@ -1163,10 +1164,11 @@ export class YnCheckoutAddress extends LitElement {
       if (signal.aborted) {
         return;
       }
+      // 接口成功但可售国家过滤后为空 → 无匹配，不是网络失败
       this.suggestions = filterByRegion(items, this.regionFilter);
       this.suggestionsOpen = this.suggestions.length > 0;
       if (this.suggestions.length === 0) {
-        this.searchError = this.msg.searchFailed;
+        this.searchError = this.msg.regionSearchNoResults;
       }
     } catch {
       if (!signal.aborted) {

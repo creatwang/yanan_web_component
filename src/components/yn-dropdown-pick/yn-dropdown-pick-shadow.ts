@@ -1,5 +1,6 @@
-import { ynDropdownPickChevronUpSvg } from "../../asset/svg/index.js";
-import { YN_DROPDOWN_PICK_SHADOW_STYLES } from "./yn-dropdown-pick-styles.js";
+import { html, nothing } from "lit";
+import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
+import "./yn-dropdown-pick.js";
 
 export type YnDropdownPickShadowOptions = {
   buttonText: string;
@@ -7,27 +8,35 @@ export type YnDropdownPickShadowOptions = {
   buttonColor?: string;
   panelMinWidth?: string;
   disabled?: boolean;
+  value?: string | number;
+  valueField?: string;
+  buttonDisplayField?: string;
+  placeholder?: string;
 };
 
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
-/** 收起态 yn-dropdown-pick DSD（panel 关闭，slot 保留 light DOM picks） */
+/**
+ * Lit SSR 生成 yn-dropdown-pick 的 Declarative Shadow Root（含 lit-part，供官方 hydrate）。
+ */
 export function renderYnDropdownPickShadowHtml(options: YnDropdownPickShadowOptions): string {
-  const buttonText = escapeHtml(options.buttonText);
-  const buttonBg = options.buttonBg ?? "var(--yn-dropdown-pick-button-bg, var(--yn-color-surface, #f8f6f2))";
-  const buttonColor =
-    options.buttonColor ?? "var(--yn-dropdown-pick-button-color, var(--yn-color-text, #241f21))";
+  const value = options.value ?? "";
+  const placeholder = options.placeholder ?? options.buttonText ?? "Select";
+  const valueField = options.valueField ?? "id";
+  const buttonDisplayField = options.buttonDisplayField ?? "code";
   const panelMinWidth = options.panelMinWidth ?? "132px";
-  const disabled = options.disabled ? " disabled" : "";
-  const styleVars = `--_btn-bg:${buttonBg};--_btn-color:${buttonColor};--_panel-min-width:${panelMinWidth};`;
+  const disabled = Boolean(options.disabled);
 
-  return `<style>${YN_DROPDOWN_PICK_SHADOW_STYLES}</style><div class="root" style="${styleVars}"><button class="trigger" type="button"${disabled}><span>${buttonText}</span><span class="caret">${ynDropdownPickChevronUpSvg}</span></button><div class="panel"><div class="pick-list"><slot></slot></div></div></div>`;
+  return renderLitElementShadowHtml(html`
+    <yn-dropdown-pick
+      value=${String(value)}
+      value-field=${valueField}
+      button-display-field=${buttonDisplayField}
+      placeholder=${placeholder}
+      panel-min-width=${panelMinWidth}
+      button-bg=${options.buttonBg || nothing}
+      button-color=${options.buttonColor || nothing}
+      ?disabled=${disabled}
+    ></yn-dropdown-pick>
+  `);
 }
 
-export { YN_DROPDOWN_PICK_SHADOW_STYLES };
+export { YN_DROPDOWN_PICK_SHADOW_STYLES } from "./yn-dropdown-pick-styles.js";

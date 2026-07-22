@@ -1,14 +1,12 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynButtonLoadingSvg } from "../../asset/svg";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 
 type ButtonVariant = "primary" | "success" | "warning" | "danger" | "neutral" | "dark" | "default";
 type ButtonSize = "mini" | "small" | "medium";
 type ButtonLoadingType = "left" | "center" | "right";
-
-const YN_BUTTON_DSD_DEDUPE = [":scope > button.button", "button.button"] as const;
 
 /**
  * 通用按钮：通过 `variant`、`size` 控制外观，`loading` 显示加载态。
@@ -344,13 +342,11 @@ export class YnButton extends LitElement {
     this.hasSuffixSlot = hasAssigned;
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后 slotchange 由 Lit 模板绑定；此处仅转发宿主 click 到 shadow 按钮。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_BUTTON_DSD_DEDUPE]);
-    ensureRenderRoot(this);
-    root.querySelector('slot[name="prefix-icon"]')?.addEventListener("slotchange", this.handlePrefixSlotChange);
-    root.querySelector('slot[name="suffix-icon"]')?.addEventListener("slotchange", this.handleSuffixSlotChange);
     this.addEventListener("click", this.handleHostClick);
   }
 
@@ -364,7 +360,9 @@ export class YnButton extends LitElement {
 
   /** 判断默认插槽是否存在可见内容。 */
   private hasDefaultSlotContent() {
-    return Array.from(this.childNodes).some((node) => {
+    const nodes = this.childNodes;
+    if (!nodes) return false;
+    return Array.from(nodes).some((node) => {
       if (node.nodeType === Node.TEXT_NODE) {
         return (node.textContent?.trim().length ?? 0) > 0;
       }
@@ -378,7 +376,9 @@ export class YnButton extends LitElement {
 
   /** 判断指定命名插槽是否有内容。 */
   private hasNamedSlotContent(slotName: string) {
-    return Array.from(this.childNodes).some((node) => {
+    const nodes = this.childNodes;
+    if (!nodes) return false;
+    return Array.from(nodes).some((node) => {
       if (node.nodeType !== Node.ELEMENT_NODE) return false;
       const el = node as HTMLElement;
       return el.getAttribute("slot") === slotName;
@@ -478,7 +478,3 @@ declare global {
     "yn-button": YnButton;
   }
 }
-
-applyLitDsd(YnButton, "button.button", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_BUTTON_DSD_DEDUPE],
-});

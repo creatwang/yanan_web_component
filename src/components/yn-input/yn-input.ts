@@ -1,9 +1,8 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, nothing, svg, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_INPUT_SHADOW_STYLES } from "./yn-input-styles.js";
 
-const YN_INPUT_DSD_DEDUPE = [":scope > .field", ":scope > .field-wrap", ".field"] as const;
 let ynInputIdCounter = 0;
 
 @customElement("yn-input")
@@ -116,43 +115,13 @@ export class YnInput extends LitElement {
     );
   }
 
-  private handleDsdPrefixClick = () => {
-    this.emitButtonEvent("yn-prefix-click");
-  };
-
-  private handleDsdSuffixClick = () => {
-    this.emitButtonEvent("yn-suffix-click");
-  };
-
-  private wireInput(input: HTMLInputElement | null) {
-    if (!input) return;
-    input.removeEventListener("input", this.handleInput);
-    input.removeEventListener("focus", this.handleFocus);
-    input.removeEventListener("blur", this.handleBlur);
-    input.addEventListener("input", this.handleInput);
-    input.addEventListener("focus", this.handleFocus);
-    input.addEventListener("blur", this.handleBlur);
-  }
-
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后事件由 Lit 模板绑定；此处仅同步前后置按钮与焦点态。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_INPUT_DSD_DEDUPE]);
-    ensureRenderRoot(this);
-    this.wireInput(root.querySelector<HTMLInputElement>("input.input"));
-    root
-      .querySelector('slot[name="prefix-button"]')
-      ?.addEventListener("slotchange", this.handlePrefixSlotChange);
-    root
-      .querySelector('slot[name="suffix-button"]')
-      ?.addEventListener("slotchange", this.handleSuffixSlotChange);
-    root.querySelector<HTMLButtonElement>(".action-prefix")?.addEventListener("click", this.handleDsdPrefixClick);
-    root.querySelector<HTMLButtonElement>(".action-suffix")?.addEventListener("click", this.handleDsdSuffixClick);
-    root
-      .querySelector<HTMLButtonElement>(".password-toggle")
-      ?.addEventListener("click", this.togglePasswordVisibility);
     this.syncSlotButtons();
-    this.focused = root.querySelector<HTMLInputElement>("input.input") === document.activeElement;
+    this.focused = this.renderRoot.querySelector<HTMLInputElement>("input.input") === document.activeElement;
   }
 
   private renderPasswordToggle() {
@@ -304,7 +273,3 @@ declare global {
     "yn-input": YnInput;
   }
 }
-
-applyLitDsd(YnInput, ".field, .field-wrap", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_INPUT_DSD_DEDUPE],
-});

@@ -1,3 +1,4 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, queryAssignedElements, state } from "lit/decorators.js";
@@ -5,10 +6,7 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import "../yn-pick/yn-pick";
 import type { YnPick } from "../yn-pick/yn-pick";
 import { ynDropdownPickCheckSvg, ynDropdownPickChevronUpSvg } from "../../asset/svg";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import { YN_DROPDOWN_PICK_SHADOW_STYLES } from "./yn-dropdown-pick-styles.js";
-
-const YN_DROPDOWN_PICK_DSD_DEDUPE = [".root"] as const;
 
 type Primitive = string | number;
 type PickValue = Primitive | "";
@@ -118,21 +116,7 @@ export class YnDropdownPick extends LitElement {
     if (changed.has("value") || changed.has("valueField") || changed.has("buttonDisplayField")) {
       this.syncSelectedByValue();
       this.syncPickState();
-      this.syncOpenDom();
     }
-  }
-
-  /** DSD / 无 Lit re-render 时，手动同步 open 态与按钮文案 */
-  private syncOpenDom() {
-    const root = this.shadowRoot?.querySelector(".root") as HTMLElement | null;
-    if (!root) return;
-    const btnBg = this.open ? this.openButtonBg : this.buttonBg;
-    const btnColor = this.open ? this.openButtonColor : this.buttonColor;
-    root.style.cssText = `--_btn-bg:${btnBg};--_btn-color:${btnColor};--_panel-min-width:${this.panelMinWidth};`;
-    root.querySelector(".panel")?.classList.toggle("open", this.open);
-    root.querySelector(".caret")?.classList.toggle("open", this.open);
-    const label = root.querySelector(".trigger > span:first-child");
-    if (label) label.textContent = this.getButtonText();
   }
 
   /** 同步插槽 pick 的默认配置。 */
@@ -308,33 +292,22 @@ export class YnDropdownPick extends LitElement {
   private toggleOpen() {
     if (this.disabled) return;
     this.open = !this.open;
-    this.syncOpenDom();
     this.emitOpenChange();
   }
-
-  private handleDsdTriggerClick = (event: Event) => {
-    event.stopPropagation();
-    this.toggleOpen();
-  };
 
   /** 关闭弹层。 */
   private closePanel() {
     if (!this.open) return;
     this.open = false;
-    this.syncOpenDom();
     this.emitOpenChange();
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后事件由 Lit 模板绑定；此处仅同步 pick 选中态。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_DROPDOWN_PICK_DSD_DEDUPE]);
-    ensureRenderRoot(this);
-    root.querySelector(".trigger")?.addEventListener("click", this.handleDsdTriggerClick);
-    root.querySelector("slot")?.addEventListener("slotchange", this.handleSlotChange);
-    root.querySelector(".pick-list")?.addEventListener("toggle", this.handlePickToggle as EventListener);
     this.handleSlotChange();
-    this.syncOpenDom();
   }
 
   /** 对外派发开关变化事件。 */
@@ -445,7 +418,3 @@ declare global {
     "yn-dropdown-pick": YnDropdownPick;
   }
 }
-
-applyLitDsd(YnDropdownPick, ".root .trigger", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_DROPDOWN_PICK_DSD_DEDUPE],
-});

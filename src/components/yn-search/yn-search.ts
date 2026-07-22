@@ -1,9 +1,9 @@
+import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
 import type { PropertyValues } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynSearchCloseSvg, ynSearchSvg } from "../../asset/svg";
-import { applyLitDsd, dedupeShadowDsdContent, ensureRenderRoot } from "../../lib/lit-dsd.js";
 import {
   getSearchDynamicWidth,
   getSearchRectEndOpen,
@@ -16,8 +16,6 @@ import {
 import { YN_SEARCH_SHADOW_STYLES } from "./yn-search-styles.js";
 
 export type YnSearchExpandDirection = "left" | "right";
-
-const YN_SEARCH_DSD_DEDUPE = ["#searchShell"] as const;
 
 @customElement("yn-search")
 export class YnSearch extends LitElement {
@@ -149,32 +147,15 @@ export class YnSearch extends LitElement {
     if (this.inputEl) this.inputEl.value = next;
   }
 
+  /**
+   * 兼容旧 storefront rebootstrap。
+   * 官方 hydrate 后事件由 Lit 模板绑定；此处仅同步形状与 shell DOM。
+   */
   bootstrapFromDeclarativeShadow() {
-    const root = this.shadowRoot;
-    if (!root) return;
-    dedupeShadowDsdContent(root, [...YN_SEARCH_DSD_DEDUPE]);
-    ensureRenderRoot(this);
     this.ensureDsdRefs();
-    root.querySelector("#bridge")?.setAttribute("d", "");
-    root.querySelector("#rect1")?.setAttribute("d", "");
-    const toggleBtn = root.querySelector("#toggleBtn");
-    const inputEl = root.querySelector<HTMLInputElement>("#searchInput");
-    if (toggleBtn) toggleBtn.replaceWith(toggleBtn.cloneNode(true));
-    if (inputEl) inputEl.replaceWith(inputEl.cloneNode(true));
-    this.shellEl = root.querySelector("#searchShell") as HTMLDivElement;
-    this.dynamicWrapEl = root.querySelector("#dynamicWrap") as HTMLDivElement;
-    this.shapeEl = root.querySelector("#shape") as SVGSVGElement;
-    this.leftShapeEl = root.querySelector("#leftShape") as SVGSVGElement;
-    this.bridgeEl = root.querySelector("#bridge") as SVGPathElement;
-    this.rect1El = root.querySelector("#rect1") as SVGPathElement;
-    this.inputEl = root.querySelector("#searchInput") as HTMLInputElement;
-    this.datalistSlotEl = root.querySelector("#datalistSlot") as HTMLSlotElement;
-    this.internalDatalistEl = root.querySelector("#internalDatalist") as HTMLDataListElement;
+    this.bridgeEl?.setAttribute("d", "");
+    this.rect1El?.setAttribute("d", "");
     if (this.value && this.inputEl) this.inputEl.value = this.value;
-    root.querySelector("#toggleBtn")?.addEventListener("click", this.onToggle);
-    this.inputEl?.addEventListener("input", this.onInput);
-    this.inputEl?.addEventListener("keydown", this.onInputKeydown);
-    root.querySelector("#datalistSlot")?.addEventListener("slotchange", this.onDatalistSlotChange);
     this.syncDatalistFromSlot();
     const refs = this.getShapeRefs();
     if (this.open && refs) {
@@ -459,7 +440,3 @@ declare global {
     "yn-search": YnSearch;
   }
 }
-
-applyLitDsd(YnSearch, "#searchShell", (el) => el.bootstrapFromDeclarativeShadow(), {
-  dedupe: [...YN_SEARCH_DSD_DEDUPE],
-});
