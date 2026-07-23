@@ -73,7 +73,6 @@ export const YN_DRAWER_SHADOW_STYLES = `
       --yn-drawer-middle-padding: 22px 24px;
       --yn-drawer-footer-padding: 18px 24px;
       --yn-drawer-backdrop-extra-padding: 24px;
-      --yn-drawer-exit-speed: 1.5;
       display: block;
     }
 
@@ -135,6 +134,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
       gap: var(--yn-drawer-panel-gap);
       padding: var(--yn-drawer-surface-padding);
       pointer-events: none;
+      /* 坠落退场时裁切位移，避免出现中间滚动条 */
+      overflow: hidden;
     }
 
     .backdrop {
@@ -149,11 +150,6 @@ export const YN_DRAWER_SHADOW_STYLES = `
 
     .backdrop-extra {
       display: none;
-      will-change: transform, opacity;
-    }
-
-    .backdrop-extra:not(.backdrop-extra--empty) {
-      opacity: 0;
     }
 
     .panel {
@@ -163,8 +159,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       border: solid var(--yn-drawer-panel-border-width);
       border-radius: var(--yn-drawer-panel-radius);
       pointer-events: auto;
-      will-change: transform, opacity;
-      isolation: isolate;
+      contain: layout paint;
     }
 
     .panel--top {
@@ -307,9 +302,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
         min-width: 0;
         padding: var(--yn-drawer-backdrop-extra-padding);
         pointer-events: auto;
-        overflow: auto;
-        /* GSAP 负责显隐；避免 CSS opacity 与 inline 冲突 */
-        opacity: 1;
+        /* 不可用 auto：退场 y:110vh 会撑出滚动条 */
+        overflow: hidden;
       }
 
       :host([placement="bottom"]) .backdrop-extra {

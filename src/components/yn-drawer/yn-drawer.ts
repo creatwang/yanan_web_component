@@ -5,10 +5,7 @@ import { customElement, property } from "lit/decorators.js";
 import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynClose20Svg } from "../../asset/svg";
 import "../yn-icon-button/yn-icon-button.js";
-import {
-  createYnDrawerMotion,
-  type YnDrawerMotionController
-} from "./yn-drawer-motion.js";
+import type { YnDrawerMotionController } from "./yn-drawer-motion.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
 export type YnDrawerOpenChangeDetail = {
@@ -33,6 +30,12 @@ export type YnDrawerLifecycleDetail = {
   triggerPayload?: unknown;
 };
 
+type LifecycleMeta = {
+  source: YnDrawerLifecycleSource;
+  payload?: unknown;
+  triggerPayload?: unknown;
+};
+
 @customElement("yn-drawer")
 export class YnDrawer extends LitElement {
   @property({ type: Boolean, reflect: true })
@@ -44,23 +47,23 @@ export class YnDrawer extends LitElement {
     const normalized = Boolean(value);
     const oldValue = this._open;
     if (oldValue === normalized) return;
-    const nextMeta =
+
+    const meta =
       this.pendingActionMeta?.nextOpen === normalized
         ? this.pendingActionMeta
         : { nextOpen: normalized, source: "property" as const };
     this.pendingActionMeta = undefined;
 
-    const beforeEventName = normalized ? "before-open" : "before-close";
-    const canContinue = this.dispatchLifecycleEvent(beforeEventName, {
+    const ok = this.dispatchLifecycleEvent(normalized ? "before-open" : "before-close", {
       open: normalized,
-      source: nextMeta.source,
-      payload: nextMeta.payload,
-      triggerPayload: nextMeta.triggerPayload
+      source: meta.source,
+      payload: meta.payload,
+      triggerPayload: meta.triggerPayload
     });
-    if (!canContinue) return;
+    if (!ok) return;
 
     this._open = normalized;
-    this.pendingTransitionMeta = nextMeta;
+    this.pendingTransitionMeta = meta;
     this.requestUpdate("open", oldValue);
     this.flushOpenTransition();
   }
@@ -74,86 +77,38 @@ export class YnDrawer extends LitElement {
   @property({ type: Boolean, attribute: "close-on-backdrop" })
   closeOnBackdrop = true;
 
-  /**
-   * 仅 API 打开（无 trigger 槽）时设为 true：不渲染默认 Open drawer 按钮，宿主不占布局。
-   */
   @property({ type: Boolean, attribute: "hide-trigger", reflect: true })
   hideTrigger = false;
 
-  /** `auto`：面板靠右叠放；`bottom` / `right` 保留属性兼容。 */
   @property({ type: String, reflect: true })
   placement: "auto" | "right" | "bottom" = "auto";
 
-  /**
-   * 保留属性兼容；面板高度由 top 面板 `flex: 1` 占据剩余空间。
-   */
   @property({ type: String, attribute: "sheet-height", reflect: true })
   sheetHeight = "90vh";
 
-  /** 中途打断关闭时的加速倍率（对应 basetest exit speed）。 */
   @property({ type: Number, attribute: "exit-speed" })
   exitSpeed = 1.5;
 
-  /** 是否启用 GSAP easeReverse（打开用 back.out，反向关闭用 power3.in）。 */
   @property({ type: Boolean, attribute: "ease-reverse" })
   easeReverse = true;
-
-  private getPopoverEl() {
-    return this.shadowRoot?.querySelector("#drawerPopover") as HTMLElement | null;
-  }
-
-  private getSurfaceEl() {
-    return this.shadowRoot?.querySelector(".drawer-surface") as HTMLElement | null;
-  }
-
-  private getBackdropEl() {
-    return this.shadowRoot?.querySelector(".backdrop") as HTMLElement | null;
-  }
-
-  private getTriggerSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-  }
-
-  private getFooterSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="footer"]') as HTMLSlotElement | null;
-  }
-
-  private getMiddleSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="middle"]') as HTMLSlotElement | null;
-  }
-
-  private getBackdropExtraSlotEl() {
-    return this.shadowRoot?.querySelector('slot[name="backdrop-extra"]') as
-      | HTMLSlotElement
-      | null;
-  }
 
   private _open = false;
   private footerEmpty = true;
   private middleEmpty = true;
   private backdropExtraEmpty = true;
+
+  private popoverEl: HTMLElement | null = null;
+  private surfaceEl: HTMLElement | null = null;
+  private backdropEl: HTMLElement | null = null;
+
   private motion: YnDrawerMotionController | undefined;
-  private activeLifecycleMeta: {
-    source: YnDrawerLifecycleSource;
-    payload?: unknown;
-    triggerPayload?: unknown;
-  } = { source: "property" };
-  private pendingActionMeta:
-    | {
-        nextOpen: boolean;
-        source: YnDrawerLifecycleSource;
-        payload?: unknown;
-        triggerPayload?: unknown;
-      }
-    | undefined;
-  private pendingTransitionMeta:
-    | {
-        nextOpen: boolean;
-        source: YnDrawerLifecycleSource;
-        payload?: unknown;
-        triggerPayload?: unknown;
-      }
-    | undefined;
+  /** GSAP 懒加载；关闭态不拉取 gsap */
+  private motionBoot: Promise<YnDrawerMotionController> | undefined;
+  private motionDirty = true;
+
+  private activeLifecycleMeta: LifecycleMeta = { source: "property" };
+  private pendingActionMeta: (LifecycleMeta & { nextOpen: boolean }) | undefined;
+  private pendingTransitionMeta: (LifecycleMeta & { nextOpen: boolean }) | undefined;
 
   static styles = css`
     ${unsafeCSS(YN_DRAWER_SHADOW_STYLES)}
@@ -161,65 +116,37 @@ export class YnDrawer extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.handleEscape = this.handleEscape.bind(this);
     this.syncSheetHeight();
   }
 
   disconnectedCallback() {
     this.motion?.dispose();
     this.motion = undefined;
+    this.motionBoot = undefined;
     super.disconnectedCallback();
   }
 
-  private bindTriggerSlotClicks() {
-    const slot = this.shadowRoot?.querySelector('slot[name="trigger"]') as HTMLSlotElement | null;
-    if (!slot) return;
-    const bind = () => {
-      slot.assignedElements({ flatten: true }).forEach((el) => {
-        if (el instanceof HTMLElement && el.dataset.ynDrawerTriggerBound !== "1") {
-          el.dataset.ynDrawerTriggerBound = "1";
-          el.addEventListener("click", (event) => {
-            event.stopPropagation();
-            this.handleTriggerClick();
-          });
-        }
-      });
-    };
-    bind();
-    slot.addEventListener("slotchange", bind);
-  }
-
   protected firstUpdated() {
-    this.syncFooterEmptyState();
-    this.syncMiddleEmptyState();
-    this.syncBackdropExtraEmptyState();
-    this.ensureMotion();
-    this.syncPopoverState(true);
+    this.cacheEls();
+    this.syncSlotEmptyStates();
     this.bindTriggerSlotClicks();
+    this.syncPopoverState(true);
+    // 插槽分配偶发滞后一帧
     queueMicrotask(() => {
-      this.syncFooterEmptyState();
-      this.syncMiddleEmptyState();
-      this.syncBackdropExtraEmptyState();
-      this.refreshMotionPanels();
+      this.syncSlotEmptyStates();
+      this.motionDirty = true;
     });
   }
 
-  /**
-   * 兼容旧 storefront rebootstrap。
-   */
   bootstrapFromDeclarativeShadow() {
+    this.cacheEls();
     this.bindTriggerSlotClicks();
     queueMicrotask(() => this.bindTriggerSlotClicks());
-    this.syncFooterEmptyState();
-    this.syncMiddleEmptyState();
-    this.syncBackdropExtraEmptyState();
-    this.ensureMotion();
+    this.syncSlotEmptyStates();
     this.syncPopoverState(true);
     queueMicrotask(() => {
-      this.syncFooterEmptyState();
-      this.syncMiddleEmptyState();
-      this.syncBackdropExtraEmptyState();
-      this.refreshMotionPanels();
+      this.syncSlotEmptyStates();
+      this.motionDirty = true;
     });
   }
 
@@ -227,32 +154,30 @@ export class YnDrawer extends LitElement {
     if (changed.has("width")) {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
     }
-    if (changed.has("sheetHeight")) {
-      this.syncSheetHeight();
-    }
-    if (changed.has("exitSpeed")) {
-      this.style.setProperty("--yn-drawer-exit-speed", String(this.exitSpeed));
-    }
-    if (changed.has("open")) {
-      this.pendingTransitionMeta = undefined;
-    }
-    if (
-      (changed.has("exitSpeed") || changed.has("easeReverse")) &&
-      this.motion &&
-      !this.open
-    ) {
-      this.motion.dispose();
-      this.motion = undefined;
-      this.ensureMotion();
+    if (changed.has("sheetHeight")) this.syncSheetHeight();
+    if (changed.has("open")) this.pendingTransitionMeta = undefined;
+
+    if (changed.has("exitSpeed") || changed.has("easeReverse")) {
+      this.motion?.setOptions({
+        exitSpeed: this.exitSpeed,
+        easeReverse: this.easeReverse
+      });
     }
   }
 
+  private cacheEls() {
+    const root = this.shadowRoot;
+    this.popoverEl = root?.querySelector("#drawerPopover") ?? null;
+    this.surfaceEl = root?.querySelector(".drawer-surface") ?? null;
+    this.backdropEl = root?.querySelector(".backdrop") ?? null;
+  }
+
   private flushOpenTransition() {
-    const transitionMeta = this.pendingTransitionMeta;
-    if (!transitionMeta) return;
+    const meta = this.pendingTransitionMeta;
+    if (!meta) return;
     this.pendingTransitionMeta = undefined;
-    this.syncPopoverState(false, transitionMeta);
-    this.emitOpenChange(transitionMeta);
+    this.syncPopoverState(false, meta);
+    this.emitOpenChange(meta);
   }
 
   private syncSheetHeight() {
@@ -264,11 +189,7 @@ export class YnDrawer extends LitElement {
     this.style.setProperty("--yn-drawer-sheet-height", value);
   }
 
-  private emitOpenChange(meta: {
-    source: YnDrawerLifecycleSource;
-    payload?: unknown;
-    triggerPayload?: unknown;
-  }) {
+  private emitOpenChange(meta: LifecycleMeta) {
     this.dispatchEvent(
       new CustomEvent<YnDrawerOpenChangeDetail>("open-change", {
         detail: {
@@ -287,23 +208,17 @@ export class YnDrawer extends LitElement {
     name: "before-open" | "before-close",
     detail: YnDrawerLifecycleDetail
   ) {
-    const event = new CustomEvent<YnDrawerLifecycleDetail>(name, {
-      detail,
-      bubbles: true,
-      composed: true,
-      cancelable: true
-    });
-    return this.dispatchEvent(event);
+    return this.dispatchEvent(
+      new CustomEvent<YnDrawerLifecycleDetail>(name, {
+        detail,
+        bubbles: true,
+        composed: true,
+        cancelable: true
+      })
+    );
   }
 
-  private emitLifecycleEvent(
-    name: "after-open" | "after-close",
-    detail: {
-      source: YnDrawerLifecycleSource;
-      payload?: unknown;
-      triggerPayload?: unknown;
-    }
-  ) {
+  private emitLifecycleEvent(name: "after-open" | "after-close", detail: LifecycleMeta) {
     this.dispatchEvent(
       new CustomEvent<YnDrawerLifecycleDetail>(name, {
         detail: {
@@ -318,199 +233,186 @@ export class YnDrawer extends LitElement {
     );
   }
 
-  private collectMotionPanels() {
+  private collectMotionTargets() {
     const root = this.shadowRoot;
-    if (!root) return [] as HTMLElement[];
     const panels: HTMLElement[] = [];
+    if (!root) {
+      return { panels, reco: [] as HTMLElement[], recoRoot: null };
+    }
+
     const top = root.querySelector<HTMLElement>(".panel--top");
     const middle = root.querySelector<HTMLElement>(".panel--middle");
     const bottom = root.querySelector<HTMLElement>(".panel--bottom");
     if (top) panels.push(top);
     if (middle && !middle.classList.contains("panel--empty")) panels.push(middle);
     if (bottom && !bottom.classList.contains("panel--empty")) panels.push(bottom);
-    return panels;
-  }
 
-  private collectRecoItems(assigned: HTMLElement[]) {
-    if (!assigned.length) return [] as HTMLElement[];
-    if (assigned.length > 1) return assigned;
-
-    const host = assigned[0];
-    const marked = Array.from(
-      host.querySelectorAll<HTMLElement>("[data-yn-drawer-reco]")
-    );
-    if (marked.length) return marked;
-
-    const articles = Array.from(host.querySelectorAll<HTMLElement>("article"));
-    if (articles.length) return articles;
-
-    const kids = Array.from(host.children).filter(
-      (node): node is HTMLElement => node instanceof HTMLElement
-    );
-    // 常见结构：标题 + 卡片行 → 错落卡片行内的子项
-    const row = kids.find((el) => el.children.length > 1);
-    if (row) {
-      return Array.from(row.children).filter(
-        (node): node is HTMLElement => node instanceof HTMLElement
-      );
+    const recoRoot = root.querySelector<HTMLElement>(".backdrop-extra");
+    if (!recoRoot || recoRoot.classList.contains("backdrop-extra--empty")) {
+      return { panels, reco: [] as HTMLElement[], recoRoot: null };
     }
-    return kids;
-  }
 
-  private collectMotionExtras() {
-    const root = this.shadowRoot?.querySelector<HTMLElement>(".backdrop-extra");
-    if (!root || root.classList.contains("backdrop-extra--empty")) return null;
-
-    const slot = this.getBackdropExtraSlotEl();
+    const slot = root.querySelector<HTMLSlotElement>('slot[name="backdrop-extra"]');
     const assigned = (slot?.assignedElements({ flatten: true }) ?? []).filter(
-      (node): node is HTMLElement => node instanceof HTMLElement
+      (n): n is HTMLElement => n instanceof HTMLElement
     );
-    if (!assigned.length) return null;
 
-    return { root, items: this.collectRecoItems(assigned) };
-  }
-
-  private collectMotionTargets() {
     return {
-      panels: this.collectMotionPanels(),
-      extras: this.collectMotionExtras()
+      panels,
+      reco: collectRecoCards(assigned),
+      recoRoot
     };
   }
 
-  private ensureMotion() {
-    const surface = this.getSurfaceEl();
-    const backdrop = this.getBackdropEl();
-    if (!surface || !backdrop) return;
-    if (this.motion) return;
-    this.motion = createYnDrawerMotion(
-      surface,
-      backdrop,
-      this.collectMotionTargets(),
-      {
-        onEnterComplete: () => {
-          this.emitLifecycleEvent("after-open", this.activeLifecycleMeta);
-        },
-        onExitComplete: () => {
-          const popoverEl = this.getPopoverEl();
-          if (popoverEl?.matches(":popover-open")) {
-            popoverEl.hidePopover();
-          }
-          this.emitLifecycleEvent("after-close", this.activeLifecycleMeta);
-        }
-      },
-      {
-        exitSpeed: this.exitSpeed,
-        easeReverse: this.easeReverse
+  private async ensureMotion() {
+    if (this.motion) {
+      if (this.motionDirty) {
+        this.motion.setTargets(this.collectMotionTargets());
+        this.motionDirty = false;
       }
-    );
+      return this.motion;
+    }
+
+    if (!this.motionBoot) {
+      const surface = this.surfaceEl ?? this.shadowRoot?.querySelector(".drawer-surface");
+      const backdrop = this.backdropEl ?? this.shadowRoot?.querySelector(".backdrop");
+      if (!(surface instanceof HTMLElement) || !(backdrop instanceof HTMLElement)) {
+        return undefined;
+      }
+
+      this.surfaceEl = surface;
+      this.backdropEl = backdrop;
+
+      this.motionBoot = import("./yn-drawer-motion.js").then(({ createYnDrawerMotion }) => {
+        this.motion = createYnDrawerMotion(
+          surface,
+          backdrop,
+          this.collectMotionTargets(),
+          {
+            onEnterComplete: () => {
+              this.emitLifecycleEvent("after-open", this.activeLifecycleMeta);
+            },
+            onExitComplete: () => {
+              if (this.popoverEl?.matches(":popover-open")) {
+                this.popoverEl.hidePopover();
+              }
+              this.emitLifecycleEvent("after-close", this.activeLifecycleMeta);
+            }
+          },
+          {
+            exitSpeed: this.exitSpeed,
+            easeReverse: this.easeReverse
+          }
+        );
+        this.motionDirty = false;
+        return this.motion;
+      });
+    }
+
+    return this.motionBoot;
   }
 
-  private refreshMotionPanels() {
-    this.ensureMotion();
-    this.motion?.rebuild(this.collectMotionTargets());
-  }
-
-  private syncPopoverState(
-    initial: boolean,
-    meta: {
-      source: YnDrawerLifecycleSource;
-      payload?: unknown;
-      triggerPayload?: unknown;
-    } = { source: "property" }
-  ) {
-    const popoverEl = this.getPopoverEl();
+  private syncPopoverState(initial: boolean, meta: LifecycleMeta = { source: "property" }) {
+    if (!this.popoverEl) this.cacheEls();
+    const popoverEl = this.popoverEl;
     if (!popoverEl) return;
+
     if (initial) {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
-      this.style.setProperty("--yn-drawer-exit-speed", String(this.exitSpeed));
     }
+
     this.activeLifecycleMeta = meta;
-    this.ensureMotion();
     if (this.open) {
-      this.showDrawerPopover(initial, meta);
+      void this.showDrawerPopover(initial, meta);
       return;
     }
     this.hideDrawerPopover(initial, meta);
   }
 
-  private showDrawerPopover(
-    initial: boolean,
-    meta: {
-      source: YnDrawerLifecycleSource;
-      payload?: unknown;
-      triggerPayload?: unknown;
-    }
-  ) {
-    const popoverEl = this.getPopoverEl();
+  private async showDrawerPopover(initial: boolean, meta: LifecycleMeta) {
+    const popoverEl = this.popoverEl;
     if (!popoverEl) return;
     this.activeLifecycleMeta = meta;
+
     if (!popoverEl.matches(":popover-open")) {
       popoverEl.showPopover();
     }
-    this.ensureMotion();
-    if (initial) {
-      this.motion?.seekOpenImmediate();
-      return;
-    }
-    this.motion?.open();
+
+    const motion = await this.ensureMotion();
+    if (!motion || !this.open) return;
+
+    if (initial) motion.seekOpenImmediate();
+    else motion.open();
   }
 
-  private hideDrawerPopover(
-    immediate: boolean,
-    meta: {
-      source: YnDrawerLifecycleSource;
-      payload?: unknown;
-      triggerPayload?: unknown;
-    }
-  ) {
-    const popoverEl = this.getPopoverEl();
-    if (!popoverEl) return;
+  private hideDrawerPopover(immediate: boolean, meta: LifecycleMeta) {
+    const popoverEl = this.popoverEl;
+    if (!popoverEl || !popoverEl.matches(":popover-open")) return;
+
     this.activeLifecycleMeta = meta;
-    if (!popoverEl.matches(":popover-open")) {
-      // 初次挂载且本就关闭时不要派发 after-close，避免宿主/Story 重渲染死循环
-      return;
-    }
+
     if (immediate) {
       popoverEl.hidePopover();
       this.motion?.dispose();
       this.motion = undefined;
-      this.ensureMotion();
+      this.motionBoot = undefined;
+      this.motionDirty = true;
       this.emitLifecycleEvent("after-close", meta);
       return;
     }
-    this.ensureMotion();
-    this.motion?.close();
+
+    if (this.motion) {
+      this.motion.close();
+      return;
+    }
+
+    // 动画模块尚未加载完就关闭：直接收起
+    popoverEl.hidePopover();
+    this.emitLifecycleEvent("after-close", meta);
   }
 
-  private setOpenWithMeta(
-    nextOpen: boolean,
-    meta: {
-      source: YnDrawerLifecycleSource;
-      payload?: unknown;
-      triggerPayload?: unknown;
-    }
-  ) {
+  private setOpenWithMeta(nextOpen: boolean, meta: LifecycleMeta) {
     this.pendingActionMeta = { nextOpen, ...meta };
     this.open = nextOpen;
   }
 
+  private bindTriggerSlotClicks() {
+    const slot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="trigger"]');
+    if (!slot) return;
+
+    const bind = () => {
+      for (const el of slot.assignedElements({ flatten: true })) {
+        if (!(el instanceof HTMLElement) || el.dataset.ynDrawerTriggerBound === "1") continue;
+        el.dataset.ynDrawerTriggerBound = "1";
+        el.addEventListener("click", (event) => {
+          event.stopPropagation();
+          this.handleTriggerClick();
+        });
+      }
+    };
+
+    bind();
+    slot.addEventListener("slotchange", bind);
+  }
+
   private getTriggerPayload() {
-    const triggerEl = this.getTriggerSlotEl()?.assignedElements({ flatten: true })[0] as
+    const slot = this.shadowRoot?.querySelector<HTMLSlotElement>('slot[name="trigger"]');
+    const triggerEl = slot?.assignedElements({ flatten: true })[0] as
       | (HTMLElement & { drawerLifecyclePayload?: unknown })
       | undefined;
     if (!triggerEl) return undefined;
     if (triggerEl.drawerLifecyclePayload !== undefined) {
       return triggerEl.drawerLifecyclePayload;
     }
-    const rawPayload =
+    const raw =
       triggerEl.getAttribute("drawer-payload") ??
       triggerEl.getAttribute("trigger-payload") ??
       triggerEl.getAttribute("data-drawer-payload");
-    if (rawPayload == null || rawPayload === "") return undefined;
+    if (raw == null || raw === "") return undefined;
     try {
-      return JSON.parse(rawPayload);
+      return JSON.parse(raw);
     } catch {
-      return rawPayload;
+      return raw;
     }
   }
 
@@ -529,8 +431,10 @@ export class YnDrawer extends LitElement {
   }
 
   private handleTriggerClick = () => {
-    const triggerPayload = this.getTriggerPayload();
-    this.setOpenWithMeta(!this.open, { source: "trigger", triggerPayload });
+    this.setOpenWithMeta(!this.open, {
+      source: "trigger",
+      triggerPayload: this.getTriggerPayload()
+    });
   };
 
   private handleCloseClick = () => {
@@ -542,62 +446,64 @@ export class YnDrawer extends LitElement {
     this.setOpenWithMeta(false, { source: "backdrop" });
   };
 
-  private handleEscape(event: KeyboardEvent) {
+  private handleEscape = (event: KeyboardEvent) => {
     if (event.key !== "Escape" || !this.open) return;
     event.stopPropagation();
     this.setOpenWithMeta(false, { source: "escape" });
-  }
+  };
 
-  private slotHasMeaningfulContent(slotEl: HTMLSlotElement | undefined) {
-    if (!slotEl) return false;
-    const nodes = slotEl.assignedNodes({ flatten: true });
-    return nodes.some((node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return Boolean(node.textContent?.trim());
-      }
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        return true;
-      }
-      return false;
+  private slotHasContent(name: string) {
+    const slot = this.shadowRoot?.querySelector<HTMLSlotElement>(`slot[name="${name}"]`);
+    if (!slot) return false;
+    return slot.assignedNodes({ flatten: true }).some((node) => {
+      if (node.nodeType === Node.TEXT_NODE) return Boolean(node.textContent?.trim());
+      return node.nodeType === Node.ELEMENT_NODE;
     });
   }
 
-  private syncFooterEmptyState() {
-    this.footerEmpty = !this.slotHasMeaningfulContent(this.getFooterSlotEl() ?? undefined);
+  private syncSlotEmptyStates() {
+    this.footerEmpty = !this.slotHasContent("footer");
+    this.middleEmpty = !this.slotHasContent("middle");
+    this.backdropExtraEmpty = !this.slotHasContent("backdrop-extra");
+
     this.shadowRoot
       ?.querySelector(".panel--bottom")
       ?.classList.toggle("panel--empty", this.footerEmpty);
-  }
-
-  private syncMiddleEmptyState() {
-    this.middleEmpty = !this.slotHasMeaningfulContent(this.getMiddleSlotEl() ?? undefined);
     this.shadowRoot
       ?.querySelector(".panel--middle")
       ?.classList.toggle("panel--empty", this.middleEmpty);
-  }
-
-  private syncBackdropExtraEmptyState() {
-    this.backdropExtraEmpty = !this.slotHasMeaningfulContent(
-      this.getBackdropExtraSlotEl() ?? undefined
-    );
     this.shadowRoot
       ?.querySelector(".backdrop-extra")
       ?.classList.toggle("backdrop-extra--empty", this.backdropExtraEmpty);
   }
 
-  private handleFooterSlotChange = () => {
-    this.syncFooterEmptyState();
-    this.refreshMotionPanels();
-  };
+  private onMotionSlotChange = (name: "footer" | "middle" | "backdrop-extra") => {
+    if (name === "footer") this.footerEmpty = !this.slotHasContent("footer");
+    if (name === "middle") this.middleEmpty = !this.slotHasContent("middle");
+    if (name === "backdrop-extra") {
+      this.backdropExtraEmpty = !this.slotHasContent("backdrop-extra");
+    }
 
-  private handleMiddleSlotChange = () => {
-    this.syncMiddleEmptyState();
-    this.refreshMotionPanels();
-  };
+    if (name === "footer") {
+      this.shadowRoot
+        ?.querySelector(".panel--bottom")
+        ?.classList.toggle("panel--empty", this.footerEmpty);
+    } else if (name === "middle") {
+      this.shadowRoot
+        ?.querySelector(".panel--middle")
+        ?.classList.toggle("panel--empty", this.middleEmpty);
+    } else {
+      this.shadowRoot
+        ?.querySelector(".backdrop-extra")
+        ?.classList.toggle("backdrop-extra--empty", this.backdropExtraEmpty);
+    }
 
-  private handleBackdropExtraSlotChange = () => {
-    this.syncBackdropExtraEmptyState();
-    this.refreshMotionPanels();
+    this.motionDirty = true;
+    // 仅打开时同步目标，避免关闭态反复 rebuild
+    if (this.open && this.motion) {
+      this.motion.setTargets(this.collectMotionTargets());
+      this.motionDirty = false;
+    }
   };
 
   render() {
@@ -623,7 +529,7 @@ export class YnDrawer extends LitElement {
           >
             <slot
               name="backdrop-extra"
-              @slotchange=${this.handleBackdropExtraSlotChange}
+              @slotchange=${() => this.onMotionSlotChange("backdrop-extra")}
             ></slot>
           </div>
 
@@ -661,19 +567,40 @@ export class YnDrawer extends LitElement {
             class="panel panel--middle ${this.middleEmpty ? "panel--empty" : ""}"
             @click=${(event: Event) => event.stopPropagation()}
           >
-            <slot name="middle" @slotchange=${this.handleMiddleSlotChange}></slot>
+            <slot name="middle" @slotchange=${() => this.onMotionSlotChange("middle")}></slot>
           </div>
 
           <footer
             class="panel panel--bottom ${this.footerEmpty ? "panel--empty" : ""}"
             @click=${(event: Event) => event.stopPropagation()}
           >
-            <slot name="footer" @slotchange=${this.handleFooterSlotChange}></slot>
+            <slot name="footer" @slotchange=${() => this.onMotionSlotChange("footer")}></slot>
           </footer>
         </div>
       </div>
     `;
   }
+}
+
+function collectRecoCards(assigned: HTMLElement[]) {
+  if (!assigned.length) return [] as HTMLElement[];
+  if (assigned.length > 1) return assigned;
+
+  const host = assigned[0];
+  const marked = host.querySelectorAll<HTMLElement>("[data-yn-drawer-reco]");
+  if (marked.length) return Array.from(marked);
+
+  const articles = host.querySelectorAll<HTMLElement>("article");
+  if (articles.length) return Array.from(articles);
+
+  const kids = Array.from(host.children).filter(
+    (n): n is HTMLElement => n instanceof HTMLElement
+  );
+  const row = kids.find((el) => el.children.length > 1);
+  if (row) {
+    return Array.from(row.children).filter((n): n is HTMLElement => n instanceof HTMLElement);
+  }
+  return kids;
 }
 
 declare global {

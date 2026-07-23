@@ -6,168 +6,178 @@ export type YnDrawerMotionCallbacks = {
 };
 
 export type YnDrawerMotionOptions = {
-  reduceMotion: boolean;
-  exitSpeed: number;
-  easeReverse: boolean;
-};
-
-export type YnDrawerMotionExtras = {
-  root: HTMLElement;
-  items: HTMLElement[];
+  exitSpeed?: number;
+  easeReverse?: boolean;
+  reduceMotion?: boolean;
 };
 
 export type YnDrawerMotionTargets = {
   panels: HTMLElement[];
-  extras: YnDrawerMotionExtras | null;
+  /** backdrop-extra 内参与动画的商品卡 */
+  reco: HTMLElement[];
+  recoRoot?: HTMLElement | null;
 };
 
 export type YnDrawerMotionController = {
   open: () => void;
   close: () => void;
   dispose: () => void;
-  rebuild: (targets: YnDrawerMotionTargets) => void;
+  setTargets: (targets: YnDrawerMotionTargets) => void;
+  setOptions: (options: YnDrawerMotionOptions) => void;
   seekOpenImmediate: () => void;
 };
 
+const EPS = 0.001;
+
 function prefersReducedMotion() {
-  if (typeof window === "undefined" || !window.matchMedia) return false;
-  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  return (
+    typeof window !== "undefined" &&
+    Boolean(window.matchMedia?.("(prefers-reduced-motion: reduce)").matches)
+  );
 }
 
-function extrasSignature(extras: YnDrawerMotionExtras | null) {
-  if (!extras) return "none";
-  return `${extras.root.tagName}:${extras.items.length}:${extras.items
-    .map((item) => item.tagName)
-    .join(",")}`;
+function sameElements(a: HTMLElement[], b: HTMLElement[]) {
+  return a.length === b.length && a.every((el, i) => el === b[i]);
 }
-
-const cardEnterFrom = { x: "110%", y: 0, opacity: 0, rotation: 0 };
-const cardEnterTo = {
-  x: "0%",
-  y: 0,
-  rotation: 0,
-  opacity: 1
-};
 
 /**
- * basetest panel cards + backdrop reco cards share the same enter/exit language.
+ * 单时间轴：enter → pause → exit。
+ * 面板与推荐卡共用同一套侧滑入 / 坠落出。
  */
 export function createYnDrawerMotion(
   scope: HTMLElement,
   backdrop: HTMLElement,
   targets: YnDrawerMotionTargets,
   callbacks: YnDrawerMotionCallbacks,
-  options: Partial<YnDrawerMotionOptions> = {}
+  options: YnDrawerMotionOptions = {}
 ): YnDrawerMotionController {
   let ctx: gsap.Context | undefined;
   let tl: gsap.core.Timeline | undefined;
   let enterEndTime = 0;
-  let activePanels = targets.panels.slice();
-  let activeExtras = targets.extras;
+  let cards: HTMLElement[] = [];
+  let recoRoot: HTMLElement | null = null;
   let isOpen = false;
-  let enterNotified = false;
-  let exitNotified = false;
+  let enterDone = false;
+  let exitDone = false;
+  let opts = { ...options };
 
-  const exitSpeed = options.exitSpeed ?? 1.5;
-  const useEaseReverse = options.easeReverse ?? true;
-  const er = (value: string | true) => (useEaseReverse ? value : false);
+  const durationScale = () =>
+    (opts.reduceMotion ?? prefersReducedMotion()) ? 0.01 : 1;
 
-  const recoCards = () => activeExtras?.items ?? [];
+  const easeRev = (ease: string) => (opts.easeReverse === false ? false : ease);
 
-  const allCards = () => [...activePanels, ...recoCards()];
+  const collectCards = (next: YnDrawerMotionTargets) => [
+    ...next.panels,
+    ...next.reco
+  ];
 
-  const resetClosedVisual = () => {
-    gsap.set(scope, { autoAlpha: 0 });
+  const paintClosed = () => {
+    gsap.set(scope, { autoAlpha: 0, force3D: true });
     gsap.set(backdrop, { opacity: 0 });
-    if (activeExtras) {
-      // 容器本身不参与飞入，只负责布局；卡片与面板同款位移
-      gsap.set(activeExtras.root, { autoAlpha: 1, x: 0, y: 0 });
-    }
-    const cards = allCards();
+    if (recoRoot) gsap.set(recoRoot, { autoAlpha: 1, x: 0, y: 0 });
     if (cards.length) {
       gsap.set(cards, {
-        ...cardEnterFrom,
+        x: "110%",
+        y: 0,
+        rotation: 0,
+        opacity: 0,
+        force3D: true,
         transformOrigin: "50% 50%"
       });
     }
   };
 
-  const notifyEnter = () => {
-    if (enterNotified) return;
-    enterNotified = true;
+  const paintOpen = () => {
+    gsap.set(scope, { autoAlpha: 1, force3D: true });
+    gsap.set(backdrop, { opacity: 1 });
+    if (recoRoot) gsap.set(recoRoot, { autoAlpha: 1, x: 0, y: 0 });
+    if (cards.length) {
+      gsap.set(cards, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        opacity: 1,
+        force3D: true
+      });
+    }
+  };
+
+  const onEnter = () => {
+    if (enterDone) return;
+    enterDone = true;
     callbacks.onEnterComplete();
   };
 
-  const notifyExit = () => {
-    if (exitNotified) return;
-    exitNotified = true;
+  const onExit = () => {
+    if (exitDone) return;
+    exitDone = true;
     isOpen = false;
     tl?.pause(0);
-    resetClosedVisual();
+    paintClosed();
     callbacks.onExitComplete();
   };
 
   const build = () => {
     ctx?.revert();
-    enterNotified = false;
-    exitNotified = false;
+    enterDone = false;
+    exitDone = false;
+    const d = durationScale();
 
     ctx = gsap.context(() => {
-      const reduceMotion = options.reduceMotion ?? prefersReducedMotion();
-      const d = reduceMotion ? 0.01 : 1;
-      const cards = allCards();
+      paintClosed();
 
-      resetClosedVisual();
+      tl = gsap
+        .timeline({
+          paused: true,
+          defaults: { force3D: true },
+          onComplete: onExit,
+          onReverseComplete: onExit
+        })
+        .set(scope, { autoAlpha: 1 })
+        .to(
+          backdrop,
+          {
+            opacity: 1,
+            duration: 0.4 * d,
+            ease: "power2.out",
+            easeReverse: easeRev("power4.out")
+          },
+          0
+        );
 
-      tl = gsap.timeline({
-        paused: true,
-        onComplete: notifyExit,
-        onReverseComplete: notifyExit
-      });
-
-      tl.set(scope, { autoAlpha: 1 }).to(
-        backdrop,
-        {
-          opacity: 1,
-          duration: 0.4 * d,
-          ease: "power2.out",
-          easeReverse: er("power4.out")
-        },
-        0
-      );
-
-      // 面板 + 推荐卡：同一套侧滑入场（错落）
       if (cards.length) {
         tl.fromTo(
           cards,
-          { ...cardEnterFrom },
+          { x: "110%", y: 0, opacity: 0, rotation: 0 },
           {
-            ...cardEnterTo,
+            x: "0%",
+            y: 0,
+            rotation: 0,
+            opacity: 1,
             duration: 0.6 * d,
             ease: "back.out",
-            easeReverse: er("power3.in"),
-            stagger: 0.1 * d
+            easeReverse: easeRev("power3.in"),
+            stagger: 0.1 * d,
+            immediateRender: false
           },
           0
         );
       }
 
-      tl.addPause("+=0", notifyEnter);
-      enterEndTime = Math.max(tl.duration(), 0.01);
+      tl.addPause("+=0", onEnter);
+      enterEndTime = Math.max(tl.duration(), EPS);
 
-      // 面板 + 推荐卡：同一套坠落退场
       if (cards.length) {
+        // 固定角度，避免每帧函数取值
+        const spins = cards.map((_, i) => ((i % 2 === 0 ? -12 : 12) - i * 3));
         tl.to(
           cards,
           {
             y: "110vh",
-            rotation: (index: number) => (index % 2 === 0 ? -12 : 12) - index * 3,
+            rotation: (i: number) => spins[i] ?? 0,
             duration: 1 * d,
             ease: "power3.in",
-            stagger: {
-              from: "end",
-              each: 0.02 * d
-            }
+            stagger: { from: "end", each: 0.02 * d }
           },
           enterEndTime
         );
@@ -175,104 +185,72 @@ export function createYnDrawerMotion(
 
       tl.to(
         backdrop,
-        {
-          opacity: 0,
-          duration: 0.3 * d,
-          ease: "power2.in"
-        },
+        { opacity: 0, duration: 0.3 * d, ease: "power2.in" },
         enterEndTime + 0.1 * d
       ).set(scope, { autoAlpha: 0 });
     }, scope);
   };
 
+  cards = collectCards(targets);
+  recoRoot = targets.recoRoot ?? null;
   build();
 
   return {
+    setOptions(next) {
+      opts = { ...opts, ...next };
+    },
+    setTargets(next) {
+      const nextCards = collectCards(next);
+      const nextRoot = next.recoRoot ?? null;
+      if (sameElements(nextCards, cards) && nextRoot === recoRoot) return;
+
+      const keepOpen = isOpen && enterDone;
+      cards = nextCards;
+      recoRoot = nextRoot;
+      build();
+      if (keepOpen) this.seekOpenImmediate();
+    },
     open() {
       if (!tl) return;
-      if (isOpen && enterNotified && tl.paused() && tl.time() >= enterEndTime - 0.001) {
+      if (isOpen && enterDone && tl.paused() && tl.time() >= enterEndTime - EPS) {
         return;
       }
 
       isOpen = true;
-      exitNotified = false;
-
-      if (tl.progress() > 0.999 || tl.time() > enterEndTime + 0.001) {
-        enterNotified = false;
-        build();
-      }
-
-      if (!tl) return;
+      exitDone = false;
       tl.reversed(false).timeScale(1);
 
-      if (tl.time() > 0.001 && tl.time() < enterEndTime - 0.001) {
+      // 退场结束后 pause(0)，直接 restart；中途打断则继续 play
+      if (tl.time() > EPS && tl.time() < enterEndTime - EPS) {
         tl.play();
         return;
       }
 
-      enterNotified = false;
+      enterDone = false;
       tl.restart(true, false);
     },
     close() {
-      if (!tl) return;
-      if (!isOpen && tl.time() <= 0.001) return;
+      if (!tl || !isOpen) return;
 
       isOpen = false;
-      enterNotified = false;
-      exitNotified = false;
-      tl.timeScale(1);
+      enterDone = false;
+      exitDone = false;
 
-      if (tl.time() < enterEndTime - 0.001) {
-        tl.timeScale(exitSpeed).reverse();
+      if (tl.time() < enterEndTime - EPS) {
+        tl.timeScale(opts.exitSpeed ?? 1.5).reverse();
         return;
       }
 
-      tl.play(enterEndTime + 0.001);
+      tl.timeScale(1).play(enterEndTime + EPS);
     },
     seekOpenImmediate() {
       if (!tl) return;
       isOpen = true;
-      exitNotified = false;
-      enterNotified = false;
+      exitDone = false;
+      enterDone = false;
       tl.pause(enterEndTime);
-      gsap.set(scope, { autoAlpha: 1 });
-      gsap.set(backdrop, { opacity: 1 });
-      if (activeExtras) {
-        gsap.set(activeExtras.root, { autoAlpha: 1, x: 0, y: 0 });
-      }
-      const cards = allCards();
-      if (cards.length) {
-        gsap.set(cards, { x: 0, y: 0, rotation: 0, opacity: 1 });
-      }
-      notifyEnter();
-    },
-    rebuild(nextTargets: YnDrawerMotionTargets) {
-      const samePanels =
-        nextTargets.panels.length === activePanels.length &&
-        nextTargets.panels.every((panel, index) => panel === activePanels[index]);
-      const sameExtras =
-        extrasSignature(nextTargets.extras) === extrasSignature(activeExtras) &&
-        nextTargets.extras?.root === activeExtras?.root &&
-        Boolean(
-          nextTargets.extras?.items.every(
-            (item, index) => item === activeExtras?.items[index]
-          )
-        );
-
-      if (samePanels && sameExtras) return;
-
-      activePanels = nextTargets.panels.slice();
-      activeExtras = nextTargets.extras
-        ? {
-            root: nextTargets.extras.root,
-            items: nextTargets.extras.items.slice()
-          }
-        : null;
-      const keepOpen = isOpen && enterNotified;
-      build();
-      if (keepOpen) {
-        this.seekOpenImmediate();
-      }
+      paintOpen();
+      onEnter();
     },
     dispose() {
       isOpen = false;
@@ -280,6 +258,8 @@ export function createYnDrawerMotion(
       tl = undefined;
       ctx?.revert();
       ctx = undefined;
+      cards = [];
+      recoRoot = null;
     }
   };
 }
