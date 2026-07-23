@@ -224,7 +224,6 @@ export const YN_DRAWER_SHADOW_STYLES = `
       justify-content: space-between;
       gap: 12px;
       padding: var(--yn-drawer-header-padding);
-      border-bottom: 1px solid var(--yn-drawer-header-border);
       flex-shrink: 0;
       background: color-mix(in srgb, var(--yn-drawer-bg) 92%, transparent);
     }
