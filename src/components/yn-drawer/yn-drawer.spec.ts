@@ -65,7 +65,7 @@ describe("yn-drawer", () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer open></yn-drawer>`);
     await el.updateComplete;
 
-    const closeBtn = el.shadowRoot?.querySelector(".close-btn");
+    const closeBtn = el.shadowRoot?.querySelector<HTMLElement>(".close-btn");
     if (!closeBtn) throw new Error("missing close button");
 
     closeBtn.click();
@@ -79,5 +79,39 @@ describe("yn-drawer", () => {
     );
     expect(el.getAttribute("placement")).to.equal("bottom");
     expect(el.getAttribute("sheet-height")).to.equal("60vh");
+  });
+
+  it("renders middle slot panel when content is provided", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer>
+        <div slot="middle">Promo</div>
+        <div slot="footer">Footer</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
+    const middle = el.shadowRoot?.querySelector(".panel--middle");
+    const bottom = el.shadowRoot?.querySelector(".panel--bottom");
+    expect(middle?.classList.contains("panel--empty")).to.equal(false);
+    expect(bottom?.classList.contains("panel--empty")).to.equal(false);
+    expect(el.querySelector('[slot="middle"]')?.textContent).to.include("Promo");
+  });
+
+  it("keeps backdrop-extra content available for motion", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer>
+        <div slot="backdrop-extra">
+          <article data-yn-drawer-reco>A</article>
+          <article data-yn-drawer-reco>B</article>
+        </div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
+    const extra = el.shadowRoot?.querySelector(".backdrop-extra");
+    expect(extra?.classList.contains("backdrop-extra--empty")).to.equal(false);
+    expect(el.querySelectorAll("[data-yn-drawer-reco]").length).to.equal(2);
   });
 });

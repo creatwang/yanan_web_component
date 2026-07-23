@@ -14,10 +14,11 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ["lit"],
+      external: ["lit", "gsap"],
       output: {
         globals: {
-          lit: "lit"
+          lit: "lit",
+          gsap: "gsap"
         }
       }
     }

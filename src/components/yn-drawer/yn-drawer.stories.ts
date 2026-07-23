@@ -32,6 +32,7 @@ type Args = {
   header?: string;
   content?: string;
   footer?: string;
+  middle?: string;
   backdropExtra?: string;
   show?: (payload?: unknown) => void;
   close?: (payload?: unknown) => void;
@@ -50,7 +51,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "抽屉组件，基于原生 popover 封装。`placement=\"auto\"` 时窄屏自底部上滑，宽屏自右侧滑入；可用 `placement=\"bottom\"` 强制底部弹出。底部高度由 `sheet-height` 控制，默认 `90vh`；设为 `auto` 时高度随内容（`translateY(100%)` 按面板高度滑入）。\n\n生命周期事件：`before-open`、`after-open`、`before-close`、`after-close`。其中 `before-*` 事件可 `event.preventDefault()` 阻止状态变更。\n\n方法调用：`show(payload?)`、`close(payload?)`、`toggle(payload?)`，传入参数会透传到生命周期事件的 `event.detail.payload`。\n\n触发器参数：`trigger` 插槽节点支持 `drawer-payload`（支持 JSON 字符串）/ `trigger-payload` / `data-drawer-payload` 属性，也会透传到生命周期事件的 `event.detail.triggerPayload`。\n\n插槽优先级：`header` 插槽优先，未传入时回退到 `title` 属性文案。\n\n`backdrop-extra`：宽屏（≥1024px）且右侧抽屉时，在遮罩层左侧区域展示推荐等内容（遮罩仍全屏半透明，不替代遮罩）；窄屏隐藏。\n\n样式隔离：组件使用 Shadow DOM，外部样式默认不穿透；请使用公开 CSS 变量定制。\n\nTree Shaking 导入：\n- 全量入口：`import \"yn-web-component/define\"`\n- 按需入口（推荐）：`import \"yn-web-component/components/yn-drawer\"`"
+          "抽屉组件，基于原生 popover + GSAP timeline。布局对齐 basetest：`content`/`header` → top 面板，`middle` → 中间宣传面板，`footer` → 底部深色面板。打开为错落入场（可 `easeReverse` 打断反向），关闭为坠落退场。\n\n生命周期事件：`before-open`、`after-open`、`before-close`、`after-close`。其中 `before-*` 事件可 `event.preventDefault()` 阻止状态变更。\n\n方法：`show` / `close` / `toggle`。属性：`exit-speed`、`ease-reverse`。\n\nTree Shaking：`import \"yn-web-component/components/yn-drawer\"`（需宿主可解析 `gsap`）。"
       }
     }
   },
@@ -235,7 +236,8 @@ const meta = {
     content: {
       name: "content",
       control: false,
-      description: "中间内容插槽。用于承载商品列表、表单等主体内容。",
+      description:
+        "主内容插槽（对应 basetest `nav-top`）。位于顶部白面板 body，参与 GSAP 面板入场。",
       table: {
         category: "Slots",
         defaultValue: { summary: "空" },
@@ -245,10 +247,22 @@ const meta = {
     footer: {
       name: "footer",
       control: false,
-      description: "底部插槽。常用于放置结算按钮、辅助说明等操作区内容。",
+      description:
+        "底部插槽（对应 basetest `nav-bottom`）。独立深色面板，参与 GSAP 错落入场/坠落退场。",
       table: {
         category: "Slots",
         defaultValue: { summary: "空" },
+        type: { summary: "HTMLElement" }
+      }
+    },
+    middle: {
+      name: "middle",
+      control: false,
+      description:
+        "中间插槽（对应 basetest `nav-middle`）。可选宣传/活动区，有内容时显示并参与面板 stagger。",
+      table: {
+        category: "Slots",
+        defaultValue: { summary: "空（不展示）" },
         type: { summary: "HTMLElement" }
       }
     },
@@ -419,6 +433,115 @@ const meta = {
 export default meta;
 type Story = StoryObj<Args>;
 const wait = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+const OPEN_WAIT_MS = 900;
+const CLOSE_WAIT_MS = 1200;
+
+export const PanelStackMenu: Story = {
+  args: {
+    width: 480
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          "三层面板：top（导航）+ middle（宣传）+ bottom（footer）。Floema 配色；可快速连点体验 interruptible reverse / 坠落退场。"
+      }
+    }
+  },
+  render: (args) => html`
+    <div class="yn-min-h-[640px] yn-bg-[#f2efea] yn-p-6">
+      <yn-drawer
+        .width=${args.width}
+        title="Menu"
+        placement=${args.placement}
+        .closeOnBackdrop=${args.closeOnBackdrop}
+        exit-speed="1.5"
+        ease-reverse
+        style=${`--yn-drawer-z-index:${args.zIndex};`}
+      >
+        <yn-button slot="trigger" variant="default">Open menu</yn-button>
+
+        <span slot="header">Menu</span>
+
+        <ul slot="content" class="yn-m-0 yn-flex yn-list-none yn-flex-col yn-gap-0 yn-p-0">
+          ${["New Arrivals", "Mens", "Womens", "Accessories", "Journal", "Stores"].map(
+            (label) => html`
+              <li class="yn-border-b yn-border-[#241f21]/[0.08] last:yn-border-0">
+                <a
+                  href="#"
+                  class="yn-block yn-py-3 yn-text-[clamp(1.35rem,3.2vw,1.65rem)] yn-font-semibold yn-leading-[1.05] yn-tracking-[-0.03em] yn-text-[#241f21] yn-no-underline yn-transition-opacity hover:yn-opacity-60"
+                  @click=${(event: Event) => event.preventDefault()}
+                >
+                  ${label}
+                </a>
+              </li>
+            `
+          )}
+          <li class="yn-mt-8 yn-text-xs yn-tracking-[0.04em] yn-text-[#6f696b]">
+            Account / Sign in
+          </li>
+        </ul>
+
+        <div slot="middle" class="yn-flex yn-w-full yn-flex-col">
+          <div
+            class="yn-mb-2.5 yn-text-[0.65rem] yn-font-semibold yn-uppercase yn-tracking-[0.12em] yn-text-[#241f21]/70"
+          >
+            Featured
+          </div>
+          <div class="yn-flex yn-items-center yn-gap-3.5">
+            <div
+              class="yn-flex yn-h-11 yn-w-11 yn-shrink-0 yn-items-center yn-justify-center yn-rounded-[12px] yn-bg-[#241f21]/10"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M12 3l2.4 6.2L21 12l-6.6 2.8L12 21l-2.4-6.2L3 12l6.6-2.8L12 3z"
+                  fill="currentColor"
+                />
+              </svg>
+            </div>
+            <div class="yn-min-w-0">
+              <div class="yn-truncate yn-text-[1.05rem] yn-font-semibold yn-leading-tight yn-text-[#241f21]">
+                Spring drop is live
+              </div>
+              <div class="yn-mt-0.5 yn-text-xs yn-leading-snug yn-text-[#241f21]/70">
+                Lightweight layers · limited colorways
+              </div>
+            </div>
+          </div>
+          <div class="yn-mt-3.5">
+            <a
+              href="#"
+              class="yn-inline-flex yn-items-center yn-rounded-full yn-bg-[#241f21] yn-px-3.5 yn-py-1.5 yn-text-[0.7rem] yn-font-semibold yn-tracking-[0.02em] yn-text-white yn-no-underline"
+              @click=${(event: Event) => event.preventDefault()}
+            >
+              Shop the edit
+            </a>
+          </div>
+        </div>
+
+        <div
+          slot="footer"
+          class="yn-flex yn-w-full yn-flex-wrap yn-items-center yn-justify-between yn-gap-x-5 yn-gap-y-2"
+        >
+          <div class="yn-flex yn-flex-wrap yn-gap-x-4 yn-gap-y-1">
+            ${["Instagram", "TikTok", "Pinterest"].map(
+              (label) => html`
+                <a
+                  href="#"
+                  class="yn-text-xs yn-tracking-[0.04em] yn-text-white/60 yn-no-underline hover:yn-text-white"
+                  @click=${(event: Event) => event.preventDefault()}
+                >
+                  ${label}
+                </a>
+              `
+            )}
+          </div>
+          <span class="yn-text-[0.65rem] yn-tracking-[0.06em] yn-text-white/35">© Floema</span>
+        </div>
+      </yn-drawer>
+    </div>
+  `
+};
 
 export const CartDrawer: Story = {
   args: {
@@ -436,33 +559,12 @@ export const CartDrawer: Story = {
   render: (args) => html`
     <div class="yn-min-h-[520px] yn-bg-[#f5f1ea] yn-p-6">
       <yn-drawer
-        ?open=${args.open}
         .width=${args.width}
         .title=${args.title}
         placement=${args.placement}
         sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         style=${`--yn-drawer-z-index:${args.zIndex};--yn-drawer-bg:${args.drawerBg};--yn-drawer-shadow:${args.drawerShadow};--yn-drawer-backdrop:${args.backdropColor};--yn-drawer-header-border:transparent;--yn-drawer-footer-border:${args.footerBorder};--yn-drawer-title-color:${args.titleColor};--yn-drawer-close-color:${args.closeColor};--yn-drawer-close-hover-bg:${args.closeHoverBg};--yn-drawer-content-color:${args.contentColor};--yn-drawer-footer-bg:${args.footerBg};--yn-drawer-body-padding:0 16px 20px;--yn-drawer-open-duration:${args.openDuration};--yn-drawer-close-duration:${args.closeDuration};--yn-drawer-open-ease:${args.openEase};--yn-drawer-close-ease:${args.closeEase};`}
-        @open-change=${(event: Event) =>
-          args.onOpenChange?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @before-open=${(event: Event) =>
-          args.onBeforeOpen?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @after-open=${(event: Event) =>
-          args.onAfterOpen?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @before-close=${(event: Event) =>
-          args.onBeforeClose?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @after-close=${(event: Event) =>
-          args.onAfterClose?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
       >
         <yn-button slot="trigger" variant="default" drawer-payload='{"scene":"cart","entry":"header-button"}'>
           <svg class="yn-size-6" slot="prefix-icon" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -548,29 +650,29 @@ export const CartDrawer: Story = {
 
     await step("点击 trigger，触发 before-open / after-open / open-change", async () => {
       trigger?.click();
-      await wait(420);
+      await wait(OPEN_WAIT_MS);
     });
 
     await step("点击关闭按钮，触发 before-close / after-close / open-change", async () => {
-      const closeBtn = drawer.shadowRoot?.querySelector(".close-btn");
+      const closeBtn = drawer.shadowRoot?.querySelector<HTMLElement>(".close-btn");
       closeBtn?.click();
-      await wait(360);
+      await wait(CLOSE_WAIT_MS);
     });
 
     await step("再次打开后点击遮罩，触发 backdrop 关闭链路", async () => {
       trigger?.click();
-      await wait(420);
+      await wait(OPEN_WAIT_MS);
       const backdrop = drawer.shadowRoot?.querySelector<HTMLElement>(".backdrop");
       backdrop?.click();
-      await wait(360);
+      await wait(CLOSE_WAIT_MS);
     });
 
     await step("再次打开后按 Escape，触发 escape 关闭链路", async () => {
       trigger?.click();
-      await wait(420);
+      await wait(OPEN_WAIT_MS);
       const popover = drawer.shadowRoot?.querySelector<HTMLElement>("#drawerPopover");
       popover?.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-      await wait(360);
+      await wait(CLOSE_WAIT_MS);
     });
   }
 };
@@ -591,44 +693,34 @@ export const CartDrawerDesktop: Story = {
   render: (args) => html`
     <div class="yn-min-h-[640px] yn-bg-[#f5f1ea] yn-p-6">
       <yn-drawer
-        ?open=${args.open}
         .width=${args.width}
         .title=${args.title}
         placement=${args.placement}
         sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         style=${`--yn-drawer-z-index:${args.zIndex};--yn-drawer-bg:${args.drawerBg};--yn-drawer-shadow:${args.drawerShadow};--yn-drawer-backdrop:${args.backdropColor};--yn-drawer-header-border:transparent;--yn-drawer-footer-border:${args.footerBorder};--yn-drawer-title-color:${args.titleColor};--yn-drawer-close-color:${args.closeColor};--yn-drawer-close-hover-bg:${args.closeHoverBg};--yn-drawer-content-color:${args.contentColor};--yn-drawer-footer-bg:${args.footerBg};--yn-drawer-body-padding:0 16px 20px;--yn-drawer-open-duration:${args.openDuration};--yn-drawer-close-duration:${args.closeDuration};--yn-drawer-open-ease:${args.openEase};--yn-drawer-close-ease:${args.closeEase};`}
-        @open-change=${(event: Event) =>
-          args.onOpenChange?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @before-open=${(event: Event) =>
-          args.onBeforeOpen?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @after-open=${(event: Event) =>
-          args.onAfterOpen?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @before-close=${(event: Event) =>
-          args.onBeforeClose?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
-        @after-close=${(event: Event) =>
-          args.onAfterClose?.(
-            event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-          )}
       >
-        <div slot="backdrop-extra" class="yn-flex yn-gap-4">
-          <div class="yn-w-40 yn-rounded-xl yn-bg-white yn-p-4 yn-shadow-md">
-            <div class="yn-h-24 yn-rounded-lg yn-bg-[#f3efe7]"></div>
-            <p class="yn-mt-3 yn-text-sm yn-font-bold">Essential Tee</p>
-            <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 24.00</p>
-          </div>
-          <div class="yn-w-40 yn-rounded-xl yn-bg-white yn-p-4 yn-shadow-md">
-            <div class="yn-h-24 yn-rounded-lg yn-bg-[#f3efe7]"></div>
-            <p class="yn-mt-3 yn-text-sm yn-font-bold">Training Shorts</p>
-            <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 32.00</p>
+        <div slot="backdrop-extra" class="yn-flex yn-flex-col yn-items-start yn-gap-4">
+          <p class="yn-m-0 yn-text-xs yn-font-semibold yn-uppercase yn-tracking-[0.08em] yn-text-white/70">
+            You may also like
+          </p>
+          <div class="yn-flex yn-gap-4">
+            <article
+              data-yn-drawer-reco
+              class="yn-w-44 yn-rounded-2xl yn-bg-white yn-p-3.5 yn-shadow-lg"
+            >
+              <div class="yn-h-28 yn-rounded-xl yn-bg-[#f3efe7]"></div>
+              <p class="yn-mt-3 yn-text-sm yn-font-bold yn-text-[#241f21]">Essential Tee</p>
+              <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 24.00</p>
+            </article>
+            <article
+              data-yn-drawer-reco
+              class="yn-w-44 yn-rounded-2xl yn-bg-white yn-p-3.5 yn-shadow-lg"
+            >
+              <div class="yn-h-28 yn-rounded-xl yn-bg-[#efe8dc]"></div>
+              <p class="yn-mt-3 yn-text-sm yn-font-bold yn-text-[#241f21]">Training Shorts</p>
+              <p class="yn-mt-1 yn-text-xs yn-text-[#6f696b]">EUR 32.00</p>
+            </article>
           </div>
         </div>
 
@@ -708,30 +800,13 @@ export const PreventCloseBeforeSave: Story = {
           </label>
         </div>
         <yn-drawer
-          ?open=${args.open}
           .width=${args.width}
           .title=${args.title}
           placement=${args.placement}
           sheet-height=${args.sheetHeight}
           .closeOnBackdrop=${args.closeOnBackdrop}
           style=${`--yn-drawer-z-index:${args.zIndex};--yn-drawer-bg:${args.drawerBg};--yn-drawer-shadow:${args.drawerShadow};--yn-drawer-backdrop:${args.backdropColor};--yn-drawer-header-border:${args.headerBorder};--yn-drawer-footer-border:${args.footerBorder};--yn-drawer-title-color:${args.titleColor};--yn-drawer-close-color:${args.closeColor};--yn-drawer-close-hover-bg:${args.closeHoverBg};--yn-drawer-content-color:${args.contentColor};--yn-drawer-footer-bg:${args.footerBg};--yn-drawer-open-duration:${args.openDuration};--yn-drawer-close-duration:${args.closeDuration};--yn-drawer-open-ease:${args.openEase};--yn-drawer-close-ease:${args.closeEase};`}
-          @open-change=${(event: Event) =>
-            args.onOpenChange?.(
-              event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-            )}
-          @before-open=${(event: Event) =>
-            args.onBeforeOpen?.(
-              event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-            )}
-          @after-open=${(event: Event) =>
-            args.onAfterOpen?.(
-              event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-            )}
           @before-close=${onBeforeClose}
-          @after-close=${(event: Event) =>
-            args.onAfterClose?.(
-              event as CustomEvent<{ open: boolean; source: string; payload?: unknown; triggerPayload?: unknown }>
-            )}
         >
           <yn-button slot="trigger" variant="default" drawer-payload='{"scene":"cart","entry":"guarded-trigger"}'>
             <span class="yn-inline-flex yn-items-center yn-gap-2">
@@ -761,7 +836,7 @@ export const PreventCloseBeforeSave: Story = {
 
     await step("API 打开（带 payload），触发 before-open / after-open / open-change", async () => {
       drawer.show({ action: "play-open" });
-      await wait(420);
+      await wait(OPEN_WAIT_MS);
     });
 
     await step("未勾选保存时尝试关闭，被 before-close 拦截", async () => {
@@ -775,7 +850,7 @@ export const PreventCloseBeforeSave: Story = {
         checkbox.click();
       }
       drawer.close({ action: "play-close-allowed" });
-      await wait(360);
+      await wait(CLOSE_WAIT_MS);
     });
   }
 };

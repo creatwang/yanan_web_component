@@ -28,7 +28,7 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ["lit"],
+      external: ["lit", "gsap"],
     },
   },
   test: {
