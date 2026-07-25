@@ -100,14 +100,16 @@ export class YnSearch extends LitElement {
   }
 
   private getShapeRefs(): SearchShapeDomRefs | null {
-    if (!this.ensureDsdRefs()) return null;
-    return {
-      bridgeEl: this.bridgeEl,
-      rect1El: this.rect1El,
-      dynamicWrapEl: this.dynamicWrapEl,
-      inputEl: this.inputEl,
-      shellEl: this.shellEl,
-    };
+    const root = this.shadowRoot;
+    if (!root) return null;
+    // 每次从 live DOM 取，避免 Lit/DSD 重绘后缓存指向旧节点
+    const shellEl = root.querySelector("#searchShell") as HTMLDivElement | null;
+    const dynamicWrapEl = root.querySelector("#dynamicWrap") as HTMLDivElement | null;
+    const bridgeEl = root.querySelector("#bridge") as SVGPathElement | null;
+    const rect1El = root.querySelector("#rect1") as SVGPathElement | null;
+    const inputEl = root.querySelector("#searchInput") as HTMLInputElement | null;
+    if (!shellEl || !dynamicWrapEl || !bridgeEl || !rect1El || !inputEl) return null;
+    return { bridgeEl, rect1El, dynamicWrapEl, inputEl, shellEl };
   }
 
   connectedCallback() {
@@ -123,15 +125,47 @@ export class YnSearch extends LitElement {
     super.disconnectedCallback();
   }
 
+  private commitOpenShapePaths(refs: SearchShapeDomRefs) {
+    this.syncShapeLayoutDom(refs);
+    this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
+    this.shapeEngine.syncInputToShape(
+      refs,
+      this.shapeLayout,
+      1,
+      true,
+      this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN,
+    );
+  }
+
+  /** DSD hydrate 后 Lit 可能不刷新 viewBox；尺寸必须命令式与 inputWidth 对齐，否则 bridge 会被 wrap 裁掉 */
+  private syncShapeLayoutDom(refs?: SearchShapeDomRefs | null) {
+    const root = this.shadowRoot;
+    if (!root) return;
+    const wrap = refs?.dynamicWrapEl ?? (root.querySelector("#dynamicWrap") as HTMLDivElement | null);
+    const shape = root.querySelector("#shape") as SVGSVGElement | null;
+    const inputBox = root.querySelector(".search-input") as HTMLDivElement | null;
+    const dw = this.dynamicWidth;
+    if (wrap) wrap.style.width = `${dw}px`;
+    if (shape) {
+      shape.setAttribute("viewBox", `44 0 ${dw} 38`);
+      shape.style.width = `${dw}px`;
+    }
+    if (inputBox) inputBox.style.width = `${Math.max(80, this.inputWidth)}px`;
+  }
+
+  private clearShapePaths(refs: SearchShapeDomRefs) {
+    refs.bridgeEl.setAttribute("d", "");
+    refs.rect1El.setAttribute("d", "");
+    this.shapeEngine.resetPathCache();
+    this.shapeEngine.clearDynamicWrapInlineStyles(refs);
+  }
+
   protected firstUpdated() {
     const refs = this.getShapeRefs();
     if (this.open && refs) {
-      this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
-      this.shapeEngine.syncInputToShape(refs, this.shapeLayout, 1, true, this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN);
+      this.commitOpenShapePaths(refs);
     } else if (refs) {
-      refs.bridgeEl.setAttribute("d", "");
-      refs.rect1El.setAttribute("d", "");
-      this.shapeEngine.clearDynamicWrapInlineStyles(refs);
+      this.clearShapePaths(refs);
     }
     if (this.value) this.inputEl.value = this.value;
     this.syncDatalistFromSlot();
@@ -153,14 +187,13 @@ export class YnSearch extends LitElement {
    */
   bootstrapFromDeclarativeShadow() {
     this.ensureDsdRefs();
-    this.bridgeEl?.setAttribute("d", "");
-    this.rect1El?.setAttribute("d", "");
     if (this.value && this.inputEl) this.inputEl.value = this.value;
     this.syncDatalistFromSlot();
     const refs = this.getShapeRefs();
     if (this.open && refs) {
-      this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
-      this.shapeEngine.syncInputToShape(refs, this.shapeLayout, 1, true, this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN);
+      this.commitOpenShapePaths(refs);
+    } else if (refs) {
+      this.clearShapePaths(refs);
     }
     this.syncShellDom();
     this.ready = true;
@@ -185,6 +218,7 @@ export class YnSearch extends LitElement {
 
   private syncShellDom() {
     if (!this.ensureDsdRefs()) return;
+    this.syncShapeLayoutDom();
     this.shellEl.classList.toggle("open", this.open);
     this.shellEl.classList.toggle("animating", this.animating);
     this.shellEl.classList.toggle("layout-expanding", this.animating && this.open);
@@ -241,7 +275,6 @@ export class YnSearch extends LitElement {
   protected updated(changed: PropertyValues) {
     if (!this.ready) {
       this.ready = true;
-      return;
     }
     if (changed.has("expandDirection")) {
       if (this.expandDirection !== "left" && this.expandDirection !== "right") {
@@ -250,10 +283,12 @@ export class YnSearch extends LitElement {
       this.syncShellDom();
     }
     if (changed.has("inputWidth")) {
+      this.syncShapeLayoutDom();
       const refs = this.getShapeRefs();
       if (this.open && refs) {
-        this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
-        this.shapeEngine.syncInputToShape(refs, this.shapeLayout, 1, true, this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN);
+        this.commitOpenShapePaths(refs);
+        this.syncShellDom();
+      } else {
         this.syncShellDom();
       }
     }
@@ -261,12 +296,9 @@ export class YnSearch extends LitElement {
       const refs = this.getShapeRefs();
       if (!refs) return;
       if (this.open) {
-        this.shapeEngine.applyShape(refs, this.shapeLayout, 1);
-        this.shapeEngine.syncInputToShape(refs, this.shapeLayout, 1, true, this.rectEndOpen - SEARCH_SHAPE_RECT_START_OPEN);
+        this.commitOpenShapePaths(refs);
       } else {
-        refs.bridgeEl.setAttribute("d", "");
-        refs.rect1El.setAttribute("d", "");
-        this.shapeEngine.clearDynamicWrapInlineStyles(refs);
+        this.clearShapePaths(refs);
       }
       this.syncShellDom();
     }
@@ -290,8 +322,21 @@ export class YnSearch extends LitElement {
       },
       onComplete: () => {
         this.runtimeShellWidth = null;
+        const latest = this.getShapeRefs();
+        if (opening && this.open && latest) {
+          this.commitOpenShapePaths(latest);
+        } else if (latest) {
+          this.clearShapePaths(latest);
+        }
         this.animating = false;
         this.syncShellDom();
+        // Lit 可能在下一帧改 viewBox；再提交一次，避免缓存跳过导致 bridge 空白
+        if (opening && this.open) {
+          requestAnimationFrame(() => {
+            const again = this.getShapeRefs();
+            if (again && this.open && !this.animating) this.commitOpenShapePaths(again);
+          });
+        }
       },
     });
   }
@@ -397,8 +442,8 @@ export class YnSearch extends LitElement {
             style=${`width:${this.dynamicWidth}px;`}
             data-meta-row-shape
           >
-            <path id="bridge" data-meta-row-shape-bridges d=""></path>
-            <path id="rect1" data-meta-row-rect="1" d=""></path>
+            <path id="bridge" data-meta-row-shape-bridges></path>
+            <path id="rect1" data-meta-row-rect="1"></path>
           </svg>
 
           <div class="search-input" style=${`width:${Math.max(80, this.inputWidth)}px;`}>

@@ -242,4 +242,30 @@ describe("yn-search", () => {
     expect(shell.classList.contains("open")).to.equal(true);
     expect(Number.parseFloat(shell.style.width)).to.be.greaterThan(200);
   });
+
+  it("keeps bridge path after open animation and Lit re-render", async () => {
+    const el = await fixture<YnSearch>(html`<yn-search input-width="240"></yn-search>`);
+    await el.updateComplete;
+
+    el.shadowRoot?.querySelector<HTMLButtonElement>("#toggleBtn")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 700));
+    await el.updateComplete;
+
+    // 模拟 storefront 改属性触发的重渲染（曾把 d 清空且被 path 缓存跳过）
+    el.inputWidth = 239;
+    await el.updateComplete;
+    el.inputWidth = 240;
+    await el.updateComplete;
+    el.requestUpdate();
+    await el.updateComplete;
+    await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
+
+    const bridge = el.shadowRoot?.querySelector<SVGPathElement>("#bridge");
+    const rect = el.shadowRoot?.querySelector<SVGPathElement>("#rect1");
+    const bridgeD = bridge?.getAttribute("d") ?? "";
+    const rectD = rect?.getAttribute("d") ?? "";
+    expect(bridgeD.length).to.be.greaterThan(20);
+    expect(rectD.length).to.be.greaterThan(20);
+    expect(bridgeD.startsWith("M")).to.equal(true);
+  });
 });

@@ -187,6 +187,11 @@ export class SearchShapeEngine {
     this.lastInputTransform = "";
   }
 
+  resetPathCache() {
+    this.lastRectPath = "";
+    this.lastBridgePath = "";
+  }
+
   applyShapeFromValues(
     refs: SearchShapeDomRefs,
     layout: SearchShapeLayout,
@@ -197,12 +202,13 @@ export class SearchShapeEngine {
     const rectStartX = layout.expandLeft ? mirrorShapeX(endX, layout) : startX;
     const rectEndX = layout.expandLeft ? mirrorShapeX(startX, layout) : endX;
     const rectPath = buildRectPath(rectStartX, rectEndX);
-    if (rectPath !== this.lastRectPath) {
+    // 与 DOM 比对：Lit 重渲染清空 d 后 last* 仍缓存会导致跳过写入
+    if (rectPath !== this.lastRectPath || refs.rect1El.getAttribute("d") !== rectPath) {
       refs.rect1El.setAttribute("d", rectPath);
       this.lastRectPath = rectPath;
     }
     const bridgePath = buildBridgePath(t, layout);
-    if (bridgePath !== this.lastBridgePath) {
+    if (bridgePath !== this.lastBridgePath || refs.bridgeEl.getAttribute("d") !== bridgePath) {
       refs.bridgeEl.setAttribute("d", bridgePath);
       this.lastBridgePath = bridgePath;
     }
@@ -306,14 +312,9 @@ export class SearchShapeEngine {
       const endRectWidth = opening ? rectEndOpen(layout.inputWidth) - RECT_START_OPEN : 0;
       this.syncInputToShape(refs, layout, opening ? 1 : 0, opening, endRectWidth);
       if (!opening) {
-        if (this.lastBridgePath !== "") {
-          refs.bridgeEl.setAttribute("d", "");
-          this.lastBridgePath = "";
-        }
-        if (this.lastRectPath !== "") {
-          refs.rect1El.setAttribute("d", "");
-          this.lastRectPath = "";
-        }
+        refs.bridgeEl.setAttribute("d", "");
+        refs.rect1El.setAttribute("d", "");
+        this.resetPathCache();
         this.clearDynamicWrapInlineStyles(refs);
       }
       hooks.onComplete(opening);

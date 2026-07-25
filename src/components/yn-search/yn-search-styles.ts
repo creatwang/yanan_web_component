@@ -48,6 +48,10 @@ export const YN_SEARCH_SHADOW_STYLES = `
         overflow: hidden;
       }
 
+      .search-shell.open {
+        overflow: visible;
+      }
+
       .search-shell.animating {
         overflow: visible;
       }
@@ -108,9 +112,18 @@ export const YN_SEARCH_SHADOW_STYLES = `
         top: 0;
         left: 44px;
         height: 38px;
-        overflow: hidden;
+        /* visible：bridge 略伸入按钮侧；hidden 会裁掉连接 */
+        overflow: visible;
         opacity: 1;
         pointer-events: none;
+      }
+
+      .search-shell.animating .dynamic-wrap {
+        overflow: hidden;
+      }
+
+      .search-shell.open:not(.animating) .dynamic-wrap {
+        overflow: visible;
       }
 
       .search-shell.open .dynamic-wrap {
@@ -123,6 +136,7 @@ export const YN_SEARCH_SHADOW_STYLES = `
         top: 0;
         left: 0;
         height: 38px;
+        overflow: visible;
         fill: var(--bg-fill);
         transition: fill var(--yn-search-fill-duration, 260ms) var(--yn-search-fill-ease, cubic-bezier(0.2, 0, 0.2, 1));
       }
