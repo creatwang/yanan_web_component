@@ -11,6 +11,71 @@ function stubMatchMedia(matches: boolean) {
   };
 }
 
+function stubDrawerBreakpoint(initialMatches: boolean) {
+  const originalMatchMedia = window.matchMedia;
+  const originalInnerWidth = Object.getOwnPropertyDescriptor(window, "innerWidth");
+  const listeners = new Set<EventListenerOrEventListenerObject>();
+  let matches = initialMatches;
+
+  const setInnerWidth = (nextMatches: boolean) => {
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: nextMatches ? 1024 : 1023,
+    });
+  };
+  setInnerWidth(matches);
+
+  const mediaQuery = {
+    media: "(min-width: 1024px)",
+    onchange: null,
+    get matches() {
+      return matches;
+    },
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+      if (type === "change") listeners.add(listener);
+    },
+    removeEventListener(type: string, listener: EventListenerOrEventListenerObject) {
+      if (type === "change") listeners.delete(listener);
+    },
+    addListener(listener: EventListenerOrEventListenerObject) {
+      listeners.add(listener);
+    },
+    removeListener(listener: EventListenerOrEventListenerObject) {
+      listeners.delete(listener);
+    },
+    dispatchEvent() {
+      return true;
+    },
+  } as unknown as MediaQueryList;
+
+  window.matchMedia = (query: string) =>
+    query === mediaQuery.media
+      ? mediaQuery
+      : ({ matches: false } as MediaQueryList);
+
+  return {
+    change(nextMatches: boolean) {
+      matches = nextMatches;
+      setInnerWidth(matches);
+      const event = new Event("change");
+      Object.defineProperties(event, {
+        matches: { value: matches },
+        media: { value: mediaQuery.media },
+      });
+      for (const listener of listeners) {
+        if (typeof listener === "function") listener(event);
+        else listener.handleEvent(event);
+      }
+    },
+    restore() {
+      window.matchMedia = originalMatchMedia;
+      if (originalInnerWidth) {
+        Object.defineProperty(window, "innerWidth", originalInnerWidth);
+      }
+    },
+  };
+}
+
 describe("yn-drawer", () => {
   it("renders default title and closed state", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer title="Filters"></yn-drawer>`);
@@ -264,6 +329,49 @@ describe("yn-drawer", () => {
         expect(stack?.style.transform).to.include("110%");
       } finally {
         restoreMatchMedia();
+      }
+    },
+    5000,
+  );
+
+  it("rebuilds resolved motion when motion prop changes while open", async () => {
+    const el = await fixture<YnDrawer>(
+      html`<yn-drawer motion="side" open></yn-drawer>`,
+    );
+    await el.updateComplete;
+    await oneEvent(el, "after-open").catch(() => undefined);
+    el.motion = "sheet";
+    await el.updateComplete;
+    expect(el.getResolvedMotion()).to.equal("sheet");
+    expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
+    expect(el.open).to.equal(true);
+  });
+
+  it(
+    "rebuilds motion=auto across the desktop breakpoint while open",
+    async () => {
+      const breakpoint = stubDrawerBreakpoint(true);
+
+      try {
+        const el = await fixture<YnDrawer>(
+          html`<yn-drawer motion="auto" placement="auto"></yn-drawer>`,
+        );
+        await el.updateComplete;
+
+        const opened = oneEvent(el, "after-open");
+        el.show();
+        await opened;
+        expect(el.getResolvedMotion()).to.equal("side");
+
+        const rebuilt = oneEvent(el, "after-open");
+        breakpoint.change(false);
+        await rebuilt;
+
+        expect(el.getResolvedMotion()).to.equal("sheet");
+        expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
+        expect(el.open).to.equal(true);
+      } finally {
+        breakpoint.restore();
       }
     },
     5000,
