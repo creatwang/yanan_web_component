@@ -80,6 +80,23 @@ describe("createYnDrawerSheetExpand", () => {
 
     expect(controller.getSize()).to.equal("expanded");
     expect(onSizeChange.mock.calls).to.have.length(1);
+    // expanded 清掉 inline touch-action，交给 CSS pan-y
+    expect(body.style.touchAction).to.equal("");
+    controller.dispose();
+  });
+
+  it("closes peek after a downward drag beyond 50px", () => {
+    const { stack, controller, onRequestClose, onSizeChange } = setup();
+    controller.setEnabled(true);
+    controller.attach();
+
+    stack.dispatchEvent(pointer("pointerdown", 20));
+    stack.dispatchEvent(pointer("pointermove", 80));
+    stack.dispatchEvent(pointer("pointerup", 80));
+
+    expect(onRequestClose.mock.calls).to.have.length(1);
+    expect(controller.getSize()).to.equal("peek");
+    expect(onSizeChange.mock.calls).to.have.length(0);
     controller.dispose();
   });
 
@@ -109,51 +126,38 @@ describe("createYnDrawerSheetExpand", () => {
     controller.dispose();
   });
 
-  it("requests close from expanded at scroll top after pulling down over 50px", () => {
-    const { stack, body, controller, onRequestClose } = setup();
+  it("collapses expanded to peek after pulling down over 50px at scroll top", () => {
+    const { stack, body, controller, onSizeChange, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
+    onSizeChange.mock.calls.length = 0;
     controller.attach();
     body.scrollTop = 0;
 
-    expect(body.style.touchAction).to.equal("pan-up");
     stack.dispatchEvent(pointer("pointerdown", 20));
-    stack.dispatchEvent(pointer("pointermove", 71));
-    stack.dispatchEvent(pointer("pointerup", 71));
+    stack.dispatchEvent(pointer("pointermove", 80));
+    stack.dispatchEvent(pointer("pointerup", 80));
 
-    expect(onRequestClose.mock.calls).to.have.length(1);
-    expect(controller.getSize()).to.equal("expanded");
+    expect(controller.getSize()).to.equal("peek");
+    expect(onSizeChange.mock.calls).to.deep.equal([["peek"]]);
+    expect(onRequestClose.mock.calls).to.have.length(0);
     controller.dispose();
   });
 
-  it("allows vertical touch scrolling only while expanded content is away from top", () => {
-    const { body, controller } = setup();
+  it("does not collapse while expanded body is scrolled", () => {
+    const { stack, body, controller, onSizeChange } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
-    controller.attach();
-
-    expect(body.style.touchAction).to.equal("pan-up");
-    body.scrollTop = 1;
-    body.dispatchEvent(new Event("scroll"));
-    expect(body.style.touchAction).to.equal("pan-y");
-
-    body.scrollTop = 0;
-    body.dispatchEvent(new Event("scroll"));
-    expect(body.style.touchAction).to.equal("pan-up");
-    controller.dispose();
-  });
-
-  it("does not request close while expanded body is scrolled", () => {
-    const { stack, body, controller, onRequestClose } = setup();
-    controller.setEnabled(true);
-    controller.setSize("expanded");
+    onSizeChange.mock.calls.length = 0;
     controller.attach();
     body.scrollTop = 1;
 
     stack.dispatchEvent(pointer("pointerdown", 20));
+    stack.dispatchEvent(pointer("pointermove", 100));
     stack.dispatchEvent(pointer("pointerup", 100));
 
-    expect(onRequestClose.mock.calls).to.have.length(0);
+    expect(controller.getSize()).to.equal("expanded");
+    expect(onSizeChange.mock.calls).to.have.length(0);
     controller.dispose();
   });
 

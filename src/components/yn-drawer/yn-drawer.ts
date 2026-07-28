@@ -230,7 +230,6 @@ export class YnDrawer extends LitElement {
       this.sheetExpandController?.setEnabled(false);
       this.removeAttribute("data-sheet-size");
       this.removeAttribute("data-sheet-can-expand");
-      this.removeAttribute("data-sheet-at-top");
       return;
     }
     if (!this.getAttribute("data-sheet-size")) {
@@ -253,22 +252,6 @@ export class YnDrawer extends LitElement {
     this.setAttribute(
       "data-sheet-can-expand",
       this.canExpandSheet(stack, body) ? "true" : "false"
-    );
-  }
-
-  private syncSheetAtTopAttr() {
-    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
-    if (
-      this.getResolvedMotion() !== "sheet" ||
-      this.getAttribute("data-sheet-size") !== "expanded" ||
-      !body
-    ) {
-      this.removeAttribute("data-sheet-at-top");
-      return;
-    }
-    this.setAttribute(
-      "data-sheet-at-top",
-      body.scrollTop <= 0 ? "true" : "false"
     );
   }
 
@@ -314,7 +297,6 @@ export class YnDrawer extends LitElement {
       onSizeChange: (size) => {
         this.setAttribute("data-sheet-size", size);
         this.syncSheetCanExpandAttr();
-        this.syncSheetAtTopAttr();
       },
       onRequestClose: () => {
         this.close();
@@ -328,19 +310,10 @@ export class YnDrawer extends LitElement {
     if (!this.sheetExpandResizeObserver && typeof ResizeObserver !== "undefined") {
       this.sheetExpandResizeObserver = new ResizeObserver(() => {
         this.syncSheetCanExpandAttr();
-        this.syncSheetAtTopAttr();
       });
       this.sheetExpandResizeObserver.observe(stack);
       this.sheetExpandResizeObserver.observe(body);
     }
-
-    body.addEventListener(
-      "scroll",
-      () => {
-        this.syncSheetAtTopAttr();
-      },
-      { passive: true }
-    );
 
     return this.sheetExpandController;
   }
@@ -407,7 +380,6 @@ export class YnDrawer extends LitElement {
     const controller = this.ensureSheetExpandController();
     if (!controller) return;
     this.syncSheetCanExpandAttr();
-    this.syncSheetAtTopAttr();
     controller.setEnabled(
       this.getResolvedMotion() === "sheet" && this.sheetExpand === "snap"
     );
@@ -422,7 +394,6 @@ export class YnDrawer extends LitElement {
     else this.removeAttribute("data-sheet-size");
     this.sheetExpandController?.setSize(nextSize);
     this.syncSheetCanExpandAttr();
-    this.syncSheetAtTopAttr();
   }
 
   private emitOpenChange(meta: LifecycleMeta) {

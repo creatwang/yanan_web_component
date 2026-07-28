@@ -310,7 +310,9 @@ export const YN_DRAWER_SHADOW_STYLES = `
       /* 强制在 peek 封顶内压缩子项，否则 body 无法形成可测 overflow / 手势死锁 */
       overflow: hidden;
       transition: max-height var(--yn-drawer-open-duration, 380ms)
-        var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1));
+          var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1)),
+        height var(--yn-drawer-open-duration, 380ms)
+          var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1));
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
@@ -336,6 +338,9 @@ export const YN_DRAWER_SHADOW_STYLES = `
       flex: 1 1 auto;
       min-height: 0;
       max-height: none;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
     :host([data-yn-motion="sheet"]) .panel--middle:not(.panel--empty) {
@@ -350,8 +355,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     /*
-     * touch-action 不继承：必须打到 stack/panel/body，否则 slotted 商品行仍是 auto，
-     * 浏览器会抢走手势 → 既不展开也不能滚。
+     * touch-action 不继承：peek 抢手势用 none；expanded 必须 pan-y 才能双向滚动。
+     * 不要用 pan-up：会禁掉下拉，并干扰滚动。
      */
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack,
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack * {
@@ -363,15 +368,11 @@ export const YN_DRAWER_SHADOW_STYLES = `
       touch-action: pan-y;
     }
 
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"][data-sheet-at-top="true"]) .drawer-stack,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"][data-sheet-at-top="true"]) .drawer-stack * {
-      touch-action: pan-up;
-    }
-
     /* 不能展开时允许 peek 内滚动，避免 overflow:hidden 死锁 */
     :host([data-yn-motion="sheet"]) .body {
       overflow: auto;
       overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .body {

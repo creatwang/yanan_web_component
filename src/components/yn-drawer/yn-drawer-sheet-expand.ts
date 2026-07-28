@@ -10,13 +10,13 @@ export type YnDrawerSheetExpandController = {
 };
 
 const EXPAND_THRESHOLD_PX = 40;
-const CLOSE_THRESHOLD_PX = 50;
+const COLLAPSE_THRESHOLD_PX = 50;
 const WHEEL_RESET_MS = 160;
 
 /**
  * Sheet peek↔expanded 手势。
- * 监听挂在 stack（capture），避免只点到 slotted 内容时丢手势；
- * touch-action 由宿主 CSS（data-sheet-*）控制，因 touch-action 不继承。
+ * - peek：capture + 上滑展开 / 下滑关闭
+ * - expanded：不 capture，交给 body 原生滚动；仅在 scrollTop===0 时下滑收回到 peek
  */
 export function createYnDrawerSheetExpand(input: {
   stack: HTMLElement;
@@ -31,17 +31,22 @@ export function createYnDrawerSheetExpand(input: {
   let startY: number | undefined;
   let latestY: number | undefined;
   let startedAtScrollTop = false;
+  let activePointerId: number | undefined;
   let wheelDeltaY = 0;
   let wheelResetTimer: ReturnType<typeof setTimeout> | undefined;
   const previousBodyTouchAction = input.body.style.touchAction;
   const previousStackTouchAction = input.stack.style.touchAction;
 
-  /** 测试与无宿主 CSS 时的兜底；正式环境以 host CSS 为准 */
+  const clearInlineTouchAction = () => {
+    input.body.style.touchAction = "";
+    input.stack.style.touchAction = "";
+  };
+
+  /** peek 需要 none；expanded 清掉 inline，交给 CSS `pan-y` 以允许双向滚动 */
   const syncTouchAction = () => {
     if (!attached) return;
     if (!enabled) {
-      input.body.style.touchAction = "";
-      input.stack.style.touchAction = "";
+      clearInlineTouchAction();
       return;
     }
     if (size === "peek") {
@@ -50,15 +55,14 @@ export function createYnDrawerSheetExpand(input: {
       input.stack.style.touchAction = action;
       return;
     }
-    const action = input.body.scrollTop === 0 ? "pan-up" : "pan-y";
-    input.body.style.touchAction = action;
-    input.stack.style.touchAction = action;
+    clearInlineTouchAction();
   };
 
   const resetPointer = () => {
     startY = undefined;
     latestY = undefined;
     startedAtScrollTop = false;
+    activePointerId = undefined;
   };
 
   const resetWheel = () => {
@@ -85,17 +89,22 @@ export function createYnDrawerSheetExpand(input: {
     if (size === "peek") {
       if (deltaY < -EXPAND_THRESHOLD_PX && input.canExpand()) {
         setSize("expanded");
+        return;
+      }
+      if (deltaY > COLLAPSE_THRESHOLD_PX) {
+        resetPointer();
+        input.onRequestClose();
       }
       return;
     }
 
+    // expanded：仅顶部继续下拉 → 收回 peek
     if (
       startedAtScrollTop &&
-      input.body.scrollTop === 0 &&
-      deltaY > CLOSE_THRESHOLD_PX
+      input.body.scrollTop <= 0 &&
+      deltaY > COLLAPSE_THRESHOLD_PX
     ) {
-      resetPointer();
-      input.onRequestClose();
+      setSize("peek");
     }
   };
 
@@ -104,32 +113,45 @@ export function createYnDrawerSheetExpand(input: {
     syncTouchAction();
     startY = event.clientY;
     latestY = event.clientY;
-    startedAtScrollTop = size === "expanded" && input.body.scrollTop === 0;
-    try {
-      input.stack.setPointerCapture(event.pointerId);
-    } catch {
-      /* ignore capture failures */
+    activePointerId = event.pointerId;
+    startedAtScrollTop = size === "expanded" && input.body.scrollTop <= 0;
+
+    // 仅 peek 捕获：expanded 捕获会抢走 body 的原生滚动
+    if (size === "peek") {
+      try {
+        input.stack.setPointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
     }
   };
 
   const onPointerMove = (event: PointerEvent) => {
     if (!enabled || startY === undefined) return;
-    latestY = event.clientY;
-    if (size === "peek" && input.canExpand()) {
-      event.preventDefault();
-    } else if (
-      size === "expanded" &&
-      startedAtScrollTop &&
-      input.body.scrollTop === 0 &&
-      latestY - startY > 0
-    ) {
-      event.preventDefault();
+    if (activePointerId !== undefined && event.pointerId !== activePointerId) {
+      return;
     }
-    evaluatePointer();
+    latestY = event.clientY;
+    const deltaY = latestY - startY;
+
+    if (size === "peek") {
+      event.preventDefault();
+      evaluatePointer();
+      return;
+    }
+
+    // expanded 顶部下拉：阻止页面/内部抢手势，用于收回 peek
+    if (startedAtScrollTop && input.body.scrollTop <= 0 && deltaY > 0) {
+      event.preventDefault();
+      evaluatePointer();
+    }
   };
 
   const onPointerUp = (event: PointerEvent) => {
     if (!enabled || startY === undefined) return;
+    if (activePointerId !== undefined && event.pointerId !== activePointerId) {
+      return;
+    }
     latestY = event.clientY;
     evaluatePointer();
     resetPointer();
@@ -139,20 +161,36 @@ export function createYnDrawerSheetExpand(input: {
     resetPointer();
   };
 
-  const onScroll = () => {
-    if (startY === undefined) syncTouchAction();
-  };
-
   const onWheel = (event: WheelEvent) => {
-    if (!enabled || size !== "peek" || !input.canExpand()) return;
-    // 触控板/滚轮向上浏览更多内容 → 展开（与手指上滑一致：deltaY 常为负）
-    wheelDeltaY += event.deltaY;
-    if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
-    wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
+    if (!enabled) return;
 
-    if (wheelDeltaY < -EXPAND_THRESHOLD_PX || wheelDeltaY > EXPAND_THRESHOLD_PX) {
-      event.preventDefault();
-      setSize("expanded");
+    if (size === "peek" && input.canExpand()) {
+      wheelDeltaY += event.deltaY;
+      if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
+      wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
+      if (
+        wheelDeltaY < -EXPAND_THRESHOLD_PX ||
+        wheelDeltaY > EXPAND_THRESHOLD_PX
+      ) {
+        event.preventDefault();
+        setSize("expanded");
+      }
+      return;
+    }
+
+    if (
+      size === "expanded" &&
+      input.body.scrollTop <= 0 &&
+      event.deltaY < 0
+    ) {
+      // 顶部继续向上滚（触控板语义常为收起）→ 收回 peek
+      wheelDeltaY += event.deltaY;
+      if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
+      wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
+      if (wheelDeltaY < -COLLAPSE_THRESHOLD_PX) {
+        event.preventDefault();
+        setSize("peek");
+      }
     }
   };
 
@@ -166,7 +204,6 @@ export function createYnDrawerSheetExpand(input: {
     input.stack.addEventListener("pointermove", onPointerMove, moveOpts);
     input.stack.addEventListener("pointerup", onPointerUp, opts);
     input.stack.addEventListener("pointercancel", onPointerCancel, opts);
-    input.body.addEventListener("scroll", onScroll);
     input.stack.addEventListener("wheel", onWheel, moveOpts);
   };
 
@@ -179,7 +216,6 @@ export function createYnDrawerSheetExpand(input: {
     input.stack.removeEventListener("pointermove", onPointerMove, moveOpts);
     input.stack.removeEventListener("pointerup", onPointerUp, opts);
     input.stack.removeEventListener("pointercancel", onPointerCancel, opts);
-    input.body.removeEventListener("scroll", onScroll);
     input.stack.removeEventListener("wheel", onWheel, moveOpts);
     resetPointer();
     resetWheel();
