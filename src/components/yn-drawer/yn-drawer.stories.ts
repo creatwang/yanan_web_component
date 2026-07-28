@@ -474,7 +474,7 @@ export const PanelStackMenu: Story = {
     docs: {
       description: {
         story:
-          "三层面板 Sheet：`motion=\"sheet\"`。打开为半高 peek，上滑吸附到近全高；PC 侧滑请看 CartDrawerDesktop / 将 motion 调为 side。"
+          "三层面板 Sheet：`motion=\"sheet\"`。打开为半高 peek，内容区上滑展开；展开后在标题栏下滑关闭，内容区可正常滚动。"
       }
     }
   },

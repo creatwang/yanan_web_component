@@ -275,7 +275,7 @@ describe("yn-drawer", () => {
     expect(stack.getBoundingClientRect().height).to.be.greaterThan(peekH + 20);
   });
 
-  it("locks peek body scroll when sheet can still grow", async () => {
+  it("allows body scroll after expand with tall content", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer
         motion="sheet"
@@ -287,17 +287,21 @@ describe("yn-drawer", () => {
       </yn-drawer>
     `);
     await el.updateComplete;
-
     el.show();
     await oneEvent(el, "after-open");
+    el.setSheetSize("expanded");
     await el.updateComplete;
 
     const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
     if (!body) throw new Error("missing body");
 
-    expect(el.getAttribute("data-sheet-can-expand")).to.equal("true");
-    expect(getComputedStyle(body).overflow).to.equal("hidden");
+    expect(getComputedStyle(body).overflow).to.equal("auto");
+    expect(getComputedStyle(body).touchAction).to.equal("pan-y");
+    expect(body.scrollHeight).to.be.greaterThan(body.clientHeight + 50);
+    body.scrollTop = 120;
+    expect(body.scrollTop).to.be.greaterThan(50);
   });
+
 
   it("uses sheet height and allows body scrolling when sheet-expand=none", async () => {
     const el = await fixture<YnDrawer>(html`

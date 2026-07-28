@@ -289,11 +289,13 @@ export class YnDrawer extends LitElement {
     if (this.sheetExpandController) return this.sheetExpandController;
     const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
     const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
-    if (!stack || !body) return undefined;
+    const handle = this.shadowRoot?.querySelector<HTMLElement>(".header");
+    if (!stack || !body || !handle) return undefined;
 
     this.sheetExpandController = createYnDrawerSheetExpand({
       stack,
       body,
+      handle,
       onSizeChange: (size) => {
         this.setAttribute("data-sheet-size", size);
         this.syncSheetCanExpandAttr();
