@@ -6,6 +6,11 @@ import { unsafeSVG } from "lit/directives/unsafe-svg.js";
 import { ynClose20Svg } from "../../asset/svg";
 import "../yn-icon-button/yn-icon-button.js";
 import type { YnDrawerMotionController } from "./yn-drawer-motion.js";
+import {
+  resolveYnDrawerMotion,
+  type YnDrawerMotionMode,
+  type YnDrawerMotionProp
+} from "./yn-drawer-motion-resolve.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
 export type YnDrawerOpenChangeDetail = {
@@ -83,6 +88,12 @@ export class YnDrawer extends LitElement {
   @property({ type: String, reflect: true })
   placement: "auto" | "right" | "bottom" = "auto";
 
+  @property({ type: String, reflect: true })
+  motion: YnDrawerMotionProp = "auto";
+
+  @property({ type: String, attribute: "sheet-expand", reflect: true })
+  sheetExpand: "snap" | "none" = "snap";
+
   @property({ type: String, attribute: "sheet-height", reflect: true })
   sheetHeight = "90vh";
 
@@ -101,7 +112,7 @@ export class YnDrawer extends LitElement {
   private surfaceEl: HTMLElement | null = null;
   private backdropEl: HTMLElement | null = null;
 
-  private motion: YnDrawerMotionController | undefined;
+  private motionController: YnDrawerMotionController | undefined;
   /** GSAP 懒加载；关闭态不拉取 gsap */
   private motionBoot: Promise<YnDrawerMotionController> | undefined;
   private motionDirty = true;
@@ -120,8 +131,8 @@ export class YnDrawer extends LitElement {
   }
 
   disconnectedCallback() {
-    this.motion?.dispose();
-    this.motion = undefined;
+    this.motionController?.dispose();
+    this.motionController = undefined;
     this.motionBoot = undefined;
     super.disconnectedCallback();
   }
@@ -158,7 +169,7 @@ export class YnDrawer extends LitElement {
     if (changed.has("open")) this.pendingTransitionMeta = undefined;
 
     if (changed.has("exitSpeed") || changed.has("easeReverse")) {
-      this.motion?.setOptions({
+      this.motionController?.setOptions({
         exitSpeed: this.exitSpeed,
         easeReverse: this.easeReverse
       });
@@ -264,13 +275,23 @@ export class YnDrawer extends LitElement {
     };
   }
 
+  getResolvedMotion(): YnDrawerMotionMode {
+    const viewportWidth =
+      typeof window !== "undefined" ? window.innerWidth : 1024;
+    return resolveYnDrawerMotion({
+      motion: this.motion,
+      placement: this.placement,
+      viewportWidth
+    });
+  }
+
   private async ensureMotion() {
-    if (this.motion) {
+    if (this.motionController) {
       if (this.motionDirty) {
-        this.motion.setTargets(this.collectMotionTargets());
+        this.motionController.setTargets(this.collectMotionTargets());
         this.motionDirty = false;
       }
-      return this.motion;
+      return this.motionController;
     }
 
     if (!this.motionBoot) {
@@ -284,7 +305,7 @@ export class YnDrawer extends LitElement {
       this.backdropEl = backdrop;
 
       this.motionBoot = import("./yn-drawer-motion.js").then(({ createYnDrawerMotion }) => {
-        this.motion = createYnDrawerMotion(
+        this.motionController = createYnDrawerMotion(
           surface,
           backdrop,
           this.collectMotionTargets(),
@@ -305,7 +326,7 @@ export class YnDrawer extends LitElement {
           }
         );
         this.motionDirty = false;
-        return this.motion;
+        return this.motionController;
       });
     }
 
@@ -353,16 +374,16 @@ export class YnDrawer extends LitElement {
 
     if (immediate) {
       popoverEl.hidePopover();
-      this.motion?.dispose();
-      this.motion = undefined;
+      this.motionController?.dispose();
+      this.motionController = undefined;
       this.motionBoot = undefined;
       this.motionDirty = true;
       this.emitLifecycleEvent("after-close", meta);
       return;
     }
 
-    if (this.motion) {
-      this.motion.close();
+    if (this.motionController) {
+      this.motionController.close();
       return;
     }
 
@@ -500,8 +521,8 @@ export class YnDrawer extends LitElement {
 
     this.motionDirty = true;
     // 仅打开时同步目标，避免关闭态反复 rebuild
-    if (this.open && this.motion) {
-      this.motion.setTargets(this.collectMotionTargets());
+    if (this.open && this.motionController) {
+      this.motionController.setTargets(this.collectMotionTargets());
       this.motionDirty = false;
     }
   };

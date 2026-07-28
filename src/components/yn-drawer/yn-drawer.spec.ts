@@ -98,6 +98,29 @@ describe("yn-drawer", () => {
     expect(el.querySelector('[slot="middle"]')?.textContent).to.include("Promo");
   });
 
+  it("reflects motion and sheet-expand defaults and overrides", async () => {
+    const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
+    await el.updateComplete;
+    expect(el.motion).to.equal("auto");
+    expect(el.sheetExpand).to.equal("snap");
+    expect(el.getAttribute("motion")).to.equal("auto");
+    expect(el.getAttribute("sheet-expand")).to.equal("snap");
+
+    el.motion = "sheet";
+    el.sheetExpand = "none";
+    await el.updateComplete;
+    expect(el.getAttribute("motion")).to.equal("sheet");
+    expect(el.getAttribute("sheet-expand")).to.equal("none");
+  });
+
+  it("resolves motion=side even on narrow viewport intent", async () => {
+    const el = await fixture<YnDrawer>(
+      html`<yn-drawer motion="side" placement="bottom"></yn-drawer>`,
+    );
+    await el.updateComplete;
+    expect(el.getResolvedMotion()).to.equal("side");
+  });
+
   it("keeps backdrop-extra content available for motion", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer>
