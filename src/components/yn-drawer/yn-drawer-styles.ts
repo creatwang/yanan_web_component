@@ -401,6 +401,22 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: hidden;
     }
 
+    /* 鼠标 / 触控板：即使仍处 snap peek，也允许滚轮滚动，避免手势不可用时卡死 */
+    @media (pointer: fine) {
+      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+        .drawer-stack,
+      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+        .drawer-stack *,
+      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+        .body::slotted(*) {
+        touch-action: pan-y;
+      }
+
+      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .body {
+        overflow: auto;
+      }
+    }
+
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body {
       overflow: auto;
     }

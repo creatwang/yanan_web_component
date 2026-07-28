@@ -90,7 +90,16 @@ export function createYnDrawerSheetExpand(input: {
     return cap > 0 ? Math.min(cachedPeekH, cap) : cachedPeekH;
   };
 
+  const shouldLockBodyForGestures = () => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return true;
+    }
+    // 鼠标 / 精密指针：peek 不得锁 overflow，否则只能干瞪眼
+    return window.matchMedia("(pointer: coarse)").matches;
+  };
+
   const lockBodyScroll = () => {
+    if (!shouldLockBodyForGestures()) return;
     if (bodyOverflowLocked) return;
     bodyOverflowLocked = true;
     input.body.scrollTop = 0;
@@ -158,7 +167,8 @@ export function createYnDrawerSheetExpand(input: {
       return;
     }
     if (size === "peek") {
-      setTouches(input.canExpand() ? "none" : "pan-y");
+      const lockTouch = input.canExpand() && shouldLockBodyForGestures();
+      setTouches(lockTouch ? "none" : "pan-y");
       return;
     }
     input.body.style.touchAction = "pan-y";
