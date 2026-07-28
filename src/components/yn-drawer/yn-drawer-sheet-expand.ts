@@ -14,16 +14,23 @@ export type YnDrawerSheetExpandController = {
   dispose: () => void;
 };
 
-const EXPAND_PX = 40;
 const DISMISS_RATIO = 0.22;
 const DISMISS_MIN = 96;
 const DISMISS_MAX = 180;
 const DISMISS_FLICK = 0.65;
-const DISMISS_LOCK = 8;
+const DISMISS_LOCK = 4;
 const SETTLE_MS = 280;
 const SPRING_MS = 320;
+/** 高度吸附（展开/收缩共用）：比关闭抽屉更轻，避免「下拉很多才收回」 */
+const HEIGHT_SNAP_RATIO = 0.28;
+const HEIGHT_SNAP_MIN = 36;
+const HEIGHT_SNAP_MAX = 88;
+const HEIGHT_SNAP_FLICK = 0.48;
 /** iOS sheet 风格吸附曲线 */
 const HEIGHT_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
+
+const heightSnapDistance = (travel: number) =>
+  Math.min(Math.max(travel * HEIGHT_SNAP_RATIO, HEIGHT_SNAP_MIN), HEIGHT_SNAP_MAX);
 
 type Zone = "body" | "chrome" | "other";
 type DragMode = "none" | "translate" | "height-collapse" | "height-expand";
@@ -94,8 +101,8 @@ export function createYnDrawerSheetExpand(input: {
     if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
       return true;
     }
-    // 鼠标 / 精密指针：peek 不得锁 overflow，否则只能干瞪眼
-    return window.matchMedia("(pointer: coarse)").matches;
+    // any-pointer：带触控的设备即使主指针是 fine 也保留手势锁
+    return window.matchMedia("(any-pointer: coarse)").matches;
   };
 
   const lockBodyScroll = () => {
@@ -337,8 +344,7 @@ export function createYnDrawerSheetExpand(input: {
       const cap = expandedCap();
       const travel = Math.max(cap - base, 1);
       const passExpand =
-        dragY >= Math.min(Math.max(travel * 0.35, EXPAND_PX), 96) ||
-        velocityY <= -DISMISS_FLICK;
+        dragY >= heightSnapDistance(travel) || velocityY <= -HEIGHT_SNAP_FLICK;
       animateHeightTo(passExpand ? cap : base, passExpand ? "expanded" : "peek");
       return;
     }
@@ -348,7 +354,7 @@ export function createYnDrawerSheetExpand(input: {
       const targetPeek = collapseMinH();
       const heightTravel = Math.max(stackH - targetPeek, 1);
       const passCollapse =
-        dragY >= heightTravel * 0.5 || velocityY >= DISMISS_FLICK;
+        dragY >= heightSnapDistance(heightTravel) || velocityY >= HEIGHT_SNAP_FLICK;
       animateHeightTo(passCollapse ? targetPeek : stackH, passCollapse ? "peek" : "expanded");
       return;
     }
@@ -450,7 +456,8 @@ export function createYnDrawerSheetExpand(input: {
     if (size === "peek") {
       if (dy < 0) {
         if (dragMode === "translate" && dragY > 0) paintDrag(0);
-        if (zone === "body" && input.canExpand()) {
+        // body / chrome 都可上滑展开（用户常抓标题栏）
+        if ((zone === "body" || zone === "chrome") && input.canExpand()) {
           dragMode = "height-expand";
           paintDrag(-dy);
           return true;

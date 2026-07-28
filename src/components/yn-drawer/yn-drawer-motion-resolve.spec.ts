@@ -1,5 +1,8 @@
 import { expect } from "@open-wc/testing";
-import { resolveYnDrawerMotion } from "./yn-drawer-motion-resolve.js";
+import {
+  resolveYnDrawerMotion,
+  resolveYnDrawerSheetExpand
+} from "./yn-drawer-motion-resolve.js";
 
 describe("resolveYnDrawerMotion", () => {
   it("forces side / sheet when motion is explicit", () => {
@@ -27,5 +30,25 @@ describe("resolveYnDrawerMotion", () => {
     expect(
       resolveYnDrawerMotion({ motion: "auto", placement: "auto", viewportWidth: 1024 })
     ).to.equal("side");
+  });
+});
+
+describe("resolveYnDrawerSheetExpand", () => {
+  it("keeps explicit snap / none", () => {
+    expect(
+      resolveYnDrawerSheetExpand({ sheetExpand: "snap", prefersGestures: false })
+    ).to.equal("snap");
+    expect(
+      resolveYnDrawerSheetExpand({ sheetExpand: "none", prefersGestures: true })
+    ).to.equal("none");
+  });
+
+  it("maps auto to snap on coarse and none on fine", () => {
+    expect(
+      resolveYnDrawerSheetExpand({ sheetExpand: "auto", prefersGestures: true })
+    ).to.equal("snap");
+    expect(
+      resolveYnDrawerSheetExpand({ sheetExpand: "auto", prefersGestures: false })
+    ).to.equal("none");
   });
 });

@@ -12,7 +12,7 @@ type Args = {
   title: string;
   placement: "auto" | "right" | "bottom";
   motion: "auto" | "side" | "sheet";
-  sheetExpand: "snap" | "none";
+  sheetExpand: "snap" | "none" | "auto";
   sheetHeight: string;
   closeOnBackdrop: boolean;
   zIndex: number;
@@ -63,8 +63,8 @@ const meta = {
     title: "",
     placement: "auto",
     motion: "auto",
-    sheetExpand: "snap",
-    sheetHeight: "100%",
+    sheetExpand: "auto",
+    sheetHeight: "98vh",
     closeOnBackdrop: true,
     zIndex: 1500,
     drawerBg: "#ffffff",
@@ -142,21 +142,21 @@ const meta = {
     sheetExpand: {
       name: "sheet-expand",
       control: "select",
-      options: ["snap", "none"],
+      options: ["auto", "snap", "none"],
       description:
-        "仅 `motion` 解析为 `sheet` 时生效：`snap` 半高吸附展开；`none` 高度仅随内容 / `sheet-height`。",
+        "仅 `motion` 解析为 `sheet` 时生效：`auto`=粗指针 snap / 细指针 none；`snap` 半高吸附；`none` 仅随内容 / `sheet-height`。",
       table: {
-        defaultValue: { summary: "snap" },
-        type: { summary: '"snap" | "none"' }
+        defaultValue: { summary: "auto" },
+        type: { summary: '"auto" | "snap" | "none"' }
       }
     },
     sheetHeight: {
       name: "sheet-height",
       control: "text",
       description:
-        "底部弹出时面板高度。默认 `100%`（铺满 surface 内容区，上下空隙靠边距）；`auto` 为随内容高度（关闭态 `translateY(100%)` 按面板自身高度滑入/滑出）；也可传 `60vh`、`420px` 等 CSS 长度。",
+        "底部弹出时面板高度。默认 `98vh`（展开封顶，顶部留遮罩）；`auto` 为随内容高度（关闭态 `translateY(100%)` 按面板自身高度滑入/滑出）；也可传 `60vh`、`420px` 等 CSS 长度。",
       table: {
-        defaultValue: { summary: "100%" },
+        defaultValue: { summary: "98vh" },
         type: { summary: "string" }
       }
     },
@@ -467,14 +467,14 @@ export const PanelStackMenu: Story = {
     placement: "bottom",
     motion: "sheet",
     sheetExpand: "snap",
-    sheetHeight: "100%"
+    sheetHeight: "98vh"
   },
   parameters: {
     viewport: { defaultViewport: "mobile1" },
     docs: {
       description: {
         story:
-          "三层面板 Sheet：默认打开 78vh；内容区上滑展开铺满内边距区域；展开后滚到顶再下拉先缩回 78vh；半高再下拉跟手关闭。"
+          "三层面板 Sheet：默认打开 78vh；内容区上滑展开到 98vh；展开后滚到顶再下拉先缩回 78vh；半高再下拉跟手关闭。"
       }
     }
   },

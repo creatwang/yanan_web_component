@@ -316,7 +316,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     /* snap 的 peek↔expanded 由手势模块连续驱动高度，避免与 CSS transition 抢动画 */
-    :host([data-yn-motion="sheet"][sheet-expand="none"]) .drawer-stack {
+    /* data-yn-sheet-expand = 解析后的 snap|none（sheet-expand=auto 时也会写成 none） */
+    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"]) .drawer-stack {
       max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
       transition: max-height var(--yn-drawer-open-duration, 380ms)
           var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1)),
@@ -331,7 +332,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
       max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
     }
 
-    :host([data-yn-motion="sheet"][sheet-expand="none"][sheet-height="auto"]) .drawer-stack {
+    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"][sheet-height="auto"])
+      .drawer-stack {
       max-height: none;
       overflow: visible;
     }
@@ -421,7 +423,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: auto;
     }
 
-    :host([data-yn-motion="sheet"][sheet-expand="none"]) .body {
+    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"]) .body {
       overflow: auto;
     }
 

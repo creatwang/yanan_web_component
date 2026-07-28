@@ -163,6 +163,27 @@ describe("createYnDrawerSheetExpand", () => {
     controller.dispose();
   });
 
+  it("collapses expanded to peek with a short pull (not half travel)", async () => {
+    const { stack, body, content, controller, onSizeChange } = setup();
+    controller.setEnabled(true);
+    controller.attach();
+    stack.style.height = "220px";
+    controller.setSize("expanded");
+    onSizeChange.mock.calls.length = 0;
+    // 展开后钉在高位：旧逻辑要拖一半行程(~190px)，新逻辑约 88px 内即可吸附
+    stack.style.height = "600px";
+    body.scrollTop = 0;
+
+    body.dispatchEvent(pointer("pointerdown", 20, content));
+    body.dispatchEvent(pointer("pointermove", 100, content)); // 80px
+    body.dispatchEvent(pointer("pointerup", 100, content));
+    await wait(480);
+
+    expect(controller.getSize()).to.equal("peek");
+    expect(onSizeChange.mock.calls).to.deep.equal([["peek"]]);
+    controller.dispose();
+  });
+
   it("collapses expanded to peek when pulling down on body at top", async () => {
     const { body, content, controller, onRequestClose, onSizeChange } = setup();
     controller.setEnabled(true);

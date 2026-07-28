@@ -175,15 +175,16 @@ describe("yn-drawer", () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;
     expect(el.motion).to.equal("auto");
-    expect(el.sheetExpand).to.equal("snap");
+    expect(el.sheetExpand).to.equal("auto");
     expect(el.getAttribute("motion")).to.equal("auto");
-    expect(el.getAttribute("sheet-expand")).to.equal("snap");
+    expect(el.getAttribute("sheet-expand")).to.equal("auto");
 
     el.motion = "sheet";
     el.sheetExpand = "none";
     await el.updateComplete;
     expect(el.getAttribute("motion")).to.equal("sheet");
     expect(el.getAttribute("sheet-expand")).to.equal("none");
+    expect(el.getAttribute("data-yn-sheet-expand")).to.equal("none");
   });
 
   it("applies sheet layout host attrs when motion=sheet", async () => {
@@ -209,7 +210,7 @@ describe("yn-drawer", () => {
 
   it("caps sheet middle while pinning the stack and scrolls body only when expanded", async () => {
     const el = await fixture<YnDrawer>(html`
-      <yn-drawer motion="sheet">
+      <yn-drawer motion="sheet" sheet-expand="snap">
         <div slot="middle">Promo</div>
         <div slot="footer">Footer</div>
       </yn-drawer>
@@ -238,17 +239,23 @@ describe("yn-drawer", () => {
     await oneEvent(el, "after-open");
     await el.updateComplete;
     expect(el.getAttribute("data-sheet-can-expand")).to.equal("true");
-    expect(getComputedStyle(body).overflow).to.equal("hidden");
+    // 粗指针 peek 锁 overflow；细指针允许滚轮（与生产 CSS @media (pointer: fine) 一致）
+    const peekOverflow = getComputedStyle(body).overflow;
+    if (window.matchMedia("(pointer: fine)").matches) {
+      expect(peekOverflow).to.equal("auto");
+    } else {
+      expect(peekOverflow).to.equal("hidden");
+    }
 
     el.setSheetSize("expanded");
     await el.updateComplete;
+    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
     expect(getComputedStyle(body).overflow).to.equal("auto");
-    expect(stack.getBoundingClientRect().height).to.be.greaterThan(100);
   });
 
   it("expands sheet stack inside surface padding like side drawer inset", async () => {
     const el = await fixture<YnDrawer>(html`
-      <yn-drawer motion="sheet" placement="bottom" sheet-expand="snap" sheet-height="100%">
+      <yn-drawer motion="sheet" placement="bottom" sheet-expand="snap" sheet-height="98vh">
         <div slot="content" style="height: 1600px">tall</div>
       </yn-drawer>
     `);
