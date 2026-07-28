@@ -240,6 +240,24 @@ describe("yn-drawer", () => {
     expect(getComputedStyle(body).overflow).to.equal("auto");
   });
 
+  it("uses sheet height and allows body scrolling when sheet-expand=none", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer
+        motion="sheet"
+        sheet-expand="none"
+        sheet-height="75vh"
+      ></yn-drawer>
+    `);
+    await el.updateComplete;
+
+    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (!stack || !body) throw new Error("missing sheet layout elements");
+
+    expect(getComputedStyle(stack).maxHeight).to.equal(`${window.innerHeight * 0.75}px`);
+    expect(getComputedStyle(body).overflow).to.equal("auto");
+  });
+
   it("renders one shared drawer stack for all panels", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;

@@ -313,6 +313,14 @@ export const YN_DRAWER_SHADOW_STYLES = `
       max-height: var(--yn-drawer-sheet-height, 90dvh);
     }
 
+    :host([data-yn-motion="sheet"][sheet-expand="none"]) .drawer-stack {
+      max-height: var(--yn-drawer-sheet-height, 90dvh);
+    }
+
+    :host([data-yn-motion="sheet"][sheet-expand="none"][sheet-height="auto"]) .drawer-stack {
+      max-height: none;
+    }
+
     :host([data-yn-motion="sheet"]) .panel {
       width: 100%;
     }
@@ -340,6 +348,10 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body {
+      overflow: auto;
+    }
+
+    :host([data-yn-motion="sheet"][sheet-expand="none"]) .body {
       overflow: auto;
     }
 
