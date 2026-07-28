@@ -345,33 +345,49 @@ export class YnDrawer extends LitElement {
     return this.sheetExpandController;
   }
 
-  private canExpandSheet(stack: HTMLElement, body: HTMLElement) {
-    // 内容在 peek 内已溢出 → 需要展开
-    if (body.scrollHeight > body.clientHeight + 1) return true;
+  private canExpandSheet(stack: HTMLElement, _body: HTMLElement) {
+    if (this.sheetExpand !== "snap") return false;
+    if (this.getAttribute("data-sheet-size") === "expanded") return false;
 
-    const peekHeight = this.resolveSheetPeekHeightPx();
-    if (peekHeight <= 0) return false;
+    const expandedCap = this.resolveSheetExpandedHeightPx();
+    if (expandedCap <= 0) return false;
 
-    // stack 被 max-height 裁切后仍可能 scrollHeight≈clientHeight；用子项固有高度判断
-    const intrinsic = Array.from(stack.children).reduce((sum, node) => {
-      if (!(node instanceof HTMLElement)) return sum;
-      if (node.classList.contains("panel--empty")) return sum;
-      return sum + node.scrollHeight;
-    }, 0);
-
-    return (
-      stack.scrollHeight > peekHeight * 0.98 || intrinsic > peekHeight * 0.98
-    );
+    // 当前可视高度仍明显低于封顶 → 允许上滑展开（含空车矮内容）
+    const current = stack.getBoundingClientRect().height;
+    return current < expandedCap * 0.98;
   }
 
   private resolveSheetPeekHeightPx() {
-    const value = getComputedStyle(this)
-      .getPropertyValue("--yn-drawer-sheet-peek-height")
+    return this.resolveCssLengthPx(
+      getComputedStyle(this).getPropertyValue("--yn-drawer-sheet-peek-height").trim(),
+      0.6
+    );
+  }
+
+  private resolveSheetExpandedHeightPx() {
+    const fromVar = getComputedStyle(this)
+      .getPropertyValue("--yn-drawer-sheet-height")
       .trim();
-    const amount = Number.parseFloat(value);
-    if (!Number.isFinite(amount)) return 0;
-    if (value.endsWith("px")) return amount;
-    if (value.endsWith("vh") || value.endsWith("dvh")) {
+    if (fromVar) return this.resolveCssLengthPx(fromVar, 0.9);
+    // sheet-height=auto 时会清掉变量，封顶回退 90dvh
+    return this.resolveCssLengthPx("90dvh", 0.9);
+  }
+
+  private resolveCssLengthPx(value: string, fallbackVhRatio: number) {
+    const raw = value.trim();
+    if (!raw) {
+      return typeof window !== "undefined"
+        ? window.innerHeight * fallbackVhRatio
+        : 0;
+    }
+    const amount = Number.parseFloat(raw);
+    if (!Number.isFinite(amount)) {
+      return typeof window !== "undefined"
+        ? window.innerHeight * fallbackVhRatio
+        : 0;
+    }
+    if (raw.endsWith("px")) return amount;
+    if (raw.endsWith("vh") || raw.endsWith("dvh")) {
       return (window.innerHeight * amount) / 100;
     }
     return 0;

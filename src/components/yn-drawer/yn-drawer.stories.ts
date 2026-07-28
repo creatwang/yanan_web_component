@@ -463,13 +463,18 @@ const CLOSE_WAIT_MS = 1200;
 
 export const PanelStackMenu: Story = {
   args: {
-    width: 480
+    width: 480,
+    placement: "bottom",
+    motion: "sheet",
+    sheetExpand: "snap",
+    sheetHeight: "90vh"
   },
   parameters: {
+    viewport: { defaultViewport: "mobile1" },
     docs: {
       description: {
         story:
-          "三层面板：top（导航）+ middle（宣传）+ bottom（footer）。Floema 配色；可快速连点体验 interruptible reverse / 坠落退场。"
+          "三层面板 Sheet：`motion=\"sheet\"`。打开为半高 peek，上滑吸附到近全高；PC 侧滑请看 CartDrawerDesktop / 将 motion 调为 side。"
       }
     }
   },
@@ -479,6 +484,9 @@ export const PanelStackMenu: Story = {
         .width=${args.width}
         title="Menu"
         placement=${args.placement}
+        motion=${args.motion}
+        sheet-expand=${args.sheetExpand}
+        sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         exit-speed="1.5"
         ease-reverse

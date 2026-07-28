@@ -314,6 +314,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
+      /* 必须用确定高度：fit-content 时空内容展开后视觉不变 */
+      height: var(--yn-drawer-sheet-height, 90dvh);
       max-height: var(--yn-drawer-sheet-height, 90dvh);
     }
 

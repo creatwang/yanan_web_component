@@ -233,16 +233,49 @@ describe("yn-drawer", () => {
     expect(getComputedStyle(top).overflow).to.equal("hidden");
     expect(getComputedStyle(middle).overflow).to.equal("hidden");
     expect(getComputedStyle(bottom).overflow).to.equal("hidden");
-    // 短内容无法展开时 peek 允许滚动，避免死锁
-    expect(el.getAttribute("data-sheet-can-expand")).to.equal("false");
-    expect(getComputedStyle(body).overflow).to.equal("auto");
+    // 未打开前 can-expand 可能尚未按布局测量；打开后短内容只要低于封顶也可展开
+    el.show();
+    await oneEvent(el, "after-open");
+    await el.updateComplete;
+    expect(el.getAttribute("data-sheet-can-expand")).to.equal("true");
+    expect(getComputedStyle(body).overflow).to.equal("hidden");
 
     el.setSheetSize("expanded");
     await el.updateComplete;
     expect(getComputedStyle(body).overflow).to.equal("auto");
+    expect(stack.getBoundingClientRect().height).to.be.greaterThan(100);
   });
 
-  it("locks peek body scroll only when sheet can expand", async () => {
+  it("expands short sheet to definite expanded height on setSheetSize", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer
+        motion="sheet"
+        placement="bottom"
+        sheet-expand="snap"
+        sheet-height="auto"
+        style="--yn-drawer-sheet-peek-height:40vh"
+      >
+        <div slot="content">short</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    el.show();
+    await oneEvent(el, "after-open");
+    await el.updateComplete;
+
+    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    if (!stack) throw new Error("missing stack");
+    const peekH = stack.getBoundingClientRect().height;
+
+    el.setSheetSize("expanded");
+    await el.updateComplete;
+    await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+
+    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
+    expect(stack.getBoundingClientRect().height).to.be.greaterThan(peekH + 20);
+  });
+
+  it("locks peek body scroll when sheet can still grow", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer
         motion="sheet"
