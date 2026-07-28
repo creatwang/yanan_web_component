@@ -31,6 +31,7 @@ export type YnDrawerLifecycleSource =
   | "close-button"
   | "backdrop"
   | "escape"
+  | "gesture"
   | "property";
 
 export type YnDrawerLifecycleDetail = {
@@ -126,6 +127,8 @@ export class YnDrawer extends LitElement {
   private sheetExpandResizeObserver: ResizeObserver | undefined;
   private motionBreakpointQuery: MediaQueryList | undefined;
   private motionBreakpointUsesLegacyListener = false;
+  /** 跟手下拉关闭动画已完成，退场走 immediate，避免再播一次 GSAP */
+  private sheetDragSettledClose = false;
 
   private activeLifecycleMeta: LifecycleMeta = { source: "property" };
   private pendingActionMeta: (LifecycleMeta & { nextOpen: boolean }) | undefined;
@@ -289,19 +292,30 @@ export class YnDrawer extends LitElement {
     if (this.sheetExpandController) return this.sheetExpandController;
     const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
     const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
-    const handle = this.shadowRoot?.querySelector<HTMLElement>(".header");
-    if (!stack || !body || !handle) return undefined;
+    const header = this.shadowRoot?.querySelector<HTMLElement>(".header");
+    const middle = this.shadowRoot?.querySelector<HTMLElement>(".panel--middle");
+    const bottom = this.shadowRoot?.querySelector<HTMLElement>(".panel--bottom");
+    if (!stack || !body || !header) return undefined;
+
+    const chrome = [header, middle, bottom].filter(
+      (el): el is HTMLElement =>
+        el instanceof HTMLElement && !el.classList.contains("panel--empty")
+    );
+    const backdrop =
+      this.backdropEl ?? this.shadowRoot?.querySelector<HTMLElement>(".backdrop");
 
     this.sheetExpandController = createYnDrawerSheetExpand({
       stack,
       body,
-      handle,
+      chrome,
+      backdrop,
       onSizeChange: (size) => {
         this.setAttribute("data-sheet-size", size);
         this.syncSheetCanExpandAttr();
       },
-      onRequestClose: () => {
-        this.close();
+      onRequestClose: (options) => {
+        if (options?.dragSettled) this.sheetDragSettledClose = true;
+        this.setOpenWithMeta(false, { source: "gesture" });
       },
       canExpand: () => this.canExpandSheet(stack, body)
     });
@@ -599,8 +613,10 @@ export class YnDrawer extends LitElement {
     if (!popoverEl || !popoverEl.matches(":popover-open")) return;
 
     this.activeLifecycleMeta = meta;
+    const skipExitMotion = immediate || this.sheetDragSettledClose;
+    this.sheetDragSettledClose = false;
 
-    if (immediate) {
+    if (skipExitMotion) {
       popoverEl.hidePopover();
       this.motionController?.dispose();
       this.motionController = undefined;

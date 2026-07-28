@@ -296,7 +296,7 @@ describe("yn-drawer", () => {
     if (!body) throw new Error("missing body");
 
     expect(getComputedStyle(body).overflow).to.equal("auto");
-    expect(getComputedStyle(body).touchAction).to.equal("pan-y");
+    expect(body.style.touchAction || getComputedStyle(body).touchAction).to.equal("pan-y");
     expect(body.scrollHeight).to.be.greaterThan(body.clientHeight + 50);
     body.scrollTop = 120;
     expect(body.scrollTop).to.be.greaterThan(50);

@@ -96,7 +96,7 @@ Sheet（高度随展开档变化）
 
 1. 未到封顶：上滑优先消耗为 Sheet 长高（整叠一起抬）。
 2. 到封顶后：上滑交给 `top .body` 列表滚动。
-3. 列表 `scrollTop === 0` 再下拉：默认直接关闭（不做「先缩回半高再关」；若后续需要可作为增强）。
+3. 列表 `scrollTop === 0` 再下拉，或下拉 header/middle/footer：整叠**跟手下移**，松手过阈值关闭、否则弹回（不做「先缩回半高」）。
 4. middle / bottom 不设独立 overflow 滚动；middle 内容过长应裁切或改放到 top content。
 
 ## 高度规则（sheet）

@@ -43,8 +43,8 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 
 export const BUNDLE_META = {
   builtAt: "2026-07-28",
-  fullIifeKb: 585.17,
-  fullIifeGzipKb: 157.81,
+  fullIifeKb: 588.66,
+  fullIifeGzipKb: 158.64,
   defineKb: 0.64,
   indexExportKb: 3.02
 } as const;

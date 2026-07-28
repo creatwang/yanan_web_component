@@ -474,7 +474,7 @@ export const PanelStackMenu: Story = {
     docs: {
       description: {
         story:
-          "三层面板 Sheet：`motion=\"sheet\"`。打开为半高 peek，内容区上滑展开；展开后在标题栏下滑关闭，内容区可正常滚动。"
+          "三层面板 Sheet：半高时内容区上滑展开；下滑时整叠跟手下移，松手过阈值关闭、否则弹回；展开后内容可滚，顶下拉/chrome 下拉同样跟手关闭。"
       }
     }
   },
@@ -497,7 +497,20 @@ export const PanelStackMenu: Story = {
         <span slot="header">Menu</span>
 
         <ul slot="content" class="yn-m-0 yn-flex yn-list-none yn-flex-col yn-gap-0 yn-p-0">
-          ${["New Arrivals", "Mens", "Womens", "Accessories", "Journal", "Stores"].map(
+          ${[
+            "New Arrivals",
+            "Mens",
+            "Womens",
+            "Accessories",
+            "Journal",
+            "Stores",
+            "Sale",
+            "Lookbook",
+            "Gift Cards",
+            "Sustainability",
+            "Shipping & Returns",
+            "Contact"
+          ].map(
             (label) => html`
               <li class="yn-border-b yn-border-[#241f21]/[0.08] last:yn-border-0">
                 <a

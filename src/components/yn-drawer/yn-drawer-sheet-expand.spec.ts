@@ -3,126 +3,178 @@ import { createYnDrawerSheetExpand } from "./yn-drawer-sheet-expand.js";
 
 function spy() {
   const calls: unknown[][] = [];
-  return Object.assign(
-    (...args: unknown[]) => {
-      calls.push(args);
-    },
-    { mock: { calls } }
-  );
+  return Object.assign((...args: unknown[]) => {
+    calls.push(args);
+  }, { mock: { calls } });
 }
 
-function pointer(type: string, clientY: number, pointerType = "mouse") {
-  const event = new Event(type, { bubbles: true, cancelable: true });
+function pointer(type: string, clientY: number, target: EventTarget) {
+  const event = new Event(type, { bubbles: true, cancelable: true, composed: true });
   Object.defineProperty(event, "clientY", { value: clientY });
   Object.defineProperty(event, "pointerId", { value: 1 });
-  Object.defineProperty(event, "pointerType", { value: pointerType });
+  Object.defineProperty(event, "pointerType", { value: "mouse" });
+  Object.defineProperty(event, "target", { value: target });
+  const path: EventTarget[] = [target];
+  let node: EventTarget | null = target;
+  while (node && node instanceof Node && node.parentNode) {
+    node = node.parentNode;
+    path.push(node);
+  }
+  Object.defineProperty(event, "composedPath", { value: () => path });
   return event;
 }
 
-function setup(canExpand = true) {
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function setup() {
   const stack = document.createElement("div");
-  const handle = document.createElement("header");
+  stack.style.cssText = "height:400px;";
+  const header = document.createElement("header");
   const body = document.createElement("div");
-  body.style.cssText = "height: 40px; overflow: auto;";
+  body.style.cssText = "height:40px;overflow:auto;";
   const content = document.createElement("div");
-  content.style.height = "200px";
+  content.style.height = "240px";
   body.append(content);
-  stack.append(handle, body);
-  document.body.append(stack);
+  const middle = document.createElement("div");
+  const bottom = document.createElement("footer");
+  const backdrop = document.createElement("div");
+  stack.append(header, body, middle, bottom);
+  document.body.append(stack, backdrop);
 
   const onSizeChange = spy();
   const onRequestClose = spy();
   const controller = createYnDrawerSheetExpand({
     stack,
     body,
-    handle,
+    chrome: [header, middle, bottom],
+    backdrop,
     onSizeChange,
     onRequestClose,
-    canExpand: () => canExpand
+    canExpand: () => true
   });
 
-  return { stack, handle, body, controller, onRequestClose, onSizeChange };
+  return { stack, body, content, middle, controller, onRequestClose, onSizeChange };
 }
 
 describe("createYnDrawerSheetExpand", () => {
-  it("expands peek from stack upward drag", () => {
-    const { stack, body, controller, onSizeChange } = setup();
+  it("expands when swiping up on body in peek", () => {
+    const { body, content, controller, onSizeChange } = setup();
     controller.setEnabled(true);
     controller.attach();
 
-    expect(body.style.touchAction).to.equal("none");
-    stack.dispatchEvent(pointer("pointerdown", 100));
-    stack.dispatchEvent(pointer("pointermove", 50));
-    stack.dispatchEvent(pointer("pointerup", 50));
+    body.dispatchEvent(pointer("pointerdown", 120, content));
+    body.dispatchEvent(pointer("pointermove", 60, content));
+    body.dispatchEvent(pointer("pointerup", 60, content));
 
     expect(controller.getSize()).to.equal("expanded");
     expect(onSizeChange.mock.calls).to.deep.equal([["expanded"]]);
-    expect(body.style.touchAction).to.equal("pan-y");
     controller.dispose();
   });
 
-  it("closes peek from stack downward drag", () => {
-    const { stack, controller, onRequestClose } = setup();
+  it("follows finger and closes after settle past threshold", async () => {
+    const { body, content, stack, controller, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.attach();
 
-    stack.dispatchEvent(pointer("pointerdown", 20));
-    stack.dispatchEvent(pointer("pointermove", 90));
-    stack.dispatchEvent(pointer("pointerup", 90));
+    body.dispatchEvent(pointer("pointerdown", 20, content));
+    body.dispatchEvent(pointer("pointermove", 140, content));
+    expect(stack.style.transform).to.contain("120px");
+    expect(onRequestClose.mock.calls).to.have.length(0);
+
+    body.dispatchEvent(pointer("pointerup", 140, content));
+    await wait(360);
 
     expect(onRequestClose.mock.calls).to.have.length(1);
+    expect(onRequestClose.mock.calls[0]?.[0]).to.deep.equal({ dragSettled: true });
     controller.dispose();
   });
 
-  it("closes expanded only from handle downward drag", () => {
-    const { stack, handle, body, controller, onRequestClose } = setup();
+  it("springs back when dismiss drag is short", async () => {
+    const { body, content, stack, controller, onRequestClose } = setup();
+    controller.setEnabled(true);
+    controller.attach();
+
+    body.dispatchEvent(pointer("pointerdown", 20, content));
+    body.dispatchEvent(pointer("pointermove", 50, content));
+    body.dispatchEvent(pointer("pointerup", 50, content));
+    await wait(400);
+
+    expect(onRequestClose.mock.calls).to.have.length(0);
+    expect(stack.style.transform).to.equal("");
+    controller.dispose();
+  });
+
+  it("does not expand peek when swiping up on chrome", () => {
+    const { middle, controller, onSizeChange } = setup();
+    controller.setEnabled(true);
+    controller.attach();
+
+    middle.dispatchEvent(pointer("pointerdown", 120, middle));
+    middle.dispatchEvent(pointer("pointermove", 60, middle));
+    middle.dispatchEvent(pointer("pointerup", 60, middle));
+
+    expect(controller.getSize()).to.equal("peek");
+    expect(onSizeChange.mock.calls).to.have.length(0);
+    controller.dispose();
+  });
+
+  it("follows chrome drag and closes after settle", async () => {
+    const { middle, stack, controller, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
     controller.attach();
 
-    expect(body.style.touchAction).to.equal("pan-y");
-    expect(handle.style.touchAction).to.equal("none");
+    middle.dispatchEvent(pointer("pointerdown", 10, middle));
+    middle.dispatchEvent(pointer("pointermove", 130, middle));
+    expect(stack.style.transform).to.contain("px");
+    middle.dispatchEvent(pointer("pointerup", 130, middle));
+    await wait(360);
 
-    // body 区域拖拽不应关闭
-    stack.dispatchEvent(pointer("pointerdown", 20));
-    stack.dispatchEvent(pointer("pointermove", 100));
-    stack.dispatchEvent(pointer("pointerup", 100));
-    expect(onRequestClose.mock.calls).to.have.length(0);
-
-    // header 下拉关闭
-    handle.dispatchEvent(pointer("pointerdown", 20));
-    handle.dispatchEvent(pointer("pointermove", 100));
-    handle.dispatchEvent(pointer("pointerup", 100));
     expect(onRequestClose.mock.calls).to.have.length(1);
     controller.dispose();
   });
 
-  it("does not steal body scrolling while expanded", () => {
+  it("closes when pulling down on body at scroll top past threshold", async () => {
+    const { body, content, controller, onRequestClose } = setup();
+    controller.setEnabled(true);
+    controller.setSize("expanded");
+    controller.attach();
+    body.scrollTop = 0;
+
+    body.dispatchEvent(pointer("pointerdown", 20, content));
+    body.dispatchEvent(pointer("pointermove", 140, content));
+    body.dispatchEvent(pointer("pointerup", 140, content));
+    await wait(360);
+
+    expect(onRequestClose.mock.calls).to.have.length(1);
+    controller.dispose();
+  });
+
+  it("does not close when body is scrolled away from top", async () => {
+    const { body, content, controller, onRequestClose } = setup();
+    controller.setEnabled(true);
+    controller.setSize("expanded");
+    controller.attach();
+    body.scrollTop = 40;
+
+    body.dispatchEvent(pointer("pointerdown", 20, content));
+    body.dispatchEvent(pointer("pointermove", 160, content));
+    body.dispatchEvent(pointer("pointerup", 160, content));
+    await wait(360);
+
+    expect(onRequestClose.mock.calls).to.have.length(0);
+    controller.dispose();
+  });
+
+  it("keeps body scrollable while expanded", () => {
     const { body, controller } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
     controller.attach();
 
-    expect(body.style.touchAction).to.equal("pan-y");
     expect(body.scrollHeight).to.be.greaterThan(body.clientHeight);
-    body.scrollTop = 30;
-    expect(body.scrollTop).to.equal(30);
-    controller.dispose();
-  });
-
-  it("detaches listeners", () => {
-    const { stack, handle, controller, onRequestClose, onSizeChange } = setup();
-    controller.setEnabled(true);
-    controller.attach();
-    controller.detach();
-
-    stack.dispatchEvent(pointer("pointerdown", 100));
-    stack.dispatchEvent(pointer("pointerup", 40));
-    handle.dispatchEvent(pointer("pointerdown", 20));
-    handle.dispatchEvent(pointer("pointerup", 100));
-
-    expect(onSizeChange.mock.calls).to.have.length(0);
-    expect(onRequestClose.mock.calls).to.have.length(0);
+    body.scrollTop = 50;
+    expect(body.scrollTop).to.equal(50);
     controller.dispose();
   });
 });

@@ -1,5 +1,10 @@
 export type YnDrawerSheetSize = "peek" | "expanded";
 
+export type YnDrawerSheetCloseOptions = {
+  /** 跟手关闭动画已到位，宿主跳过再次退场 */
+  dragSettled?: boolean;
+};
+
 export type YnDrawerSheetExpandController = {
   attach: () => void;
   detach: () => void;
@@ -9,263 +14,366 @@ export type YnDrawerSheetExpandController = {
   dispose: () => void;
 };
 
-const EXPAND_THRESHOLD_PX = 40;
-const DISMISS_THRESHOLD_PX = 50;
-const WHEEL_RESET_MS = 160;
+const EXPAND_PX = 40;
+const DISMISS_RATIO = 0.22;
+const DISMISS_MIN = 96;
+const DISMISS_MAX = 180;
+const DISMISS_FLICK = 0.65;
+const DISMISS_LOCK = 8;
+const SETTLE_MS = 280;
+const SPRING_MS = 320;
 
-type GestureTarget = HTMLElement;
+type Zone = "body" | "chrome" | "other";
 
-/**
- * 手势与滚动拆开：
- * - peek：在 stack 上监听（上滑展开 / 下滑关闭），body 不滚
- * - expanded：只在 handle（header）上下滑关闭；body 纯原生滚动，不挂任何手势
- */
+/** peek 上滑展开；下拉 / 顶下拉 / chrome 下拉跟手关闭 */
 export function createYnDrawerSheetExpand(input: {
   stack: HTMLElement;
   body: HTMLElement;
-  /** 展开后的关闭手势区，通常是 header */
-  handle: HTMLElement;
+  chrome: HTMLElement[];
+  backdrop?: HTMLElement | null;
   onSizeChange: (size: YnDrawerSheetSize) => void;
-  onRequestClose: () => void;
+  onRequestClose: (options?: YnDrawerSheetCloseOptions) => void;
   canExpand: () => boolean;
 }): YnDrawerSheetExpandController {
   let attached = false;
   let enabled = false;
   let size: YnDrawerSheetSize = "peek";
-  let startY: number | undefined;
-  let latestY: number | undefined;
-  let activePointerId: number | undefined;
-  let wheelDeltaY = 0;
-  let wheelResetTimer: ReturnType<typeof setTimeout> | undefined;
-  const previousBodyTouchAction = input.body.style.touchAction;
-  const previousStackTouchAction = input.stack.style.touchAction;
-  const previousHandleTouchAction = input.handle.style.touchAction;
+  let startY = 0;
+  let tracking = false;
+  let zone: Zone = "other";
+  let atTopOnStart = false;
+  let dismissLocked = false;
+  let pointerId: number | undefined;
+  let dragY = 0;
+  let settling = false;
+  let lastY = 0;
+  let lastTs = 0;
+  let velocityY = 0;
+  let stackH = 1;
+  let settleTimer = 0;
 
-  const gestureRoot = (): GestureTarget =>
-    size === "expanded" ? input.handle : input.stack;
-
-  const applyPeekTouchAction = () => {
-    const action = input.canExpand() ? "none" : "pan-y";
-    input.stack.style.touchAction = action;
-    input.body.style.touchAction = action;
-    input.handle.style.touchAction = action;
-    input.stack.removeAttribute("data-sheet-at-top");
+  const prevTouch = {
+    body: input.body.style.touchAction,
+    stack: input.stack.style.touchAction,
+    chrome: input.chrome.map((el) => el.style.touchAction)
   };
 
-  const applyExpandedTouchAction = () => {
-    // body 完全交给浏览器滚动
-    input.body.style.touchAction = "pan-y";
-    input.stack.style.touchAction = "pan-y";
-    // 只有把手拦截手势
-    input.handle.style.touchAction = "none";
-    input.stack.removeAttribute("data-sheet-at-top");
+  const atTop = () => input.body.scrollTop <= 0;
+
+  const zoneOf = (event: Event): Zone => {
+    const path = event.composedPath();
+    if (path.includes(input.body)) return "body";
+    if (input.chrome.some((el) => path.includes(el))) return "chrome";
+    const t = event.target;
+    if (t instanceof Node) {
+      if (input.body.contains(t)) return "body";
+      if (input.chrome.some((el) => el.contains(t))) return "chrome";
+    }
+    return "other";
   };
 
-  const clearInlineTouchAction = () => {
-    input.body.style.touchAction = previousBodyTouchAction;
-    input.stack.style.touchAction = previousStackTouchAction;
-    input.handle.style.touchAction = previousHandleTouchAction;
-    input.stack.removeAttribute("data-sheet-at-top");
-  };
-
-  const syncTouchAction = () => {
-    if (!attached) return;
-    if (!enabled) {
-      clearInlineTouchAction();
+  const setTouches = (action: string | null) => {
+    const apply = (el: HTMLElement, value: string) => {
+      el.style.touchAction = value;
+    };
+    if (action == null) {
+      apply(input.body, prevTouch.body);
+      apply(input.stack, prevTouch.stack);
+      input.chrome.forEach((el, i) => apply(el, prevTouch.chrome[i] ?? ""));
       return;
     }
-    if (size === "peek") applyPeekTouchAction();
-    else applyExpandedTouchAction();
+    apply(input.stack, action);
+    apply(input.body, action);
+    input.chrome.forEach((el) => apply(el, action));
+  };
+
+  const syncTouch = () => {
+    if (!attached) return;
+    if (!enabled) {
+      setTouches(null);
+      return;
+    }
+    if (size === "peek") {
+      setTouches(input.canExpand() ? "none" : "pan-y");
+      return;
+    }
+    input.body.style.touchAction = "pan-y";
+    input.stack.style.touchAction = "manipulation";
+    input.chrome.forEach((el) => {
+      el.style.touchAction = "none";
+    });
+  };
+
+  const paintDrag = (y: number) => {
+    dragY = Math.max(0, y);
+    const progress = Math.min(1, dragY / (stackH * 0.45));
+    input.stack.style.transition = "none";
+    input.stack.style.transform = `translate3d(0,${dragY}px,0)`;
+    if (input.backdrop) {
+      input.backdrop.style.transition = "none";
+      input.backdrop.style.opacity = String(1 - progress * 0.9);
+    }
+  };
+
+  const clearDrag = () => {
+    dragY = 0;
+    velocityY = 0;
+    settling = false;
+    if (settleTimer) {
+      window.clearTimeout(settleTimer);
+      settleTimer = 0;
+    }
+    input.stack.style.transition = "";
+    input.stack.style.transform = "";
+    if (input.backdrop) {
+      input.backdrop.style.transition = "";
+      input.backdrop.style.opacity = "";
+    }
+  };
+
+  const threshold = () =>
+    Math.min(DISMISS_MAX, Math.max(DISMISS_MIN, stackH * DISMISS_RATIO));
+
+  const settle = () => {
+    if (dragY <= 0 || settling) return;
+    settling = true;
+    const close = dragY >= threshold() || velocityY >= DISMISS_FLICK;
+    const ms = close ? SETTLE_MS : SPRING_MS;
+    const ease = close ? "ease-in" : "cubic-bezier(0.22,1,0.36,1)";
+    const y = close ? stackH * 1.12 : 0;
+
+    input.stack.style.transition = `transform ${ms}ms ${ease}`;
+    input.stack.style.transform = `translate3d(0,${y}px,0)`;
+    if (input.backdrop) {
+      input.backdrop.style.transition = `opacity ${ms}ms ${ease}`;
+      input.backdrop.style.opacity = close ? "0" : "1";
+    }
+
+    settleTimer = window.setTimeout(() => {
+      settleTimer = 0;
+      if (close) {
+        dragY = 0;
+        velocityY = 0;
+        settling = false;
+        input.onRequestClose({ dragSettled: true });
+        return;
+      }
+      clearDrag();
+      syncTouch();
+    }, ms + 16);
   };
 
   const resetGesture = () => {
-    startY = undefined;
-    latestY = undefined;
-    activePointerId = undefined;
-  };
-
-  const resetWheel = () => {
-    wheelDeltaY = 0;
-    if (wheelResetTimer !== undefined) {
-      clearTimeout(wheelResetTimer);
-      wheelResetTimer = undefined;
+    if (pointerId !== undefined) {
+      try {
+        if (input.stack.hasPointerCapture?.(pointerId)) {
+          input.stack.releasePointerCapture(pointerId);
+        }
+      } catch {
+        /* ignore */
+      }
     }
+    tracking = false;
+    zone = "other";
+    atTopOnStart = false;
+    dismissLocked = false;
+    pointerId = undefined;
   };
 
-  const setSize = (nextSize: YnDrawerSheetSize) => {
-    if (size === nextSize) return;
-    const prevRoot = gestureRoot();
-    size = nextSize;
+  const setSize = (next: YnDrawerSheetSize) => {
+    if (size === next) return;
+    size = next;
+    clearDrag();
     resetGesture();
-    resetWheel();
-    input.onSizeChange(nextSize);
-    syncTouchAction();
-    // 切换监听根节点
-    if (attached && enabled) {
-      unbindRoot(prevRoot);
-      bindRoot(gestureRoot());
-    }
+    input.onSizeChange(next);
+    syncTouch();
   };
 
-  const dismiss = () => {
-    resetGesture();
-    input.onRequestClose();
+  const begin = (clientY: number, nextZone: Zone, id?: number) => {
+    if (settling) return;
+    if (dragY > 0) clearDrag();
+    tracking = true;
+    startY = clientY;
+    zone = nextZone;
+    atTopOnStart = size === "expanded" && nextZone === "body" && atTop();
+    dismissLocked = false;
+    pointerId = id;
+    lastY = clientY;
+    lastTs = performance.now();
+    velocityY = 0;
+    stackH = Math.max(input.stack.getBoundingClientRect().height, 1);
   };
 
-  const evaluate = () => {
-    if (!enabled || startY === undefined || latestY === undefined) return;
-    const deltaY = latestY - startY;
+  const trackVel = (clientY: number) => {
+    const now = performance.now();
+    const dt = now - lastTs;
+    // 过滤同帧合成事件，避免瞬时超大速度误触发甩出关闭
+    if (dt >= 8 && dt < 120) velocityY = (clientY - lastY) / dt;
+    lastY = clientY;
+    lastTs = now;
+  };
+
+  const move = (clientY: number): boolean => {
+    if (!tracking || settling) return false;
+    trackVel(clientY);
+    const dy = clientY - startY;
 
     if (size === "peek") {
-      if (deltaY < -EXPAND_THRESHOLD_PX && input.canExpand()) {
-        setSize("expanded");
-        return;
+      if (dy < 0) {
+        if (dragY > 0) paintDrag(0);
+        if (dy < -EXPAND_PX && zone === "body" && input.canExpand()) {
+          setSize("expanded");
+        }
+        return true;
       }
-      if (deltaY > DISMISS_THRESHOLD_PX) dismiss();
-      return;
+      if (zone === "body" || zone === "chrome") {
+        paintDrag(dy);
+        return true;
+      }
+      return true;
     }
 
-    // expanded：仅把手下滑关闭
-    if (deltaY > DISMISS_THRESHOLD_PX) dismiss();
+    if (zone === "chrome") {
+      if (dy > 0) {
+        paintDrag(dy);
+        return true;
+      }
+      if (dragY > 0) paintDrag(0);
+      return false;
+    }
+
+    if (zone === "body") {
+      if (dy <= 0 || !atTop()) {
+        dismissLocked = false;
+        if (dragY > 0 && dy <= 0) paintDrag(0);
+        return false;
+      }
+      if ((atTopOnStart || atTop()) && dy > DISMISS_LOCK) dismissLocked = true;
+      if (dismissLocked) {
+        paintDrag(dy);
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const end = () => {
+    if (!tracking || settling) return;
+    settle();
+    resetGesture();
+    if (!settling) syncTouch();
   };
 
   const onPointerDown = (event: PointerEvent) => {
-    if (!enabled) return;
-    if (event.pointerType === "touch") return;
-    startY = event.clientY;
-    latestY = event.clientY;
-    activePointerId = event.pointerId;
-    try {
-      gestureRoot().setPointerCapture(event.pointerId);
-    } catch {
-      /* ignore */
+    if (!enabled || event.pointerType === "touch") return;
+    const z = zoneOf(event);
+    if (size === "expanded" && z === "other") return;
+    begin(event.clientY, z, event.pointerId);
+    if (size === "peek" || z === "chrome") {
+      try {
+        input.stack.setPointerCapture(event.pointerId);
+      } catch {
+        /* ignore */
+      }
     }
   };
 
   const onPointerMove = (event: PointerEvent) => {
-    if (!enabled || startY === undefined) return;
-    if (event.pointerType === "touch") return;
-    if (activePointerId !== undefined && event.pointerId !== activePointerId) return;
-    latestY = event.clientY;
-    event.preventDefault();
-    evaluate();
+    if (!enabled || !tracking || event.pointerType === "touch") return;
+    if (pointerId !== undefined && event.pointerId !== pointerId) return;
+    if (move(event.clientY)) event.preventDefault();
   };
 
   const onPointerUp = (event: PointerEvent) => {
-    if (!enabled || startY === undefined) return;
-    if (event.pointerType === "touch") return;
-    if (activePointerId !== undefined && event.pointerId !== activePointerId) return;
-    latestY = event.clientY;
-    evaluate();
-    resetGesture();
+    if (!enabled || !tracking || event.pointerType === "touch") return;
+    if (pointerId !== undefined && event.pointerId !== pointerId) return;
+    trackVel(event.clientY);
+    end();
   };
 
   const onPointerCancel = (event: PointerEvent) => {
     if (event.pointerType === "touch") return;
+    if (dragY > 0) settle();
     resetGesture();
+    syncTouch();
   };
 
   const onTouchStart = (event: TouchEvent) => {
     if (!enabled || event.touches.length !== 1) return;
     const touch = event.touches[0];
     if (!touch) return;
-    startY = touch.clientY;
-    latestY = touch.clientY;
-    activePointerId = undefined;
+    const z = zoneOf(event);
+    if (size === "expanded" && z === "other") return;
+    begin(touch.clientY, z);
   };
 
   const onTouchMove = (event: TouchEvent) => {
-    if (!enabled || startY === undefined || event.touches.length !== 1) return;
+    if (!enabled || !tracking || event.touches.length !== 1) return;
     const touch = event.touches[0];
     if (!touch) return;
-    latestY = touch.clientY;
-    event.preventDefault();
-    evaluate();
+    if (move(touch.clientY)) event.preventDefault();
   };
 
   const onTouchEnd = () => {
-    if (!enabled || startY === undefined) return;
-    evaluate();
-    resetGesture();
+    if (!enabled || !tracking) return;
+    end();
   };
 
-  const onWheel = (event: WheelEvent) => {
-    if (!enabled || size !== "peek" || !input.canExpand()) return;
-    wheelDeltaY += event.deltaY;
-    if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
-    wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
-    if (wheelDeltaY < -EXPAND_THRESHOLD_PX) {
-      event.preventDefault();
-      setSize("expanded");
+  const onScroll = () => {
+    if (!atTop()) {
+      dismissLocked = false;
+      atTopOnStart = false;
     }
   };
 
-  const bindRoot = (root: GestureTarget) => {
+  const bind = (on: boolean) => {
     const opts: AddEventListenerOptions = { capture: true };
     const moveOpts: AddEventListenerOptions = { capture: true, passive: false };
-    root.addEventListener("pointerdown", onPointerDown, opts);
-    root.addEventListener("pointermove", onPointerMove, moveOpts);
-    root.addEventListener("pointerup", onPointerUp, opts);
-    root.addEventListener("pointercancel", onPointerCancel, opts);
-    root.addEventListener("touchstart", onTouchStart, opts);
-    root.addEventListener("touchmove", onTouchMove, moveOpts);
-    root.addEventListener("touchend", onTouchEnd, opts);
-    root.addEventListener("touchcancel", onTouchEnd, opts);
-    if (root === input.stack) {
-      root.addEventListener("wheel", onWheel, moveOpts);
-    }
-  };
-
-  const unbindRoot = (root: GestureTarget) => {
-    const opts: AddEventListenerOptions = { capture: true };
-    const moveOpts: AddEventListenerOptions = { capture: true, passive: false };
-    root.removeEventListener("pointerdown", onPointerDown, opts);
-    root.removeEventListener("pointermove", onPointerMove, moveOpts);
-    root.removeEventListener("pointerup", onPointerUp, opts);
-    root.removeEventListener("pointercancel", onPointerCancel, opts);
-    root.removeEventListener("touchstart", onTouchStart, opts);
-    root.removeEventListener("touchmove", onTouchMove, moveOpts);
-    root.removeEventListener("touchend", onTouchEnd, opts);
-    root.removeEventListener("touchcancel", onTouchEnd, opts);
-    root.removeEventListener("wheel", onWheel, moveOpts);
-  };
-
-  const attach = () => {
-    if (attached) return;
-    attached = true;
-    syncTouchAction();
-    bindRoot(gestureRoot());
-  };
-
-  const detach = () => {
-    if (!attached) return;
-    attached = false;
-    unbindRoot(input.stack);
-    unbindRoot(input.handle);
-    resetGesture();
-    resetWheel();
-  };
-
-  const setEnabled = (nextEnabled: boolean) => {
-    enabled = nextEnabled;
-    if (!enabled) {
-      resetGesture();
-      resetWheel();
-    }
-    syncTouchAction();
-  };
-
-  const dispose = () => {
-    detach();
-    clearInlineTouchAction();
+    const fn = on ? "addEventListener" : "removeEventListener";
+    input.stack[fn]("pointerdown", onPointerDown, opts);
+    input.stack[fn]("pointermove", onPointerMove, moveOpts);
+    input.stack[fn]("pointerup", onPointerUp, opts);
+    input.stack[fn]("pointercancel", onPointerCancel, opts);
+    input.stack[fn]("touchstart", onTouchStart, opts);
+    input.stack[fn]("touchmove", onTouchMove, moveOpts);
+    input.stack[fn]("touchend", onTouchEnd, opts);
+    input.stack[fn]("touchcancel", onTouchEnd, opts);
+    if (on) input.body.addEventListener("scroll", onScroll, { passive: true });
+    else input.body.removeEventListener("scroll", onScroll);
   };
 
   return {
-    attach,
-    detach,
-    setEnabled,
+    attach() {
+      if (attached) return;
+      attached = true;
+      syncTouch();
+      bind(true);
+    },
+    detach() {
+      if (!attached) return;
+      attached = false;
+      bind(false);
+      clearDrag();
+      resetGesture();
+    },
+    setEnabled(next) {
+      enabled = next;
+      if (!enabled) {
+        clearDrag();
+        resetGesture();
+      }
+      syncTouch();
+    },
     setSize,
     getSize: () => size,
-    dispose
+    dispose() {
+      if (attached) {
+        attached = false;
+        bind(false);
+      }
+      clearDrag();
+      resetGesture();
+      setTouches(null);
+    }
   };
 }

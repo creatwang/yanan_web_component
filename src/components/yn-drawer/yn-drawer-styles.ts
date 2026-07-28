@@ -354,10 +354,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: hidden;
     }
 
-    /*
-     * expanded：内容区始终 pan-y，手势只打在 header（JS 设 touch-action:none）。
-     * peek 可展开时 stack 内 none，由 JS 处理上滑/下滑。
-     */
+    /* peek 可展开：none；expanded：body pan-y，chrome none（跟手下拉） */
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack,
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack *,
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
@@ -365,19 +362,20 @@ export const YN_DRAWER_SHADOW_STYLES = `
       touch-action: none;
     }
 
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack,
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body,
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body::slotted(*) {
       touch-action: pan-y;
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .header,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .header * {
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .header *,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--middle,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--middle *,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--bottom,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--bottom * {
       touch-action: none;
-      cursor: grab;
     }
 
-    /* 不能展开时允许 peek 内滚动，避免 overflow:hidden 死锁 */
     :host([data-yn-motion="sheet"]) .body {
       overflow: auto;
       overscroll-behavior: contain;
