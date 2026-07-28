@@ -171,20 +171,16 @@ describe("yn-drawer", () => {
     expect(el.querySelector('[slot="middle"]')?.textContent).to.include("Promo");
   });
 
-  it("reflects motion and sheet-expand defaults and overrides", async () => {
+  it("reflects motion default and overrides", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;
     expect(el.motion).to.equal("auto");
-    expect(el.sheetExpand).to.equal("auto");
     expect(el.getAttribute("motion")).to.equal("auto");
-    expect(el.getAttribute("sheet-expand")).to.equal("auto");
 
     el.motion = "sheet";
-    el.sheetExpand = "none";
     await el.updateComplete;
     expect(el.getAttribute("motion")).to.equal("sheet");
-    expect(el.getAttribute("sheet-expand")).to.equal("none");
-    expect(el.getAttribute("data-yn-sheet-expand")).to.equal("none");
+    expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
   });
 
   it("applies sheet layout host attrs when motion=sheet", async () => {
@@ -193,24 +189,11 @@ describe("yn-drawer", () => {
     );
     await el.updateComplete;
     expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
-    expect(el.getAttribute("data-sheet-size")).to.equal("peek");
   });
 
-  it("expands sheet size attribute when setSheetSize is used", async () => {
-    const el = await fixture<YnDrawer>(
-      html`<yn-drawer motion="sheet" sheet-expand="snap"></yn-drawer>`,
-    );
-    await el.updateComplete;
-
-    el.setSheetSize("expanded");
-    await el.updateComplete;
-
-    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
-  });
-
-  it("caps sheet middle while pinning the stack and scrolls body only when expanded", async () => {
+  it("caps sheet middle while pinning the stack and keeps body scrollable", async () => {
     const el = await fixture<YnDrawer>(html`
-      <yn-drawer motion="sheet" sheet-expand="snap">
+      <yn-drawer motion="sheet" sheet-height="85vh">
         <div slot="middle">Promo</div>
         <div slot="footer">Footer</div>
       </yn-drawer>
@@ -234,114 +217,16 @@ describe("yn-drawer", () => {
     expect(getComputedStyle(top).overflow).to.equal("hidden");
     expect(getComputedStyle(middle).overflow).to.equal("hidden");
     expect(getComputedStyle(bottom).overflow).to.equal("hidden");
-    // 未打开前 can-expand 可能尚未按布局测量；打开后短内容只要低于封顶也可展开
+
     el.show();
     await oneEvent(el, "after-open");
     await el.updateComplete;
-    expect(el.getAttribute("data-sheet-can-expand")).to.equal("true");
-    // 粗指针 peek 锁 overflow；细指针允许滚轮（与生产 CSS @media (pointer: fine) 一致）
-    const peekOverflow = getComputedStyle(body).overflow;
-    if (window.matchMedia("(pointer: fine)").matches) {
-      expect(peekOverflow).to.equal("auto");
-    } else {
-      expect(peekOverflow).to.equal("hidden");
-    }
-
-    el.setSheetSize("expanded");
-    await el.updateComplete;
-    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
     expect(getComputedStyle(body).overflow).to.equal("auto");
   });
 
-  it("expands sheet stack inside surface padding like side drawer inset", async () => {
+  it("uses sheet height and allows body scrolling", async () => {
     const el = await fixture<YnDrawer>(html`
-      <yn-drawer motion="sheet" placement="bottom" sheet-expand="snap" sheet-height="98vh">
-        <div slot="content" style="height: 1600px">tall</div>
-      </yn-drawer>
-    `);
-    await el.updateComplete;
-    el.show();
-    await oneEvent(el, "after-open");
-    el.setSheetSize("expanded");
-    await el.updateComplete;
-    await new Promise((r) => requestAnimationFrame(() => r(undefined)));
-
-    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
-    const backdrop = el.shadowRoot?.querySelector<HTMLElement>(".backdrop");
-    if (!stack || !backdrop) throw new Error("missing sheet elements");
-
-    const stackRect = stack.getBoundingClientRect();
-    expect(window.innerHeight - stackRect.bottom).to.be.greaterThan(8);
-    expect(stackRect.top).to.be.greaterThan(8);
-    expect(stackRect.height).to.be.lessThan(window.innerHeight - 16);
-    expect(stackRect.height).to.be.greaterThan(window.innerHeight * 0.85);
-    expect(Number.parseFloat(getComputedStyle(backdrop).opacity || "0")).to.be.greaterThan(0.5);
-  });
-
-  it("expands short sheet to definite expanded height on setSheetSize", async () => {
-    const el = await fixture<YnDrawer>(html`
-      <yn-drawer
-        motion="sheet"
-        placement="bottom"
-        sheet-expand="snap"
-        sheet-height="auto"
-        style="--yn-drawer-sheet-peek-height:40vh"
-      >
-        <div slot="content">short</div>
-      </yn-drawer>
-    `);
-    await el.updateComplete;
-    el.show();
-    await oneEvent(el, "after-open");
-    await el.updateComplete;
-
-    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
-    if (!stack) throw new Error("missing stack");
-    const peekH = stack.getBoundingClientRect().height;
-
-    el.setSheetSize("expanded");
-    await el.updateComplete;
-    await new Promise((r) => requestAnimationFrame(() => r(undefined)));
-
-    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
-    expect(stack.getBoundingClientRect().height).to.be.greaterThan(peekH + 20);
-  });
-
-  it("allows body scroll after expand with tall content", async () => {
-    const el = await fixture<YnDrawer>(html`
-      <yn-drawer
-        motion="sheet"
-        placement="bottom"
-        sheet-expand="snap"
-        style="--yn-drawer-sheet-peek-height:120px"
-      >
-        <div slot="content" style="height: 2000px">tall</div>
-      </yn-drawer>
-    `);
-    await el.updateComplete;
-    el.show();
-    await oneEvent(el, "after-open");
-    el.setSheetSize("expanded");
-    await el.updateComplete;
-
-    const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
-    if (!body) throw new Error("missing body");
-
-    expect(getComputedStyle(body).overflow).to.equal("auto");
-    expect(body.style.touchAction || getComputedStyle(body).touchAction).to.equal("pan-y");
-    expect(body.scrollHeight).to.be.greaterThan(body.clientHeight + 50);
-    body.scrollTop = 120;
-    expect(body.scrollTop).to.be.greaterThan(50);
-  });
-
-
-  it("uses sheet height and allows body scrolling when sheet-expand=none", async () => {
-    const el = await fixture<YnDrawer>(html`
-      <yn-drawer
-        motion="sheet"
-        sheet-expand="none"
-        sheet-height="75vh"
-      ></yn-drawer>
+      <yn-drawer motion="sheet" sheet-height="75vh"></yn-drawer>
     `);
     await el.updateComplete;
 

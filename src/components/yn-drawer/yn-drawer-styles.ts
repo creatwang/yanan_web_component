@@ -65,7 +65,6 @@ export const YN_DRAWER_SHADOW_STYLES = `
       --yn-drawer-mobile-radius: 16px;
       --yn-drawer-mobile-shadow: var(--yn-color-shadow-lg, 0 -12px 36px rgba(36, 31, 33, 0.18));
       --yn-drawer-sheet-height: 98vh;
-      --yn-drawer-sheet-peek-height: 78vh;
       --yn-drawer-trigger-bg: var(--yn-color-inverse-bg, #241f21);
       --yn-drawer-trigger-color: var(--yn-color-on-inverse, #ffffff);
       --yn-drawer-breakpoint: 1024px;
@@ -306,34 +305,15 @@ export const YN_DRAWER_SHADOW_STYLES = `
       width: 100%;
       max-width: var(--yn-drawer-sheet-max-width, none);
       height: fit-content;
-      max-height: min(var(--yn-drawer-sheet-peek-height), 100%);
+      max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
       margin-top: auto;
       margin-inline: auto;
       pointer-events: auto;
       gap: var(--yn-drawer-panel-gap);
-      /* 强制在 peek 封顶内压缩子项，否则 body 无法形成可测 overflow / 手势死锁 */
       overflow: hidden;
     }
 
-    /* snap 的 peek↔expanded 由手势模块连续驱动高度，避免与 CSS transition 抢动画 */
-    /* data-yn-sheet-expand = 解析后的 snap|none（sheet-expand=auto 时也会写成 none） */
-    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"]) .drawer-stack {
-      max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
-      transition: max-height var(--yn-drawer-open-duration, 380ms)
-          var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1)),
-        height var(--yn-drawer-open-duration, 380ms)
-          var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1));
-    }
-
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
-      /* 在 surface 内边距内尽量拉高；100% = 扣除上下留白后的可用高度 */
-      flex: 0 0 auto;
-      height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
-      max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
-    }
-
-    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"][sheet-height="auto"])
-      .drawer-stack {
+    :host([data-yn-motion="sheet"][sheet-height="auto"]) .drawer-stack {
       max-height: none;
       overflow: visible;
     }
@@ -362,69 +342,18 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: hidden;
     }
 
-    /* peek 可展开：none；expanded：body pan-y，chrome none（跟手下拉） */
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack,
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack *,
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-      .body::slotted(*) {
-      touch-action: none;
-    }
-
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .close-btn,
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .close-btn *,
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-      .panel--bottom::slotted(*),
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-      .panel--bottom::slotted(*) * {
-      touch-action: manipulation;
-    }
-
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body::slotted(*) {
-      touch-action: pan-y;
-    }
-
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .header,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .header *,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--middle,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--middle *,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--bottom,
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .panel--bottom * {
-      touch-action: none;
-    }
-
     :host([data-yn-motion="sheet"]) .body {
       overflow: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
     }
 
-    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .body {
-      overflow: hidden;
-    }
-
-    /* 鼠标 / 触控板：即使仍处 snap peek，也允许滚轮滚动，避免手势不可用时卡死 */
-    @media (pointer: fine) {
-      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-        .drawer-stack,
-      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-        .drawer-stack *,
-      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
-        .body::slotted(*) {
-        touch-action: pan-y;
-      }
-
-      :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .body {
-        overflow: auto;
-      }
-    }
-
-    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body {
-      overflow: auto;
-    }
-
-    :host([data-yn-motion="sheet"][data-yn-sheet-expand="none"]) .body {
-      overflow: auto;
+    :host([data-yn-motion="sheet"]) .close-btn,
+    :host([data-yn-motion="sheet"]) .close-btn *,
+    :host([data-yn-motion="sheet"]) .panel--bottom::slotted(*),
+    :host([data-yn-motion="sheet"]) .panel--bottom::slotted(*) * {
+      touch-action: manipulation;
     }
 
     :host([data-yn-motion="sheet"]) .backdrop-extra {

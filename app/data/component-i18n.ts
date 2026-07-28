@@ -1285,8 +1285,8 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       en: "Drawer/sheet overlay with right/bottom placement and lifecycle events."
     },
     longDescription: {
-      "zh-CN": "支持三种 `placement`：`auto`（自动判断）、`right`（桌面端右侧抽屉）、`bottom`（移动端底部 Sheet）。`motion` 控制动效：`auto` | `side`（侧滑）| `sheet`（底部上滑）；`sheet-expand` 在 sheet 模式下控制半高吸附（`snap`）或固定高度（`none`）。`width` 控制抽屉宽度，`sheet-height` 控制底部封顶高度。`close-on-backdrop` 控制背景点击关闭。完整的生命周期事件：`before-open` / `after-open` / `before-close` / `after-close`。提供 `show()` / `close()` / `toggle()` 方法。",
-      en: "Three placement modes: auto, right (desktop drawer), bottom (mobile sheet). `motion` selects side vs sheet animation; `sheet-expand` toggles half-height snap on sheet mode. Full lifecycle events: before-open, after-open, before-close, after-close. Programmatic show/close/toggle methods."
+      "zh-CN": "支持三种 `placement`：`auto`（自动判断）、`right`（桌面端右侧抽屉）、`bottom`（移动端底部 Sheet）。`motion` 控制动效：`auto` | `side`（侧滑）| `sheet`（底部上滑）。`width` 控制抽屉宽度，`sheet-height` 控制底部面板高度。`close-on-backdrop` 控制背景点击关闭。完整的生命周期事件：`before-open` / `after-open` / `before-close` / `after-close`。提供 `show()` / `close()` / `toggle()` 方法。",
+      en: "Three placement modes: auto, right (desktop drawer), bottom (mobile sheet). `motion` selects side vs sheet animation; `sheet-height` controls sheet panel height. Full lifecycle events: before-open, after-open, before-close, after-close. Programmatic show/close/toggle methods."
     },
     usageCode: {
       "zh-CN": `<yn-drawer @open-change=\${onOpenChange}>\n  <yn-button slot="trigger">打开</yn-button>\n  <div slot="content">抽屉内容</div>\n</yn-drawer>`,
@@ -1296,7 +1296,7 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       {
         id: "cart",
         title: { "zh-CN": "购物车抽屉", en: "Cart drawer" },
-        description: { "zh-CN": "移动端 Sheet：`motion=\"sheet\"` + 半高吸附。", en: "Mobile sheet with half-height snap." },
+        description: { "zh-CN": "移动端 Sheet：`motion=\"sheet\"` + 原生滚动。", en: "Mobile sheet with native scroll." },
         storybookComponent: "YnDrawer",
         storybookStory: "CartDrawer",
         demoVariant: "yn-drawer-cart"
@@ -1314,14 +1314,14 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       {
         title: { "zh-CN": "完整插槽组合", en: "Full slot composition" },
         code: {
-          "zh-CN": `<yn-drawer placement="bottom" motion="sheet" sheet-expand="snap" sheet-height="auto" width="420" @open-change=\${onOpenChange}>
+          "zh-CN": `<yn-drawer placement="bottom" motion="sheet" sheet-height="auto" width="420" @open-change=\${onOpenChange}>
   <yn-button slot="trigger" variant="default" drawer-payload='{"scene":"cart"}'>购物车</yn-button>
   <span slot="header">Your bag</span>
   <div slot="header-actions"><!-- 头部操作 --></div>
   <div slot="content">Drawer content</div>
   <div slot="footer">Footer actions</div>
 </yn-drawer>`,
-          en: `<yn-drawer placement="bottom" motion="sheet" sheet-expand="snap" sheet-height="auto" width="420" @open-change=\${onOpenChange}>
+          en: `<yn-drawer placement="bottom" motion="sheet" sheet-height="auto" width="420" @open-change=\${onOpenChange}>
   <yn-button slot="trigger" variant="default" drawer-payload='{"scene":"cart"}'>Cart</yn-button>
   <span slot="header">Your bag</span>
   <div slot="header-actions"><!-- header actions --></div>
@@ -1373,8 +1373,7 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       { name: "close-on-backdrop", type: "boolean", default: "true", desc: { "zh-CN": "点背景关闭", en: "Close on backdrop" } },
       { name: "placement", type: "auto | right | bottom", default: "auto", desc: { "zh-CN": "弹出位置", en: "Placement" } },
       { name: "motion", type: "auto | side | sheet", default: "auto", desc: { "zh-CN": "动效模式：auto 推断 / side 侧滑 / sheet 底部上滑", en: "Motion: auto, side slide, or sheet rise" } },
-      { name: "sheet-expand", type: "snap | none", default: "snap", desc: { "zh-CN": "Sheet 半高吸附（仅 sheet 模式）", en: "Half-height snap expand (sheet only)" } },
-      { name: "sheet-height", type: "number | string", default: "100%", desc: { "zh-CN": "底部 Sheet 封顶高度（默认铺满内容区）", en: "Sheet max height (default fills content box)" } }
+      { name: "sheet-height", type: "number | string", default: "98vh", desc: { "zh-CN": "底部 Sheet 面板高度", en: "Sheet panel height" } }
     ],
     events: [
       { name: "open-change", detail: "{ open: boolean }", desc: { "zh-CN": "开关变化", en: "Open state changed" } },
@@ -1393,8 +1392,7 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
     ],
     cssVars: [
       { name: "--yn-drawer-width", default: "380px", desc: { "zh-CN": "抽屉宽度", en: "Drawer width" } },
-      { name: "--yn-drawer-sheet-height", default: "100%", desc: { "zh-CN": "Sheet 封顶高度（展开铺满 surface；空隙靠边距）", en: "Sheet max height (expanded fills surface; gaps via padding)" } },
-      { name: "--yn-drawer-sheet-peek-height", default: "78vh", desc: { "zh-CN": "Sheet 初始打开高度（snap 吸附起点）", en: "Sheet initial open height (snap start)" } },
+      { name: "--yn-drawer-sheet-height", default: "98vh", desc: { "zh-CN": "Sheet 面板高度（`sheet-height=\"auto\"` 时随内容）", en: "Sheet panel height (content-sized when sheet-height=auto)" } },
       { name: "--yn-drawer-open-duration", default: "320ms", desc: { "zh-CN": "展开动画时长", en: "Open duration" } },
       { name: "--yn-drawer-close-duration", default: "260ms", desc: { "zh-CN": "关闭动画时长", en: "Close duration" } }
     ],

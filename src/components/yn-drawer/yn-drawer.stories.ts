@@ -11,8 +11,7 @@ type Args = {
   width: number;
   title: string;
   placement: "auto" | "right" | "bottom";
-  motion: "auto" | "side" | "sheet";
-  sheetExpand: "snap" | "none" | "auto";
+  motion: "auto" | "side" | "sheet";
   sheetHeight: string;
   closeOnBackdrop: boolean;
   zIndex: number;
@@ -62,8 +61,7 @@ const meta = {
     width: 420,
     title: "",
     placement: "auto",
-    motion: "auto",
-    sheetExpand: "auto",
+    motion: "auto",
     sheetHeight: "98vh",
     closeOnBackdrop: true,
     zIndex: 1500,
@@ -138,18 +136,7 @@ const meta = {
         defaultValue: { summary: "auto" },
         type: { summary: '"auto" | "side" | "sheet"' }
       }
-    },
-    sheetExpand: {
-      name: "sheet-expand",
-      control: "select",
-      options: ["auto", "snap", "none"],
-      description:
-        "仅 `motion` 解析为 `sheet` 时生效：`auto`=粗指针 snap / 细指针 none；`snap` 半高吸附；`none` 仅随内容 / `sheet-height`。",
-      table: {
-        defaultValue: { summary: "auto" },
-        type: { summary: '"auto" | "snap" | "none"' }
-      }
-    },
+    },
     sheetHeight: {
       name: "sheet-height",
       control: "text",
@@ -465,8 +452,7 @@ export const PanelStackMenu: Story = {
   args: {
     width: 480,
     placement: "bottom",
-    motion: "sheet",
-    sheetExpand: "snap",
+    motion: "sheet",
     sheetHeight: "98vh"
   },
   parameters: {
@@ -474,7 +460,7 @@ export const PanelStackMenu: Story = {
     docs: {
       description: {
         story:
-          "三层面板 Sheet：默认打开 78vh；内容区上滑展开到 98vh；展开后滚到顶再下拉先缩回 78vh；半高再下拉跟手关闭。"
+          "三层面板 Sheet：高度由 sheet-height 控制，内容区原生滚动；关闭走按钮 / 遮罩。"
       }
     }
   },
@@ -484,8 +470,7 @@ export const PanelStackMenu: Story = {
         .width=${args.width}
         title="Menu"
         placement=${args.placement}
-        motion=${args.motion}
-        sheet-expand=${args.sheetExpand}
+        motion=${args.motion}
         sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         exit-speed="1.5"
@@ -593,7 +578,6 @@ export const CartDrawer: Story = {
   args: {
     placement: "bottom",
     motion: "sheet",
-    sheetExpand: "snap",
     sheetHeight: "auto"
   },
   parameters: {
@@ -601,7 +585,7 @@ export const CartDrawer: Story = {
     docs: {
       description: {
         story:
-          "移动端空购物车：`motion=\"sheet\"` + `placement=\"bottom\"` + `sheet-expand=\"snap\"`。打开先停在默认高度（`--yn-drawer-sheet-peek-height`，默认 78vh），内容超出时可上滑吸附到近全高；`sheet-height=\"auto\"` 时矮内容不强制拉高。"
+          "移动端空购物车：`motion=\"sheet\"` + `placement=\"bottom\"`；高度由 `sheet-height` 控制，内容区原生滚动。"
       }
     }
   },
@@ -612,7 +596,6 @@ export const CartDrawer: Story = {
         .title=${args.title}
         placement=${args.placement}
         motion=${args.motion}
-        sheet-expand=${args.sheetExpand}
         sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         style=${`--yn-drawer-z-index:${args.zIndex};--yn-drawer-bg:${args.drawerBg};--yn-drawer-shadow:${args.drawerShadow};--yn-drawer-backdrop:${args.backdropColor};--yn-drawer-header-border:transparent;--yn-drawer-footer-border:${args.footerBorder};--yn-drawer-title-color:${args.titleColor};--yn-drawer-close-color:${args.closeColor};--yn-drawer-close-hover-bg:${args.closeHoverBg};--yn-drawer-content-color:${args.contentColor};--yn-drawer-footer-bg:${args.footerBg};--yn-drawer-body-padding:0 16px 20px;--yn-drawer-open-duration:${args.openDuration};--yn-drawer-close-duration:${args.closeDuration};--yn-drawer-open-ease:${args.openEase};--yn-drawer-close-ease:${args.closeEase};`}
@@ -800,42 +783,6 @@ export const CartDrawerDesktop: Story = {
     </div>
   `,
   play: CartDrawer.play
-};
-
-export const SheetExpandNone: Story = {
-  args: {
-    placement: "bottom",
-    motion: "sheet",
-    sheetExpand: "none",
-    sheetHeight: "auto"
-  },
-  parameters: {
-    viewport: { defaultViewport: "mobile1" },
-    docs: {
-      description: {
-        story:
-          "`sheet-expand=\"none\"`：Sheet 高度仅随内容与 `sheet-height`，不上滑吸附到近全高。适合固定矮面板场景。"
-      }
-    }
-  },
-  render: (args) => html`
-    <div class="yn-min-h-[520px] yn-bg-[#f5f1ea] yn-p-6">
-      <yn-drawer
-        .width=${args.width}
-        placement=${args.placement}
-        motion=${args.motion}
-        sheet-expand=${args.sheetExpand}
-        sheet-height=${args.sheetHeight}
-        .closeOnBackdrop=${args.closeOnBackdrop}
-      >
-        <yn-button slot="trigger" variant="default">Open sheet (no expand)</yn-button>
-        <span slot="header" class="yn-text-sm yn-font-bold yn-uppercase">Fixed height sheet</span>
-        <div slot="content" class="yn-p-4 yn-text-sm yn-text-[#6f696b]">
-          此 Story 禁用半高吸附；面板高度由内容与 sheet-height 决定。
-        </div>
-      </yn-drawer>
-    </div>
-  `
 };
 
 type YnDrawerWithMethods = HTMLElement & {

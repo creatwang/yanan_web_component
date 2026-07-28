@@ -8,17 +8,9 @@ import "../yn-icon-button/yn-icon-button.js";
 import type { YnDrawerMotionController } from "./yn-drawer-motion.js";
 import {
   resolveYnDrawerMotion,
-  resolveYnDrawerSheetExpand,
   type YnDrawerMotionMode,
-  type YnDrawerMotionProp,
-  type YnDrawerSheetExpandMode,
-  type YnDrawerSheetExpandProp
+  type YnDrawerMotionProp
 } from "./yn-drawer-motion-resolve.js";
-import {
-  createYnDrawerSheetExpand,
-  type YnDrawerSheetExpandController,
-  type YnDrawerSheetSize
-} from "./yn-drawer-sheet-expand.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
 export type YnDrawerOpenChangeDetail = {
@@ -34,7 +26,6 @@ export type YnDrawerLifecycleSource =
   | "close-button"
   | "backdrop"
   | "escape"
-  | "gesture"
   | "property";
 
 export type YnDrawerLifecycleDetail = {
@@ -100,9 +91,6 @@ export class YnDrawer extends LitElement {
   @property({ type: String, reflect: true })
   motion: YnDrawerMotionProp = "auto";
 
-  @property({ type: String, attribute: "sheet-expand", reflect: true })
-  sheetExpand: YnDrawerSheetExpandProp = "auto";
-
   @property({ type: String, attribute: "sheet-height", reflect: true })
   sheetHeight = "100%";
 
@@ -126,14 +114,8 @@ export class YnDrawer extends LitElement {
   private motionBoot: Promise<YnDrawerMotionController> | undefined;
   private lastAppliedMotionMode: YnDrawerMotionMode | undefined;
   private motionDirty = true;
-  private sheetExpandController: YnDrawerSheetExpandController | undefined;
-  private sheetExpandResizeObserver: ResizeObserver | undefined;
   private motionBreakpointQuery: MediaQueryList | undefined;
   private motionBreakpointUsesLegacyListener = false;
-  private pointerCoarseQuery: MediaQueryList | undefined;
-  private pointerCoarseUsesLegacyListener = false;
-  /** 跟手下拉关闭动画已完成，退场走 immediate，避免再播一次 GSAP */
-  private sheetDragSettledClose = false;
   /** 退场 failsafe：防止 onExit 未触发时 popover 隐形挡点击 */
   private exitFailsafeTimer: number | undefined;
   private exitFailsafeToken = 0;
@@ -150,7 +132,6 @@ export class YnDrawer extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.bindMotionBreakpoint();
-    this.bindPointerCoarse();
     this.syncSheetHeight();
     this.syncMotionHostAttrs();
   }
@@ -158,11 +139,6 @@ export class YnDrawer extends LitElement {
   disconnectedCallback() {
     this.clearExitFailsafe();
     this.unbindMotionBreakpoint();
-    this.unbindPointerCoarse();
-    this.sheetExpandResizeObserver?.disconnect();
-    this.sheetExpandResizeObserver = undefined;
-    this.sheetExpandController?.dispose();
-    this.sheetExpandController = undefined;
     this.motionController?.dispose();
     this.motionController = undefined;
     this.motionBoot = undefined;
@@ -199,7 +175,7 @@ export class YnDrawer extends LitElement {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
     }
     if (changed.has("sheetHeight")) this.syncSheetHeight();
-    if (changed.has("motion") || changed.has("placement") || changed.has("sheetExpand")) {
+    if (changed.has("motion") || changed.has("placement")) {
       this.onMotionConfigChange();
     } else if (changed.has("open")) {
       this.syncMotionHostAttrs();
@@ -239,37 +215,7 @@ export class YnDrawer extends LitElement {
   }
 
   private syncMotionHostAttrs() {
-    const mode = this.getResolvedMotion();
-    const sheetExpand = this.getResolvedSheetExpand();
-    this.setAttribute("data-yn-motion", mode);
-    this.setAttribute("data-yn-sheet-expand", sheetExpand);
-    if (mode !== "sheet") {
-      this.sheetExpandController?.setEnabled(false);
-      this.removeAttribute("data-sheet-size");
-      this.removeAttribute("data-sheet-can-expand");
-      return;
-    }
-    if (!this.getAttribute("data-sheet-size")) {
-      this.setAttribute("data-sheet-size", "peek");
-    }
-    this.syncSheetCanExpandAttr();
-  }
-
-  private syncSheetCanExpandAttr() {
-    if (this.getResolvedMotion() !== "sheet" || this.getResolvedSheetExpand() !== "snap") {
-      this.setAttribute("data-sheet-can-expand", "false");
-      return;
-    }
-    const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
-    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
-    if (!stack || !body) {
-      this.setAttribute("data-sheet-can-expand", "false");
-      return;
-    }
-    this.setAttribute(
-      "data-sheet-can-expand",
-      this.canExpandSheet(stack, body) ? "true" : "false"
-    );
+    this.setAttribute("data-yn-motion", this.getResolvedMotion());
   }
 
   private bindMotionBreakpoint() {
@@ -298,189 +244,9 @@ export class YnDrawer extends LitElement {
     this.motionBreakpointUsesLegacyListener = false;
   }
 
-  private bindPointerCoarse() {
-    if (this.pointerCoarseQuery || typeof window.matchMedia !== "function") return;
-    // any-pointer：手机/平板只要有触控就走 snap，避免主指针被报成 fine
-    const query = window.matchMedia("(any-pointer: coarse)");
-    this.pointerCoarseQuery = query;
-    if (typeof query.addEventListener === "function") {
-      query.addEventListener("change", this.handleMotionMediaChange);
-      return;
-    }
-    if (typeof query.addListener === "function") {
-      query.addListener(this.handleMotionMediaChange);
-      this.pointerCoarseUsesLegacyListener = true;
-    }
-  }
-
-  private unbindPointerCoarse() {
-    const query = this.pointerCoarseQuery;
-    if (!query) return;
-    if (this.pointerCoarseUsesLegacyListener) {
-      query.removeListener?.(this.handleMotionMediaChange);
-    } else {
-      query.removeEventListener?.("change", this.handleMotionMediaChange);
-    }
-    this.pointerCoarseQuery = undefined;
-    this.pointerCoarseUsesLegacyListener = false;
-  }
-
   private handleMotionMediaChange = () => {
     this.onMotionConfigChange();
   };
-
-  private ensureSheetExpandController() {
-    if (this.sheetExpandController) return this.sheetExpandController;
-    const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
-    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
-    const header = this.shadowRoot?.querySelector<HTMLElement>(".header");
-    const middle = this.shadowRoot?.querySelector<HTMLElement>(".panel--middle");
-    const bottom = this.shadowRoot?.querySelector<HTMLElement>(".panel--bottom");
-    if (!stack || !body || !header) return undefined;
-
-    const chrome = [header, middle, bottom].filter(
-      (el): el is HTMLElement =>
-        el instanceof HTMLElement && !el.classList.contains("panel--empty")
-    );
-    const backdrop =
-      this.backdropEl ?? this.shadowRoot?.querySelector<HTMLElement>(".backdrop");
-
-    this.sheetExpandController = createYnDrawerSheetExpand({
-      stack,
-      body,
-      chrome,
-      backdrop,
-      onSizeChange: (size) => {
-        this.setAttribute("data-sheet-size", size);
-        this.syncSheetCanExpandAttr();
-      },
-      onRequestClose: (options) => {
-        if (options?.dragSettled) this.sheetDragSettledClose = true;
-        this.setOpenWithMeta(false, { source: "gesture" });
-      },
-      canExpand: () => this.canExpandSheet(stack, body),
-      getPeekHeightPx: () => this.resolveSheetPeekHeightPx(),
-      getExpandedHeightPx: () => this.resolveSheetExpandedHeightPx()
-    });
-    this.sheetExpandController.setSize(
-      this.getAttribute("data-sheet-size") === "expanded" ? "expanded" : "peek"
-    );
-
-    if (!this.sheetExpandResizeObserver && typeof ResizeObserver !== "undefined") {
-      this.sheetExpandResizeObserver = new ResizeObserver(() => {
-        this.syncSheetCanExpandAttr();
-      });
-      this.sheetExpandResizeObserver.observe(stack);
-      this.sheetExpandResizeObserver.observe(body);
-    }
-
-    return this.sheetExpandController;
-  }
-
-  private canExpandSheet(stack: HTMLElement, _body: HTMLElement) {
-    if (this.getResolvedSheetExpand() !== "snap") return false;
-    if (this.getAttribute("data-sheet-size") === "expanded") return false;
-
-    const expandedCap = this.resolveSheetExpandedHeightPx();
-    if (expandedCap <= 0) return false;
-
-    // 当前可视高度仍明显低于封顶 → 允许上滑展开（含空车矮内容）
-    const current = stack.getBoundingClientRect().height;
-    return current < expandedCap * 0.98;
-  }
-
-  private getSheetSurfaceAvailableHeightPx() {
-    const surface =
-      this.surfaceEl ?? this.shadowRoot?.querySelector<HTMLElement>(".drawer-surface");
-    if (!(surface instanceof HTMLElement)) return 0;
-    const style = getComputedStyle(surface);
-    const padY =
-      (Number.parseFloat(style.paddingTop) || 0) +
-      (Number.parseFloat(style.paddingBottom) || 0);
-    // clientHeight 含 padding；stack 只能占 content box，否则快滑展开会冲进边距再弹回
-    return Math.max(surface.clientHeight - padY, 0);
-  }
-
-  private resolveSheetPeekHeightPx() {
-    const raw = this.resolveCssLengthPx(
-      getComputedStyle(this).getPropertyValue("--yn-drawer-sheet-peek-height").trim(),
-      0.78
-    );
-    const available = this.getSheetSurfaceAvailableHeightPx();
-    return available > 0 ? Math.min(raw, available) : raw;
-  }
-
-  private resolveSheetExpandedHeightPx() {
-    const available = this.getSheetSurfaceAvailableHeightPx();
-    const fromVar = getComputedStyle(this)
-      .getPropertyValue("--yn-drawer-sheet-height")
-      .trim();
-    // 默认 / 100%：铺满 surface 内容区，上下空隙由 padding 负责
-    if (!fromVar || fromVar === "100%") {
-      if (available > 0) return available;
-      return typeof window !== "undefined" ? window.innerHeight : 0;
-    }
-    const raw = this.resolveCssLengthPx(fromVar, 1);
-    return available > 0 ? Math.min(raw, available) : raw;
-  }
-
-  private resolveCssLengthPx(value: string, fallbackVhRatio: number) {
-    const raw = value.trim();
-    if (!raw) {
-      return typeof window !== "undefined"
-        ? window.innerHeight * fallbackVhRatio
-        : 0;
-    }
-    const amount = Number.parseFloat(raw);
-    if (!Number.isFinite(amount)) {
-      return typeof window !== "undefined"
-        ? window.innerHeight * fallbackVhRatio
-        : 0;
-    }
-    if (raw.endsWith("%")) {
-      const available = this.getSheetSurfaceAvailableHeightPx();
-      if (available > 0) return (available * amount) / 100;
-      return typeof window !== "undefined"
-        ? (window.innerHeight * amount) / 100
-        : 0;
-    }
-    if (raw.endsWith("px")) return amount;
-    if (raw.endsWith("vh") || raw.endsWith("dvh")) {
-      return (window.innerHeight * amount) / 100;
-    }
-    return 0;
-  }
-
-  private syncSheetExpandEnabled() {
-    const isSheet = this.getResolvedMotion() === "sheet";
-    const expand = this.getResolvedSheetExpand();
-    if (!isSheet || expand !== "snap") {
-      this.sheetExpandController?.setEnabled(false);
-      if (isSheet && expand === "none") this.setSheetSize("peek");
-      return;
-    }
-    this.sheetExpandController?.setEnabled(true);
-  }
-
-  private attachSheetExpand() {
-    const controller = this.ensureSheetExpandController();
-    if (!controller) return;
-    this.syncSheetCanExpandAttr();
-    controller.setEnabled(
-      this.getResolvedMotion() === "sheet" && this.getResolvedSheetExpand() === "snap"
-    );
-    controller.attach();
-  }
-
-  setSheetSize(size: YnDrawerSheetSize) {
-    const isSheet = this.getResolvedMotion() === "sheet";
-    const nextSize =
-      isSheet && this.getResolvedSheetExpand() === "snap" ? size : ("peek" as const);
-    if (isSheet) this.setAttribute("data-sheet-size", nextSize);
-    else this.removeAttribute("data-sheet-size");
-    this.sheetExpandController?.setSize(nextSize);
-    this.syncSheetCanExpandAttr();
-  }
 
   private emitOpenChange(meta: LifecycleMeta) {
     this.dispatchEvent(
@@ -569,17 +335,6 @@ export class YnDrawer extends LitElement {
     });
   }
 
-  getResolvedSheetExpand(): YnDrawerSheetExpandMode {
-    const prefersGestures =
-      typeof window !== "undefined" &&
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(any-pointer: coarse)").matches;
-    return resolveYnDrawerSheetExpand({
-      sheetExpand: this.sheetExpand,
-      prefersGestures
-    });
-  }
-
   private onMotionConfigChange() {
     this.syncMotionHostAttrs();
     const nextMode = this.getResolvedMotion();
@@ -598,7 +353,6 @@ export class YnDrawer extends LitElement {
         });
       }
     }
-    this.syncSheetExpandEnabled();
   }
 
   private async ensureMotion() {
@@ -629,7 +383,6 @@ export class YnDrawer extends LitElement {
           this.collectMotionTargets(),
           {
             onEnterComplete: () => {
-              this.attachSheetExpand();
               this.emitLifecycleEvent("after-open", this.activeLifecycleMeta);
             },
             onExitComplete: () => {
@@ -697,7 +450,6 @@ export class YnDrawer extends LitElement {
     options: { disposeMotion: boolean } = { disposeMotion: true }
   ) {
     this.clearExitFailsafe();
-    this.sheetExpandController?.detach();
     const popoverEl = this.popoverEl;
     if (popoverEl?.matches(":popover-open")) {
       popoverEl.hidePopover();
@@ -709,7 +461,6 @@ export class YnDrawer extends LitElement {
       this.lastAppliedMotionMode = undefined;
       this.motionDirty = true;
     }
-    this.setSheetSize("peek");
     if (!this.awaitingAfterClose) return;
     this.awaitingAfterClose = false;
     this.emitLifecycleEvent("after-close", meta);
@@ -728,16 +479,13 @@ export class YnDrawer extends LitElement {
   }
 
   private hideDrawerPopover(immediate: boolean, meta: LifecycleMeta) {
-    this.sheetExpandController?.detach();
     const popoverEl = this.popoverEl;
     if (!popoverEl || !popoverEl.matches(":popover-open")) return;
 
     this.activeLifecycleMeta = meta;
     this.awaitingAfterClose = true;
-    const skipExitMotion = immediate || this.sheetDragSettledClose;
-    this.sheetDragSettledClose = false;
 
-    if (skipExitMotion) {
+    if (immediate) {
       this.forceHidePopover(meta, { disposeMotion: true });
       return;
     }

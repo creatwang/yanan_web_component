@@ -915,7 +915,7 @@ import "yn-web-component/components/yn-cookie-notice";
 | `close-on-backdrop` | `boolean` | `true` | 点击遮罩是否关闭 |
 | `placement` | `"auto" \| "right" \| "bottom"` | `"auto"` | 弹出方向 |
 | `motion` | `"auto" \| "side" \| "sheet"` | `"auto"` | 动效模式：`auto` 由 `placement` + 断点决定；`side` 侧滑；`sheet` 底部 Sheet 上滑 |
-| `sheet-expand` | `"snap" \| "none"` | `"snap"` | 仅 `motion` 为 `sheet` 时：`snap` 半高吸附展开；`none` 高度仅随内容 / `sheet-height` |
+| `sheet-height` | `string` | `"100%"` | Sheet 面板高度（如 `85vh` / `auto`） |
 | `sheet-height` | `string` | `"90vh"` | 底部弹出时的高度；`auto` 随内容自适应 |
 
 #### 事件
@@ -979,7 +979,7 @@ import "yn-web-component/components/yn-cookie-notice";
 | `--yn-drawer-close-ease` | 关闭缓动曲线 |
 | `--yn-drawer-body-padding` | 内容区内边距 |
 | `--yn-drawer-sheet-height` | 底部弹出封顶高度（由 `sheet-height` 同步，默认约 `90vh`） |
-| `--yn-drawer-sheet-peek-height` | Sheet 初始半高（默认 `78vh`）；`sheet-expand=snap` 时可上滑吸附到封顶 |
+| `--yn-drawer-sheet-height` | Sheet 面板高度（默认 `98vh`；`sheet-height="auto"` 时随内容） |
 | `--yn-drawer-width` | 面板宽度（由 `width` 属性写入） |
 | `--yn-drawer-mobile-radius` | 移动端圆角 |
 | `--yn-drawer-breakpoint` | 响应式断点（默认 `1024px`） |
@@ -988,7 +988,7 @@ import "yn-web-component/components/yn-cookie-notice";
 
 ```html
 <!-- 移动端购物车 -->
-<yn-drawer placement="bottom" motion="sheet" sheet-expand="snap" sheet-height="auto" @open-change=${onOpenChange}>
+<yn-drawer placement="bottom" motion="sheet" sheet-height="auto" @open-change=${onOpenChange}>
   <yn-button slot="trigger" drawer-payload='{"scene":"cart"}'>购物车</yn-button>
   <span slot="header">Your bag</span>
   <div slot="content">内容区域</div>
