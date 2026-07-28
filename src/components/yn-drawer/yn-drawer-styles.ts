@@ -325,7 +325,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
 
     :host([data-yn-motion="sheet"]) .panel--middle:not(.panel--empty) {
       flex: 0 0 auto;
-      max-height: none;
+      max-height: min(32vh, 200px);
       overflow: hidden;
     }
 

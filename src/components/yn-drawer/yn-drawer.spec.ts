@@ -122,6 +122,35 @@ describe("yn-drawer", () => {
     expect(el.getAttribute("data-sheet-size")).to.equal("peek");
   });
 
+  it("caps sheet middle while pinning the stack and scrolling only the body", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer motion="sheet">
+        <div slot="middle">Promo</div>
+        <div slot="footer">Footer</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
+    const surface = el.shadowRoot?.querySelector<HTMLElement>(".drawer-surface");
+    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    const top = el.shadowRoot?.querySelector<HTMLElement>(".panel--top");
+    const middle = el.shadowRoot?.querySelector<HTMLElement>(".panel--middle");
+    const bottom = el.shadowRoot?.querySelector<HTMLElement>(".panel--bottom");
+    const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (!surface || !stack || !top || !middle || !bottom || !body) {
+      throw new Error("missing sheet layout elements");
+    }
+
+    expect(getComputedStyle(surface).justifyContent).to.equal("flex-end");
+    expect(getComputedStyle(stack).marginTop).to.equal("auto");
+    expect(getComputedStyle(middle).maxHeight).not.to.equal("none");
+    expect(getComputedStyle(top).overflow).to.equal("hidden");
+    expect(getComputedStyle(middle).overflow).to.equal("hidden");
+    expect(getComputedStyle(bottom).overflow).to.equal("hidden");
+    expect(getComputedStyle(body).overflow).to.equal("auto");
+  });
+
   it("renders one shared drawer stack for all panels", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;
