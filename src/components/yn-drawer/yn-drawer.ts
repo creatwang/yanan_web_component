@@ -352,7 +352,12 @@ export class YnDrawer extends LitElement {
     const surface =
       this.surfaceEl ?? this.shadowRoot?.querySelector<HTMLElement>(".drawer-surface");
     if (!(surface instanceof HTMLElement)) return 0;
-    return Math.max(surface.clientHeight, 0);
+    const style = getComputedStyle(surface);
+    const padY =
+      (Number.parseFloat(style.paddingTop) || 0) +
+      (Number.parseFloat(style.paddingBottom) || 0);
+    // clientHeight 含 padding；stack 只能占 content box，否则快滑展开会冲进边距再弹回
+    return Math.max(surface.clientHeight - padY, 0);
   }
 
   private resolveSheetPeekHeightPx() {

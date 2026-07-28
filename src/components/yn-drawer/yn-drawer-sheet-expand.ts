@@ -186,9 +186,14 @@ export function createYnDrawerSheetExpand(input: {
   const resolveExpandedH = () => {
     const fromCb = input.getExpandedHeightPx?.() ?? 0;
     if (fromCb > 0) return fromCb;
-    return typeof window !== "undefined"
-      ? Math.max(window.innerHeight, stackH)
-      : Math.max(stackH, 1);
+    // 无回调时不要用整屏高度：会冲破 surface 内边距
+    return Math.max(stackH, 1);
+  };
+
+  const expandedCap = () => {
+    const next = resolveExpandedH();
+    if (next > 0) expandedH = next;
+    return expandedH;
   };
 
   const clearInlineHeight = () => {
@@ -219,9 +224,10 @@ export function createYnDrawerSheetExpand(input: {
       return;
     }
 
-    // peek → expanded：从按下时实测高度跟手拉高（与手指位移 1:1）
+    // peek → expanded：从按下时实测高度跟手拉高（与手指位移 1:1），硬封顶避免冲边距
     if (dragMode === "height-expand") {
-      setHeightNow(Math.min(expandedH, startH + dragY));
+      const cap = expandedCap();
+      setHeightNow(Math.min(cap, startH + dragY));
       return;
     }
 
@@ -328,11 +334,12 @@ export function createYnDrawerSheetExpand(input: {
     // peek 上滑跟手拉高 → expanded 封顶
     if (dragMode === "height-expand") {
       const base = startH > 0 ? startH : peekH;
-      const travel = Math.max(expandedH - base, 1);
+      const cap = expandedCap();
+      const travel = Math.max(cap - base, 1);
       const passExpand =
         dragY >= Math.min(Math.max(travel * 0.35, EXPAND_PX), 96) ||
         velocityY <= -DISMISS_FLICK;
-      animateHeightTo(passExpand ? expandedH : base, passExpand ? "expanded" : "peek");
+      animateHeightTo(passExpand ? cap : base, passExpand ? "expanded" : "peek");
       return;
     }
 
