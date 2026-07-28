@@ -96,19 +96,19 @@ Sheet（高度随展开档变化）
 
 1. 未到封顶：上滑优先消耗为 Sheet 长高（整叠一起抬）。
 2. 到封顶后：上滑交给 `top .body` 列表滚动。
-3. 列表 `scrollTop === 0` 再下拉，或下拉 header/middle/footer：整叠**跟手下移**，松手过阈值关闭、否则弹回（不做「先缩回半高」）。
+3. 列表 `scrollTop === 0` 再下拉，或下拉 header/middle/footer：整叠**跟手下移**，松手过阈值先缩回初始档（peek / 默认 `78vh`）；在 peek 再下拉过阈值才关闭。
 4. middle / bottom 不设独立 overflow 滚动；middle 内容过长应裁切或改放到 top content。
 
 ## 高度规则（sheet）
 
 | 场景 | 高度 |
 | --- | --- |
-| 空车 / 内容很矮 | `min(内容高度, 初始档)`，不强制拉到 60vh |
+| 空车 / 内容很矮 | `min(内容高度, 初始档)`，不强制拉到 78vh |
 | 少量商品 | 随内容增高，仍低于封顶 |
-| 列表超出初始档 | 先停在初始档（`60vh` / `--yn-drawer-sheet-peek-height`），`sheet-expand=snap` 时可吸到封顶，再滚列表 |
-| 封顶 | `--yn-drawer-sheet-height`（默认约 `90dvh`），保留顶边/圆角，避免真全屏 |
+| 列表超出初始档 | 先停在初始档（`78vh` / `--yn-drawer-sheet-peek-height`），`sheet-expand=snap` 时可吸到封顶，再滚列表 |
+| 封顶 | `--yn-drawer-sheet-height`（默认约 `100dvh`），保留顶边/圆角，避免真全屏 |
 
-初始档默认 `60vh`，CSS 变量：`--yn-drawer-sheet-peek-height`（默认 `60vh`）。  
+初始档默认 `78vh`，CSS 变量：`--yn-drawer-sheet-peek-height`（默认 `78vh`）。  
 封顶沿用 `--yn-drawer-sheet-height`（默认 `90vh` / `90dvh` 实现时与现有 `sheet-height` 同步逻辑对齐）。
 
 ## 开闭动效

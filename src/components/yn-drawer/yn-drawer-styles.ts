@@ -64,8 +64,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
       --yn-drawer-close-ease: cubic-bezier(0.55, 0.055, 0.675, 0.19);
       --yn-drawer-mobile-radius: 16px;
       --yn-drawer-mobile-shadow: var(--yn-color-shadow-lg, 0 -12px 36px rgba(36, 31, 33, 0.18));
-      --yn-drawer-sheet-height: 90vh;
-      --yn-drawer-sheet-peek-height: 60vh;
+      --yn-drawer-sheet-height: 100%;
+      --yn-drawer-sheet-peek-height: 78vh;
       --yn-drawer-trigger-bg: var(--yn-color-inverse-bg, #241f21);
       --yn-drawer-trigger-color: var(--yn-color-on-inverse, #ffffff);
       --yn-drawer-breakpoint: 1024px;
@@ -296,19 +296,28 @@ export const YN_DRAWER_SHADOW_STYLES = `
       align-items: stretch;
       justify-content: flex-end;
       flex-direction: column;
+      /* 与侧滑一致：上下左右留白，面板悬浮不贴边 */
+      padding: var(--yn-drawer-surface-padding);
     }
 
     :host([data-yn-motion="sheet"]) .drawer-stack {
-      flex: 0 1 auto;
+      flex: 0 0 auto;
       align-items: stretch;
       width: 100%;
+      max-width: var(--yn-drawer-sheet-max-width, none);
       height: fit-content;
-      max-height: var(--yn-drawer-sheet-peek-height);
+      max-height: min(var(--yn-drawer-sheet-peek-height), 100%);
       margin-top: auto;
+      margin-inline: auto;
       pointer-events: auto;
       gap: var(--yn-drawer-panel-gap);
       /* 强制在 peek 封顶内压缩子项，否则 body 无法形成可测 overflow / 手势死锁 */
       overflow: hidden;
+    }
+
+    /* snap 的 peek↔expanded 由手势模块连续驱动高度，避免与 CSS transition 抢动画 */
+    :host([data-yn-motion="sheet"][sheet-expand="none"]) .drawer-stack {
+      max-height: min(var(--yn-drawer-sheet-height, 100%), 100%);
       transition: max-height var(--yn-drawer-open-duration, 380ms)
           var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1)),
         height var(--yn-drawer-open-duration, 380ms)
@@ -316,13 +325,10 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
-      /* 必须用确定高度：fit-content 时空内容展开后视觉不变 */
-      height: var(--yn-drawer-sheet-height, 90dvh);
-      max-height: var(--yn-drawer-sheet-height, 90dvh);
-    }
-
-    :host([data-yn-motion="sheet"][sheet-expand="none"]) .drawer-stack {
-      max-height: var(--yn-drawer-sheet-height, 90dvh);
+      /* 铺满 surface 内容区；上下空隙只靠 --yn-drawer-surface-padding */
+      flex: 0 0 auto;
+      height: 100%;
+      max-height: 100%;
     }
 
     :host([data-yn-motion="sheet"][sheet-expand="none"][sheet-height="auto"]) .drawer-stack {

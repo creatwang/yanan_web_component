@@ -22,10 +22,17 @@ const DISMISS_FLICK = 0.65;
 const DISMISS_LOCK = 8;
 const SETTLE_MS = 280;
 const SPRING_MS = 320;
+/** iOS sheet 风格吸附曲线 */
+const HEIGHT_EASE = "cubic-bezier(0.32, 0.72, 0, 1)";
 
 type Zone = "body" | "chrome" | "other";
+type DragMode = "none" | "translate" | "height-collapse" | "height-expand";
 
-/** peek 上滑展开；下拉 / 顶下拉 / chrome 下拉跟手关闭 */
+/**
+ * peek 上滑 → 跟手拉高到封顶（expanded，铺满 surface 内容区）；
+ * expanded 顶下拉 / chrome 下拉 → 滚动区跟手缩回 peek；
+ * peek 下拉 → 整抽屉跟手关闭。
+ */
 export function createYnDrawerSheetExpand(input: {
   stack: HTMLElement;
   body: HTMLElement;
@@ -34,6 +41,8 @@ export function createYnDrawerSheetExpand(input: {
   onSizeChange: (size: YnDrawerSheetSize) => void;
   onRequestClose: (options?: YnDrawerSheetCloseOptions) => void;
   canExpand: () => boolean;
+  getPeekHeightPx?: () => number;
+  getExpandedHeightPx?: () => number;
 }): YnDrawerSheetExpandController {
   let attached = false;
   let enabled = false;
@@ -45,12 +54,21 @@ export function createYnDrawerSheetExpand(input: {
   let dismissLocked = false;
   let pointerId: number | undefined;
   let dragY = 0;
+  let dragMode: DragMode = "none";
   let settling = false;
   let lastY = 0;
   let lastTs = 0;
   let velocityY = 0;
   let stackH = 1;
+  /** 手势起点实测高度：上滑展开必须以它为基准，不能用 CSS peek 估值，否则跟手整体偏移 */
+  let startH = 1;
+  let peekH = 1;
+  let expandedH = 1;
   let settleTimer = 0;
+  let currentH = 1;
+  /** 离开 peek 前实测高度；收缩应对齐它，避免矮内容落到 78vh 再跳回 */
+  let cachedPeekH = 0;
+  let bodyOverflowLocked = false;
 
   const prevTouch = {
     body: input.body.style.touchAction,
@@ -59,6 +77,31 @@ export function createYnDrawerSheetExpand(input: {
   };
 
   const atTop = () => input.body.scrollTop <= 0;
+
+  const rememberPeekH = () => {
+    const h = input.stack.getBoundingClientRect().height;
+    if (h > 0) cachedPeekH = h;
+  };
+
+  const collapseMinH = () => {
+    if (cachedPeekH <= 0) return peekH;
+    // 实测 peek 已含 max-height 约束；仅在明确有 CSS 封顶时再截断
+    const cap = input.getPeekHeightPx?.() ?? 0;
+    return cap > 0 ? Math.min(cachedPeekH, cap) : cachedPeekH;
+  };
+
+  const lockBodyScroll = () => {
+    if (bodyOverflowLocked) return;
+    bodyOverflowLocked = true;
+    input.body.scrollTop = 0;
+    input.body.style.overflow = "hidden";
+  };
+
+  const unlockBodyScroll = () => {
+    if (!bodyOverflowLocked) return;
+    bodyOverflowLocked = false;
+    input.body.style.overflow = "";
+  };
 
   const zoneOf = (event: Event): Zone => {
     const path = event.composedPath();
@@ -104,8 +147,55 @@ export function createYnDrawerSheetExpand(input: {
     });
   };
 
+  const resolvePeekH = () => {
+    const fromCb = input.getPeekHeightPx?.() ?? 0;
+    return fromCb > 0 ? fromCb : Math.max(stackH * 0.78, 1);
+  };
+
+  const resolveExpandedH = () => {
+    const fromCb = input.getExpandedHeightPx?.() ?? 0;
+    if (fromCb > 0) return fromCb;
+    return typeof window !== "undefined"
+      ? Math.max(window.innerHeight, stackH)
+      : Math.max(stackH, 1);
+  };
+
+  const clearInlineHeight = () => {
+    input.stack.style.height = "";
+    input.stack.style.maxHeight = "";
+  };
+
+  const setHeightNow = (h: number) => {
+    currentH = h;
+    input.stack.style.transition = "none";
+    input.stack.style.height = `${h}px`;
+    input.stack.style.maxHeight = `${h}px`;
+  };
+
+  const settleDurationMs = (from: number, to: number) => {
+    const dist = Math.abs(to - from);
+    const pxPerMs = Math.max(Math.abs(velocityY), 0.35);
+    return Math.min(420, Math.max(220, dist / pxPerMs));
+  };
+
   const paintDrag = (y: number) => {
     dragY = Math.max(0, y);
+
+    // expanded → peek：收缩滚动区高度
+    if (dragMode === "height-collapse") {
+      lockBodyScroll();
+      setHeightNow(Math.min(stackH, Math.max(collapseMinH(), stackH - dragY)));
+      return;
+    }
+
+    // peek → expanded：从按下时实测高度跟手拉高（与手指位移 1:1）
+    if (dragMode === "height-expand") {
+      setHeightNow(Math.min(expandedH, startH + dragY));
+      return;
+    }
+
+    // peek → close：整抽屉跟手平移
+    dragMode = "translate";
     const progress = Math.min(1, dragY / (stackH * 0.45));
     input.stack.style.transition = "none";
     input.stack.style.transform = `translate3d(0,${dragY}px,0)`;
@@ -115,52 +205,148 @@ export function createYnDrawerSheetExpand(input: {
     }
   };
 
+  const clearDragPaint = (opts?: { restoreBackdrop?: boolean }) => {
+    input.stack.style.transition = "";
+    input.stack.style.transform = "";
+    input.stack.style.willChange = "";
+    clearInlineHeight();
+    unlockBodyScroll();
+    if (!input.backdrop) return;
+    // 高度手势不改遮罩；清空 inline opacity 会回到 CSS opacity:0，展开后遮罩会消失
+    if (opts?.restoreBackdrop === false) return;
+    input.backdrop.style.transition = "";
+    input.backdrop.style.opacity = "1";
+  };
+
   const clearDrag = () => {
     dragY = 0;
+    dragMode = "none";
     velocityY = 0;
     settling = false;
     if (settleTimer) {
       window.clearTimeout(settleTimer);
       settleTimer = 0;
     }
-    input.stack.style.transition = "";
-    input.stack.style.transform = "";
-    if (input.backdrop) {
-      input.backdrop.style.transition = "";
-      input.backdrop.style.opacity = "";
-    }
+    clearDragPaint();
   };
 
   const threshold = () =>
     Math.min(DISMISS_MAX, Math.max(DISMISS_MIN, stackH * DISMISS_RATIO));
 
-  const settle = () => {
-    if (dragY <= 0 || settling) return;
-    settling = true;
-    const close = dragY >= threshold() || velocityY >= DISMISS_FLICK;
-    const ms = close ? SETTLE_MS : SPRING_MS;
-    const ease = close ? "ease-in" : "cubic-bezier(0.22,1,0.36,1)";
-    const y = close ? stackH * 1.12 : 0;
+  const applySize = (next: YnDrawerSheetSize) => {
+    if (size === next) return;
+    size = next;
+    input.onSizeChange(next);
+    syncTouch();
+  };
 
-    input.stack.style.transition = `transform ${ms}ms ${ease}`;
-    input.stack.style.transform = `translate3d(0,${y}px,0)`;
-    if (input.backdrop) {
-      input.backdrop.style.transition = `opacity ${ms}ms ${ease}`;
-      input.backdrop.style.opacity = close ? "0" : "1";
-    }
+  /** 从当前跟手高度连续动画到目标，再交给 CSS 档位，避免松手跳变 */
+  const animateHeightTo = (targetPx: number, nextSize: YnDrawerSheetSize) => {
+    settling = true;
+    const from = currentH || input.stack.getBoundingClientRect().height;
+    setHeightNow(from);
+    void input.stack.offsetHeight;
+    const ms = settleDurationMs(from, targetPx);
+    input.stack.style.willChange = "height";
+    input.stack.style.transition = `height ${ms}ms ${HEIGHT_EASE}, max-height ${ms}ms ${HEIGHT_EASE}`;
+    input.stack.style.height = `${targetPx}px`;
+    input.stack.style.maxHeight = `${targetPx}px`;
+    currentH = targetPx;
 
     settleTimer = window.setTimeout(() => {
       settleTimer = 0;
-      if (close) {
+      applySize(nextSize);
+      // 先钉在目标像素，再清 inline，减少切到 CSS 时的闪一下
+      input.stack.style.transition = "none";
+      input.stack.style.height = `${targetPx}px`;
+      input.stack.style.maxHeight = `${targetPx}px`;
+      void input.stack.offsetHeight;
+      dragY = 0;
+      dragMode = "none";
+      velocityY = 0;
+      settling = false;
+      clearDragPaint({ restoreBackdrop: false });
+      syncTouch();
+    }, ms + 20);
+  };
+
+  const animateTranslateSettle = (opts: {
+    toY: number;
+    backdropOpacity: string;
+    ms: number;
+    ease: string;
+    onDone: () => void;
+  }) => {
+    settling = true;
+    input.stack.style.transition = `transform ${opts.ms}ms ${opts.ease}`;
+    input.stack.style.transform = `translate3d(0,${opts.toY}px,0)`;
+    if (input.backdrop) {
+      input.backdrop.style.transition = `opacity ${opts.ms}ms ${opts.ease}`;
+      input.backdrop.style.opacity = opts.backdropOpacity;
+    }
+    settleTimer = window.setTimeout(() => {
+      settleTimer = 0;
+      opts.onDone();
+    }, opts.ms + 16);
+  };
+
+  const settle = () => {
+    if (dragY <= 0 || settling) return;
+    const pass = dragY >= threshold() || velocityY >= DISMISS_FLICK;
+
+    // peek 上滑跟手拉高 → expanded 封顶
+    if (dragMode === "height-expand") {
+      const base = startH > 0 ? startH : peekH;
+      const travel = Math.max(expandedH - base, 1);
+      const passExpand =
+        dragY >= Math.min(Math.max(travel * 0.35, EXPAND_PX), 96) ||
+        velocityY <= -DISMISS_FLICK;
+      animateHeightTo(passExpand ? expandedH : base, passExpand ? "expanded" : "peek");
+      return;
+    }
+
+    // 第一段：expanded → peek（高度跟手，不关抽屉）
+    if (size === "expanded" || dragMode === "height-collapse") {
+      const targetPeek = collapseMinH();
+      const heightTravel = Math.max(stackH - targetPeek, 1);
+      const passCollapse =
+        dragY >= heightTravel * 0.5 || velocityY >= DISMISS_FLICK;
+      animateHeightTo(passCollapse ? targetPeek : stackH, passCollapse ? "peek" : "expanded");
+      return;
+    }
+
+    // 第二段：peek → close（整抽屉跟手平移）
+    if (pass) {
+      animateTranslateSettle({
+        toY: stackH * 1.12,
+        backdropOpacity: "0",
+        ms: SETTLE_MS,
+        ease: "ease-in",
+        onDone: () => {
+          dragY = 0;
+          dragMode = "none";
+          velocityY = 0;
+          settling = false;
+          input.onRequestClose({ dragSettled: true });
+        }
+      });
+      return;
+    }
+
+    animateTranslateSettle({
+      toY: 0,
+      backdropOpacity: "1",
+      ms: SPRING_MS,
+      ease: HEIGHT_EASE,
+      onDone: () => {
         dragY = 0;
+        dragMode = "none";
         velocityY = 0;
         settling = false;
-        input.onRequestClose({ dragSettled: true });
-        return;
+        clearDragPaint();
+        syncTouch();
       }
-      clearDrag();
-      syncTouch();
-    }, ms + 16);
+    });
   };
 
   const resetGesture = () => {
@@ -182,11 +368,10 @@ export function createYnDrawerSheetExpand(input: {
 
   const setSize = (next: YnDrawerSheetSize) => {
     if (size === next) return;
-    size = next;
+    if (size === "peek" && next === "expanded") rememberPeekH();
     clearDrag();
     resetGesture();
-    input.onSizeChange(next);
-    syncTouch();
+    applySize(next);
   };
 
   const begin = (clientY: number, nextZone: Zone, id?: number) => {
@@ -202,12 +387,18 @@ export function createYnDrawerSheetExpand(input: {
     lastTs = performance.now();
     velocityY = 0;
     stackH = Math.max(input.stack.getBoundingClientRect().height, 1);
+    startH = stackH;
+    peekH = resolvePeekH();
+    expandedH = resolveExpandedH();
+    currentH = stackH;
+    dragMode = "none";
+    if (size === "peek") rememberPeekH();
+    input.stack.style.willChange = "height, transform";
   };
 
   const trackVel = (clientY: number) => {
     const now = performance.now();
     const dt = now - lastTs;
-    // 过滤同帧合成事件，避免瞬时超大速度误触发甩出关闭
     if (dt >= 8 && dt < 120) velocityY = (clientY - lastY) / dt;
     lastY = clientY;
     lastTs = now;
@@ -220,21 +411,26 @@ export function createYnDrawerSheetExpand(input: {
 
     if (size === "peek") {
       if (dy < 0) {
-        if (dragY > 0) paintDrag(0);
-        if (dy < -EXPAND_PX && zone === "body" && input.canExpand()) {
-          setSize("expanded");
+        if (dragMode === "translate" && dragY > 0) paintDrag(0);
+        if (zone === "body" && input.canExpand()) {
+          dragMode = "height-expand";
+          paintDrag(-dy);
+          return true;
         }
         return true;
       }
       if (zone === "body" || zone === "chrome") {
+        dragMode = "translate";
         paintDrag(dy);
         return true;
       }
       return true;
     }
 
+    // expanded：第一段收缩滚动区（改高度）
     if (zone === "chrome") {
       if (dy > 0) {
+        dragMode = "height-collapse";
         paintDrag(dy);
         return true;
       }
@@ -248,8 +444,11 @@ export function createYnDrawerSheetExpand(input: {
         if (dragY > 0 && dy <= 0) paintDrag(0);
         return false;
       }
-      if ((atTopOnStart || atTop()) && dy > DISMISS_LOCK) dismissLocked = true;
+      // 已在顶部：尽快接手高度收缩，避免和橡皮筋滚动抢一手导致卡顿
+      const lockPx = atTopOnStart ? 2 : DISMISS_LOCK;
+      if ((atTopOnStart || atTop()) && dy > lockPx) dismissLocked = true;
       if (dismissLocked) {
+        dragMode = "height-collapse";
         paintDrag(dy);
         return true;
       }

@@ -64,7 +64,7 @@ const meta = {
     placement: "auto",
     motion: "auto",
     sheetExpand: "snap",
-    sheetHeight: "90vh",
+    sheetHeight: "100%",
     closeOnBackdrop: true,
     zIndex: 1500,
     drawerBg: "#ffffff",
@@ -154,9 +154,9 @@ const meta = {
       name: "sheet-height",
       control: "text",
       description:
-        "底部弹出时面板高度。默认 `90vh`；`auto` 为随内容高度（关闭态 `translateY(100%)` 按面板自身高度滑入/滑出）；也可传 `60vh`、`420px` 等 CSS 长度。",
+        "底部弹出时面板高度。默认 `100%`（铺满 surface 内容区，上下空隙靠边距）；`auto` 为随内容高度（关闭态 `translateY(100%)` 按面板自身高度滑入/滑出）；也可传 `60vh`、`420px` 等 CSS 长度。",
       table: {
-        defaultValue: { summary: "90vh" },
+        defaultValue: { summary: "100%" },
         type: { summary: "string" }
       }
     },
@@ -467,14 +467,14 @@ export const PanelStackMenu: Story = {
     placement: "bottom",
     motion: "sheet",
     sheetExpand: "snap",
-    sheetHeight: "90vh"
+    sheetHeight: "100%"
   },
   parameters: {
     viewport: { defaultViewport: "mobile1" },
     docs: {
       description: {
         story:
-          "三层面板 Sheet：半高时内容区上滑展开；下滑时整叠跟手下移，松手过阈值关闭、否则弹回；展开后内容可滚，顶下拉/chrome 下拉同样跟手关闭。"
+          "三层面板 Sheet：默认打开 78vh；内容区上滑展开铺满内边距区域；展开后滚到顶再下拉先缩回 78vh；半高再下拉跟手关闭。"
       }
     }
   },
@@ -601,7 +601,7 @@ export const CartDrawer: Story = {
     docs: {
       description: {
         story:
-          "移动端空购物车：`motion=\"sheet\"` + `placement=\"bottom\"` + `sheet-expand=\"snap\"`。打开先停在半高（`--yn-drawer-sheet-peek-height`，默认 60vh），内容超出时可上滑吸附到近全高；`sheet-height=\"auto\"` 时矮内容不强制拉高。"
+          "移动端空购物车：`motion=\"sheet\"` + `placement=\"bottom\"` + `sheet-expand=\"snap\"`。打开先停在默认高度（`--yn-drawer-sheet-peek-height`，默认 78vh），内容超出时可上滑吸附到近全高；`sheet-height=\"auto\"` 时矮内容不强制拉高。"
       }
     }
   },

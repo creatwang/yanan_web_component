@@ -101,7 +101,7 @@ export class YnDrawer extends LitElement {
   sheetExpand: "snap" | "none" = "snap";
 
   @property({ type: String, attribute: "sheet-height", reflect: true })
-  sheetHeight = "90vh";
+  sheetHeight = "100%";
 
   @property({ type: Number, attribute: "exit-speed" })
   exitSpeed = 1.5;
@@ -218,7 +218,7 @@ export class YnDrawer extends LitElement {
   }
 
   private syncSheetHeight() {
-    const value = (this.sheetHeight || "90vh").trim();
+    const value = (this.sheetHeight || "100%").trim();
     if (value.toLowerCase() === "auto") {
       this.style.removeProperty("--yn-drawer-sheet-height");
       return;
@@ -317,7 +317,9 @@ export class YnDrawer extends LitElement {
         if (options?.dragSettled) this.sheetDragSettledClose = true;
         this.setOpenWithMeta(false, { source: "gesture" });
       },
-      canExpand: () => this.canExpandSheet(stack, body)
+      canExpand: () => this.canExpandSheet(stack, body),
+      getPeekHeightPx: () => this.resolveSheetPeekHeightPx(),
+      getExpandedHeightPx: () => this.resolveSheetExpandedHeightPx()
     });
     this.sheetExpandController.setSize(
       this.getAttribute("data-sheet-size") === "expanded" ? "expanded" : "peek"
@@ -346,20 +348,34 @@ export class YnDrawer extends LitElement {
     return current < expandedCap * 0.98;
   }
 
+  private getSheetSurfaceAvailableHeightPx() {
+    const surface =
+      this.surfaceEl ?? this.shadowRoot?.querySelector<HTMLElement>(".drawer-surface");
+    if (!(surface instanceof HTMLElement)) return 0;
+    return Math.max(surface.clientHeight, 0);
+  }
+
   private resolveSheetPeekHeightPx() {
-    return this.resolveCssLengthPx(
+    const raw = this.resolveCssLengthPx(
       getComputedStyle(this).getPropertyValue("--yn-drawer-sheet-peek-height").trim(),
-      0.6
+      0.78
     );
+    const available = this.getSheetSurfaceAvailableHeightPx();
+    return available > 0 ? Math.min(raw, available) : raw;
   }
 
   private resolveSheetExpandedHeightPx() {
+    const available = this.getSheetSurfaceAvailableHeightPx();
     const fromVar = getComputedStyle(this)
       .getPropertyValue("--yn-drawer-sheet-height")
       .trim();
-    if (fromVar) return this.resolveCssLengthPx(fromVar, 0.9);
-    // sheet-height=auto 时会清掉变量，封顶回退 90dvh
-    return this.resolveCssLengthPx("90dvh", 0.9);
+    // 默认 / 100%：铺满 surface 内容区，上下空隙由 padding 负责
+    if (!fromVar || fromVar === "100%") {
+      if (available > 0) return available;
+      return typeof window !== "undefined" ? window.innerHeight : 0;
+    }
+    const raw = this.resolveCssLengthPx(fromVar, 1);
+    return available > 0 ? Math.min(raw, available) : raw;
   }
 
   private resolveCssLengthPx(value: string, fallbackVhRatio: number) {
@@ -373,6 +389,13 @@ export class YnDrawer extends LitElement {
     if (!Number.isFinite(amount)) {
       return typeof window !== "undefined"
         ? window.innerHeight * fallbackVhRatio
+        : 0;
+    }
+    if (raw.endsWith("%")) {
+      const available = this.getSheetSurfaceAvailableHeightPx();
+      if (available > 0) return (available * amount) / 100;
+      return typeof window !== "undefined"
+        ? (window.innerHeight * amount) / 100
         : 0;
     }
     if (raw.endsWith("px")) return amount;

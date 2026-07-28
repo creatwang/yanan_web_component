@@ -1374,7 +1374,7 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       { name: "placement", type: "auto | right | bottom", default: "auto", desc: { "zh-CN": "弹出位置", en: "Placement" } },
       { name: "motion", type: "auto | side | sheet", default: "auto", desc: { "zh-CN": "动效模式：auto 推断 / side 侧滑 / sheet 底部上滑", en: "Motion: auto, side slide, or sheet rise" } },
       { name: "sheet-expand", type: "snap | none", default: "snap", desc: { "zh-CN": "Sheet 半高吸附（仅 sheet 模式）", en: "Half-height snap expand (sheet only)" } },
-      { name: "sheet-height", type: "number | string", default: "80vh", desc: { "zh-CN": "底部 Sheet 封顶高度", en: "Sheet max height" } }
+      { name: "sheet-height", type: "number | string", default: "100%", desc: { "zh-CN": "底部 Sheet 封顶高度（默认铺满内容区）", en: "Sheet max height (default fills content box)" } }
     ],
     events: [
       { name: "open-change", detail: "{ open: boolean }", desc: { "zh-CN": "开关变化", en: "Open state changed" } },
@@ -1393,8 +1393,8 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
     ],
     cssVars: [
       { name: "--yn-drawer-width", default: "380px", desc: { "zh-CN": "抽屉宽度", en: "Drawer width" } },
-      { name: "--yn-drawer-sheet-height", default: "80vh", desc: { "zh-CN": "Sheet 封顶高度", en: "Sheet max height" } },
-      { name: "--yn-drawer-sheet-peek-height", default: "60vh", desc: { "zh-CN": "Sheet 初始半高（snap 吸附起点）", en: "Sheet initial peek height (snap start)" } },
+      { name: "--yn-drawer-sheet-height", default: "100%", desc: { "zh-CN": "Sheet 封顶高度（展开铺满 surface；空隙靠边距）", en: "Sheet max height (expanded fills surface; gaps via padding)" } },
+      { name: "--yn-drawer-sheet-peek-height", default: "78vh", desc: { "zh-CN": "Sheet 初始打开高度（snap 吸附起点）", en: "Sheet initial open height (snap start)" } },
       { name: "--yn-drawer-open-duration", default: "320ms", desc: { "zh-CN": "展开动画时长", en: "Open duration" } },
       { name: "--yn-drawer-close-duration", default: "260ms", desc: { "zh-CN": "关闭动画时长", en: "Close duration" } }
     ],

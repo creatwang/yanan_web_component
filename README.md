@@ -979,7 +979,7 @@ import "yn-web-component/components/yn-cookie-notice";
 | `--yn-drawer-close-ease` | 关闭缓动曲线 |
 | `--yn-drawer-body-padding` | 内容区内边距 |
 | `--yn-drawer-sheet-height` | 底部弹出封顶高度（由 `sheet-height` 同步，默认约 `90vh`） |
-| `--yn-drawer-sheet-peek-height` | Sheet 初始半高（默认 `60vh`）；`sheet-expand=snap` 时可上滑吸附到封顶 |
+| `--yn-drawer-sheet-peek-height` | Sheet 初始半高（默认 `78vh`）；`sheet-expand=snap` 时可上滑吸附到封顶 |
 | `--yn-drawer-width` | 面板宽度（由 `width` 属性写入） |
 | `--yn-drawer-mobile-radius` | 移动端圆角 |
 | `--yn-drawer-breakpoint` | 响应式断点（默认 `1024px`） |

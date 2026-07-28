@@ -246,6 +246,31 @@ describe("yn-drawer", () => {
     expect(stack.getBoundingClientRect().height).to.be.greaterThan(100);
   });
 
+  it("expands sheet stack inside surface padding like side drawer inset", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer motion="sheet" placement="bottom" sheet-expand="snap" sheet-height="100%">
+        <div slot="content" style="height: 1600px">tall</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    el.show();
+    await oneEvent(el, "after-open");
+    el.setSheetSize("expanded");
+    await el.updateComplete;
+    await new Promise((r) => requestAnimationFrame(() => r(undefined)));
+
+    const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    const backdrop = el.shadowRoot?.querySelector<HTMLElement>(".backdrop");
+    if (!stack || !backdrop) throw new Error("missing sheet elements");
+
+    const stackRect = stack.getBoundingClientRect();
+    expect(window.innerHeight - stackRect.bottom).to.be.greaterThan(8);
+    expect(stackRect.top).to.be.greaterThan(8);
+    expect(stackRect.height).to.be.lessThan(window.innerHeight - 16);
+    expect(stackRect.height).to.be.greaterThan(window.innerHeight * 0.85);
+    expect(Number.parseFloat(getComputedStyle(backdrop).opacity || "0")).to.be.greaterThan(0.5);
+  });
+
   it("expands short sheet to definite expanded height on setSheetSize", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer
@@ -317,7 +342,9 @@ describe("yn-drawer", () => {
     const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
     if (!stack || !body) throw new Error("missing sheet layout elements");
 
-    expect(getComputedStyle(stack).maxHeight).to.equal(`${window.innerHeight * 0.75}px`);
+    expect(getComputedStyle(el).getPropertyValue("--yn-drawer-sheet-height").trim()).to.equal(
+      "75vh"
+    );
     expect(getComputedStyle(body).overflow).to.equal("auto");
   });
 
