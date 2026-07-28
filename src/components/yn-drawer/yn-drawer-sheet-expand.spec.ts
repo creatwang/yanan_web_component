@@ -7,7 +7,7 @@ function spy() {
     (...args: unknown[]) => {
       calls.push(args);
     },
-    { mock: { calls } },
+    { mock: { calls } }
   );
 }
 
@@ -26,19 +26,20 @@ function setup(canExpand = true) {
   const content = document.createElement("div");
   content.style.height = "100px";
   body.append(content);
+  stack.append(body);
   const onSizeChange = spy();
   const onRequestClose = spy();
-  document.body.append(stack, body);
+  document.body.append(stack);
 
   const controller = createYnDrawerSheetExpand({
     stack,
     body,
     onSizeChange,
     onRequestClose,
-    canExpand: () => canExpand,
+    canExpand: () => canExpand
   });
 
-  return { body, controller, onRequestClose, onSizeChange };
+  return { stack, body, controller, onRequestClose, onSizeChange };
 }
 
 describe("createYnDrawerSheetExpand", () => {
@@ -53,12 +54,12 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("does not react to gestures while disabled", () => {
-    const { body, controller, onRequestClose, onSizeChange } = setup();
+    const { stack, controller, onRequestClose, onSizeChange } = setup();
     controller.attach();
     controller.setEnabled(false);
 
-    body.dispatchEvent(pointer("pointerdown", 100));
-    body.dispatchEvent(pointer("pointerup", 40));
+    stack.dispatchEvent(pointer("pointerdown", 100));
+    stack.dispatchEvent(pointer("pointerup", 40));
 
     expect(controller.getSize()).to.equal("peek");
     expect(onSizeChange.mock.calls).to.have.length(0);
@@ -67,14 +68,15 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("expands peek after an upward drag beyond 40px", () => {
-    const { body, controller, onSizeChange } = setup();
+    const { stack, body, controller, onSizeChange } = setup();
     controller.setEnabled(true);
     controller.attach();
 
     expect(body.style.touchAction).to.equal("none");
-    body.dispatchEvent(pointer("pointerdown", 100));
-    body.dispatchEvent(pointer("pointermove", 59));
-    body.dispatchEvent(pointer("pointerup", 59));
+    expect(stack.style.touchAction).to.equal("none");
+    stack.dispatchEvent(pointer("pointerdown", 100));
+    stack.dispatchEvent(pointer("pointermove", 59));
+    stack.dispatchEvent(pointer("pointerup", 59));
 
     expect(controller.getSize()).to.equal("expanded");
     expect(onSizeChange.mock.calls).to.have.length(1);
@@ -82,12 +84,13 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("does not expand when content cannot expand", () => {
-    const { body, controller, onSizeChange } = setup(false);
+    const { stack, body, controller, onSizeChange } = setup(false);
     controller.setEnabled(true);
     controller.attach();
 
-    body.dispatchEvent(pointer("pointerdown", 100));
-    body.dispatchEvent(pointer("pointerup", 0));
+    expect(body.style.touchAction).to.equal("pan-y");
+    stack.dispatchEvent(pointer("pointerdown", 100));
+    stack.dispatchEvent(pointer("pointerup", 0));
 
     expect(controller.getSize()).to.equal("peek");
     expect(onSizeChange.mock.calls).to.have.length(0);
@@ -95,11 +98,11 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("expands peek after an upward wheel gesture beyond 40px", () => {
-    const { body, controller, onSizeChange } = setup();
+    const { stack, controller, onSizeChange } = setup();
     controller.setEnabled(true);
     controller.attach();
 
-    body.dispatchEvent(new WheelEvent("wheel", { deltaY: 41 }));
+    stack.dispatchEvent(new WheelEvent("wheel", { deltaY: -41, bubbles: true }));
 
     expect(controller.getSize()).to.equal("expanded");
     expect(onSizeChange.mock.calls).to.have.length(1);
@@ -107,16 +110,16 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("requests close from expanded at scroll top after pulling down over 50px", () => {
-    const { body, controller, onRequestClose } = setup();
+    const { stack, body, controller, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
     controller.attach();
     body.scrollTop = 0;
 
     expect(body.style.touchAction).to.equal("pan-up");
-    body.dispatchEvent(pointer("pointerdown", 20));
-    body.dispatchEvent(pointer("pointermove", 71));
-    body.dispatchEvent(pointer("pointerup", 71));
+    stack.dispatchEvent(pointer("pointerdown", 20));
+    stack.dispatchEvent(pointer("pointermove", 71));
+    stack.dispatchEvent(pointer("pointerup", 71));
 
     expect(onRequestClose.mock.calls).to.have.length(1);
     expect(controller.getSize()).to.equal("expanded");
@@ -141,27 +144,27 @@ describe("createYnDrawerSheetExpand", () => {
   });
 
   it("does not request close while expanded body is scrolled", () => {
-    const { body, controller, onRequestClose } = setup();
+    const { stack, body, controller, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
     controller.attach();
     body.scrollTop = 1;
 
-    body.dispatchEvent(pointer("pointerdown", 20));
-    body.dispatchEvent(pointer("pointerup", 100));
+    stack.dispatchEvent(pointer("pointerdown", 20));
+    stack.dispatchEvent(pointer("pointerup", 100));
 
     expect(onRequestClose.mock.calls).to.have.length(0);
     controller.dispose();
   });
 
   it("detaches gesture listeners", () => {
-    const { body, controller, onSizeChange } = setup();
+    const { stack, controller, onSizeChange } = setup();
     controller.setEnabled(true);
     controller.attach();
     controller.detach();
 
-    body.dispatchEvent(pointer("pointerdown", 100));
-    body.dispatchEvent(pointer("pointerup", 0));
+    stack.dispatchEvent(pointer("pointerdown", 100));
+    stack.dispatchEvent(pointer("pointerup", 0));
 
     expect(onSizeChange.mock.calls).to.have.length(0);
     controller.dispose();

@@ -307,6 +307,10 @@ export const YN_DRAWER_SHADOW_STYLES = `
       margin-top: auto;
       pointer-events: auto;
       gap: var(--yn-drawer-panel-gap);
+      /* 强制在 peek 封顶内压缩子项，否则 body 无法形成可测 overflow / 手势死锁 */
+      overflow: hidden;
+      transition: max-height var(--yn-drawer-open-duration, 380ms)
+        var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1));
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
@@ -319,6 +323,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
 
     :host([data-yn-motion="sheet"][sheet-expand="none"][sheet-height="auto"]) .drawer-stack {
       max-height: none;
+      overflow: visible;
     }
 
     :host([data-yn-motion="sheet"]) .panel {
@@ -342,9 +347,33 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: hidden;
     }
 
+    /*
+     * touch-action 不继承：必须打到 stack/panel/body，否则 slotted 商品行仍是 auto，
+     * 浏览器会抢走手势 → 既不展开也不能滚。
+     */
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack,
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack * {
+      touch-action: none;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack * {
+      touch-action: pan-y;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"][data-sheet-at-top="true"]) .drawer-stack,
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"][data-sheet-at-top="true"]) .drawer-stack * {
+      touch-action: pan-up;
+    }
+
+    /* 不能展开时允许 peek 内滚动，避免 overflow:hidden 死锁 */
     :host([data-yn-motion="sheet"]) .body {
-      overflow: hidden;
+      overflow: auto;
       overscroll-behavior: contain;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .body {
+      overflow: hidden;
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body {

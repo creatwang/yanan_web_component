@@ -123,6 +123,7 @@ export class YnDrawer extends LitElement {
   private lastAppliedMotionMode: YnDrawerMotionMode | undefined;
   private motionDirty = true;
   private sheetExpandController: YnDrawerSheetExpandController | undefined;
+  private sheetExpandResizeObserver: ResizeObserver | undefined;
   private motionBreakpointQuery: MediaQueryList | undefined;
   private motionBreakpointUsesLegacyListener = false;
 
@@ -143,6 +144,8 @@ export class YnDrawer extends LitElement {
 
   disconnectedCallback() {
     this.unbindMotionBreakpoint();
+    this.sheetExpandResizeObserver?.disconnect();
+    this.sheetExpandResizeObserver = undefined;
     this.sheetExpandController?.dispose();
     this.sheetExpandController = undefined;
     this.motionController?.dispose();
@@ -226,11 +229,47 @@ export class YnDrawer extends LitElement {
     if (mode !== "sheet") {
       this.sheetExpandController?.setEnabled(false);
       this.removeAttribute("data-sheet-size");
+      this.removeAttribute("data-sheet-can-expand");
+      this.removeAttribute("data-sheet-at-top");
       return;
     }
     if (!this.getAttribute("data-sheet-size")) {
       this.setAttribute("data-sheet-size", "peek");
     }
+    this.syncSheetCanExpandAttr();
+  }
+
+  private syncSheetCanExpandAttr() {
+    if (this.getResolvedMotion() !== "sheet" || this.sheetExpand !== "snap") {
+      this.setAttribute("data-sheet-can-expand", "false");
+      return;
+    }
+    const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (!stack || !body) {
+      this.setAttribute("data-sheet-can-expand", "false");
+      return;
+    }
+    this.setAttribute(
+      "data-sheet-can-expand",
+      this.canExpandSheet(stack, body) ? "true" : "false"
+    );
+  }
+
+  private syncSheetAtTopAttr() {
+    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (
+      this.getResolvedMotion() !== "sheet" ||
+      this.getAttribute("data-sheet-size") !== "expanded" ||
+      !body
+    ) {
+      this.removeAttribute("data-sheet-at-top");
+      return;
+    }
+    this.setAttribute(
+      "data-sheet-at-top",
+      body.scrollTop <= 0 ? "true" : "false"
+    );
   }
 
   private bindMotionBreakpoint() {
@@ -274,6 +313,8 @@ export class YnDrawer extends LitElement {
       body,
       onSizeChange: (size) => {
         this.setAttribute("data-sheet-size", size);
+        this.syncSheetCanExpandAttr();
+        this.syncSheetAtTopAttr();
       },
       onRequestClose: () => {
         this.close();
@@ -283,13 +324,44 @@ export class YnDrawer extends LitElement {
     this.sheetExpandController.setSize(
       this.getAttribute("data-sheet-size") === "expanded" ? "expanded" : "peek"
     );
+
+    if (!this.sheetExpandResizeObserver && typeof ResizeObserver !== "undefined") {
+      this.sheetExpandResizeObserver = new ResizeObserver(() => {
+        this.syncSheetCanExpandAttr();
+        this.syncSheetAtTopAttr();
+      });
+      this.sheetExpandResizeObserver.observe(stack);
+      this.sheetExpandResizeObserver.observe(body);
+    }
+
+    body.addEventListener(
+      "scroll",
+      () => {
+        this.syncSheetAtTopAttr();
+      },
+      { passive: true }
+    );
+
     return this.sheetExpandController;
   }
 
   private canExpandSheet(stack: HTMLElement, body: HTMLElement) {
-    if (body.scrollHeight > body.clientHeight) return true;
+    // 内容在 peek 内已溢出 → 需要展开
+    if (body.scrollHeight > body.clientHeight + 1) return true;
+
     const peekHeight = this.resolveSheetPeekHeightPx();
-    return peekHeight > 0 && stack.scrollHeight > peekHeight * 0.98;
+    if (peekHeight <= 0) return false;
+
+    // stack 被 max-height 裁切后仍可能 scrollHeight≈clientHeight；用子项固有高度判断
+    const intrinsic = Array.from(stack.children).reduce((sum, node) => {
+      if (!(node instanceof HTMLElement)) return sum;
+      if (node.classList.contains("panel--empty")) return sum;
+      return sum + node.scrollHeight;
+    }, 0);
+
+    return (
+      stack.scrollHeight > peekHeight * 0.98 || intrinsic > peekHeight * 0.98
+    );
   }
 
   private resolveSheetPeekHeightPx() {
@@ -318,6 +390,8 @@ export class YnDrawer extends LitElement {
   private attachSheetExpand() {
     const controller = this.ensureSheetExpandController();
     if (!controller) return;
+    this.syncSheetCanExpandAttr();
+    this.syncSheetAtTopAttr();
     controller.setEnabled(
       this.getResolvedMotion() === "sheet" && this.sheetExpand === "snap"
     );
@@ -331,6 +405,8 @@ export class YnDrawer extends LitElement {
     if (isSheet) this.setAttribute("data-sheet-size", nextSize);
     else this.removeAttribute("data-sheet-size");
     this.sheetExpandController?.setSize(nextSize);
+    this.syncSheetCanExpandAttr();
+    this.syncSheetAtTopAttr();
   }
 
   private emitOpenChange(meta: LifecycleMeta) {
@@ -745,8 +821,11 @@ export class YnDrawer extends LitElement {
                   ${unsafeSVG(ynClose20Svg)}
                 </yn-icon-button>
               </header>
-              <div class="body">
-                <slot name="content"></slot>
+                <div class="body">
+                <slot
+                  name="content"
+                  @slotchange=${() => this.syncSheetCanExpandAttr()}
+                ></slot>
               </div>
             </aside>
 

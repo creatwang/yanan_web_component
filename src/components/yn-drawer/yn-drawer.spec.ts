@@ -233,11 +233,37 @@ describe("yn-drawer", () => {
     expect(getComputedStyle(top).overflow).to.equal("hidden");
     expect(getComputedStyle(middle).overflow).to.equal("hidden");
     expect(getComputedStyle(bottom).overflow).to.equal("hidden");
-    expect(getComputedStyle(body).overflow).to.equal("hidden");
+    // 短内容无法展开时 peek 允许滚动，避免死锁
+    expect(el.getAttribute("data-sheet-can-expand")).to.equal("false");
+    expect(getComputedStyle(body).overflow).to.equal("auto");
 
     el.setSheetSize("expanded");
     await el.updateComplete;
     expect(getComputedStyle(body).overflow).to.equal("auto");
+  });
+
+  it("locks peek body scroll only when sheet can expand", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer
+        motion="sheet"
+        placement="bottom"
+        sheet-expand="snap"
+        style="--yn-drawer-sheet-peek-height:120px"
+      >
+        <div slot="content" style="height: 2000px">tall</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+
+    el.show();
+    await oneEvent(el, "after-open");
+    await el.updateComplete;
+
+    const body = el.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (!body) throw new Error("missing body");
+
+    expect(el.getAttribute("data-sheet-can-expand")).to.equal("true");
+    expect(getComputedStyle(body).overflow).to.equal("hidden");
   });
 
   it("uses sheet height and allows body scrolling when sheet-expand=none", async () => {
