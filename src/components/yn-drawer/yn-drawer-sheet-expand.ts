@@ -10,13 +10,16 @@ export type YnDrawerSheetExpandController = {
 };
 
 const EXPAND_THRESHOLD_PX = 40;
-const COLLAPSE_THRESHOLD_PX = 50;
+const DISMISS_THRESHOLD_PX = 50;
 const WHEEL_RESET_MS = 160;
 
 /**
  * Sheet peek↔expanded 手势。
- * - peek：capture + 上滑展开 / 下滑关闭
- * - expanded：不 capture，交给 body 原生滚动；仅在 scrollTop===0 时下滑收回到 peek
+ * - peek：touch-action none + capture；上滑展开，下滑关闭
+ * - expanded 且 scrollTop===0：touch-action pan-up（允许上滑滚内容，下滑交给 JS 关闭）
+ * - expanded 且已滚动：touch-action pan-y（双向滚动）
+ *
+ * 注意：expanded 全程 pan-y 时浏览器会吞掉下拉并 pointercancel，导致无法关闭。
  */
 export function createYnDrawerSheetExpand(input: {
   stack: HTMLElement;
@@ -37,12 +40,24 @@ export function createYnDrawerSheetExpand(input: {
   const previousBodyTouchAction = input.body.style.touchAction;
   const previousStackTouchAction = input.stack.style.touchAction;
 
+  const atBodyTop = () => input.body.scrollTop <= 0;
+
+  const applyTouchAction = (action: string) => {
+    input.body.style.touchAction = action;
+    input.stack.style.touchAction = action;
+    if (size === "expanded") {
+      input.stack.toggleAttribute("data-sheet-at-top", action === "pan-up");
+    } else {
+      input.stack.removeAttribute("data-sheet-at-top");
+    }
+  };
+
   const clearInlineTouchAction = () => {
     input.body.style.touchAction = "";
     input.stack.style.touchAction = "";
+    input.stack.removeAttribute("data-sheet-at-top");
   };
 
-  /** peek 需要 none；expanded 清掉 inline，交给 CSS `pan-y` 以允许双向滚动 */
   const syncTouchAction = () => {
     if (!attached) return;
     if (!enabled) {
@@ -50,12 +65,11 @@ export function createYnDrawerSheetExpand(input: {
       return;
     }
     if (size === "peek") {
-      const action = input.canExpand() ? "none" : "pan-y";
-      input.body.style.touchAction = action;
-      input.stack.style.touchAction = action;
+      applyTouchAction(input.canExpand() ? "none" : "pan-y");
       return;
     }
-    clearInlineTouchAction();
+    // expanded：顶部用 pan-up，让下拉不被浏览器当成滚动吞掉
+    applyTouchAction(atBodyTop() ? "pan-up" : "pan-y");
   };
 
   const resetPointer = () => {
@@ -82,6 +96,11 @@ export function createYnDrawerSheetExpand(input: {
     syncTouchAction();
   };
 
+  const dismiss = () => {
+    resetPointer();
+    input.onRequestClose();
+  };
+
   const evaluatePointer = () => {
     if (!enabled || startY === undefined || latestY === undefined) return;
     const deltaY = latestY - startY;
@@ -91,20 +110,15 @@ export function createYnDrawerSheetExpand(input: {
         setSize("expanded");
         return;
       }
-      if (deltaY > COLLAPSE_THRESHOLD_PX) {
-        resetPointer();
-        input.onRequestClose();
+      if (deltaY > DISMISS_THRESHOLD_PX) {
+        dismiss();
       }
       return;
     }
 
-    // expanded：仅顶部继续下拉 → 收回 peek
-    if (
-      startedAtScrollTop &&
-      input.body.scrollTop <= 0 &&
-      deltaY > COLLAPSE_THRESHOLD_PX
-    ) {
-      setSize("peek");
+    // expanded 顶部下拉 → 直接关闭
+    if (startedAtScrollTop && atBodyTop() && deltaY > DISMISS_THRESHOLD_PX) {
+      dismiss();
     }
   };
 
@@ -114,10 +128,10 @@ export function createYnDrawerSheetExpand(input: {
     startY = event.clientY;
     latestY = event.clientY;
     activePointerId = event.pointerId;
-    startedAtScrollTop = size === "expanded" && input.body.scrollTop <= 0;
+    startedAtScrollTop = size === "expanded" && atBodyTop();
 
-    // 仅 peek 捕获：expanded 捕获会抢走 body 的原生滚动
-    if (size === "peek") {
+    // peek 全程捕获；expanded 仅在顶部捕获下拉，避免抢走中部滚动
+    if (size === "peek" || startedAtScrollTop) {
       try {
         input.stack.setPointerCapture(event.pointerId);
       } catch {
@@ -140,8 +154,7 @@ export function createYnDrawerSheetExpand(input: {
       return;
     }
 
-    // expanded 顶部下拉：阻止页面/内部抢手势，用于收回 peek
-    if (startedAtScrollTop && input.body.scrollTop <= 0 && deltaY > 0) {
+    if (startedAtScrollTop && atBodyTop() && deltaY > 0) {
       event.preventDefault();
       evaluatePointer();
     }
@@ -155,42 +168,79 @@ export function createYnDrawerSheetExpand(input: {
     latestY = event.clientY;
     evaluatePointer();
     resetPointer();
+    syncTouchAction();
   };
 
   const onPointerCancel = () => {
     resetPointer();
+    syncTouchAction();
+  };
+
+  const onScroll = () => {
+    syncTouchAction();
+  };
+
+  const onTouchStart = (event: TouchEvent) => {
+    if (!enabled || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    syncTouchAction();
+    startY = touch.clientY;
+    latestY = touch.clientY;
+    startedAtScrollTop = size === "expanded" && atBodyTop();
+    activePointerId = undefined;
+  };
+
+  const onTouchMove = (event: TouchEvent) => {
+    if (!enabled || startY === undefined || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    if (!touch) return;
+    latestY = touch.clientY;
+    const deltaY = latestY - startY;
+
+    if (size === "peek") {
+      event.preventDefault();
+      evaluatePointer();
+      return;
+    }
+
+    if (startedAtScrollTop && atBodyTop() && deltaY > 0) {
+      event.preventDefault();
+      evaluatePointer();
+    }
+  };
+
+  const onTouchEnd = () => {
+    if (!enabled || startY === undefined) return;
+    evaluatePointer();
+    resetPointer();
+    syncTouchAction();
   };
 
   const onWheel = (event: WheelEvent) => {
     if (!enabled) return;
 
-    if (size === "peek" && input.canExpand()) {
+    if (size === "peek") {
+      if (event.deltaY > DISMISS_THRESHOLD_PX) {
+        event.preventDefault();
+        dismiss();
+        return;
+      }
+      if (!input.canExpand()) return;
       wheelDeltaY += event.deltaY;
       if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
       wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
-      if (
-        wheelDeltaY < -EXPAND_THRESHOLD_PX ||
-        wheelDeltaY > EXPAND_THRESHOLD_PX
-      ) {
+      if (wheelDeltaY < -EXPAND_THRESHOLD_PX) {
         event.preventDefault();
         setSize("expanded");
       }
       return;
     }
 
-    if (
-      size === "expanded" &&
-      input.body.scrollTop <= 0 &&
-      event.deltaY < 0
-    ) {
-      // 顶部继续向上滚（触控板语义常为收起）→ 收回 peek
-      wheelDeltaY += event.deltaY;
-      if (wheelResetTimer !== undefined) clearTimeout(wheelResetTimer);
-      wheelResetTimer = setTimeout(resetWheel, WHEEL_RESET_MS);
-      if (wheelDeltaY < -COLLAPSE_THRESHOLD_PX) {
-        event.preventDefault();
-        setSize("peek");
-      }
+    // expanded 顶部：滚轮向下（deltaY>0）关闭
+    if (atBodyTop() && event.deltaY > DISMISS_THRESHOLD_PX) {
+      event.preventDefault();
+      dismiss();
     }
   };
 
@@ -204,7 +254,12 @@ export function createYnDrawerSheetExpand(input: {
     input.stack.addEventListener("pointermove", onPointerMove, moveOpts);
     input.stack.addEventListener("pointerup", onPointerUp, opts);
     input.stack.addEventListener("pointercancel", onPointerCancel, opts);
+    input.stack.addEventListener("touchstart", onTouchStart, opts);
+    input.stack.addEventListener("touchmove", onTouchMove, moveOpts);
+    input.stack.addEventListener("touchend", onTouchEnd, opts);
+    input.stack.addEventListener("touchcancel", onTouchEnd, opts);
     input.stack.addEventListener("wheel", onWheel, moveOpts);
+    input.body.addEventListener("scroll", onScroll, { passive: true });
   };
 
   const detach = () => {
@@ -216,7 +271,12 @@ export function createYnDrawerSheetExpand(input: {
     input.stack.removeEventListener("pointermove", onPointerMove, moveOpts);
     input.stack.removeEventListener("pointerup", onPointerUp, opts);
     input.stack.removeEventListener("pointercancel", onPointerCancel, opts);
+    input.stack.removeEventListener("touchstart", onTouchStart, opts);
+    input.stack.removeEventListener("touchmove", onTouchMove, moveOpts);
+    input.stack.removeEventListener("touchend", onTouchEnd, opts);
+    input.stack.removeEventListener("touchcancel", onTouchEnd, opts);
     input.stack.removeEventListener("wheel", onWheel, moveOpts);
+    input.body.removeEventListener("scroll", onScroll);
     resetPointer();
     resetWheel();
   };
@@ -234,6 +294,7 @@ export function createYnDrawerSheetExpand(input: {
     detach();
     input.body.style.touchAction = previousBodyTouchAction;
     input.stack.style.touchAction = previousStackTouchAction;
+    input.stack.removeAttribute("data-sheet-at-top");
   };
 
   return {

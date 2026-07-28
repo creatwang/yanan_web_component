@@ -73,15 +73,13 @@ describe("createYnDrawerSheetExpand", () => {
     controller.attach();
 
     expect(body.style.touchAction).to.equal("none");
-    expect(stack.style.touchAction).to.equal("none");
     stack.dispatchEvent(pointer("pointerdown", 100));
     stack.dispatchEvent(pointer("pointermove", 59));
     stack.dispatchEvent(pointer("pointerup", 59));
 
     expect(controller.getSize()).to.equal("expanded");
     expect(onSizeChange.mock.calls).to.have.length(1);
-    // expanded 清掉 inline touch-action，交给 CSS pan-y
-    expect(body.style.touchAction).to.equal("");
+    expect(body.style.touchAction).to.equal("pan-up");
     controller.dispose();
   });
 
@@ -126,29 +124,43 @@ describe("createYnDrawerSheetExpand", () => {
     controller.dispose();
   });
 
-  it("collapses expanded to peek after pulling down over 50px at scroll top", () => {
-    const { stack, body, controller, onSizeChange, onRequestClose } = setup();
+  it("closes expanded after pulling down over 50px at scroll top", () => {
+    const { stack, body, controller, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
-    onSizeChange.mock.calls.length = 0;
     controller.attach();
     body.scrollTop = 0;
 
+    expect(body.style.touchAction).to.equal("pan-up");
     stack.dispatchEvent(pointer("pointerdown", 20));
     stack.dispatchEvent(pointer("pointermove", 80));
     stack.dispatchEvent(pointer("pointerup", 80));
 
-    expect(controller.getSize()).to.equal("peek");
-    expect(onSizeChange.mock.calls).to.deep.equal([["peek"]]);
-    expect(onRequestClose.mock.calls).to.have.length(0);
+    expect(onRequestClose.mock.calls).to.have.length(1);
     controller.dispose();
   });
 
-  it("does not collapse while expanded body is scrolled", () => {
-    const { stack, body, controller, onSizeChange } = setup();
+  it("switches to pan-y after expanded body scrolls away from top", () => {
+    const { body, controller } = setup();
     controller.setEnabled(true);
     controller.setSize("expanded");
-    onSizeChange.mock.calls.length = 0;
+    controller.attach();
+
+    expect(body.style.touchAction).to.equal("pan-up");
+    body.scrollTop = 1;
+    body.dispatchEvent(new Event("scroll"));
+    expect(body.style.touchAction).to.equal("pan-y");
+
+    body.scrollTop = 0;
+    body.dispatchEvent(new Event("scroll"));
+    expect(body.style.touchAction).to.equal("pan-up");
+    controller.dispose();
+  });
+
+  it("does not close while expanded body is scrolled", () => {
+    const { stack, body, controller, onRequestClose } = setup();
+    controller.setEnabled(true);
+    controller.setSize("expanded");
     controller.attach();
     body.scrollTop = 1;
 
@@ -156,21 +168,34 @@ describe("createYnDrawerSheetExpand", () => {
     stack.dispatchEvent(pointer("pointermove", 100));
     stack.dispatchEvent(pointer("pointerup", 100));
 
-    expect(controller.getSize()).to.equal("expanded");
-    expect(onSizeChange.mock.calls).to.have.length(0);
+    expect(onRequestClose.mock.calls).to.have.length(0);
+    controller.dispose();
+  });
+
+  it("closes expanded via wheel down at scroll top", () => {
+    const { stack, body, controller, onRequestClose } = setup();
+    controller.setEnabled(true);
+    controller.setSize("expanded");
+    controller.attach();
+    body.scrollTop = 0;
+
+    stack.dispatchEvent(new WheelEvent("wheel", { deltaY: 60, bubbles: true }));
+
+    expect(onRequestClose.mock.calls).to.have.length(1);
     controller.dispose();
   });
 
   it("detaches gesture listeners", () => {
-    const { stack, controller, onSizeChange } = setup();
+    const { stack, controller, onSizeChange, onRequestClose } = setup();
     controller.setEnabled(true);
     controller.attach();
     controller.detach();
 
-    stack.dispatchEvent(pointer("pointerdown", 100));
-    stack.dispatchEvent(pointer("pointerup", 0));
+    stack.dispatchEvent(pointer("pointerdown", 20));
+    stack.dispatchEvent(pointer("pointerup", 100));
 
     expect(onSizeChange.mock.calls).to.have.length(0);
+    expect(onRequestClose.mock.calls).to.have.length(0);
     controller.dispose();
   });
 });

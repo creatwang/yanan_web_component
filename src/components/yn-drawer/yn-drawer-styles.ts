@@ -355,8 +355,9 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     /*
-     * touch-action 不继承：peek 抢手势用 none；expanded 必须 pan-y 才能双向滚动。
-     * 不要用 pan-up：会禁掉下拉，并干扰滚动。
+     * touch-action 不继承。
+     * expanded 顶部 pan-up：上滑滚内容，下滑留给 JS 关闭。
+     * ::slotted 覆盖购物车等内容节点。
      */
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack,
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .drawer-stack * {
@@ -366,6 +367,26 @@ export const YN_DRAWER_SHADOW_STYLES = `
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack,
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack * {
       touch-action: pan-y;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack[data-sheet-at-top],
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack[data-sheet-at-top] * {
+      touch-action: pan-up;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body::slotted(*) {
+      touch-action: pan-y;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"])
+      .drawer-stack[data-sheet-at-top]
+      .body::slotted(*) {
+      touch-action: pan-up;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+      .body::slotted(*) {
+      touch-action: none;
     }
 
     /* 不能展开时允许 peek 内滚动，避免 overflow:hidden 死锁 */
