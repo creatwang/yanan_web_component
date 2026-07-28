@@ -1,4 +1,5 @@
 import { expect, fixture, html, oneEvent } from "@open-wc/testing";
+import { vi } from "vitest";
 import "../yn-icon-button/yn-icon-button.js";
 import "./yn-drawer";
 import type { YnDrawer } from "./yn-drawer";
@@ -75,7 +76,7 @@ describe("yn-drawer", () => {
 
   it("reflects placement and sheet-height attributes", async () => {
     const el = await fixture<YnDrawer>(
-      html`<yn-drawer placement="bottom" sheet-height="60vh"></yn-drawer>`
+      html`<yn-drawer placement="bottom" sheet-height="60vh"></yn-drawer>`,
     );
     expect(el.getAttribute("placement")).to.equal("bottom");
     expect(el.getAttribute("sheet-height")).to.equal("60vh");
@@ -115,7 +116,7 @@ describe("yn-drawer", () => {
 
   it("applies sheet layout host attrs when motion=sheet", async () => {
     const el = await fixture<YnDrawer>(
-      html`<yn-drawer motion="sheet" placement="bottom" sheet-height="90vh"></yn-drawer>`
+      html`<yn-drawer motion="sheet" placement="bottom" sheet-height="90vh"></yn-drawer>`,
     );
     await el.updateComplete;
     expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
@@ -161,7 +162,7 @@ describe("yn-drawer", () => {
 
   it("resolves motion=side even on narrow viewport intent", async () => {
     const el = await fixture<YnDrawer>(
-      html`<yn-drawer motion="side" placement="bottom"></yn-drawer>`
+      html`<yn-drawer motion="side" placement="bottom"></yn-drawer>`,
     );
     await el.updateComplete;
     expect(el.getResolvedMotion()).to.equal("side");
@@ -183,4 +184,71 @@ describe("yn-drawer", () => {
     expect(extra?.classList.contains("backdrop-extra--empty")).to.equal(false);
     expect(el.querySelectorAll("[data-yn-drawer-reco]").length).to.equal(2);
   });
+
+  it(
+    "sheet motion fires lifecycle events and closes the stack vertically",
+    async () => {
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn().mockReturnValue({ matches: true }),
+      );
+
+      try {
+        const el = await fixture<YnDrawer>(
+          html`<yn-drawer motion="sheet" placement="bottom"></yn-drawer>`,
+        );
+        await el.updateComplete;
+
+        const opened = oneEvent(el, "after-open");
+        el.show();
+        await opened;
+
+        const closed = oneEvent(el, "after-close");
+        el.close();
+        await closed;
+
+        const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+        expect(stack?.style.transform).to.include("110%");
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    },
+    5000,
+  );
+
+  it(
+    "rebuilds sheet motion when mode changes while open",
+    async () => {
+      vi.stubGlobal(
+        "matchMedia",
+        vi.fn().mockReturnValue({ matches: true }),
+      );
+
+      try {
+        const el = await fixture<YnDrawer>(
+          html`<yn-drawer motion="side" placement="right"></yn-drawer>`,
+        );
+        await el.updateComplete;
+
+        const opened = oneEvent(el, "after-open");
+        el.show();
+        await opened;
+
+        const rebuilt = oneEvent(el, "after-open");
+        el.motion = "sheet";
+        await el.updateComplete;
+        await rebuilt;
+
+        const closed = oneEvent(el, "after-close");
+        el.close();
+        await closed;
+
+        const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+        expect(stack?.style.transform).to.include("110%");
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    },
+    5000,
+  );
 });

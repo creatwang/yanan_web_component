@@ -115,6 +115,7 @@ export class YnDrawer extends LitElement {
   private motionController: YnDrawerMotionController | undefined;
   /** GSAP 懒加载；关闭态不拉取 gsap */
   private motionBoot: Promise<YnDrawerMotionController> | undefined;
+  private motionMode: YnDrawerMotionMode | undefined;
   private motionDirty = true;
 
   private activeLifecycleMeta: LifecycleMeta = { source: "property" };
@@ -135,6 +136,7 @@ export class YnDrawer extends LitElement {
     this.motionController?.dispose();
     this.motionController = undefined;
     this.motionBoot = undefined;
+    this.motionMode = undefined;
     super.disconnectedCallback();
   }
 
@@ -169,6 +171,9 @@ export class YnDrawer extends LitElement {
     if (changed.has("sheetHeight")) this.syncSheetHeight();
     if (changed.has("motion") || changed.has("placement") || changed.has("open")) {
       this.syncMotionHostAttrs();
+    }
+    if (changed.has("motion") || changed.has("placement")) {
+      this.rebuildMotionForModeChange();
     }
     if (changed.has("open")) this.pendingTransitionMeta = undefined;
 
@@ -264,9 +269,10 @@ export class YnDrawer extends LitElement {
     const root = this.shadowRoot;
     const panels: HTMLElement[] = [];
     if (!root) {
-      return { panels, reco: [] as HTMLElement[], recoRoot: null };
+      return { panels, reco: [] as HTMLElement[], recoRoot: null, stack: null };
     }
 
+    const stack = root.querySelector<HTMLElement>(".drawer-stack");
     const top = root.querySelector<HTMLElement>(".panel--top");
     const middle = root.querySelector<HTMLElement>(".panel--middle");
     const bottom = root.querySelector<HTMLElement>(".panel--bottom");
@@ -276,7 +282,7 @@ export class YnDrawer extends LitElement {
 
     const recoRoot = root.querySelector<HTMLElement>(".backdrop-extra");
     if (!recoRoot || recoRoot.classList.contains("backdrop-extra--empty")) {
-      return { panels, reco: [] as HTMLElement[], recoRoot: null };
+      return { panels, reco: [] as HTMLElement[], recoRoot: null, stack };
     }
 
     const slot = root.querySelector<HTMLSlotElement>('slot[name="backdrop-extra"]');
@@ -287,17 +293,38 @@ export class YnDrawer extends LitElement {
     return {
       panels,
       reco: collectRecoCards(assigned),
-      recoRoot
+      recoRoot,
+      stack
     };
   }
 
   getResolvedMotion(): YnDrawerMotionMode {
-    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
+    const viewportWidth =
+      typeof window !== "undefined" ? window.innerWidth : 1024;
     return resolveYnDrawerMotion({
       motion: this.motion,
       placement: this.placement,
       viewportWidth
     });
+  }
+
+  private rebuildMotionForModeChange() {
+    const nextMode = this.getResolvedMotion();
+    if (!this.motionMode || this.motionMode === nextMode) return;
+
+    this.motionController?.dispose();
+    this.motionController = undefined;
+    this.motionBoot = undefined;
+    this.motionMode = undefined;
+    this.motionDirty = true;
+
+    if (this.open) {
+      void this.ensureMotion().then((motion) => {
+        if (motion && this.open && this.getResolvedMotion() === nextMode) {
+          motion.seekOpenImmediate();
+        }
+      });
+    }
   }
 
   private async ensureMotion() {
@@ -318,6 +345,8 @@ export class YnDrawer extends LitElement {
 
       this.surfaceEl = surface;
       this.backdropEl = backdrop;
+      const mode = this.getResolvedMotion();
+      this.motionMode = mode;
 
       this.motionBoot = import("./yn-drawer-motion.js").then(({ createYnDrawerMotion }) => {
         this.motionController = createYnDrawerMotion(
@@ -337,7 +366,8 @@ export class YnDrawer extends LitElement {
           },
           {
             exitSpeed: this.exitSpeed,
-            easeReverse: this.easeReverse
+            easeReverse: this.easeReverse,
+            mode
           }
         );
         this.motionDirty = false;
@@ -392,6 +422,7 @@ export class YnDrawer extends LitElement {
       this.motionController?.dispose();
       this.motionController = undefined;
       this.motionBoot = undefined;
+      this.motionMode = undefined;
       this.motionDirty = true;
       this.emitLifecycleEvent("after-close", meta);
       return;
@@ -551,7 +582,12 @@ export class YnDrawer extends LitElement {
             : html`<button class="trigger-btn" type="button">Open drawer</button>`}
         </slot>
       </span>
-      <div id="drawerPopover" class="drawer-popover" popover="manual" @keydown=${this.handleEscape}>
+      <div
+        id="drawerPopover"
+        class="drawer-popover"
+        popover="manual"
+        @keydown=${this.handleEscape}
+      >
         <div class="drawer-surface">
           <div class="backdrop" @click=${this.handleBackdropClick}></div>
           <div
@@ -626,7 +662,9 @@ function collectRecoCards(assigned: HTMLElement[]) {
   const articles = host.querySelectorAll<HTMLElement>("article");
   if (articles.length) return Array.from(articles);
 
-  const kids = Array.from(host.children).filter((n): n is HTMLElement => n instanceof HTMLElement);
+  const kids = Array.from(host.children).filter(
+    (n): n is HTMLElement => n instanceof HTMLElement
+  );
   const row = kids.find((el) => el.children.length > 1);
   if (row) {
     return Array.from(row.children).filter((n): n is HTMLElement => n instanceof HTMLElement);

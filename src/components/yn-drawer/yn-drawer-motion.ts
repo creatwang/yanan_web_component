@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import type { YnDrawerMotionMode } from "./yn-drawer-motion-resolve.js";
 
 export type YnDrawerMotionCallbacks = {
   onEnterComplete: () => void;
@@ -9,6 +10,7 @@ export type YnDrawerMotionOptions = {
   exitSpeed?: number;
   easeReverse?: boolean;
   reduceMotion?: boolean;
+  mode?: YnDrawerMotionMode;
 };
 
 export type YnDrawerMotionTargets = {
@@ -16,6 +18,7 @@ export type YnDrawerMotionTargets = {
   /** backdrop-extra 内参与动画的商品卡 */
   reco: HTMLElement[];
   recoRoot?: HTMLElement | null;
+  stack?: HTMLElement | null;
 };
 
 export type YnDrawerMotionController = {
@@ -56,6 +59,7 @@ export function createYnDrawerMotion(
   let enterEndTime = 0;
   let cards: HTMLElement[] = [];
   let recoRoot: HTMLElement | null = null;
+  let stack: HTMLElement | null = null;
   let isOpen = false;
   let enterDone = false;
   let exitDone = false;
@@ -65,17 +69,30 @@ export function createYnDrawerMotion(
     (opts.reduceMotion ?? prefersReducedMotion()) ? 0.01 : 1;
 
   const easeRev = (ease: string) => (opts.easeReverse === false ? false : ease);
+  const mode = () => opts.mode ?? "side";
 
   const collectCards = (next: YnDrawerMotionTargets) => [
     ...next.panels,
     ...next.reco
   ];
 
+  const collectSheetTargets = () => (stack ? [stack] : targets.panels);
+
   const paintClosed = () => {
     gsap.set(scope, { autoAlpha: 0, force3D: true });
     gsap.set(backdrop, { opacity: 0 });
     if (recoRoot) gsap.set(recoRoot, { autoAlpha: 1, x: 0, y: 0 });
-    if (cards.length) {
+    const sheetTargets = collectSheetTargets();
+    if (mode() === "sheet" && sheetTargets.length) {
+      gsap.set(sheetTargets, {
+        x: 0,
+        y: "110%",
+        rotation: 0,
+        opacity: 1,
+        force3D: true,
+        transformOrigin: "50% 50%"
+      });
+    } else if (cards.length) {
       gsap.set(cards, {
         x: "110%",
         y: 0,
@@ -91,8 +108,9 @@ export function createYnDrawerMotion(
     gsap.set(scope, { autoAlpha: 1, force3D: true });
     gsap.set(backdrop, { opacity: 1 });
     if (recoRoot) gsap.set(recoRoot, { autoAlpha: 1, x: 0, y: 0 });
-    if (cards.length) {
-      gsap.set(cards, {
+    const motionTargets = mode() === "sheet" ? collectSheetTargets() : cards;
+    if (motionTargets.length) {
+      gsap.set(motionTargets, {
         x: 0,
         y: 0,
         rotation: 0,
@@ -145,7 +163,23 @@ export function createYnDrawerMotion(
           0
         );
 
-      if (cards.length) {
+      const sheetTargets = collectSheetTargets();
+      if (mode() === "sheet" && sheetTargets.length) {
+        tl.fromTo(
+          sheetTargets,
+          { x: 0, y: "110%", opacity: 1, rotation: 0 },
+          {
+            x: 0,
+            y: 0,
+            rotation: 0,
+            opacity: 1,
+            duration: 0.45 * d,
+            ease: "power3.out",
+            immediateRender: false
+          },
+          0
+        );
+      } else if (cards.length) {
         tl.fromTo(
           cards,
           { x: "110%", y: 0, opacity: 0, rotation: 0 },
@@ -167,7 +201,20 @@ export function createYnDrawerMotion(
       tl.addPause("+=0", onEnter);
       enterEndTime = Math.max(tl.duration(), EPS);
 
-      if (cards.length) {
+      if (mode() === "sheet" && sheetTargets.length) {
+        tl.to(
+          sheetTargets,
+          {
+            x: 0,
+            y: "110%",
+            rotation: 0,
+            opacity: 1,
+            duration: 0.32 * d,
+            ease: "power2.in"
+          },
+          enterEndTime
+        );
+      } else if (cards.length) {
         // 固定角度，避免每帧函数取值
         const spins = cards.map((_, i) => ((i % 2 === 0 ? -12 : 12) - i * 3));
         tl.to(
@@ -193,20 +240,32 @@ export function createYnDrawerMotion(
 
   cards = collectCards(targets);
   recoRoot = targets.recoRoot ?? null;
+  stack = targets.stack ?? null;
   build();
 
   return {
     setOptions(next) {
+      const previousMode = mode();
       opts = { ...opts, ...next };
+      if (mode() !== previousMode) build();
     },
     setTargets(next) {
       const nextCards = collectCards(next);
       const nextRoot = next.recoRoot ?? null;
-      if (sameElements(nextCards, cards) && nextRoot === recoRoot) return;
+      const nextStack = next.stack ?? null;
+      if (
+        sameElements(nextCards, cards) &&
+        nextRoot === recoRoot &&
+        nextStack === stack
+      ) {
+        return;
+      }
 
       const keepOpen = isOpen && enterDone;
       cards = nextCards;
       recoRoot = nextRoot;
+      stack = nextStack;
+      targets = next;
       build();
       if (keepOpen) this.seekOpenImmediate();
     },
@@ -260,6 +319,7 @@ export function createYnDrawerMotion(
       ctx = undefined;
       cards = [];
       recoRoot = null;
+      stack = null;
     }
   };
 }
