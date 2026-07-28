@@ -65,6 +65,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       --yn-drawer-mobile-radius: 16px;
       --yn-drawer-mobile-shadow: var(--yn-color-shadow-lg, 0 -12px 36px rgba(36, 31, 33, 0.18));
       --yn-drawer-sheet-height: 90vh;
+      --yn-drawer-sheet-peek-height: 60vh;
       --yn-drawer-trigger-bg: var(--yn-color-inverse-bg, #241f21);
       --yn-drawer-trigger-color: var(--yn-color-on-inverse, #ffffff);
       --yn-drawer-breakpoint: 1024px;
@@ -136,6 +137,17 @@ export const YN_DRAWER_SHADOW_STYLES = `
       pointer-events: none;
       /* 坠落退场时裁切位移，避免出现中间滚动条 */
       overflow: hidden;
+    }
+
+    .drawer-stack {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--yn-drawer-panel-gap);
+      width: 100%;
+      min-height: 0;
+      pointer-events: none;
     }
 
     .backdrop {
@@ -278,6 +290,57 @@ export const YN_DRAWER_SHADOW_STYLES = `
 
     .header-actions:empty {
       display: none;
+    }
+
+    :host([data-yn-motion="sheet"]) .drawer-surface {
+      align-items: stretch;
+      justify-content: flex-end;
+      flex-direction: column;
+    }
+
+    :host([data-yn-motion="sheet"]) .drawer-stack {
+      flex: 0 1 auto;
+      align-items: stretch;
+      width: 100%;
+      height: fit-content;
+      max-height: var(--yn-drawer-sheet-peek-height);
+      margin-top: auto;
+      pointer-events: auto;
+      gap: var(--yn-drawer-panel-gap);
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
+      max-height: var(--yn-drawer-sheet-height, 90dvh);
+    }
+
+    :host([data-yn-motion="sheet"]) .panel {
+      width: 100%;
+    }
+
+    :host([data-yn-motion="sheet"]) .panel--top {
+      flex: 1 1 auto;
+      min-height: 0;
+      max-height: none;
+    }
+
+    :host([data-yn-motion="sheet"]) .panel--middle:not(.panel--empty) {
+      flex: 0 0 auto;
+      max-height: none;
+      overflow: hidden;
+    }
+
+    :host([data-yn-motion="sheet"]) .panel--bottom:not(.panel--empty) {
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    :host([data-yn-motion="sheet"]) .body {
+      overflow: auto;
+      overscroll-behavior: contain;
+    }
+
+    :host([data-yn-motion="sheet"]) .backdrop-extra {
+      display: none !important;
     }
 
     @media (min-width: 1024px) {

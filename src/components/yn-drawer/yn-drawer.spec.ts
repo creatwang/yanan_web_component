@@ -75,7 +75,7 @@ describe("yn-drawer", () => {
 
   it("reflects placement and sheet-height attributes", async () => {
     const el = await fixture<YnDrawer>(
-      html`<yn-drawer placement="bottom" sheet-height="60vh"></yn-drawer>`,
+      html`<yn-drawer placement="bottom" sheet-height="60vh"></yn-drawer>`
     );
     expect(el.getAttribute("placement")).to.equal("bottom");
     expect(el.getAttribute("sheet-height")).to.equal("60vh");
@@ -113,9 +113,26 @@ describe("yn-drawer", () => {
     expect(el.getAttribute("sheet-expand")).to.equal("none");
   });
 
+  it("applies sheet layout host attrs when motion=sheet", async () => {
+    const el = await fixture<YnDrawer>(
+      html`<yn-drawer motion="sheet" placement="bottom" sheet-height="90vh"></yn-drawer>`
+    );
+    await el.updateComplete;
+    expect(el.getAttribute("data-yn-motion")).to.equal("sheet");
+    expect(el.getAttribute("data-sheet-size")).to.equal("peek");
+  });
+
+  it("renders one shared drawer stack for all panels", async () => {
+    const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
+    await el.updateComplete;
+    const stack = el.shadowRoot?.querySelector(".drawer-stack");
+    expect(stack).not.to.equal(null);
+    expect(stack?.querySelectorAll(":scope > .panel")).to.have.length(3);
+  });
+
   it("resolves motion=side even on narrow viewport intent", async () => {
     const el = await fixture<YnDrawer>(
-      html`<yn-drawer motion="side" placement="bottom"></yn-drawer>`,
+      html`<yn-drawer motion="side" placement="bottom"></yn-drawer>`
     );
     await el.updateComplete;
     expect(el.getResolvedMotion()).to.equal("side");

@@ -128,6 +128,7 @@ export class YnDrawer extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.syncSheetHeight();
+    this.syncMotionHostAttrs();
   }
 
   disconnectedCallback() {
@@ -166,6 +167,9 @@ export class YnDrawer extends LitElement {
       this.style.setProperty("--yn-drawer-width", `${Math.max(260, this.width)}px`);
     }
     if (changed.has("sheetHeight")) this.syncSheetHeight();
+    if (changed.has("motion") || changed.has("placement") || changed.has("open")) {
+      this.syncMotionHostAttrs();
+    }
     if (changed.has("open")) this.pendingTransitionMeta = undefined;
 
     if (changed.has("exitSpeed") || changed.has("easeReverse")) {
@@ -198,6 +202,18 @@ export class YnDrawer extends LitElement {
       return;
     }
     this.style.setProperty("--yn-drawer-sheet-height", value);
+  }
+
+  private syncMotionHostAttrs() {
+    const mode = this.getResolvedMotion();
+    this.setAttribute("data-yn-motion", mode);
+    if (mode !== "sheet") {
+      this.removeAttribute("data-sheet-size");
+      return;
+    }
+    if (!this.getAttribute("data-sheet-size")) {
+      this.setAttribute("data-sheet-size", "peek");
+    }
   }
 
   private emitOpenChange(meta: LifecycleMeta) {
@@ -276,8 +292,7 @@ export class YnDrawer extends LitElement {
   }
 
   getResolvedMotion(): YnDrawerMotionMode {
-    const viewportWidth =
-      typeof window !== "undefined" ? window.innerWidth : 1024;
+    const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
     return resolveYnDrawerMotion({
       motion: this.motion,
       placement: this.placement,
@@ -536,12 +551,7 @@ export class YnDrawer extends LitElement {
             : html`<button class="trigger-btn" type="button">Open drawer</button>`}
         </slot>
       </span>
-      <div
-        id="drawerPopover"
-        class="drawer-popover"
-        popover="manual"
-        @keydown=${this.handleEscape}
-      >
+      <div id="drawerPopover" class="drawer-popover" popover="manual" @keydown=${this.handleEscape}>
         <div class="drawer-surface">
           <div class="backdrop" @click=${this.handleBackdropClick}></div>
           <div
@@ -554,49 +564,51 @@ export class YnDrawer extends LitElement {
             ></slot>
           </div>
 
-          <aside
-            class="panel panel--top"
-            role="dialog"
-            aria-modal="true"
-            aria-label=${this.title || "Drawer"}
-            @click=${(event: Event) => event.stopPropagation()}
-          >
-            <header class="header">
-              <div class="header-main">
-                <slot name="header">
-                  <h2 class="title">${this.title}</h2>
-                </slot>
+          <div class="drawer-stack">
+            <aside
+              class="panel panel--top"
+              role="dialog"
+              aria-modal="true"
+              aria-label=${this.title || "Drawer"}
+              @click=${(event: Event) => event.stopPropagation()}
+            >
+              <header class="header">
+                <div class="header-main">
+                  <slot name="header">
+                    <h2 class="title">${this.title}</h2>
+                  </slot>
+                </div>
+                <div class="header-actions">
+                  <slot name="header-actions"></slot>
+                </div>
+                <yn-icon-button
+                  class="close-btn"
+                  size="small"
+                  label="Close drawer"
+                  @click=${this.handleCloseClick}
+                >
+                  ${unsafeSVG(ynClose20Svg)}
+                </yn-icon-button>
+              </header>
+              <div class="body">
+                <slot name="content"></slot>
               </div>
-              <div class="header-actions">
-                <slot name="header-actions"></slot>
-              </div>
-              <yn-icon-button
-                class="close-btn"
-                size="small"
-                label="Close drawer"
-                @click=${this.handleCloseClick}
-              >
-                ${unsafeSVG(ynClose20Svg)}
-              </yn-icon-button>
-            </header>
-            <div class="body">
-              <slot name="content"></slot>
+            </aside>
+
+            <div
+              class="panel panel--middle ${this.middleEmpty ? "panel--empty" : ""}"
+              @click=${(event: Event) => event.stopPropagation()}
+            >
+              <slot name="middle" @slotchange=${() => this.onMotionSlotChange("middle")}></slot>
             </div>
-          </aside>
 
-          <div
-            class="panel panel--middle ${this.middleEmpty ? "panel--empty" : ""}"
-            @click=${(event: Event) => event.stopPropagation()}
-          >
-            <slot name="middle" @slotchange=${() => this.onMotionSlotChange("middle")}></slot>
+            <footer
+              class="panel panel--bottom ${this.footerEmpty ? "panel--empty" : ""}"
+              @click=${(event: Event) => event.stopPropagation()}
+            >
+              <slot name="footer" @slotchange=${() => this.onMotionSlotChange("footer")}></slot>
+            </footer>
           </div>
-
-          <footer
-            class="panel panel--bottom ${this.footerEmpty ? "panel--empty" : ""}"
-            @click=${(event: Event) => event.stopPropagation()}
-          >
-            <slot name="footer" @slotchange=${() => this.onMotionSlotChange("footer")}></slot>
-          </footer>
         </div>
       </div>
     `;
@@ -614,9 +626,7 @@ function collectRecoCards(assigned: HTMLElement[]) {
   const articles = host.querySelectorAll<HTMLElement>("article");
   if (articles.length) return Array.from(articles);
 
-  const kids = Array.from(host.children).filter(
-    (n): n is HTMLElement => n instanceof HTMLElement
-  );
+  const kids = Array.from(host.children).filter((n): n is HTMLElement => n instanceof HTMLElement);
   const row = kids.find((el) => el.children.length > 1);
   if (row) {
     return Array.from(row.children).filter((n): n is HTMLElement => n instanceof HTMLElement);
