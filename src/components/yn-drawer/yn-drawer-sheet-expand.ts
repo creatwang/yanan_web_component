@@ -103,6 +103,27 @@ export function createYnDrawerSheetExpand(input: {
     input.body.style.overflow = "";
   };
 
+  const isInteractiveTarget = (event: Event) => {
+    for (const node of event.composedPath()) {
+      if (!(node instanceof Element)) continue;
+      const tag = node.tagName;
+      if (
+        tag === "BUTTON" ||
+        tag === "A" ||
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        tag === "YN-ICON-BUTTON" ||
+        tag === "YN-BUTTON" ||
+        tag === "YN-QUANTITY"
+      ) {
+        return true;
+      }
+      if (node.getAttribute?.("role") === "button") return true;
+    }
+    return false;
+  };
+
   const zoneOf = (event: Event): Zone => {
     const path = event.composedPath();
     if (path.includes(input.body)) return "body";
@@ -465,6 +486,8 @@ export function createYnDrawerSheetExpand(input: {
 
   const onPointerDown = (event: PointerEvent) => {
     if (!enabled || event.pointerType === "touch") return;
+    // 关闭按钮 / 结算等控件：不要 capture，否则 click 丢失、抽屉关不掉
+    if (isInteractiveTarget(event)) return;
     const z = zoneOf(event);
     if (size === "expanded" && z === "other") return;
     begin(event.clientY, z, event.pointerId);
@@ -499,6 +522,7 @@ export function createYnDrawerSheetExpand(input: {
 
   const onTouchStart = (event: TouchEvent) => {
     if (!enabled || event.touches.length !== 1) return;
+    if (isInteractiveTarget(event)) return;
     const touch = event.touches[0];
     if (!touch) return;
     const z = zoneOf(event);

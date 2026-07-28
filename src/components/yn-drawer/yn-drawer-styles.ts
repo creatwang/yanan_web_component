@@ -64,7 +64,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       --yn-drawer-close-ease: cubic-bezier(0.55, 0.055, 0.675, 0.19);
       --yn-drawer-mobile-radius: 16px;
       --yn-drawer-mobile-shadow: var(--yn-color-shadow-lg, 0 -12px 36px rgba(36, 31, 33, 0.18));
-      --yn-drawer-sheet-height: 100%;
+      --yn-drawer-sheet-height: 98vh;
       --yn-drawer-sheet-peek-height: 78vh;
       --yn-drawer-trigger-bg: var(--yn-color-inverse-bg, #241f21);
       --yn-drawer-trigger-color: var(--yn-color-on-inverse, #ffffff);
@@ -317,7 +317,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
 
     /* snap 的 peek↔expanded 由手势模块连续驱动高度，避免与 CSS transition 抢动画 */
     :host([data-yn-motion="sheet"][sheet-expand="none"]) .drawer-stack {
-      max-height: min(var(--yn-drawer-sheet-height, 100%), 100%);
+      max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
       transition: max-height var(--yn-drawer-open-duration, 380ms)
           var(--yn-drawer-open-ease, cubic-bezier(0.22, 0.01, 0.35, 1)),
         height var(--yn-drawer-open-duration, 380ms)
@@ -325,10 +325,10 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .drawer-stack {
-      /* 铺满 surface 内容区；上下空隙只靠 --yn-drawer-surface-padding */
+      /* 在 surface 内边距内尽量拉高；100% = 扣除上下留白后的可用高度 */
       flex: 0 0 auto;
-      height: 100%;
-      max-height: 100%;
+      height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
+      max-height: min(var(--yn-drawer-sheet-height, 98vh), 100%);
     }
 
     :host([data-yn-motion="sheet"][sheet-expand="none"][sheet-height="auto"]) .drawer-stack {
@@ -366,6 +366,15 @@ export const YN_DRAWER_SHADOW_STYLES = `
     :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
       .body::slotted(*) {
       touch-action: none;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .close-btn,
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"]) .close-btn *,
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+      .panel--bottom::slotted(*),
+    :host([data-yn-motion="sheet"][data-sheet-size="peek"][data-sheet-can-expand="true"])
+      .panel--bottom::slotted(*) * {
+      touch-action: manipulation;
     }
 
     :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body,

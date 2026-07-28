@@ -261,7 +261,9 @@ export function createYnDrawerMotion(
         return;
       }
 
-      const keepOpen = isOpen && enterDone;
+      // 入场未完成时 rebuild 也会 paintClosed；只要宿主仍视为打开，就必须立刻拉回开态，
+      // 否则会卡在 y:110% / 透明遮罩，且后续 close() 在 time≈0 时空转。
+      const keepOpen = isOpen;
       cards = nextCards;
       recoRoot = nextRoot;
       stack = nextStack;
@@ -289,11 +291,28 @@ export function createYnDrawerMotion(
       tl.restart(true, false);
     },
     close() {
-      if (!tl || !isOpen) return;
+      if (!tl) {
+        onExit();
+        return;
+      }
+
+      // 已在动效层关闭，仍通知宿主收起 popover（避免 open 标志与画面脱节后关不掉）
+      if (!isOpen) {
+        paintClosed();
+        onExit();
+        return;
+      }
 
       isOpen = false;
       enterDone = false;
       exitDone = false;
+
+      // rebuild / 未真正入场：playhead 在 0，reverse() 不会触发 onReverseComplete
+      if (tl.time() <= EPS) {
+        paintClosed();
+        onExit();
+        return;
+      }
 
       if (tl.time() < enterEndTime - EPS) {
         tl.timeScale(opts.exitSpeed ?? 1.5).reverse();
