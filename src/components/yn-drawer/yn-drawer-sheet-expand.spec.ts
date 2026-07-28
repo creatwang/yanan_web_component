@@ -1,19 +1,33 @@
 import { expect } from "@open-wc/testing";
-import { vi } from "vitest";
 import { createYnDrawerSheetExpand } from "./yn-drawer-sheet-expand.js";
+
+function spy() {
+  const calls: unknown[][] = [];
+  return Object.assign(
+    (...args: unknown[]) => {
+      calls.push(args);
+    },
+    { mock: { calls } },
+  );
+}
 
 function pointer(type: string, clientY: number) {
   const event = new Event(type, { bubbles: true, cancelable: true });
   Object.defineProperty(event, "clientY", { value: clientY });
   Object.defineProperty(event, "pointerId", { value: 1 });
+  Object.defineProperty(event, "pointerType", { value: "touch" });
   return event;
 }
 
 function setup(canExpand = true) {
   const stack = document.createElement("div");
   const body = document.createElement("div");
-  const onSizeChange = vi.fn();
-  const onRequestClose = vi.fn();
+  body.style.cssText = "height: 10px; overflow: auto;";
+  const content = document.createElement("div");
+  content.style.height = "100px";
+  body.append(content);
+  const onSizeChange = spy();
+  const onRequestClose = spy();
   document.body.append(stack, body);
 
   const controller = createYnDrawerSheetExpand({
@@ -57,6 +71,7 @@ describe("createYnDrawerSheetExpand", () => {
     controller.setEnabled(true);
     controller.attach();
 
+    expect(body.style.touchAction).to.equal("none");
     body.dispatchEvent(pointer("pointerdown", 100));
     body.dispatchEvent(pointer("pointermove", 59));
     body.dispatchEvent(pointer("pointerup", 59));
@@ -98,12 +113,30 @@ describe("createYnDrawerSheetExpand", () => {
     controller.attach();
     body.scrollTop = 0;
 
+    expect(body.style.touchAction).to.equal("pan-up");
     body.dispatchEvent(pointer("pointerdown", 20));
     body.dispatchEvent(pointer("pointermove", 71));
     body.dispatchEvent(pointer("pointerup", 71));
 
     expect(onRequestClose.mock.calls).to.have.length(1);
     expect(controller.getSize()).to.equal("expanded");
+    controller.dispose();
+  });
+
+  it("allows vertical touch scrolling only while expanded content is away from top", () => {
+    const { body, controller } = setup();
+    controller.setEnabled(true);
+    controller.setSize("expanded");
+    controller.attach();
+
+    expect(body.style.touchAction).to.equal("pan-up");
+    body.scrollTop = 1;
+    body.dispatchEvent(new Event("scroll"));
+    expect(body.style.touchAction).to.equal("pan-y");
+
+    body.scrollTop = 0;
+    body.dispatchEvent(new Event("scroll"));
+    expect(body.style.touchAction).to.equal("pan-up");
     controller.dispose();
   });
 

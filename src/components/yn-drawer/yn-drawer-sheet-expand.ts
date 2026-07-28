@@ -30,6 +30,16 @@ export function createYnDrawerSheetExpand(input: {
   let wheelResetTimer: ReturnType<typeof setTimeout> | undefined;
   const previousTouchAction = input.body.style.touchAction;
 
+  const syncTouchAction = () => {
+    if (!attached) return;
+    if (!enabled) {
+      input.body.style.touchAction = "pan-y";
+      return;
+    }
+    input.body.style.touchAction =
+      size === "peek" ? "none" : input.body.scrollTop === 0 ? "pan-up" : "pan-y";
+  };
+
   const resetPointer = () => {
     startY = undefined;
     latestY = undefined;
@@ -50,6 +60,7 @@ export function createYnDrawerSheetExpand(input: {
     resetPointer();
     resetWheel();
     input.onSizeChange(nextSize);
+    syncTouchAction();
   };
 
   const evaluatePointer = () => {
@@ -75,9 +86,13 @@ export function createYnDrawerSheetExpand(input: {
 
   const onPointerDown = (event: PointerEvent) => {
     if (!enabled) return;
+    syncTouchAction();
     startY = event.clientY;
     latestY = event.clientY;
     startedAtScrollTop = size === "expanded" && input.body.scrollTop === 0;
+    if (event instanceof PointerEvent) {
+      input.body.setPointerCapture(event.pointerId);
+    }
   };
 
   const onPointerMove = (event: PointerEvent) => {
@@ -97,6 +112,10 @@ export function createYnDrawerSheetExpand(input: {
     resetPointer();
   };
 
+  const onScroll = () => {
+    if (startY === undefined) syncTouchAction();
+  };
+
   const onWheel = (event: WheelEvent) => {
     if (!enabled || size !== "peek" || !input.canExpand()) return;
     wheelDeltaY += event.deltaY;
@@ -111,11 +130,12 @@ export function createYnDrawerSheetExpand(input: {
   const attach = () => {
     if (attached) return;
     attached = true;
-    input.body.style.touchAction = "pan-y";
+    syncTouchAction();
     input.body.addEventListener("pointerdown", onPointerDown);
     input.body.addEventListener("pointermove", onPointerMove);
     input.body.addEventListener("pointerup", onPointerUp);
     input.body.addEventListener("pointercancel", onPointerCancel);
+    input.body.addEventListener("scroll", onScroll);
     input.body.addEventListener("wheel", onWheel);
   };
 
@@ -126,6 +146,7 @@ export function createYnDrawerSheetExpand(input: {
     input.body.removeEventListener("pointermove", onPointerMove);
     input.body.removeEventListener("pointerup", onPointerUp);
     input.body.removeEventListener("pointercancel", onPointerCancel);
+    input.body.removeEventListener("scroll", onScroll);
     input.body.removeEventListener("wheel", onWheel);
     resetPointer();
     resetWheel();
@@ -137,6 +158,7 @@ export function createYnDrawerSheetExpand(input: {
       resetPointer();
       resetWheel();
     }
+    syncTouchAction();
   };
 
   const dispose = () => {

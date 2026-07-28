@@ -1,8 +1,15 @@
 import { expect, fixture, html, oneEvent } from "@open-wc/testing";
-import { vi } from "vitest";
 import "../yn-icon-button/yn-icon-button.js";
 import "./yn-drawer";
 import type { YnDrawer } from "./yn-drawer";
+
+function stubMatchMedia(matches: boolean) {
+  const originalMatchMedia = window.matchMedia;
+  window.matchMedia = () => ({ matches }) as MediaQueryList;
+  return () => {
+    window.matchMedia = originalMatchMedia;
+  };
+}
 
 describe("yn-drawer", () => {
   it("renders default title and closed state", async () => {
@@ -135,7 +142,7 @@ describe("yn-drawer", () => {
     expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
   });
 
-  it("caps sheet middle while pinning the stack and scrolling only the body", async () => {
+  it("caps sheet middle while pinning the stack and scrolls body only when expanded", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer motion="sheet">
         <div slot="middle">Promo</div>
@@ -161,6 +168,10 @@ describe("yn-drawer", () => {
     expect(getComputedStyle(top).overflow).to.equal("hidden");
     expect(getComputedStyle(middle).overflow).to.equal("hidden");
     expect(getComputedStyle(bottom).overflow).to.equal("hidden");
+    expect(getComputedStyle(body).overflow).to.equal("hidden");
+
+    el.setSheetSize("expanded");
+    await el.updateComplete;
     expect(getComputedStyle(body).overflow).to.equal("auto");
   });
 
@@ -200,10 +211,7 @@ describe("yn-drawer", () => {
   it(
     "sheet motion fires lifecycle events and closes the stack vertically",
     async () => {
-      vi.stubGlobal(
-        "matchMedia",
-        vi.fn().mockReturnValue({ matches: true }),
-      );
+      const restoreMatchMedia = stubMatchMedia(true);
 
       try {
         const el = await fixture<YnDrawer>(
@@ -222,7 +230,7 @@ describe("yn-drawer", () => {
         const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
         expect(stack?.style.transform).to.include("110%");
       } finally {
-        vi.unstubAllGlobals();
+        restoreMatchMedia();
       }
     },
     5000,
@@ -231,10 +239,7 @@ describe("yn-drawer", () => {
   it(
     "rebuilds sheet motion when mode changes while open",
     async () => {
-      vi.stubGlobal(
-        "matchMedia",
-        vi.fn().mockReturnValue({ matches: true }),
-      );
+      const restoreMatchMedia = stubMatchMedia(true);
 
       try {
         const el = await fixture<YnDrawer>(
@@ -258,7 +263,7 @@ describe("yn-drawer", () => {
         const stack = el.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
         expect(stack?.style.transform).to.include("110%");
       } finally {
-        vi.unstubAllGlobals();
+        restoreMatchMedia();
       }
     },
     5000,

@@ -335,8 +335,12 @@ export const YN_DRAWER_SHADOW_STYLES = `
     }
 
     :host([data-yn-motion="sheet"]) .body {
-      overflow: auto;
+      overflow: hidden;
       overscroll-behavior: contain;
+    }
+
+    :host([data-yn-motion="sheet"][data-sheet-size="expanded"]) .body {
+      overflow: auto;
     }
 
     :host([data-yn-motion="sheet"]) .backdrop-extra {
