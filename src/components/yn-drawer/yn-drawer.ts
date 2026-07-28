@@ -11,6 +11,11 @@ import {
   type YnDrawerMotionMode,
   type YnDrawerMotionProp
 } from "./yn-drawer-motion-resolve.js";
+import {
+  createYnDrawerSheetExpand,
+  type YnDrawerSheetExpandController,
+  type YnDrawerSheetSize
+} from "./yn-drawer-sheet-expand.js";
 import { YN_DRAWER_SHADOW_STYLES } from "./yn-drawer-styles.js";
 
 export type YnDrawerOpenChangeDetail = {
@@ -117,6 +122,7 @@ export class YnDrawer extends LitElement {
   private motionBoot: Promise<YnDrawerMotionController> | undefined;
   private motionMode: YnDrawerMotionMode | undefined;
   private motionDirty = true;
+  private sheetExpandController: YnDrawerSheetExpandController | undefined;
 
   private activeLifecycleMeta: LifecycleMeta = { source: "property" };
   private pendingActionMeta: (LifecycleMeta & { nextOpen: boolean }) | undefined;
@@ -133,6 +139,8 @@ export class YnDrawer extends LitElement {
   }
 
   disconnectedCallback() {
+    this.sheetExpandController?.dispose();
+    this.sheetExpandController = undefined;
     this.motionController?.dispose();
     this.motionController = undefined;
     this.motionBoot = undefined;
@@ -175,6 +183,9 @@ export class YnDrawer extends LitElement {
     if (changed.has("motion") || changed.has("placement")) {
       this.rebuildMotionForModeChange();
     }
+    if (changed.has("motion") || changed.has("placement") || changed.has("sheetExpand")) {
+      this.syncSheetExpandEnabled();
+    }
     if (changed.has("open")) this.pendingTransitionMeta = undefined;
 
     if (changed.has("exitSpeed") || changed.has("easeReverse")) {
@@ -213,12 +224,83 @@ export class YnDrawer extends LitElement {
     const mode = this.getResolvedMotion();
     this.setAttribute("data-yn-motion", mode);
     if (mode !== "sheet") {
+      this.sheetExpandController?.setEnabled(false);
       this.removeAttribute("data-sheet-size");
       return;
     }
     if (!this.getAttribute("data-sheet-size")) {
       this.setAttribute("data-sheet-size", "peek");
     }
+  }
+
+  private ensureSheetExpandController() {
+    if (this.sheetExpandController) return this.sheetExpandController;
+    const stack = this.shadowRoot?.querySelector<HTMLElement>(".drawer-stack");
+    const body = this.shadowRoot?.querySelector<HTMLElement>(".body");
+    if (!stack || !body) return undefined;
+
+    this.sheetExpandController = createYnDrawerSheetExpand({
+      stack,
+      body,
+      onSizeChange: (size) => {
+        this.setAttribute("data-sheet-size", size);
+      },
+      onRequestClose: () => {
+        this.close();
+      },
+      canExpand: () => this.canExpandSheet(stack, body)
+    });
+    this.sheetExpandController.setSize(
+      this.getAttribute("data-sheet-size") === "expanded" ? "expanded" : "peek"
+    );
+    return this.sheetExpandController;
+  }
+
+  private canExpandSheet(stack: HTMLElement, body: HTMLElement) {
+    if (body.scrollHeight > body.clientHeight) return true;
+    const peekHeight = this.resolveSheetPeekHeightPx();
+    return peekHeight > 0 && stack.scrollHeight > peekHeight * 0.98;
+  }
+
+  private resolveSheetPeekHeightPx() {
+    const value = getComputedStyle(this)
+      .getPropertyValue("--yn-drawer-sheet-peek-height")
+      .trim();
+    const amount = Number.parseFloat(value);
+    if (!Number.isFinite(amount)) return 0;
+    if (value.endsWith("px")) return amount;
+    if (value.endsWith("vh") || value.endsWith("dvh")) {
+      return (window.innerHeight * amount) / 100;
+    }
+    return 0;
+  }
+
+  private syncSheetExpandEnabled() {
+    const isSheet = this.getResolvedMotion() === "sheet";
+    if (!isSheet || this.sheetExpand !== "snap") {
+      this.sheetExpandController?.setEnabled(false);
+      if (isSheet && this.sheetExpand === "none") this.setSheetSize("peek");
+      return;
+    }
+    this.sheetExpandController?.setEnabled(true);
+  }
+
+  private attachSheetExpand() {
+    const controller = this.ensureSheetExpandController();
+    if (!controller) return;
+    controller.setEnabled(
+      this.getResolvedMotion() === "sheet" && this.sheetExpand === "snap"
+    );
+    controller.attach();
+  }
+
+  setSheetSize(size: YnDrawerSheetSize) {
+    const isSheet = this.getResolvedMotion() === "sheet";
+    const nextSize =
+      isSheet && this.sheetExpand === "snap" ? size : ("peek" as const);
+    if (isSheet) this.setAttribute("data-sheet-size", nextSize);
+    else this.removeAttribute("data-sheet-size");
+    this.sheetExpandController?.setSize(nextSize);
   }
 
   private emitOpenChange(meta: LifecycleMeta) {
@@ -355,12 +437,15 @@ export class YnDrawer extends LitElement {
           this.collectMotionTargets(),
           {
             onEnterComplete: () => {
+              this.attachSheetExpand();
               this.emitLifecycleEvent("after-open", this.activeLifecycleMeta);
             },
             onExitComplete: () => {
+              this.sheetExpandController?.detach();
               if (this.popoverEl?.matches(":popover-open")) {
                 this.popoverEl.hidePopover();
               }
+              this.setSheetSize("peek");
               this.emitLifecycleEvent("after-close", this.activeLifecycleMeta);
             }
           },
@@ -412,6 +497,7 @@ export class YnDrawer extends LitElement {
   }
 
   private hideDrawerPopover(immediate: boolean, meta: LifecycleMeta) {
+    this.sheetExpandController?.detach();
     const popoverEl = this.popoverEl;
     if (!popoverEl || !popoverEl.matches(":popover-open")) return;
 
@@ -424,6 +510,7 @@ export class YnDrawer extends LitElement {
       this.motionBoot = undefined;
       this.motionMode = undefined;
       this.motionDirty = true;
+      this.setSheetSize("peek");
       this.emitLifecycleEvent("after-close", meta);
       return;
     }

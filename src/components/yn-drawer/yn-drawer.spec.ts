@@ -123,6 +123,18 @@ describe("yn-drawer", () => {
     expect(el.getAttribute("data-sheet-size")).to.equal("peek");
   });
 
+  it("expands sheet size attribute when setSheetSize is used", async () => {
+    const el = await fixture<YnDrawer>(
+      html`<yn-drawer motion="sheet" sheet-expand="snap"></yn-drawer>`,
+    );
+    await el.updateComplete;
+
+    el.setSheetSize("expanded");
+    await el.updateComplete;
+
+    expect(el.getAttribute("data-sheet-size")).to.equal("expanded");
+  });
+
   it("caps sheet middle while pinning the stack and scrolling only the body", async () => {
     const el = await fixture<YnDrawer>(html`
       <yn-drawer motion="sheet">
