@@ -11,7 +11,8 @@ type Args = {
   width: number;
   title: string;
   placement: "auto" | "right" | "bottom";
-  motion: "auto" | "side" | "sheet";
+  motion: "auto" | "side" | "sheet";
+
   sheetHeight: string;
   closeOnBackdrop: boolean;
   zIndex: number;
@@ -61,7 +62,8 @@ const meta = {
     width: 420,
     title: "",
     placement: "auto",
-    motion: "auto",
+    motion: "auto",
+
     sheetHeight: "98vh",
     closeOnBackdrop: true,
     zIndex: 1500,
@@ -136,7 +138,8 @@ const meta = {
         defaultValue: { summary: "auto" },
         type: { summary: '"auto" | "side" | "sheet"' }
       }
-    },
+    },
+
     sheetHeight: {
       name: "sheet-height",
       control: "text",
@@ -452,7 +455,8 @@ export const PanelStackMenu: Story = {
   args: {
     width: 480,
     placement: "bottom",
-    motion: "sheet",
+    motion: "sheet",
+
     sheetHeight: "98vh"
   },
   parameters: {
@@ -470,7 +474,8 @@ export const PanelStackMenu: Story = {
         .width=${args.width}
         title="Menu"
         placement=${args.placement}
-        motion=${args.motion}
+        motion=${args.motion}
+
         sheet-height=${args.sheetHeight}
         .closeOnBackdrop=${args.closeOnBackdrop}
         exit-speed="1.5"

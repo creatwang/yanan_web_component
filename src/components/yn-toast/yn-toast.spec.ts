@@ -97,6 +97,20 @@ describe("yn-toast", () => {
     toast.hide();
   });
 
+  it("opens popover top layer while visible and closes on hide", async () => {
+    const toast = await fixture<YnToast>(html`<yn-toast></yn-toast>`);
+    expect(toast.getAttribute("popover")).to.equal("manual");
+    expect(toast.matches(":popover-open")).to.equal(false);
+
+    await toast.success("layered", { persist: true, loadingDuration: 0 });
+    await waitForToastState(toast, "success", "layered");
+    expect(toast.matches(":popover-open")).to.equal(true);
+
+    toast.hide();
+    await finishRender(toast);
+    expect(toast.matches(":popover-open")).to.equal(false);
+  });
+
   it("ignores stale done() calls from an older async task", async () => {
     const toast = await fixture<YnToast>(html`<yn-toast></yn-toast>`);
     let oldController!: YnToastShortcutController;

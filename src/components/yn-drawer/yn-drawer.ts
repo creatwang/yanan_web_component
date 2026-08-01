@@ -586,7 +586,10 @@ export class YnDrawer extends LitElement {
     if (!slot) return false;
     return slot.assignedNodes({ flatten: true }).some((node) => {
       if (node.nodeType === Node.TEXT_NODE) return Boolean(node.textContent?.trim());
-      return node.nodeType === Node.ELEMENT_NODE;
+      if (node.nodeType !== Node.ELEMENT_NODE) return false;
+      const el = node as HTMLElement;
+      // [hidden] 视为无内容，便于业务侧空态隐藏 footer 而不拆除 slot
+      return !el.hidden && !el.hasAttribute("hidden");
     });
   }
 
@@ -689,10 +692,7 @@ export class YnDrawer extends LitElement {
                 </yn-icon-button>
               </header>
                 <div class="body">
-                <slot
-                  name="content"
-                  @slotchange=${() => this.syncSheetCanExpandAttr()}
-                ></slot>
+                <slot name="content"></slot>
               </div>
             </aside>
 

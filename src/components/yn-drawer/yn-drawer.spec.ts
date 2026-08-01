@@ -171,6 +171,26 @@ describe("yn-drawer", () => {
     expect(el.querySelector('[slot="middle"]')?.textContent).to.include("Promo");
   });
 
+  it("treats hidden footer as empty panel", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer>
+        <div slot="footer" hidden>Footer</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
+    const footer = el.querySelector<HTMLElement>('[slot="footer"]');
+    const bottom = el.shadowRoot?.querySelector(".panel--bottom");
+    expect(bottom?.classList.contains("panel--empty")).to.equal(true);
+
+    footer!.hidden = false;
+    footer!.removeAttribute("slot");
+    footer!.setAttribute("slot", "footer");
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+    expect(bottom?.classList.contains("panel--empty")).to.equal(false);
+  });
+
   it("reflects motion default and overrides", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;

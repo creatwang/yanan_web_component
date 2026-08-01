@@ -31,6 +31,9 @@ export class YnButton extends LitElement {
   static styles = css`
     :host {
       display: inline-block;
+      /* 宿主设 width（如 100%）时，内部按钮跟宿主走 */
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     .button {
@@ -38,6 +41,8 @@ export class YnButton extends LitElement {
       background: transparent;
       padding: var(--_yn-button-padding, 12px 16px);
       min-height: var(--_yn-button-min-height, 41px);
+      width: 100%;
+      box-sizing: border-box;
       color: var(--_yn-button-color);
       font-size: 14px;
       font-weight: 500;

@@ -121,6 +121,34 @@ export class YnToast extends LitElement {
       justify-content: center;
       padding-top: var(--yn-toast-top);
       pointer-events: none;
+      /* 未 open 时也会挂 popover 属性；先消掉 UA 白底，避免闪左上角白块 */
+      margin: 0;
+      border: none;
+      background: transparent;
+      background-color: transparent;
+      box-shadow: none;
+    }
+
+    /*
+     * Popover UA（[popover]）：background-color:Canvas、width/height:fit-content、margin:auto。
+     * 普通声明常盖不过 UA，左上角会剩一块白底；关键属性用 !important。
+     */
+    :host(:popover-open) {
+      display: flex !important;
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: var(--yn-toast-top) 0 0 !important;
+      border: none !important;
+      background: transparent !important;
+      background-color: transparent !important;
+      overflow: visible !important;
+      color: inherit !important;
+      box-shadow: none !important;
     }
 
     * {
@@ -403,10 +431,37 @@ export class YnToast extends LitElement {
     }
   `;
 
+  connectedCallback() {
+    super.connectedCallback();
+    // 进入 top layer，才能盖过 yn-drawer（popover）蒙层；单纯提高 z-index 无效
+    if (!this.hasAttribute("popover")) {
+      this.setAttribute("popover", "manual");
+    }
+    // 内联 !important：部分浏览器 UA [popover] 白底/fit-content 盖不过 shadow 样式
+    this.applyPopoverHostReset();
+  }
+
+  /** 抵消 UA popover 默认 Canvas 白底与 fit-content，避免左上角白块 */
+  private applyPopoverHostReset() {
+    const host = this.style;
+    host.setProperty("background", "transparent", "important");
+    host.setProperty("background-color", "transparent", "important");
+    host.setProperty("border", "none", "important");
+    host.setProperty("box-shadow", "none", "important");
+    host.setProperty("margin", "0", "important");
+    host.setProperty("width", "100%", "important");
+    host.setProperty("height", "100%", "important");
+    host.setProperty("max-width", "none", "important");
+    host.setProperty("max-height", "none", "important");
+    host.setProperty("inset", "0", "important");
+    host.setProperty("position", "fixed", "important");
+  }
+
   disconnectedCallback() {
     this.clearTimers();
     this.resetShapeAnimation();
     this.stopSpin();
+    this.closeToastLayer();
     super.disconnectedCallback();
   }
 
@@ -475,6 +530,7 @@ export class YnToast extends LitElement {
     this.closing = true;
     this.loadingMask = false;
     this.phase = "idle";
+    this.closeToastLayer();
     this.emitEvent("close", source);
   }
 
@@ -572,10 +628,30 @@ export class YnToast extends LitElement {
     this.closing = false;
     this.loadingMask = Boolean(options.mask);
     this.phase = "loading";
+    this.openToastLayer();
     this.startSpin();
     this.emitEvent("show", "api");
 
     return this.runId;
+  }
+
+  private openToastLayer() {
+    if (typeof this.showPopover !== "function") return;
+    try {
+      this.applyPopoverHostReset();
+      if (!this.matches(":popover-open")) this.showPopover();
+    } catch {
+      // InvalidStateError 等：忽略，退回普通 fixed 层级
+    }
+  }
+
+  private closeToastLayer() {
+    if (typeof this.hidePopover !== "function") return;
+    try {
+      if (this.matches(":popover-open")) this.hidePopover();
+    } catch {
+      // ignore
+    }
   }
 
   private finish(options: YnToastFinishOptions, id: number) {
