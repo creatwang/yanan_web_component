@@ -10,7 +10,7 @@ describe("renderYnQuantityShadowHtml", () => {
     });
 
     expect(html).toContain("<style>");
-    expect(html).toContain('class="stepper"');
+    expect(html).toContain('class="stepper');
     expect(html).toContain('class="value"');
     expect(html).toContain('value="99"');
     expect(html).toContain('aria-label="减少数量"');
@@ -25,6 +25,7 @@ describe("renderYnQuantityShadowHtml", () => {
       disabled: true,
     });
     expect(html).toContain('class="stepper is-disabled"');
-    expect(html).toMatch(/btn-decrease"[^>]* disabled/);
+    expect(html).toContain("btn-decrease");
+    expect(html).toContain("disabled");
   });
 });

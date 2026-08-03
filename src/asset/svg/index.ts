@@ -56,6 +56,13 @@ export const ynSkuCartSvg: YnSvgSource = `<svg width="24" height="24" viewBox="0
 
 export const ynSkuLoadingSvg: YnSvgSource = `<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="42 20"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.75s" repeatCount="indefinite"/></circle></svg>`;
 
+export {
+  ynStrokeSpinnerSvg,
+  ynStrokeSpinnerSvgReduced,
+} from "../yn-stroke-spinner-svg.js";
+
+export const ynCartRemoveIconSvg: YnSvgSource = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" aria-hidden="true" focusable="false" class="icon icon-remove"><path d="M14 3h-3.53a3.07 3.07 0 00-.6-1.65C9.44.82 8.8.5 8 .5s-1.44.32-1.87.85A3.06 3.06 0 005.53 3H2a.5.5 0 000 1h1.25v10c0 .28.22.5.5.5h8.5a.5.5 0 00.5-.5V4H14a.5.5 0 000-1zM6.91 1.98c.23-.29.58-.48 1.09-.48s.85.19 1.09.48c.2.24.3.6.36 1.02h-2.9c.05-.42.17-.78.36-1.02zm4.84 11.52h-7.5V4h7.5v9.5z" fill="currentColor"></path><path d="M6.55 5.25a.5.5 0 00-.5.5v6a.5.5 0 001 0v-6a.5.5 0 00-.5-.5zM9.45 5.25a.5.5 0 00-.5.5v6a.5.5 0 001 0v-6a.5.5 0 00-.5-.5z" fill="currentColor"></path></svg>`;
+
 export const ynSignpostSvg: YnSvgSource =
   '<svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M10.6208 6.8H14.6611L16.0324 4.51728C16.1311 4.35247 16.1311 4.14705 16.0324 3.98225L14.6611 1.69953H10.6208C10.3337 1.69953 10.1013 1.46719 10.1013 1.18008V0H8.40133V6.28055C8.40133 6.56767 8.16899 6.8 7.88188 6.8H3.44535L2.07402 9.08272C1.97533 9.24753 1.97533 9.45294 2.07402 9.61775L3.44535 11.9005H7.88188C8.16899 11.9005 8.40133 12.1328 8.40133 12.4199V15.3005H2.45133V17.0005H16.0513V15.3005H10.6208C10.3337 15.3005 10.1013 15.0681 10.1013 14.781V7.31991C10.1013 7.0328 10.3337 6.80047 10.6208 6.80047V6.8ZM13.6992 3.4L14.1294 4.11636C14.179 4.19853 14.179 4.30147 14.1294 4.38364L13.6992 5.1H10.1013V3.4H13.6992ZM4.40727 10.2L3.97708 9.48364C3.92749 9.40147 3.92749 9.29853 3.97708 9.21589L4.40727 8.49953H8.4018V10.1995H4.40727V10.2Z" fill="#241F21"/></svg>';
 

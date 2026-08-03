@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import type { YnQuantity } from "./yn-quantity";
+import type { YnQuantity, YnQuantityLoadingSide } from "./yn-quantity";
 import "../yn-button/yn-button";
 import "./yn-quantity";
 
@@ -10,6 +10,7 @@ type Args = {
   max: number;
   step: number;
   disabled: boolean;
+  loadingSide: YnQuantityLoadingSide;
   width: string;
   height: string;
   background: string;
@@ -73,6 +74,7 @@ const renderQuantity = (args: Args) => html`
       .max=${args.max}
       .step=${args.step}
       ?disabled=${args.disabled}
+      loading-side=${args.loadingSide}
       style=${quantityStyle(args)}
       @change=${(event: Event) => args.onChange?.(event as CustomEvent<{ value: number }>)}
     ></yn-quantity>
@@ -103,6 +105,8 @@ import "yn-web-component/theme.css";
 | \`max\` | \`number\` | \`99\` | 最大值 |
 | \`step\` | \`number\` | \`1\` | 步进 |
 | \`disabled\` | \`boolean\` | \`false\` | 禁用 |
+| \`loading-side\` | \`'none' \\| 'decrease' \\| 'increase'\` | \`'none'\` | 对应侧 spinner + **仅该侧** native disabled（not-allowed）；另一侧 \`is-loading-blocked\`（default 光标，不可点） |
+| 边界 | min / max | — | 到边界时对应侧 \`is-at-limit\`（muted + default 光标），**非** native disabled |
 
 ## 事件
 
@@ -114,7 +118,11 @@ import "yn-web-component/theme.css";
 
 ## 样式隔离
 
-组件使用 **Shadow DOM**，外部样式默认不穿透；请通过公开 CSS 变量定制。`;
+组件使用 **Shadow DOM**，外部样式默认不穿透；请通过公开 CSS 变量定制。
+
+## Loading（购物车改数量）
+
+异步更新数量时设置 \`loading-side\`，按钮替换为 \`ynStrokeSpinnerSvg\`：弧段由短变长至首尾相碰，再收回，同时 \`animateTransform\` 持续旋转（1.4s）；\`stroke\` 跟随 \`currentColor\`。`;
 
 const meta = {
   title: "Components/YnQuantity",
@@ -132,6 +140,7 @@ const meta = {
     max: 99,
     step: 1,
     disabled: false,
+    loadingSide: "none",
     width: "auto",
     height: "44px",
     background: "rgba(255, 255, 255, 0.62)",
@@ -181,6 +190,14 @@ const meta = {
       control: "boolean",
       description: "是否禁用整个计数器。",
       table: { defaultValue: { summary: "false" } }
+    },
+    loadingSide: {
+      name: "loading-side",
+      control: "select",
+      options: ["none", "decrease", "increase"] satisfies YnQuantityLoadingSide[],
+      description:
+        "异步 loading 侧：`decrease` / `increase` 在对应按钮显示 spinner；仅 loading 侧 native disabled（not-allowed），另一侧 is-loading-blocked。",
+      table: { defaultValue: { summary: "none" } }
     },
     width: {
       control: "text",
@@ -446,4 +463,65 @@ export const Compact: Story = {
     fontSize: "14px",
     fontFamily: "inherit"
   }
+};
+
+export const LoadingSideIncrease: Story = {
+  name: "Loading · 加号（ynStrokeSpinnerSvg）",
+  args: {
+    value: 2,
+    loadingSide: "increase"
+  }
+};
+
+export const LoadingSideDecrease: Story = {
+  name: "Loading · 减号（ynStrokeSpinnerSvg）",
+  args: {
+    value: 3,
+    loadingSide: "decrease"
+  }
+};
+
+/** 模拟购物车抽屉：change 后 loading-side → 延迟 → 恢复 */
+export const AsyncCartUpdate: Story = {
+  name: "异步改数量（购物车 Demo）",
+  args: {
+    value: 1,
+    min: 1,
+    max: 99,
+    height: "36px",
+    buttonSize: "30px",
+    fontSize: "14px",
+    fontFamily: "inherit"
+  },
+  render: (args) => html`
+    <div
+      style="background:var(--yn-color-bg,#f2efea);padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:160px;"
+    >
+      <p style="margin:0;font-size:13px;color:var(--yn-color-text-muted,#666);max-width:28rem;text-align:center;line-height:1.5;">
+        点击加减后模拟接口延迟：对应按钮显示 ynStrokeSpinnerSvg，完成后恢复。
+      </p>
+      <yn-quantity
+        .value=${args.value}
+        .min=${args.min}
+        .max=${args.max}
+        .step=${args.step}
+        ?disabled=${args.disabled}
+        data-prev-qty=${String(args.value)}
+        style=${[
+          quantityStyle(args),
+          "--yn-quantity-font-family:inherit"
+        ].join(";")}
+        @change=${async (event: Event) => {
+          const el = event.target as YnQuantity;
+          const prev = Number(el.getAttribute("data-prev-qty") ?? el.value);
+          const next = (event as CustomEvent<{ value: number }>).detail.value;
+          const side: YnQuantityLoadingSide = next >= prev ? "increase" : "decrease";
+          el.loadingSide = side;
+          await new Promise((resolve) => setTimeout(resolve, 900));
+          el.loadingSide = "none";
+          el.setAttribute("data-prev-qty", String(next));
+        }}
+      ></yn-quantity>
+    </div>
+  `
 };

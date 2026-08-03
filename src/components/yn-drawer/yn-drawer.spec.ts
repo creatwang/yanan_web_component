@@ -191,6 +191,24 @@ describe("yn-drawer", () => {
     expect(bottom?.classList.contains("panel--empty")).to.equal(false);
   });
 
+  it("refreshSlots hides footer panel when slotted footer becomes hidden", async () => {
+    const el = await fixture<YnDrawer>(html`
+      <yn-drawer>
+        <div slot="footer">Footer</div>
+      </yn-drawer>
+    `);
+    await el.updateComplete;
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
+    const footer = el.querySelector<HTMLElement>('[slot="footer"]');
+    const bottom = el.shadowRoot?.querySelector(".panel--bottom");
+    expect(bottom?.classList.contains("panel--empty")).to.equal(false);
+
+    footer!.hidden = true;
+    el.refreshSlots();
+    expect(bottom?.classList.contains("panel--empty")).to.equal(true);
+  });
+
   it("reflects motion default and overrides", async () => {
     const el = await fixture<YnDrawer>(html`<yn-drawer></yn-drawer>`);
     await el.updateComplete;

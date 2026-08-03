@@ -1,6 +1,6 @@
 import type { L10nText } from "../i18n/locale";
 
-/** 来自 `pnpm build` ESM 产物（v1.0.10，2026-08-01）。含分包时标注 total。 */
+/** 来自 `pnpm build` ESM 产物（v1.0.10，2026-08-03）。含分包时标注 total。 */
 export type BundleSizeRow = {
   id: string;
   importPath: string;
@@ -42,9 +42,9 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 ];
 
 export const BUNDLE_META = {
-  builtAt: "2026-08-01",
-  fullIifeKb: 584.45,
-  fullIifeGzipKb: 157.78,
+  builtAt: "2026-08-03",
+  fullIifeKb: 587.61,
+  fullIifeGzipKb: 158.55,
   defineKb: 0.64,
-  indexExportKb: 3.02
+  indexExportKb: 3.21
 } as const;

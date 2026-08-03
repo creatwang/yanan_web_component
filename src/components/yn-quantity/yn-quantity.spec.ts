@@ -51,7 +51,19 @@ describe("yn-quantity", () => {
     increase.click();
     await el.updateComplete;
     expect(el.value).to.equal(3);
-    expect(increase.disabled).to.equal(true);
+    expect(increase.disabled).to.equal(false);
+    expect(increase.classList.contains("is-at-limit")).to.equal(false);
+  });
+
+  it("marks decrease at min without native disabled", async () => {
+    const el = await fixture<YnQuantity>(html`<yn-quantity min="1" .value=${1}></yn-quantity>`);
+    await el.updateComplete;
+
+    const decrease = el.shadowRoot?.querySelector<HTMLButtonElement>(".btn-decrease");
+    if (!decrease) throw new Error("missing decrease button");
+
+    expect(decrease.disabled).to.equal(false);
+    expect(decrease.classList.contains("is-at-limit")).to.equal(false);
   });
 
   it("disables controls when disabled", async () => {
@@ -104,5 +116,23 @@ describe("yn-quantity", () => {
     expect(host.shadowRoot?.querySelector<HTMLInputElement>(".value")?.value).to.equal("3");
 
     host.remove();
+  });
+
+  it("shows spinner on loading-side", async () => {
+    const el = await fixture<YnQuantity>(
+      html`<yn-quantity loading-side="increase"></yn-quantity>`,
+    );
+    await el.updateComplete;
+
+    const increase = el.shadowRoot?.querySelector<HTMLButtonElement>(".btn-increase");
+    const decrease = el.shadowRoot?.querySelector<HTMLButtonElement>(".btn-decrease");
+    if (!increase || !decrease) throw new Error("missing stepper buttons");
+
+    expect(increase.querySelector(".spinner")).to.exist;
+    expect(decrease.querySelector(".spinner")).to.not.exist;
+    expect(increase.getAttribute("aria-busy")).to.equal("true");
+    expect(increase.disabled).to.equal(false);
+    expect(decrease.disabled).to.equal(false);
+    expect(increase.classList.contains("is-loading-active")).to.equal(true);
   });
 });

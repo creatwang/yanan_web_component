@@ -1,3 +1,6 @@
+import { ynStrokeSpinnerSvg } from "../../asset/yn-stroke-spinner-svg.js";
+import { YN_STROKE_SPINNER_BTN_RULES } from "../../asset/yn-stroke-spinner-styles.js";
+
 /** Shadow DOM styles — Lit + DSD SSR shared */
 export const YN_QUANTITY_SHADOW_STYLES = `
 :host {
@@ -122,6 +125,10 @@ export const YN_QUANTITY_SHADOW_STYLES = `
   cursor: not-allowed;
 }
 
+.btn.is-loading-active {
+  pointer-events: none;
+}
+
 .value-wrap {
   position: relative;
   display: inline-flex;
@@ -177,8 +184,12 @@ export const YN_QUANTITY_SHADOW_STYLES = `
 .value:disabled {
   color: var(--yn-quantity-muted-color);
 }
+
+${YN_STROKE_SPINNER_BTN_RULES}
 `;
 
 export const YN_QUANTITY_MINUS_ICON = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.25 6H9.75" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 
 export const YN_QUANTITY_PLUS_ICON = `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 2.25V9.75M2.25 6H9.75" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+
+export const YN_QUANTITY_SPINNER_ICON = ynStrokeSpinnerSvg;

@@ -483,8 +483,8 @@ export class YnDrawer extends LitElement {
       this.lastAppliedMotionMode = undefined;
 
       if (this.open) {
-        this.ensureAnimator();
-        this.animator?.seekOpenImmediate();
+        const animator = this.ensureAnimator();
+        animator?.seekOpenImmediate();
         this.emitLifecycleEvent("after-open", this.activeLifecycleMeta);
       }
     } else {
@@ -549,6 +549,12 @@ export class YnDrawer extends LitElement {
 
   toggle(payload?: unknown) {
     this.setOpenWithMeta(!this.open, { source: "api", payload });
+  }
+
+  /** 插槽内容显隐变化后（如 footer hidden）刷新 panel--empty 布局 */
+  refreshSlots() {
+    this.syncSlotEmptyStates();
+    if (this.open) this.refreshAnimatorTargets();
   }
 
   private handleTriggerClick = () => {

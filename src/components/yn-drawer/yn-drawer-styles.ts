@@ -9,6 +9,7 @@ html.yn-drawer-scroll-locked {
 export const YN_DRAWER_SHADOW_STYLES = `
 :host([hide-trigger]) {
       position: fixed;
+      inset: 0 auto auto 0;
       width: 0;
       height: 0;
       margin: 0;
@@ -16,6 +17,8 @@ export const YN_DRAWER_SHADOW_STYLES = `
       overflow: visible;
       border: 0;
       pointer-events: none;
+      /* 宿主参与页面 stacking；仅 shadow 内 z-index 无法压过后续 transform 层（如商品卡 GSAP） */
+      z-index: var(--yn-drawer-z-index);
     }
 
     :host([hide-trigger]) .trigger-wrap,
