@@ -104,9 +104,9 @@ import "yn-web-component/theme.css";
 | \`min\` | \`number\` | \`1\` | 最小值 |
 | \`max\` | \`number\` | \`99\` | 最大值 |
 | \`step\` | \`number\` | \`1\` | 步进 |
-| \`disabled\` | \`boolean\` | \`false\` | 禁用 |
-| \`loading-side\` | \`'none' \\| 'decrease' \\| 'increase'\` | \`'none'\` | 对应侧 spinner + **仅该侧** native disabled（not-allowed）；另一侧 \`is-loading-blocked\`（default 光标，不可点） |
-| 边界 | min / max | — | 到边界时对应侧 \`is-at-limit\`（muted + default 光标），**非** native disabled |
+| \`disabled\` | \`boolean\` | \`false\` | 整组件禁用：按钮 native disabled + not-allowed |
+| \`loading-side\` | \`'none' \\| 'decrease' \\| 'increase'\` | \`'none'\` | 对应侧 spinner + \`pointer-events: none\`；**不用** native disabled |
+| 边界 | min / max | — | 到边界时点击无效，**不改变光标**，**非** native disabled |
 
 ## 事件
 
@@ -120,9 +120,9 @@ import "yn-web-component/theme.css";
 
 组件使用 **Shadow DOM**，外部样式默认不穿透；请通过公开 CSS 变量定制。
 
-## Loading（购物车改数量）
+## Loading（非购物车场景）
 
-异步更新数量时设置 \`loading-side\`，按钮替换为 \`ynStrokeSpinnerSvg\`：弧段由短变长至首尾相碰，再收回，同时 \`animateTransform\` 持续旋转（1.4s）；\`stroke\` 跟随 \`currentColor\`。`;
+异步更新数量时可设置 \`loading-side\`，对应按钮显示 \`ynStrokeSpinnerSvg\` 并拦截连点；**不改变光标为 not-allowed**。Storefront 购物车改数量**不使用**此属性。`;
 
 const meta = {
   title: "Components/YnQuantity",
@@ -173,12 +173,12 @@ const meta = {
     },
     min: {
       control: { type: "number", min: 0 },
-      description: "最小可选数量；到达后减号禁用。",
+      description: "最小可选数量；到达后减号点击无效（不禁用）。",
       table: { defaultValue: { summary: "1" } }
     },
     max: {
       control: { type: "number", min: 1 },
-      description: "最大可选数量；到达后加号禁用。",
+      description: "最大可选数量；到达后加号点击无效（不禁用）。",
       table: { defaultValue: { summary: "99" } }
     },
     step: {
@@ -196,7 +196,7 @@ const meta = {
       control: "select",
       options: ["none", "decrease", "increase"] satisfies YnQuantityLoadingSide[],
       description:
-        "异步 loading 侧：`decrease` / `increase` 在对应按钮显示 spinner；仅 loading 侧 native disabled（not-allowed），另一侧 is-loading-blocked。",
+        "异步 loading 侧：对应按钮 spinner + pointer-events none；不用 native disabled。",
       table: { defaultValue: { summary: "none" } }
     },
     width: {
@@ -481,9 +481,9 @@ export const LoadingSideDecrease: Story = {
   }
 };
 
-/** 模拟购物车抽屉：change 后 loading-side → 延迟 → 恢复 */
-export const AsyncCartUpdate: Story = {
-  name: "异步改数量（购物车 Demo）",
+/** 通用异步 Demo（Storefront 购物车实际不用 loading-side） */
+export const AsyncQuantityUpdate: Story = {
+  name: "异步改数量（组件 Demo）",
   args: {
     value: 1,
     min: 1,
@@ -498,7 +498,7 @@ export const AsyncCartUpdate: Story = {
       style="background:var(--yn-color-bg,#f2efea);padding:24px;display:flex;flex-direction:column;align-items:center;gap:12px;min-height:160px;"
     >
       <p style="margin:0;font-size:13px;color:var(--yn-color-text-muted,#666);max-width:28rem;text-align:center;line-height:1.5;">
-        点击加减后模拟接口延迟：对应按钮显示 ynStrokeSpinnerSvg，完成后恢复。
+        点击加减后模拟接口延迟：对应按钮显示 spinner。Storefront 购物车改数量走静默 patch，不设 loading-side。
       </p>
       <yn-quantity
         .value=${args.value}

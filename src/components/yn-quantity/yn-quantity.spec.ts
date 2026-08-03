@@ -52,7 +52,6 @@ describe("yn-quantity", () => {
     await el.updateComplete;
     expect(el.value).to.equal(3);
     expect(increase.disabled).to.equal(false);
-    expect(increase.classList.contains("is-at-limit")).to.equal(false);
   });
 
   it("marks decrease at min without native disabled", async () => {
@@ -63,7 +62,6 @@ describe("yn-quantity", () => {
     if (!decrease) throw new Error("missing decrease button");
 
     expect(decrease.disabled).to.equal(false);
-    expect(decrease.classList.contains("is-at-limit")).to.equal(false);
   });
 
   it("disables controls when disabled", async () => {
