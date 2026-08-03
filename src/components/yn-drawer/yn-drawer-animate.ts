@@ -1,32 +1,31 @@
 import gsap from "gsap";
 import type { YnDrawerMotionMode } from "./yn-drawer-motion-resolve.js";
 
-export type YnDrawerMotionCallbacks = {
+export type YnDrawerAnimateCallbacks = {
   onEnterComplete: () => void;
   onExitComplete: () => void;
 };
 
-export type YnDrawerMotionOptions = {
+export type YnDrawerAnimateOptions = {
   exitSpeed?: number;
   easeReverse?: boolean;
   reduceMotion?: boolean;
   mode?: YnDrawerMotionMode;
 };
 
-export type YnDrawerMotionTargets = {
+export type YnDrawerAnimateTargets = {
   panels: HTMLElement[];
-  /** backdrop-extra 内参与动画的商品卡 */
   reco: HTMLElement[];
   recoRoot?: HTMLElement | null;
   stack?: HTMLElement | null;
 };
 
-export type YnDrawerMotionController = {
+export type YnDrawerAnimator = {
   open: () => void;
   close: () => void;
   dispose: () => void;
-  setTargets: (targets: YnDrawerMotionTargets) => void;
-  setOptions: (options: YnDrawerMotionOptions) => void;
+  setTargets: (targets: YnDrawerAnimateTargets) => void;
+  setOptions: (options: YnDrawerAnimateOptions) => void;
   seekOpenImmediate: () => void;
 };
 
@@ -43,17 +42,14 @@ function sameElements(a: HTMLElement[], b: HTMLElement[]) {
   return a.length === b.length && a.every((el, i) => el === b[i]);
 }
 
-/**
- * 单时间轴：enter → pause → exit。
- * 面板与推荐卡共用同一套侧滑入 / 坠落出。
- */
-export function createYnDrawerMotion(
+/** 固定层 + GSAP 单时间轴：入场 pause → 退场，无 popover 双段 */
+export function createYnDrawerAnimator(
   scope: HTMLElement,
   backdrop: HTMLElement,
-  targets: YnDrawerMotionTargets,
-  callbacks: YnDrawerMotionCallbacks,
-  options: YnDrawerMotionOptions = {}
-): YnDrawerMotionController {
+  targets: YnDrawerAnimateTargets,
+  callbacks: YnDrawerAnimateCallbacks,
+  options: YnDrawerAnimateOptions = {},
+): YnDrawerAnimator {
   let ctx: gsap.Context | undefined;
   let tl: gsap.core.Timeline | undefined;
   let enterEndTime = 0;
@@ -71,9 +67,9 @@ export function createYnDrawerMotion(
   const easeRev = (ease: string) => (opts.easeReverse === false ? false : ease);
   const mode = () => opts.mode ?? "side";
 
-  const collectCards = (next: YnDrawerMotionTargets) => [
+  const collectCards = (next: YnDrawerAnimateTargets) => [
     ...next.panels,
-    ...next.reco
+    ...next.reco,
   ];
 
   const collectSheetTargets = () => (stack ? [stack] : targets.panels);
@@ -90,7 +86,7 @@ export function createYnDrawerMotion(
         rotation: 0,
         opacity: 1,
         force3D: true,
-        transformOrigin: "50% 50%"
+        transformOrigin: "50% 50%",
       });
     } else if (cards.length) {
       gsap.set(cards, {
@@ -99,7 +95,7 @@ export function createYnDrawerMotion(
         rotation: 0,
         opacity: 0,
         force3D: true,
-        transformOrigin: "50% 50%"
+        transformOrigin: "50% 50%",
       });
     }
   };
@@ -115,7 +111,7 @@ export function createYnDrawerMotion(
         y: 0,
         rotation: 0,
         opacity: 1,
-        force3D: true
+        force3D: true,
       });
     }
   };
@@ -149,7 +145,7 @@ export function createYnDrawerMotion(
           paused: true,
           defaults: { force3D: true },
           onComplete: onExit,
-          onReverseComplete: onExit
+          onReverseComplete: onExit,
         })
         .set(scope, { autoAlpha: 1 })
         .to(
@@ -158,9 +154,9 @@ export function createYnDrawerMotion(
             opacity: 1,
             duration: 0.4 * d,
             ease: "power2.out",
-            easeReverse: easeRev("power4.out")
+            easeReverse: easeRev("power4.out"),
           },
-          0
+          0,
         );
 
       const sheetTargets = collectSheetTargets();
@@ -175,9 +171,9 @@ export function createYnDrawerMotion(
             opacity: 1,
             duration: 0.45 * d,
             ease: "power3.out",
-            immediateRender: false
+            immediateRender: false,
           },
-          0
+          0,
         );
       } else if (cards.length) {
         tl.fromTo(
@@ -192,9 +188,9 @@ export function createYnDrawerMotion(
             ease: "back.out",
             easeReverse: easeRev("power3.in"),
             stagger: 0.1 * d,
-            immediateRender: false
+            immediateRender: false,
           },
-          0
+          0,
         );
       }
 
@@ -210,12 +206,11 @@ export function createYnDrawerMotion(
             rotation: 0,
             opacity: 1,
             duration: 0.32 * d,
-            ease: "power2.in"
+            ease: "power2.in",
           },
-          enterEndTime
+          enterEndTime,
         );
       } else if (cards.length) {
-        // 固定角度，避免每帧函数取值
         const spins = cards.map((_, i) => ((i % 2 === 0 ? -12 : 12) - i * 3));
         tl.to(
           cards,
@@ -224,16 +219,16 @@ export function createYnDrawerMotion(
             rotation: (i: number) => spins[i] ?? 0,
             duration: 1 * d,
             ease: "power3.in",
-            stagger: { from: "end", each: 0.02 * d }
+            stagger: { from: "end", each: 0.02 * d },
           },
-          enterEndTime
+          enterEndTime,
         );
       }
 
       tl.to(
         backdrop,
         { opacity: 0, duration: 0.3 * d, ease: "power2.in" },
-        enterEndTime + 0.1 * d
+        enterEndTime + 0.1 * d,
       ).set(scope, { autoAlpha: 0 });
     }, scope);
   };
@@ -261,8 +256,6 @@ export function createYnDrawerMotion(
         return;
       }
 
-      // 入场未完成时 rebuild 也会 paintClosed；只要宿主仍视为打开，就必须立刻拉回开态，
-      // 否则会卡在 y:110% / 透明遮罩，且后续 close() 在 time≈0 时空转。
       const keepOpen = isOpen;
       cards = nextCards;
       recoRoot = nextRoot;
@@ -281,7 +274,6 @@ export function createYnDrawerMotion(
       exitDone = false;
       tl.reversed(false).timeScale(1);
 
-      // 退场结束后 pause(0)，直接 restart；中途打断则继续 play
       if (tl.time() > EPS && tl.time() < enterEndTime - EPS) {
         tl.play();
         return;
@@ -296,7 +288,6 @@ export function createYnDrawerMotion(
         return;
       }
 
-      // 已在动效层关闭，仍通知宿主收起 popover（避免 open 标志与画面脱节后关不掉）
       if (!isOpen) {
         paintClosed();
         onExit();
@@ -307,7 +298,6 @@ export function createYnDrawerMotion(
       enterDone = false;
       exitDone = false;
 
-      // rebuild / 未真正入场：playhead 在 0，reverse() 不会触发 onReverseComplete
       if (tl.time() <= EPS) {
         paintClosed();
         onExit();
@@ -339,6 +329,6 @@ export function createYnDrawerMotion(
       cards = [];
       recoRoot = null;
       stack = null;
-    }
+    },
   };
 }

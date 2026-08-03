@@ -359,7 +359,8 @@ describe("yn-drawer", () => {
       html`<yn-drawer motion="side" open></yn-drawer>`,
     );
     await el.updateComplete;
-    await oneEvent(el, "after-open").catch(() => undefined);
+    await new Promise((resolve) => queueMicrotask(() => resolve(undefined)));
+
     el.motion = "sheet";
     await el.updateComplete;
     expect(el.getResolvedMotion()).to.equal("sheet");

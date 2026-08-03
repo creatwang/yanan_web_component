@@ -1,3 +1,10 @@
+/** 宿主页滚动锁（由 yn-drawer 在 documentElement 上切换） */
+export const YN_DRAWER_GLOBAL_STYLES = `
+html.yn-drawer-scroll-locked {
+  overflow: hidden;
+}
+`;
+
 /** Shadow DOM styles — Lit + DSD SSR shared */
 export const YN_DRAWER_SHADOW_STYLES = `
 :host([hide-trigger]) {
@@ -16,12 +23,7 @@ export const YN_DRAWER_SHADOW_STYLES = `
       display: none !important;
     }
 
-    :host([hide-trigger]) .drawer-popover {
-      pointer-events: none;
-    }
-
-    :host([hide-trigger]) .drawer-popover:popover-open,
-    :host([hide-trigger]) .drawer-popover[open] {
+    :host([hide-trigger]) .drawer-layer:not([hidden]) {
       pointer-events: auto;
     }
 
@@ -107,22 +109,23 @@ export const YN_DRAWER_SHADOW_STYLES = `
       transform: scale(0.98);
     }
 
-    .drawer-popover {
+    .drawer-layer {
+      position: fixed;
+      inset: 0;
       margin: 0;
       padding: 0;
       border: 0;
       background: transparent;
-      width: 100vw;
+      width: 100%;
       max-width: 100vw;
-      height: 100vh;
+      height: 100%;
       max-height: 100dvh;
-      inset: 0;
       overflow: hidden;
       z-index: var(--yn-drawer-z-index);
     }
 
-    .drawer-popover::backdrop {
-      background: transparent;
+    .drawer-layer[hidden] {
+      display: none !important;
     }
 
     .drawer-surface {
