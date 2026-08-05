@@ -154,6 +154,12 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
   animation: none;
 }
 
+/* loading：保持可点热区外形，禁用交互；不额外降透明度（spinner 需清晰） */
+:host([loading]) .icon-button:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
 .icon {
   position: relative;
   z-index: 2;
@@ -174,6 +180,33 @@ export const YN_ICON_BUTTON_SHADOW_STYLES = `
 .icon ::slotted(*) {
   max-width: 100%;
   max-height: 100%;
+}
+
+.icon-slot-probe {
+  display: none;
+}
+
+.loading-icon {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--yn-stroke-spinner-size, var(--_yn-icon-button-icon-size));
+  height: var(--yn-stroke-spinner-size, var(--_yn-icon-button-icon-size));
+  line-height: 0;
+  pointer-events: none;
+  contain: strict;
+}
+
+.loading-icon .spinner {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-icon .spinner .path {
+  stroke: currentColor;
 }
 
 :host([size="small"]) {

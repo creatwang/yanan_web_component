@@ -7,6 +7,7 @@ type Args = {
   variant: string;
   size: string;
   disabled: boolean;
+  loading: boolean;
   hitSlop: boolean;
   onClick?: (event: MouseEvent) => void;
 };
@@ -30,7 +31,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Flutter / Material 风格圆形图标按钮。\n\n配色：通过 `variant` 切换 default / filled / primary / tonal / outlined / inverse / danger / success；可用 `--yn-icon-button-bg`、`--yn-icon-button-hover-bg` 覆写。\n\n热区：`hit-slop=true`（默认）时四周各 +5px。\n\n事件：使用原生 `click`，在 `<yn-icon-button>` 上 `@click` 或 `addEventListener('click')` 监听（与 yn-button 相同）。`disabled=true` 时内部阻止冒泡。",
+          "Flutter / Material 风格圆形图标按钮。\n\n配色：通过 `variant` 切换 default / filled / primary / tonal / outlined / inverse / danger / success；可用 `--yn-icon-button-bg`、`--yn-icon-button-hover-bg` 覆写。\n\n热区：`hit-slop=true`（默认）时四周各 +5px。\n\n`loading=true` 时禁用点击并用 `ynStrokeSpinnerSvg` 替换图标（与 yn-quantity loading 同款）。\n\n事件：使用原生 `click`，在 `<yn-icon-button>` 上 `@click` 或 `addEventListener('click')` 监听（与 yn-button 相同）。`disabled` / `loading` 时内部阻止冒泡。",
       },
     },
   },
@@ -41,6 +42,7 @@ const meta = {
     },
     size: { control: "select", options: ["small", "medium", "large"] },
     disabled: { control: "boolean" },
+    loading: { control: "boolean" },
     hitSlop: { control: "boolean" },
     label: { control: "text" },
     onClick: {
@@ -60,7 +62,7 @@ export default meta;
 type Story = StoryObj<Args>;
 
 export const Default: Story = {
-  args: { label: "购物车", variant: "default", size: "medium", hitSlop: true },
+  args: { label: "购物车", variant: "default", size: "medium", hitSlop: true, loading: false },
   render: (args) => html`
     <yn-icon-button
       label=${args.label}
@@ -68,6 +70,7 @@ export const Default: Story = {
       size=${args.size}
       ?hit-slop=${args.hitSlop}
       ?disabled=${args.disabled}
+      ?loading=${args.loading}
       @click=${(event: Event) => args.onClick?.(event as MouseEvent)}
     >
       ${cartIcon}
@@ -120,6 +123,14 @@ export const ClickHandler: Story = {
 &lt;/yn-icon-button&gt;</pre
       >
     </div>
+  `,
+};
+
+export const Loading: Story = {
+  name: "Loading 异步态",
+  args: { label: "删除", loading: true },
+  render: () => html`
+    <yn-icon-button label="删除" loading>${cartIcon}</yn-icon-button>
   `,
 };
 

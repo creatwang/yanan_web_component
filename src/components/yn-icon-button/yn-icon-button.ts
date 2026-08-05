@@ -1,6 +1,8 @@
 import "../../lib/lit-hydrate.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
 import { customElement, property } from "lit/decorators.js";
+import { unsafeSVG } from "lit/directives/unsafe-svg.js";
+import { ynStrokeSpinnerSvg } from "../../asset/yn-stroke-spinner-svg.js";
 import { YN_ICON_BUTTON_SHADOW_STYLES } from "./yn-icon-button-styles.js";
 import {
   resolveIconButtonVariant,
@@ -15,11 +17,13 @@ export type YnIconButtonType = "button" | "submit" | "reset";
  * Flutter / Material 风格圆形图标按钮：可配置默认/hover 背景、variant 配色、hit-slop 热区。
  *
  * @slot - 图标内容（SVG 或任意行内元素）
- * @fires click - 点击（非 disabled）
+ * @fires click - 点击（非 disabled / 非 loading）
  */
 @customElement("yn-icon-button")
 export class YnIconButton extends LitElement {
   @property({ type: Boolean, reflect: true }) disabled = false;
+  /** 异步 loading：禁点 + 显示 ynStrokeSpinnerSvg，隐藏默认图标 slot */
+  @property({ type: Boolean, reflect: true }) loading = false;
   @property({ type: String, reflect: true }) size: YnIconButtonSize = "medium";
   @property({ type: String, reflect: true }) variant: YnIconButtonVariant = "default";
   @property({ type: String, reflect: true }) type: YnIconButtonType = "button";
@@ -39,6 +43,10 @@ export class YnIconButton extends LitElement {
 
   private get controlClass() {
     return `icon-button${this.hitSlop ? " hit-slop" : ""}`;
+  }
+
+  private get isInteractionLocked() {
+    return this.disabled || this.loading;
   }
 
   connectedCallback() {
@@ -68,13 +76,14 @@ export class YnIconButton extends LitElement {
     control.className = this.controlClass;
     control.setAttribute("aria-label", this.buttonLabel);
     control.setAttribute("title", this.buttonLabel);
+    control.setAttribute("aria-busy", this.loading ? "true" : "false");
     control.setAttribute("style", variantStyleVars(this.variant));
     if (control instanceof HTMLButtonElement) {
-      control.disabled = this.disabled;
+      control.disabled = this.isInteractionLocked;
       control.type = this.type;
     } else {
-      control.setAttribute("aria-disabled", this.disabled ? "true" : "false");
-      if (this.disabled) {
+      control.setAttribute("aria-disabled", this.isInteractionLocked ? "true" : "false");
+      if (this.isInteractionLocked) {
         control.removeAttribute("href");
       } else if (this.href) {
         control.setAttribute("href", this.href);
@@ -88,6 +97,7 @@ export class YnIconButton extends LitElement {
     }
     if (
       changed.has("disabled") ||
+      changed.has("loading") ||
       changed.has("label") ||
       changed.has("type") ||
       changed.has("href") ||
@@ -103,15 +113,19 @@ export class YnIconButton extends LitElement {
       <span class="bg" aria-hidden="true"></span>
       <span class="hover-surface" aria-hidden="true"></span>
       <span class="ripple-surface" aria-hidden="true"></span>
-      <span class="icon"><slot></slot></span>
+      ${this.loading
+        ? html`<span class="loading-icon" aria-hidden="true">${unsafeSVG(ynStrokeSpinnerSvg)}</span>
+            <span class="icon-slot-probe"><slot></slot></span>`
+        : html`<span class="icon"><slot></slot></span>`}
     `;
   }
 
   private renderControl() {
     const className = this.controlClass;
     const style = variantStyleVars(this.variant);
+    const locked = this.isInteractionLocked;
 
-    if (this.href && !this.disabled) {
+    if (this.href && !locked) {
       return html`
         <a
           class=${className}
@@ -119,6 +133,7 @@ export class YnIconButton extends LitElement {
           href=${this.href}
           aria-label=${this.buttonLabel}
           title=${this.buttonLabel}
+          aria-busy=${this.loading ? "true" : "false"}
           @click=${this.handleClick}
         >
           ${this.renderInner()}
@@ -131,9 +146,10 @@ export class YnIconButton extends LitElement {
         class=${className}
         style=${style}
         type=${this.type}
-        ?disabled=${this.disabled}
+        ?disabled=${locked}
         aria-label=${this.buttonLabel}
         title=${this.buttonLabel}
+        aria-busy=${this.loading ? "true" : "false"}
         @click=${this.handleClick}
       >
         ${this.renderInner()}
@@ -142,7 +158,7 @@ export class YnIconButton extends LitElement {
   }
 
   private handleClick = (event: Event) => {
-    if (this.disabled) {
+    if (this.isInteractionLocked) {
       event.preventDefault();
       event.stopPropagation();
     }

@@ -7,6 +7,7 @@ export type YnIconButtonShadowOptions = {
   size?: "small" | "medium" | "large";
   variant?: YnIconButtonVariant;
   disabled?: boolean;
+  loading?: boolean;
   type?: "button" | "submit" | "reset";
   label?: string;
   href?: string;
@@ -31,6 +32,7 @@ export function renderYnIconButtonShadowHtml(options: YnIconButtonShadowOptions 
       label=${label || nothing}
       href=${options.href || nothing}
       ?disabled=${Boolean(options.disabled)}
+      ?loading=${Boolean(options.loading)}
       ?hit-slop=${hitSlop}
     ></yn-icon-button>
   `);

@@ -67,3 +67,18 @@ test("yn-icon-button disabled blocks host click", async () => {
   button?.click();
   expect(clicked).toBe(false);
 });
+
+test("yn-icon-button loading shows spinner and blocks click", async () => {
+  const el = await mountIconButton(`<yn-icon-button label="删除" loading>${CART_SVG}</yn-icon-button>`);
+  const button = el.shadowRoot?.querySelector("button.icon-button") as HTMLButtonElement;
+  expect(button?.disabled).toBe(true);
+  expect(button?.getAttribute("aria-busy")).toBe("true");
+  expect(el.shadowRoot?.querySelector(".loading-icon .spinner")).toBeTruthy();
+
+  let clicked = false;
+  el.addEventListener("click", () => {
+    clicked = true;
+  });
+  button?.click();
+  expect(clicked).toBe(false);
+});
