@@ -27,14 +27,15 @@ export class YnCookieNotice extends LitElement {
   @property({ type: Number, attribute: "max-age" }) maxAge = 31536000;
   @property({ type: Boolean, attribute: "default-functional" }) defaultFunctional = false;
   @property({ type: Boolean, attribute: "default-analytics" }) defaultAnalytics = false;
-  @property({ type: Boolean, attribute: "default-marketing" }) defaultMarketing = true;
+  /** GDPR/ePrivacy：可选类别默认关闭，需用户主动开启 */
+  @property({ type: Boolean, attribute: "default-marketing" }) defaultMarketing = false;
   @property({ type: String }) title = "We use cookies to improve your experience";
   @property({ type: String, attribute: "policy-line-1" }) policyLine1 = "By continuing, you";
   @property({ type: String, attribute: "policy-line-2" }) policyLine2 = "cookie policy.";
 
   @state() private functional = false;
   @state() private analytics = false;
-  @state() private marketing = true;
+  @state() private marketing = false;
   @state() private settingsOpen = false;
   @state() private hasStoredConsent = false;
 

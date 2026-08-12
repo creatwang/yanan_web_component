@@ -1609,7 +1609,7 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       { name: "max-age", type: "number", default: "31536000", desc: { "zh-CN": "cookie 有效期秒", en: "Cookie max-age seconds" } },
       { name: "default-functional", type: "boolean", default: "false", desc: { "zh-CN": "functional 默认值", en: "Functional default" } },
       { name: "default-analytics", type: "boolean", default: "false", desc: { "zh-CN": "analytics 默认值", en: "Analytics default" } },
-      { name: "default-marketing", type: "boolean", default: "true", desc: { "zh-CN": "marketing 默认值", en: "Marketing default" } },
+      { name: "default-marketing", type: "boolean", default: "false", desc: { "zh-CN": "marketing 默认值（GDPR 默认关闭）", en: "Marketing default (off for GDPR)" } },
       { name: "title", type: "string", default: '"We use cookies..."', desc: { "zh-CN": "横幅标题", en: "Banner title" } },
       { name: "policy-line-1", type: "string", default: '"By continuing, you"', desc: { "zh-CN": "政策第 1 行", en: "Policy line 1" } },
       { name: "policy-line-2", type: "string", default: '"cookie policy."', desc: { "zh-CN": "政策第 2 行", en: "Policy line 2" } }

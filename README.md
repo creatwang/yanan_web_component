@@ -614,7 +614,7 @@ import { YnSearch } from "yn-web-component/components/yn-search";
 | `max-age` | `number` | `31536000` | Cookie Max-Age（秒） |
 | `default-functional` | `boolean` | `false` | 默认 Functional 勾选 |
 | `default-analytics` | `boolean` | `false` | 默认 Analytics 勾选 |
-| `default-marketing` | `boolean` | `true` | 默认 Marketing 勾选 |
+| `default-marketing` | `boolean` | `false` | 默认 Marketing 勾选（GDPR：默认关闭） |
 | `title` | `string` | `"We use cookies to improve your experience"` | 标题（可被插槽覆盖） |
 | `policy-line-1` | `string` | `"By continuing, you"` | 政策文案第一行 |
 | `policy-line-2` | `string` | `"cookie policy."` | 政策文案第二行 |

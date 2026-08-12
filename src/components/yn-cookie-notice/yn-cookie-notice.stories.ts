@@ -49,7 +49,7 @@ const meta = {
     maxAge: 31536000,
     defaultFunctional: false,
     defaultAnalytics: false,
-    defaultMarketing: true,
+    defaultMarketing: false,
     title: "We use cookies to improve your experience",
     policyLine1: "By continuing, you",
     policyLine2: "cookie policy.",

@@ -722,7 +722,7 @@ const shadowHtml = renderYnQuantityShadowHtml({ value: 1, min: 1, max: 99 })
       { name: "max-age", type: "number", default: "31536000", desc: "Cookie 有效期（秒）" },
       { name: "default-functional", type: "boolean", default: "false", desc: "默认勾选 functional" },
       { name: "default-analytics", type: "boolean", default: "false", desc: "默认勾选 analytics" },
-      { name: "default-marketing", type: "boolean", default: "true", desc: "默认勾选 marketing" },
+      { name: "default-marketing", type: "boolean", default: "false", desc: "默认勾选 marketing（GDPR 默认关闭）" },
       { name: "title", type: "string", default: '"We use cookies to improve your experience"', desc: "标题文案" },
       { name: "policy-line-1", type: "string", default: '"By continuing, you"', desc: "政策文案行1" },
       { name: "policy-line-2", type: "string", default: '"cookie policy."', desc: "政策文案行2" }

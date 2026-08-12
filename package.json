@@ -90,6 +90,11 @@
       "import": "./dist/components/yn-cookie-notice.js",
       "require": "./dist/components/yn-cookie-notice.cjs"
     },
+    "./components/yn-icon-button": {
+      "types": "./dist/types/components/yn-icon-button/yn-icon-button.d.ts",
+      "import": "./dist/components/yn-icon-button.js",
+      "require": "./dist/components/yn-icon-button.cjs"
+    },
     "./components/yn-icon-connect-button": {
       "types": "./dist/types/components/yn-icon-connect-button.d.ts",
       "import": "./dist/components/yn-icon-connect-button.js",
@@ -139,6 +144,21 @@
       "types": "./dist/types/components/yn-button/yn-button-shadow.d.ts",
       "import": "./dist/ssr/yn-button-shadow.js",
       "require": "./dist/ssr/yn-button-shadow.cjs"
+    },
+    "./ssr/yn-input": {
+      "types": "./dist/types/components/yn-input/yn-input-shadow.d.ts",
+      "import": "./dist/ssr/yn-input-shadow.js",
+      "require": "./dist/ssr/yn-input-shadow.cjs"
+    },
+    "./ssr/yn-icon-button": {
+      "types": "./dist/types/components/yn-icon-button/yn-icon-button-shadow.d.ts",
+      "import": "./dist/ssr/yn-icon-button-shadow.js",
+      "require": "./dist/ssr/yn-icon-button-shadow.cjs"
+    },
+    "./ssr/yn-quantity": {
+      "types": "./dist/types/components/yn-quantity/yn-quantity-shadow.d.ts",
+      "import": "./dist/ssr/yn-quantity-shadow.js",
+      "require": "./dist/ssr/yn-quantity-shadow.cjs"
     },
     "./umd": {
       "default": "./dist/index.umd.js"
