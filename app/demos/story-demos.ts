@@ -12,6 +12,7 @@ import {
 } from "../../src/asset/svg";
 import type { YnSkuItem } from "../../src/components/yn-sku-selector/types";
 import type { YnToast, YnToastType } from "../../src/components/yn-toast/yn-toast";
+import type { YnCookieNotice } from "../../src/components/yn-cookie-notice/yn-cookie-notice";
 import {
   applyPullCordShellBackground,
   shellBackgroundFromVariant
@@ -1090,10 +1091,10 @@ export function withEventLog(
   return html`
     <div
       ${ref((el) => {
-        if (!el || (el as any).__eventLogAttached) return;
-        (el as any).__eventLogAttached = true;
-        const root = el as HTMLElement;
-        for (const [eventName, detailLabel] of Object.entries(eventMap)) {
+        const root = el as (HTMLElement & { __eventLogAttached?: boolean }) | null;
+        if (!root || root.__eventLogAttached) return;
+        root.__eventLogAttached = true;
+        for (const [eventName] of Object.entries(eventMap)) {
           root.addEventListener(eventName, ((e: Event) => {
             const ce = e as CustomEvent;
             const detail = ce.detail ?? {};
@@ -1298,20 +1299,20 @@ export const storyToastEventLog = () => withEventLog(
       <div class="yn-flex yn-flex-col yn-items-center yn-justify-center yn-gap-4 yn-pt-20">
         <div class="yn-flex yn-flex-wrap yn-gap-3">
           <yn-button variant="default" @click=${(e: Event) => {
-            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
-            toast?.success?.('success!');
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as YnToast | null;
+            void toast?.success?.('success!');
           }}>Success</yn-button>
           <yn-button variant="default" @click=${(e: Event) => {
-            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
-            toast?.info?.('info!');
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as YnToast | null;
+            void toast?.info?.('info!');
           }}>Info</yn-button>
           <yn-button variant="default" @click=${(e: Event) => {
-            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
-            toast?.warning?.('warning!');
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as YnToast | null;
+            void toast?.warning?.('warning!');
           }}>Warning</yn-button>
           <yn-button variant="default" @click=${(e: Event) => {
-            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as any;
-            toast?.error?.('error!');
+            const toast = (e.currentTarget as HTMLElement).closest('[data-event-root]')?.querySelector('yn-toast') as YnToast | null;
+            void toast?.error?.('error!');
           }}>Error</yn-button>
         </div>
       </div>
@@ -1526,7 +1527,7 @@ export const storyCookieNoticeDefault = () => html`
       <p style="margin:0;font-size:14px;color:#6f696b;">Cookie 横幅将在 300ms 后自动弹出</p>
       <yn-button variant="default" @click=${(e: Event) => {
         const root = (e.currentTarget as HTMLElement).closest("div");
-        const notice = root?.querySelector("yn-cookie-notice") as any;
+        const notice = root?.querySelector("yn-cookie-notice") as YnCookieNotice | null;
         notice?.resetConsent?.();
       }}>重置并重新弹出</yn-button>
     </div>

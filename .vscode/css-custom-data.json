@@ -359,13 +359,6 @@
       }
     },
     {
-      "name": "--yn-cookie-notice-button-bg",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-cookie-notice:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-drawer-backdrop",
       "description": {
         "kind": "markdown",
@@ -377,20 +370,6 @@
       "description": {
         "kind": "markdown",
         "value": "**yn-drawer:** 面板背景"
-      }
-    },
-    {
-      "name": "--yn-drawer-close-duration",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-drawer:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-drawer-open-duration",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-drawer:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {
@@ -632,6 +611,20 @@
       }
     },
     {
+      "name": "--yn-dropdown-pick-check-duration",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-dropdown-pick:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
+      "name": "--yn-dropdown-pick-check-ease",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-dropdown-pick:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
       "name": "--yn-dropdown-pick-item-content-right-space",
       "description": {
         "kind": "markdown",
@@ -709,38 +702,10 @@
       }
     },
     {
-      "name": "--yn-input-action-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-input-bg",
       "description": {
         "kind": "markdown",
         "value": "**yn-input:** 背景色"
-      }
-    },
-    {
-      "name": "--yn-input-bg-disabled",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-bg-focus",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-bg-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {
@@ -751,59 +716,10 @@
       }
     },
     {
-      "name": "--yn-input-border-color-focus",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-border-color-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-button-bg-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-button-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-button-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-input-color",
       "description": {
         "kind": "markdown",
         "value": "**yn-input:** 文字颜色"
-      }
-    },
-    {
-      "name": "--yn-input-disabled-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-field-padding-x",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {
@@ -814,52 +730,10 @@
       }
     },
     {
-      "name": "--yn-input-focus-ring",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-font-family",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-input-height",
       "description": {
         "kind": "markdown",
         "value": "**yn-input:** 输入区域高度"
-      }
-    },
-    {
-      "name": "--yn-input-letter-spacing",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-padding",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-input-padding-with-action",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-input:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {
@@ -927,6 +801,20 @@
     },
     {
       "name": "--yn-pick-border-width",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-pick:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
+      "name": "--yn-pick-icon-duration",
+      "description": {
+        "kind": "markdown",
+        "value": "**yn-pick:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
+      }
+    },
+    {
+      "name": "--yn-pick-icon-ease",
       "description": {
         "kind": "markdown",
         "value": "**yn-pick:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
@@ -1262,13 +1150,6 @@
       }
     },
     {
-      "name": "--yn-quantity-bg-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-quantity-border-color",
       "description": {
         "kind": "markdown",
@@ -1280,41 +1161,6 @@
       "description": {
         "kind": "markdown",
         "value": "**yn-quantity:** 聚焦边框颜色"
-      }
-    },
-    {
-      "name": "--yn-quantity-border-color-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-button-bg-active",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-button-bg-hover",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-button-hover-radius",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-button-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {
@@ -1339,76 +1185,6 @@
       }
     },
     {
-      "name": "--yn-quantity-font-family",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-height",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-inner-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-letter-spacing",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-muted-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-padding",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-radius",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-value-min-width",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-quantity-width",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-quantity:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
       "name": "--yn-search-bg-active",
       "description": {
         "kind": "markdown",
@@ -1427,258 +1203,6 @@
       "description": {
         "kind": "markdown",
         "value": "**yn-search:** 图标颜色"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-font-family",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-hint-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-hint-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-hint-margin",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-hint-min-height",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-font-weight",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-letter-spacing",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-label-row-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-active-bg",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-active-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-bg",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-border-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-border-width",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-disabled-opacity",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-font-weight",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-height",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-min-width",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-padding",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-transition-duration",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-option-transition-ease",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-row-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-row-height",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-section-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-stock-backorder-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-stock-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-stock-empty-color",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-stock-font-size",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-stock-margin",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-submit-margin-top",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
-      }
-    },
-    {
-      "name": "--yn-sku-selector-title-gap",
-      "description": {
-        "kind": "markdown",
-        "value": "**yn-sku-selector:** 可覆写的 CSS 变量（Shadow DOM；写在组件 `style` 或外层选择器上）。"
       }
     },
     {

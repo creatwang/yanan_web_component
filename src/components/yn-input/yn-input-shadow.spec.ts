@@ -13,8 +13,9 @@ describe("renderYnInputShadowHtml", () => {
     expect(html).toContain('class="input"');
     expect(html).toContain('placeholder="搜索"');
     expect(html).toContain('value="floema"');
-    expect(html).toContain('slot name="prefix-button"');
-    expect(html).toContain('slot name="suffix-button"');
+    // Lit SSR 可能把属性拆到多行：`<slot\n  name="prefix-button"`
+    expect(html).toContain('name="prefix-button"');
+    expect(html).toContain('name="suffix-button"');
   });
 
   it("marks disabled state on field and input", () => {
@@ -29,13 +30,14 @@ describe("renderYnInputShadowHtml", () => {
       label: "Email Address *",
       name: "email",
       type: "email",
-      inputId: "auth-email",
     });
 
     expect(html).toContain('class="field-wrap field-wrap--floating"');
     expect(html).toContain('class="float-label"');
     expect(html).toContain("Email Address *");
     expect(html).toContain('name="email"');
-    expect(html).toContain('for="auth-email"');
+    // 组件内部自增 id（yn-input-N），label.for 与 input.id 对齐
+    expect(html).toMatch(/for="yn-input-\d+"/);
+    expect(html).toMatch(/id="yn-input-\d+"/);
   });
 });

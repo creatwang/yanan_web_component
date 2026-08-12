@@ -3,6 +3,7 @@ import { LitElement, css, html, svg, unsafeCSS, type PropertyValues } from "lit"
 import { customElement, property } from "lit/decorators.js";
 import {
   NAV_GEOMETRY,
+  buildActiveSeamProgress,
   buildBridgeSegment,
   buildRectPath,
   computeNavigationShape,
@@ -590,10 +591,16 @@ export class YnNavigation extends LitElement {
       this.baseWidths.length === entries.length
         ? this.baseWidths
         : labels.map((label) => estimateTabWidth(label));
+    // SSR / 首帧 seamProgress 尚未初始化时，按 active 直接合并两侧 bridge
+    const expectedSeamCount = Math.max(0, labels.length - 1);
+    const seamProgressForShape =
+      this.seamProgress.length === expectedSeamCount
+        ? this.seamProgress
+        : buildActiveSeamProgress(labels.length, activeIndex);
     const { layout, bridgeD, rectDs } = computeNavigationShape(
       labels,
       tabWidths,
-      this.seamProgress,
+      seamProgressForShape,
     );
 
     const tabListRole = this.seoMode ? "list" : "tablist";

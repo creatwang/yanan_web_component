@@ -1961,8 +1961,8 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       en: "skus array with specs/price/stock/allowBackorder. simple mode auto-submits; non-simple shows cart button. pick-one auto-selects first available. labels for spec names. spec-key-whitelist/exclude for filtering. Custom hint texts. loading-mode icon/overlay. onSubmit callback with instance.done()."
     },
     usageCode: {
-      "zh-CN": "<yn-sku-selector .skus=\${skuList} currency=\"€\" submit-label=\"ADD TO CART\" @submit=\${onSubmit} @change=\${onChange}></yn-sku-selector>",
-      en: "<yn-sku-selector .skus=\${skuList} currency=\"€\" submit-label=\"ADD TO CART\" @submit=\${onSubmit} @change=\${onChange}></yn-sku-selector>"
+      "zh-CN": "<yn-sku-selector .skus=${skuList} currency=\"€\" submit-label=\"ADD TO CART\" @submit=${onSubmit} @change=${onChange}></yn-sku-selector>",
+      en: "<yn-sku-selector .skus=${skuList} currency=\"€\" submit-label=\"ADD TO CART\" @submit=${onSubmit} @change=${onChange}></yn-sku-selector>"
     },
     showcases: [
       {
@@ -2096,8 +2096,8 @@ export const COMPONENT_I18N: Record<string, ComponentI18n> = {
       en: "Left label + divider + right price. loading with loading-text replacement or loading-mode icon/overlay. cart-icon custom icon, show-cart-icon toggle. currency-icon for currency symbol."
     },
     usageCode: {
-      "zh-CN": "<yn-sku-cart-button label=\"ADD TO CART\" price=\"€29.00\" @click=\${onSubmit}></yn-sku-cart-button>",
-      en: "<yn-sku-cart-button label=\"ADD TO CART\" price=\"\u20ac29.00\" @click=\${onSubmit}></yn-sku-cart-button>"
+      "zh-CN": "<yn-sku-cart-button label=\"ADD TO CART\" price=\"€29.00\" @click=${onSubmit}></yn-sku-cart-button>",
+      en: "<yn-sku-cart-button label=\"ADD TO CART\" price=\"\u20ac29.00\" @click=${onSubmit}></yn-sku-cart-button>"
     },
     showcases: [
       {

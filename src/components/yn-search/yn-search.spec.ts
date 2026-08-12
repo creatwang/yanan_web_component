@@ -91,8 +91,10 @@ describe("yn-search", () => {
     if (!wrap) throw new Error("missing dynamic wrap");
 
     expect(el.open).to.equal(false);
-    expect(el.getBoundingClientRect().width).to.be.closeTo(44, 2);
+    // happy-dom 对 expand-left（inline-flex）的 getBoundingClientRect 常为 0，断言组件写入的布局宽度
     expect(el.style.width).to.equal("44px");
+    const shell = el.shadowRoot?.querySelector("#searchShell") as HTMLElement | null;
+    expect(shell?.style.width || shell?.getAttribute("style") || "").to.include("44px");
     expect(getComputedStyle(wrap).display).to.equal("none");
   });
 

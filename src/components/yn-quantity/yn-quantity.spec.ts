@@ -126,8 +126,8 @@ describe("yn-quantity", () => {
     const decrease = el.shadowRoot?.querySelector<HTMLButtonElement>(".btn-decrease");
     if (!increase || !decrease) throw new Error("missing stepper buttons");
 
-    expect(increase.querySelector(".spinner")).to.exist;
-    expect(decrease.querySelector(".spinner")).to.not.exist;
+    expect(increase.querySelector(".spinner")).to.not.equal(null);
+    expect(decrease.querySelector(".spinner")).to.equal(null);
     expect(increase.getAttribute("aria-busy")).to.equal("true");
     expect(increase.disabled).to.equal(false);
     expect(decrease.disabled).to.equal(false);

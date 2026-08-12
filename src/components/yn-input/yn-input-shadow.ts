@@ -14,7 +14,6 @@ export type YnInputShadowOptions = {
   error?: boolean;
   errorMessage?: string;
   autocomplete?: string;
-  inputId?: string;
 };
 
 /**

@@ -1,6 +1,6 @@
 import type { Locale, L10nText } from "../i18n/locale";
 import { lt } from "../i18n/locale";
-import type { ComponentDocPage, DocPage, GuideDocPage, UsageExample } from "../types";
+import type { ComponentDocPage, DocPage, GuideDocPage } from "../types";
 import { COMPONENT_PAGES } from "./component-pages";
 import { COMPONENT_I18N } from "./component-i18n";
 import { STORYBOOK_INTROS, STORYBOOK_SHOWCASES } from "./storybook-intros";

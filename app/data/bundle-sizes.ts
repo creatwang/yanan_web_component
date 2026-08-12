@@ -1,6 +1,6 @@
 import type { L10nText } from "../i18n/locale";
 
-/** 来自 `pnpm build` ESM 产物（v1.0.10，2026-08-03）。含分包时标注 total。 */
+/** 来自 `pnpm build` ESM 产物（v1.0.11，2026-08-12）。含分包时标注 total。 */
 export type BundleSizeRow = {
   id: string;
   importPath: string;
@@ -11,10 +11,10 @@ export type BundleSizeRow = {
 
 export const BUNDLE_SIZES: BundleSizeRow[] = [
   { id: "yn-navigation", importPath: "components/yn-navigation", sizeKb: 0.18, gzipKb: 0.15 },
-  { id: "yn-icon-button", importPath: "components/yn-icon-button", sizeKb: 0.18, gzipKb: 0.16 },
   { id: "yn-input", importPath: "components/yn-input", sizeKb: 0.2, gzipKb: 0.16 },
   { id: "yn-quantity", importPath: "components/yn-quantity", sizeKb: 0.21, gzipKb: 0.17 },
   { id: "yn-drawer", importPath: "components/yn-drawer", sizeKb: 0.27, gzipKb: 0.19 },
+  { id: "yn-icon-button", importPath: "components/yn-icon-button", sizeKb: 0.27, gzipKb: 0.19 },
   { id: "yn-search", importPath: "components/yn-search", sizeKb: 0.3, gzipKb: 0.2 },
   { id: "yn-dropdown-pick", importPath: "components/yn-dropdown-pick", sizeKb: 0.35, gzipKb: 0.23 },
   { id: "yn-group-pick", importPath: "components/yn-group-pick", sizeKb: 4.6, gzipKb: 1.92 },
@@ -42,9 +42,9 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 ];
 
 export const BUNDLE_META = {
-  builtAt: "2026-08-03",
-  fullIifeKb: 587.61,
-  fullIifeGzipKb: 158.55,
+  builtAt: "2026-08-12",
+  fullIifeKb: 588.58,
+  fullIifeGzipKb: 158.96,
   defineKb: 0.64,
   indexExportKb: 3.21
 } as const;
