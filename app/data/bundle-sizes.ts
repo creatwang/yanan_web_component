@@ -1,6 +1,6 @@
 import type { L10nText } from "../i18n/locale";
 
-/** 来自 `pnpm build` ESM 产物（v1.0.12，2026-08-13）。含分包时标注 total。 */
+/** 来自 `pnpm build` ESM 产物（v1.0.13，2026-08-13）。含分包时标注 total。 */
 export type BundleSizeRow = {
   id: string;
   importPath: string;
