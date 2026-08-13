@@ -27,6 +27,20 @@ describe("renderYnNavigationShadowHtml", () => {
   it("returns empty string when items is empty", () => {
     expect(renderYnNavigationShadowHtml({ items: [], activeLabel: "" })).to.equal("");
   });
+
+  it("ssr market hrefs without throwing", () => {
+    const html = renderYnNavigationShadowHtml({
+      items: [
+        { label: "Home", href: "/zh-cn-usd/" },
+        { label: "Collections", href: "/zh-cn-usd/collections" },
+      ],
+      activeLabel: "Home",
+      ariaLabel: "站点导航",
+      seoMode: true,
+    });
+    expect(html).toContain('href="/zh-cn-usd/"');
+    expect(html).toContain("Home");
+  });
 });
 
 describe("renderYnNavigationSeoFallbackHtml", () => {

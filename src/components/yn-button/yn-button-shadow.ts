@@ -34,11 +34,11 @@ export function renderYnButtonShadowHtml(options: YnButtonShadowOptions = {}): s
 
   return renderLitElementShadowHtml(html`
     <yn-button
-      variant=${variant}
-      size=${size}
-      ?disabled=${Boolean(options.disabled)}
-      ?loading=${Boolean(options.loading)}
-      ?hit-slop=${hitSlop}
+      .variant=${variant}
+      .size=${size}
+      .disabled=${Boolean(options.disabled)}
+      .loading=${Boolean(options.loading)}
+      .hitSlop=${hitSlop}
     ></yn-button>
   `);
 }

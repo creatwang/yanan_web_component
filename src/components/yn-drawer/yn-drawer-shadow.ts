@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
 import "./yn-drawer.js";
 
@@ -11,7 +11,7 @@ export type YnDrawerShadowOptions = {
  */
 export function renderYnDrawerShadowHtml(options: YnDrawerShadowOptions = {}): string {
   return renderLitElementShadowHtml(html`
-    <yn-drawer title=${options.title || nothing}></yn-drawer>
+    <yn-drawer .title=${options.title ?? ""}></yn-drawer>
   `);
 }
 

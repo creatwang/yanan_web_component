@@ -38,12 +38,13 @@ export function renderYnNavigationShadowHtml(options: YnNavigationShadowOptions)
 
   const itemsRecord = Object.fromEntries(items.map((item) => [item.label, item.href]));
 
+  // Lit SSR：用 property binding。attribute 会走 attributeToProperty，双份 lit 时动态 SSR 页会 500。
   return renderLitElementShadowHtml(html`
     <yn-navigation
       .items=${itemsRecord}
-      active=${activeLabel}
-      aria-label=${ariaLabel}
-      ?seo-mode=${seoMode}
+      .active=${activeLabel}
+      .ariaLabel=${ariaLabel}
+      .seoMode=${seoMode}
     ></yn-navigation>
   `);
 }

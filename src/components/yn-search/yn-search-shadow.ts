@@ -19,10 +19,10 @@ export function renderYnSearchShadowHtml(options: YnSearchShadowOptions = {}): s
 
   return renderLitElementShadowHtml(html`
     <yn-search
-      placeholder=${placeholder}
-      input-width=${inputWidth}
-      expand-direction=${expandDirection}
-      ?disabled=${Boolean(options.disabled)}
+      .placeholder=${placeholder}
+      .inputWidth=${inputWidth}
+      .expandDirection=${expandDirection}
+      .disabled=${Boolean(options.disabled)}
     ></yn-search>
   `);
 }

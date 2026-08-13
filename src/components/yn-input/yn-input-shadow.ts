@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
 import "./yn-input.js";
 
@@ -25,17 +25,17 @@ export function renderYnInputShadowHtml(options: YnInputShadowOptions = {}): str
 
   return renderLitElementShadowHtml(html`
     <yn-input
-      value=${options.value ?? ""}
-      placeholder=${options.placeholder ?? "请输入内容"}
-      variant=${variant}
-      label=${options.label || nothing}
-      type=${type}
-      name=${options.name || nothing}
-      autocomplete=${options.autocomplete || nothing}
-      error-message=${options.errorMessage || nothing}
-      ?disabled=${Boolean(options.disabled)}
-      ?required=${Boolean(options.required)}
-      ?error=${Boolean(options.error)}
+      .value=${options.value ?? ""}
+      .placeholder=${options.placeholder ?? "请输入内容"}
+      .variant=${variant}
+      .label=${options.label ?? ""}
+      .type=${type}
+      .name=${options.name ?? ""}
+      .autocomplete=${options.autocomplete ?? ""}
+      .errorMessage=${options.errorMessage ?? ""}
+      .disabled=${Boolean(options.disabled)}
+      .required=${Boolean(options.required)}
+      .error=${Boolean(options.error)}
     ></yn-input>
   `);
 }

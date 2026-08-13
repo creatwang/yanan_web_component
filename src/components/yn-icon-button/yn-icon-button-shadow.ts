@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
 import "./yn-icon-button.js";
 import type { YnIconButtonVariant } from "./yn-icon-button-variants.js";
@@ -26,14 +26,14 @@ export function renderYnIconButtonShadowHtml(options: YnIconButtonShadowOptions 
 
   return renderLitElementShadowHtml(html`
     <yn-icon-button
-      size=${size}
-      variant=${variant}
-      type=${type}
-      label=${label || nothing}
-      href=${options.href || nothing}
-      ?disabled=${Boolean(options.disabled)}
-      ?loading=${Boolean(options.loading)}
-      ?hit-slop=${hitSlop}
+      .size=${size}
+      .variant=${variant}
+      .type=${type}
+      .label=${label}
+      .href=${options.href ?? ""}
+      .disabled=${Boolean(options.disabled)}
+      .loading=${Boolean(options.loading)}
+      .hitSlop=${hitSlop}
     ></yn-icon-button>
   `);
 }

@@ -21,11 +21,11 @@ export function renderYnQuantityShadowHtml(options: YnQuantityShadowOptions = {}
 
   return renderLitElementShadowHtml(html`
     <yn-quantity
-      value=${value}
-      min=${min}
-      max=${max}
-      step=${step}
-      ?disabled=${Boolean(options.disabled)}
+      .value=${value}
+      .min=${min}
+      .max=${max}
+      .step=${step}
+      .disabled=${Boolean(options.disabled)}
     ></yn-quantity>
   `);
 }

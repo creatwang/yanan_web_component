@@ -1,6 +1,7 @@
 /**
  * 用 @lit-labs/ssr 渲染 LitElement，并抽出 Declarative Shadow Root 内部 HTML（含 lit-part 标记）。
  * 仅用于 Node / Astro SSR 路径，勿打进浏览器包。
+ * 自定义元素状态一律 `.prop=${}`，禁止 attribute / `?bool`（会走 attributeToProperty，双份 lit 时动态 SSR 500）。
  * @see https://lit.dev/docs/ssr/server-usage/
  */
 import "@lit-labs/ssr";

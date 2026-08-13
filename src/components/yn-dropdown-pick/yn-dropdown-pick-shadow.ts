@@ -1,4 +1,4 @@
-import { html, nothing } from "lit";
+import { html } from "lit";
 import { renderLitElementShadowHtml } from "../../lib/lit-ssr-shadow.js";
 import "./yn-dropdown-pick.js";
 
@@ -27,14 +27,14 @@ export function renderYnDropdownPickShadowHtml(options: YnDropdownPickShadowOpti
 
   return renderLitElementShadowHtml(html`
     <yn-dropdown-pick
-      value=${String(value)}
-      value-field=${valueField}
-      button-display-field=${buttonDisplayField}
-      placeholder=${placeholder}
-      panel-min-width=${panelMinWidth}
-      button-bg=${options.buttonBg || nothing}
-      button-color=${options.buttonColor || nothing}
-      ?disabled=${disabled}
+      .value=${String(value)}
+      .valueField=${valueField}
+      .buttonDisplayField=${buttonDisplayField}
+      .placeholder=${placeholder}
+      .panelMinWidth=${panelMinWidth}
+      .buttonBg=${options.buttonBg ?? ""}
+      .buttonColor=${options.buttonColor ?? ""}
+      .disabled=${disabled}
     ></yn-dropdown-pick>
   `);
 }
