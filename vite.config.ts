@@ -28,7 +28,18 @@ export default defineConfig({
       }
     },
     rollupOptions: {
-      external: ["lit", "gsap"],
+      // SSR 入口必须 external lit / @lit-labs/*，否则会打进 browser lit-html（顶层 `document`）
+      external: (id) =>
+        id === "gsap" ||
+        id.startsWith("gsap/") ||
+        id === "lit" ||
+        id.startsWith("lit/") ||
+        id === "lit-html" ||
+        id.startsWith("lit-html/") ||
+        id === "lit-element" ||
+        id.startsWith("lit-element/") ||
+        id.startsWith("@lit/") ||
+        id.startsWith("@lit-labs/"),
     },
   },
   test: {

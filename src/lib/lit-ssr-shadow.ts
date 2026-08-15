@@ -4,6 +4,7 @@
  * 自定义元素状态一律 `.prop=${}`，禁止 attribute / `?bool`（会走 attributeToProperty，双份 lit 时动态 SSR 500）。
  * @see https://lit.dev/docs/ssr/server-usage/
  */
+import "@lit-labs/ssr-dom-shim";
 import "@lit-labs/ssr";
 import { render } from "@lit-labs/ssr";
 import { collectResultSync } from "@lit-labs/ssr/lib/render-result.js";
