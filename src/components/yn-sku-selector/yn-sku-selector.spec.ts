@@ -198,4 +198,22 @@ describe("yn-sku-selector", () => {
         .length ?? 0;
     expect(firstSectionOptions).to.equal(1);
   });
+
+  it("keeps option border independent of selected text color by default", async () => {
+    const el = await fixture<YnSkuSelector>(html`
+      <yn-sku-selector pick-one .skus=${[{ size: "S", price: 10, id: "s" }, { size: "M", price: 12, id: "m" }]}></yn-sku-selector>
+    `);
+    await el.updateComplete;
+
+    const active = el.shadowRoot?.querySelector<HTMLElement>(".option.active");
+    const idle = [...(el.shadowRoot?.querySelectorAll<HTMLElement>(".option") ?? [])].find(
+      (node) => !node.classList.contains("active")
+    );
+    if (!active || !idle) throw new Error("option states not found");
+
+    const activeBorder = getComputedStyle(active).borderTopColor;
+    const idleBorder = getComputedStyle(idle).borderTopColor;
+    expect(activeBorder).to.equal(idleBorder);
+    expect(activeBorder).to.not.equal("rgb(255, 255, 255)");
+  });
 });

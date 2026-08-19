@@ -56,13 +56,11 @@ export const YN_SKU_SELECTOR_STYLES = `
   background: var(--yn-sku-selector-option-active-bg, #000);
   opacity: 0;
   pointer-events: none;
-  will-change: transform, width, height, opacity;
+  will-change: transform, width, opacity;
   transition:
     transform var(--yn-sku-selector-option-transition-duration, 0.22s)
       var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
     width var(--yn-sku-selector-option-transition-duration, 0.22s)
-      var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
-    height var(--yn-sku-selector-option-transition-duration, 0.22s)
       var(--yn-sku-selector-option-transition-ease, cubic-bezier(0.22, 1, 0.36, 1)),
     opacity 0.16s ease-out;
 }
@@ -81,7 +79,7 @@ export const YN_SKU_SELECTOR_STYLES = `
   padding: var(--yn-sku-selector-option-padding, 0 18px);
   margin: -1px 0 0 -1px;
   border: var(--yn-sku-selector-option-border-width, 1px) solid
-    var(--yn-sku-selector-option-border-color, currentColor);
+    var(--yn-sku-selector-option-border-color, var(--yn-sku-selector-color, #000));
   background: var(--yn-sku-selector-option-bg, #fff);
   color: var(--yn-sku-selector-option-color, currentColor);
   font-family: inherit;

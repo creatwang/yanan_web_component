@@ -603,7 +603,7 @@ const meta = {
       control: "color",
       name: "--yn-sku-selector-option-border-color",
       description: "规格按钮边框颜色。",
-      table: { category: "CSS Variables", defaultValue: { summary: "currentColor" } }
+      table: { category: "CSS Variables", defaultValue: { summary: "var(--yn-sku-selector-color, #000)" } }
     },
     optionActiveBg: {
       control: "color",
