@@ -3,6 +3,7 @@ import "./yn-sku-selector";
 import type { YnSkuSelector } from "./yn-sku-selector";
 import type { YnSkuCartButton } from "./yn-sku-cart-button";
 import type { YnSkuChangeDetail, YnSkuInitDetail, YnSkuSubmitEvent } from "./types";
+import { YN_SKU_SELECTOR_STYLES } from "./yn-sku-selector-styles.js";
 
 const demoSkus = [
   { weight: "1kg", color: "红色", size: "37", price: 65, id: "1" },
@@ -32,6 +33,16 @@ const readActiveIndicatorPair = (el: YnSkuSelector) => {
   const indicator = section?.querySelector<HTMLElement>(".option-indicator");
   if (!active || !indicator) throw new Error("active option or indicator not found");
   return { active, indicator };
+};
+
+/** happy-dom 常把 flex 按钮的 offset 算成 0，和 yn-search 一样桩布局再断言组件写出的尺寸 */
+const stubOptionLayout = (el: YnSkuSelector, box = { width: 80, height: 48, left: 0, top: 0 }) => {
+  el.shadowRoot?.querySelectorAll<HTMLElement>(".option").forEach((opt, index) => {
+    Object.defineProperty(opt, "offsetWidth", { configurable: true, get: () => box.width });
+    Object.defineProperty(opt, "offsetHeight", { configurable: true, get: () => box.height });
+    Object.defineProperty(opt, "offsetLeft", { configurable: true, get: () => box.left + index * box.width });
+    Object.defineProperty(opt, "offsetTop", { configurable: true, get: () => box.top });
+  });
 };
 
 const isCartLoading = (el: YnSkuSelector) => {
@@ -220,11 +231,12 @@ describe("yn-sku-selector", () => {
     const el = await fixture<YnSkuSelector>(html`
       <yn-sku-selector pick-one .skus=${[{ size: "S", price: 10, id: "s" }, { size: "M", price: 12, id: "m" }]}></yn-sku-selector>
     `);
+    stubOptionLayout(el);
     await flushIndicators(el);
 
-    const { active, indicator } = readActiveIndicatorPair(el);
-    expect(indicator.offsetHeight).to.equal(active.offsetHeight);
-    expect(indicator.offsetWidth).to.equal(active.offsetWidth);
+    const { indicator } = readActiveIndicatorPair(el);
+    expect(indicator.style.width).to.equal("80px");
+    expect(indicator.style.height).to.equal("48px");
   });
 
   it("keeps the selected indicator aligned under an ancestor CSS transform", async () => {
@@ -238,21 +250,17 @@ describe("yn-sku-selector", () => {
     `);
     const el = wrap.querySelector<YnSkuSelector>("yn-sku-selector");
     if (!el) throw new Error("yn-sku-selector not found");
+    stubOptionLayout(el);
     await flushIndicators(el);
 
-    const { active, indicator } = readActiveIndicatorPair(el);
-    expect(indicator.offsetHeight).to.equal(active.offsetHeight);
-    expect(indicator.offsetWidth).to.equal(active.offsetWidth);
-
-    const activeRect = active.getBoundingClientRect();
-    const indicatorRect = indicator.getBoundingClientRect();
-    expect(Math.abs(indicatorRect.height - activeRect.height)).to.be.at.most(1);
-    expect(Math.abs(indicatorRect.width - activeRect.width)).to.be.at.most(1);
+    const { indicator } = readActiveIndicatorPair(el);
+    expect(indicator.style.width).to.equal("80px");
+    expect(indicator.style.height).to.equal("48px");
   });
 
   it("keeps calculated indicator size stable under a GSAP-like translate animation", async () => {
     const wrap = await fixture<HTMLDivElement>(html`
-      <div style="transform: translate3d(0, 110%, 0);">
+      <div style="width: 360px;">
         <yn-sku-selector
           pick-one
           .skus=${[{ size: "S", price: 10, id: "s" }, { size: "M", price: 12, id: "m" }]}
@@ -261,31 +269,35 @@ describe("yn-sku-selector", () => {
     `);
     const el = wrap.querySelector<YnSkuSelector>("yn-sku-selector");
     if (!el) throw new Error("yn-sku-selector not found");
+    stubOptionLayout(el);
     await flushIndicators(el);
 
-    const { active, indicator } = readActiveIndicatorPair(el);
-    const heightWhileOffscreen = indicator.offsetHeight;
-    expect(heightWhileOffscreen).to.equal(active.offsetHeight);
-    expect(heightWhileOffscreen).to.be.greaterThan(0);
+    const before = readActiveIndicatorPair(el);
+    expect(before.indicator.style.height).to.equal("48px");
+    expect(before.indicator.style.width).to.equal("80px");
+
+    wrap.style.transform = "translate3d(0, 110%, 0)";
+    stubOptionLayout(el, { width: 0, height: 0, left: 0, top: 0 });
+    await flushIndicators(el);
+
+    const mid = readActiveIndicatorPair(el);
+    expect(mid.indicator.style.height).to.equal("48px");
+    expect(mid.indicator.style.width).to.equal("80px");
 
     wrap.style.transform = "translate3d(0, 0, 0)";
+    stubOptionLayout(el);
     await flushIndicators(el);
 
     const after = readActiveIndicatorPair(el);
-    expect(after.indicator.offsetHeight).to.equal(heightWhileOffscreen);
-    expect(after.indicator.offsetHeight).to.equal(after.active.offsetHeight);
+    expect(after.indicator.style.height).to.equal("48px");
+    expect(after.indicator.style.width).to.equal("80px");
   });
 
-  it("does not interpolate indicator height", async () => {
-    const el = await fixture<YnSkuSelector>(html`
-      <yn-sku-selector pick-one .skus=${[{ size: "S", price: 10, id: "s" }]}></yn-sku-selector>
-    `);
-    await flushIndicators(el);
-
-    const { indicator } = readActiveIndicatorPair(el);
-    const props = getComputedStyle(indicator).transitionProperty.split(",").map((item) => item.trim());
-    expect(props).to.not.include("height");
-    expect(props).to.include("width");
-    expect(props).to.include("transform");
+  it("does not interpolate indicator height", () => {
+    const block = YN_SKU_SELECTOR_STYLES.match(/\.option-indicator\s*\{[\s\S]*?\n\}/)?.[0] ?? "";
+    expect(block).to.include("transition:");
+    expect(block).to.match(/transition:[\s\S]*\btransform\b/);
+    expect(block).to.match(/transition:[\s\S]*\bwidth\b/);
+    expect(block).to.not.match(/transition:[\s\S]*\bheight\b/);
   });
 });

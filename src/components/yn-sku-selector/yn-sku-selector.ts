@@ -275,7 +275,8 @@ export class YnSkuSelector extends LitElement {
         }
         const box = readOptionLocalBox(active);
         if (!box) {
-          styles[depth] = HIDDEN_INDICATOR;
+          const prev = this.indicatorStyles[depth];
+          styles[depth] = prev?.includes("opacity:1") ? prev : HIDDEN_INDICATOR;
           return;
         }
         styles[depth] = [

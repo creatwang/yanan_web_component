@@ -1,6 +1,6 @@
 import type { L10nText } from "../i18n/locale";
 
-/** 来自 `pnpm build` ESM 产物（v1.0.15，2026-08-19）。含分包时标注 total。 */
+/** 来自 `pnpm build` ESM 产物（v1.0.16，2026-08-19）。含分包时标注 total。 */
 export type BundleSizeRow = {
   id: string;
   importPath: string;
@@ -23,10 +23,10 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
   { id: "yn-button", importPath: "components/yn-button", sizeKb: 14.25, gzipKb: 3.77 },
   { id: "yn-dropdown", importPath: "components/yn-dropdown", sizeKb: 16.65, gzipKb: 4.65 },
   { id: "yn-toast", importPath: "components/yn-toast", sizeKb: 23.17, gzipKb: 5.92 },
-  { id: "yn-sku-selector", importPath: "components/yn-sku-selector", sizeKb: 26.62, gzipKb: 6.75,
+  { id: "yn-sku-selector", importPath: "components/yn-sku-selector", sizeKb: 27.03, gzipKb: 6.84,
     note: {
-          "zh-CN": "首次注册约 0.44 kB；SKU 交互代码约 26.18 kB 会按需加载",
-          "en": "Initial registration ~0.44 kB; SKU interaction code ~26.18 kB loads on demand"
+          "zh-CN": "首次注册约 0.44 kB；SKU 交互代码约 26.59 kB 会按需加载",
+          "en": "Initial registration ~0.44 kB; SKU interaction code ~26.59 kB loads on demand"
     } },
   { id: "yn-cookie-notice", importPath: "components/yn-cookie-notice", sizeKb: 30.07, gzipKb: 8.57 },
   { id: "yn-pull-cord-switch", importPath: "components/yn-pull-cord-switch", sizeKb: 50.08, gzipKb: 12.47,
@@ -43,8 +43,8 @@ export const BUNDLE_SIZES: BundleSizeRow[] = [
 
 export const BUNDLE_META = {
   builtAt: "2026-08-19",
-  fullIifeKb: 588.43,
-  fullIifeGzipKb: 158.92,
+  fullIifeKb: 588.73,
+  fullIifeGzipKb: 159.03,
   defineKb: 0.64,
   indexExportKb: 3.21
 } as const;
