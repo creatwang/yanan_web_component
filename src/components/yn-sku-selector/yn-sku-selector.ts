@@ -64,6 +64,16 @@ const parseStringArrayFromAttribute = (raw: string | null): string[] => {
 
 const formatPrice = (price: number) => price.toFixed(2);
 
+const HIDDEN_INDICATOR = "opacity:0;transform:scale(0.98);";
+
+/** Layout box of an option relative to `.options`, ignoring ancestor visual transforms. */
+const readOptionLocalBox = (active: HTMLElement) => {
+  const width = active.offsetWidth;
+  const height = active.offsetHeight;
+  if (!width || !height) return null;
+  return { x: active.offsetLeft, y: active.offsetTop, width, height };
+};
+
 /**
  * SKU 规格选择器：支持多维规格联动、加购校验与 simple 快速加购模式。
  *
@@ -183,6 +193,7 @@ export class YnSkuSelector extends LitElement {
   @state() private indicatorStyles: Record<number, string> = {};
 
   private indicatorObserver?: ResizeObserver;
+  private indicatorFrame = 0;
   private hasAppliedPickOne = false;
   private hasEmittedInit = false;
   private pendingPickOneInit = false;
@@ -198,6 +209,8 @@ export class YnSkuSelector extends LitElement {
   }
 
   disconnectedCallback() {
+    cancelAnimationFrame(this.indicatorFrame);
+    this.indicatorFrame = 0;
     this.indicatorObserver?.disconnect();
     super.disconnectedCallback();
   }
@@ -247,23 +260,28 @@ export class YnSkuSelector extends LitElement {
   }
 
   private syncIndicators() {
-    requestAnimationFrame(() => {
+    cancelAnimationFrame(this.indicatorFrame);
+    this.indicatorFrame = requestAnimationFrame(() => {
+      this.indicatorFrame = 0;
       const styles: Record<number, string> = {};
       this.shadowRoot?.querySelectorAll<HTMLElement>(".section[data-depth]").forEach((section) => {
         const depth = Number(section.dataset.depth);
         if (Number.isNaN(depth)) return;
-        const options = section.querySelector(".options");
+        const options = section.querySelector<HTMLElement>(".options");
         const active = section.querySelector<HTMLElement>(".option.active:not(.unavailable)");
         if (!options || !active) {
-          styles[depth] = "opacity:0;transform:scale(0.98);";
+          styles[depth] = HIDDEN_INDICATOR;
           return;
         }
-        const oRect = options.getBoundingClientRect();
-        const aRect = active.getBoundingClientRect();
+        const box = readOptionLocalBox(active);
+        if (!box) {
+          styles[depth] = HIDDEN_INDICATOR;
+          return;
+        }
         styles[depth] = [
-          `transform:translate3d(${aRect.left - oRect.left}px,${aRect.top - oRect.top}px,0) scale(1)`,
-          `width:${aRect.width}px`,
-          `height:${aRect.height}px`,
+          `transform:translate3d(${box.x}px,${box.y}px,0) scale(1)`,
+          `width:${box.width}px`,
+          `height:${box.height}px`,
           "opacity:1"
         ].join(";");
       });
